@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getAllTools, getAllCategories, getToolsByCategory, ToolCategory } from '../tools';
+import { getAllCategories, getToolsByCategory, ToolCategory } from '../tools';
 
 const Home: React.FC = () => {
   const categories = getAllCategories();

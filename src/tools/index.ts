@@ -8,7 +8,7 @@ export interface Tool {
   route: string;
   title: string;
   description: string;
-  component: React.LazyExoticComponent<() => JSX.Element>;
+  component: React.LazyExoticComponent<React.ComponentType<any>>;
   category: ToolCategory;
   metadata: {
     keywords: string[];
