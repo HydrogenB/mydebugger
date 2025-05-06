@@ -90,7 +90,13 @@ export default async function handler(req, res) {
   ipRequestCounts.set(ip, ipData);
   
   // Get request parameters
-  const { url, maxHops = 20 } = req.body;
+  const { 
+    url, 
+    maxHops = 20, 
+    iosAppId = '', 
+    androidPackage = '',
+    deepLinkScheme = ''
+  } = req.body;
   
   if (!url) {
     return res.status(400).json({ error: 'URL parameter is required' });
@@ -113,8 +119,11 @@ export default async function handler(req, res) {
     // Start time for entire operation
     const startTime = process.hrtime();
     
+    // Create device scenarios with app parameters
+    const deviceScenarios = createDeviceScenarios(iosAppId, androidPackage, deepLinkScheme);
+    
     // Run all device scenarios in parallel
-    const scenarios = Object.entries(DEVICE_SCENARIOS);
+    const scenarios = Object.entries(deviceScenarios);
     const results = await Promise.all(
       scenarios.map(([id, scenario]) => 
         traceDeviceScenario(startUrl.href, id, scenario, maxHops)
@@ -292,4 +301,31 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
     warnings,
     isValidOutcome
   };
+}
+
+/**
+ * Creates device scenarios with appropriate parameters based on provided app details
+ */
+function createDeviceScenarios(iosAppId, androidPackage, deepLinkScheme) {
+  // Create a copy of the base scenarios
+  const customScenarios = { ...DEVICE_SCENARIOS };
+  
+  // Use the provided app scheme if available
+  const appScheme = deepLinkScheme || 'trueapp://';
+  
+  // Update iOS expected pattern if iOS App ID provided
+  if (iosAppId) {
+    customScenarios.ios_noapp.expectedPattern = new RegExp(`^https:\/\/apps\.apple\.com\/.*${iosAppId}`);
+  }
+  
+  // Update Android expected pattern if Android package name provided
+  if (androidPackage) {
+    customScenarios.and_noapp.expectedPattern = new RegExp(`^https:\/\/play\.google\.com\/.*${androidPackage}`);
+  }
+  
+  // Update deep link scheme for app installed scenarios
+  customScenarios.ios_app.expectedPattern = new RegExp(`^${appScheme}`);
+  customScenarios.and_app.expectedPattern = new RegExp(`(^intent:\/\/)|(^${appScheme})`);
+  
+  return customScenarios;
 }

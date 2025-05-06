@@ -125,7 +125,10 @@ const DeviceTrace: React.FC = () => {
         },
         body: JSON.stringify({
           url,
-          maxHops: 20
+          maxHops: 20,
+          iosAppId, // Include iOS App ID if provided
+          androidPackage, // Include Android Package name if provided
+          deepLinkScheme // Include deep link scheme if provided
         }),
       });
       
@@ -150,8 +153,8 @@ const DeviceTrace: React.FC = () => {
       const filtered = prev.filter(link => link !== newUrl);
       // Add new URL at the beginning
       const updated = [newUrl, ...filtered];
-      // Keep only the last 3
-      return updated.slice(0, 3);
+      // Keep only the last 10 (increased from 3)
+      return updated.slice(0, 10);
     });
   };
   
