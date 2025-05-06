@@ -59,7 +59,8 @@ import {
   RegexIcon,
   DnsIcon,
   QrCodeIcon,
-  ClickJackingIcon
+  ClickJackingIcon,
+  LinkTracerIcon
 } from './components/icons';
 
 // Category definitions with icons for consistent UI
@@ -208,6 +209,24 @@ const toolRegistry: Tool[] = [
       keywords: ['clickjacking', 'security', 'x-frame-options', 'csp', 'iframe', 'vulnerability', 'content-security-policy', 'frame-ancestors'],
       learnMoreUrl: 'https://owasp.org/www-community/attacks/Clickjacking',
       relatedTools: ['headers-analyzer'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
+  {
+    id: 'link-tracer',
+    route: '/link-tracer',
+    title: 'Link Tracer',
+    description: 'Trace the complete redirect path of any URL, showing each hop, status code and latency.',
+    icon: LinkTracerIcon,
+    component: lazy(() => import('./linktracer/LinkTracer')),
+    category: 'Testing',
+    isNew: true,
+    metadata: {
+      keywords: ['redirect', 'trace', 'url', 'link', 'shortened url', 'redirect chain', 'http status', 'redirect checker'],
+      learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections',
+      relatedTools: ['headers-analyzer', 'url-encoder'],
     },
     uiOptions: {
       showExamples: false
