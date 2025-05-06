@@ -71,10 +71,10 @@ const ClickJackingValidator: React.FC = () => {
     }
 
     try {
-      // Use our server-side API endpoint instead of direct requests
-      const apiEndpoint = `/api/clickjacking-analysis?url=${encodeURIComponent(formattedUrl)}`;
+      // Use our serverless API endpoint to check for clickjacking protections
+      const apiUrl = `/api/clickjacking-analysis?url=${encodeURIComponent(formattedUrl)}`;
       
-      // Prepare the result object
+      // Initialize result object
       const result: ValidationResult = {
         url: formattedUrl,
         headers: {},
@@ -83,55 +83,51 @@ const ClickJackingValidator: React.FC = () => {
         timestamp: new Date()
       };
       
-      try {
-        // Fetch analysis from our serverless function
-        const response = await fetch(apiEndpoint);
-        
-        if (!response.ok) {
-          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-        }
-        
-        const analysis = await response.json();
-        
-        result.statusCode = analysis.status;
-        result.statusText = analysis.statusText;
-        
-        // Update headers based on the API response
-        if (analysis.headers['x-frame-options']) {
-          result.headers['x-frame-options'] = analysis.headers['x-frame-options'];
-        }
-        
-        if (analysis.headers['content-security-policy']) {
-          result.headers['content-security-policy'] = analysis.headers['content-security-policy'];
-          
-          // Extract frame-ancestors if available in the CSP
-          if (analysis.clickjackingProtection?.frameAncestorsValue) {
-            result.headers['frame-ancestors'] = analysis.clickjackingProtection.frameAncestorsValue;
-          }
-        }
-        
-        // Update clickjacking protection status
-        result.canBeFramed = !analysis.clickjackingProtection.protected;
-        
-        if (!result.canBeFramed) {
-          if (analysis.clickjackingProtection.hasXFrameOptions) {
-            result.message = `X-Frame-Options header is set to ${analysis.headers['x-frame-options']}`;
-          } else if (analysis.clickjackingProtection.hasCSPProtection) {
-            result.message = `Content-Security-Policy header restricts framing with: ${analysis.clickjackingProtection.frameAncestorsValue}`;
-          }
-        } else if (analysis.recommendations && analysis.recommendations.length > 0) {
-          result.message = `Recommendations: ${analysis.recommendations.join('; ')}`;
-        }
-        
-      } catch (apiError) {
-        console.error('Error with API request:', apiError);
-        result.message = 'Error analyzing headers. Please try again.';
+      // Call the API to get proper server-side header analysis
+      const response = await fetch(apiUrl);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Server returned ${response.status}`);
       }
       
-      // Set the results
-      setResults(result);
+      const analysis = await response.json();
       
-      // We'll update the frameLoaded status in the iframe's onLoad event
+      // Update the result with the server's analysis
+      result.statusCode = analysis.status;
+      result.statusText = analysis.statusText;
+      
+      // Extract security headers from analysis
+      if (analysis.headers['x-frame-options']) {
+        result.headers['x-frame-options'] = analysis.headers['x-frame-options'];
+      }
+      
+      if (analysis.headers['content-security-policy']) {
+        result.headers['content-security-policy'] = analysis.headers['content-security-policy'];
+      }
+      
+      // Extract frame-ancestors directive if available
+      if (analysis.clickjackingProtection && analysis.clickjackingProtection.frameAncestorsValue) {
+        result.headers['frame-ancestors'] = analysis.clickjackingProtection.frameAncestorsValue;
+      }
+      
+      // Update protection status based on the server-side analysis
+      result.canBeFramed = !analysis.clickjackingProtection.protected;
+      
+      // Update message with details about the protection mechanism
+      if (!result.canBeFramed) {
+        if (analysis.clickjackingProtection.hasXFrameOptions) {
+          result.message = `X-Frame-Options header is set to ${analysis.headers['x-frame-options']}`;
+        } else if (analysis.clickjackingProtection.hasCSPProtection) {
+          result.message = `Content-Security-Policy header restricts framing with: ${analysis.clickjackingProtection.frameAncestorsValue}`;
+        } else {
+          result.message = 'Site is protected against clickjacking';
+        }
+      } else if (analysis.recommendations && analysis.recommendations.length) {
+        result.message = `Recommendations: ${analysis.recommendations.join('; ')}`;
+      }
+      
+      setResults(result);
     } catch (error) {
       setError(`Error validating website: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -154,13 +150,12 @@ const ClickJackingValidator: React.FC = () => {
   const handleIframeError = () => {
     setIframeError(true);
     if (results) {
-      // If the iframe fails to load, it's often because of X-Frame-Options or CSP
-      // This should actually be considered as protection against click jacking
+      // If the iframe fails to load, it indicates clickjacking protection
       setResults({
         ...results,
         frameLoaded: false,
         canBeFramed: false, // Update to show as protected when iframe fails to load
-        message: 'Website refused to load in iframe. This indicates click jacking protection is in place.'
+        message: results.message || 'Website refused to load in iframe. This indicates clickjacking protection is in place.'
       });
     }
   };
