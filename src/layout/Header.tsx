@@ -25,16 +25,19 @@ const Header: React.FC = () => {
           </Link>
           
           <div className="hidden md:flex md:items-center space-x-6">
-            {allCategories.map((category) => (
-              <Link 
-                key={category}
-                to={`/category/${category.toLowerCase()}`}
-                className="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
-              >
-                <categories[category].icon className="w-4 h-4" />
-                <span>{category}</span>
-              </Link>
-            ))}
+            {allCategories.map((category) => {
+              const CategoryIcon = categories[category].icon;
+              return (
+                <Link 
+                  key={category}
+                  to={`/category/${category.toLowerCase()}`}
+                  className="flex items-center space-x-1 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition"
+                >
+                  <CategoryIcon className="w-4 h-4" />
+                  <span>{category}</span>
+                </Link>
+              );
+            })}
             <ThemeToggle />
           </div>
           
@@ -62,17 +65,20 @@ const Header: React.FC = () => {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
             <div className="flex flex-col space-y-3">
-              {allCategories.map((category) => (
-                <Link 
-                  key={category}
-                  to={`/category/${category.toLowerCase()}`}
-                  className="flex items-center space-x-2 px-2 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <categories[category].icon className="w-5 h-5" />
-                  <span>{category}</span>
-                </Link>
-              ))}
+              {allCategories.map((category) => {
+                const CategoryIcon = categories[category].icon;
+                return (
+                  <Link 
+                    key={category}
+                    to={`/category/${category.toLowerCase()}`}
+                    className="flex items-center space-x-2 px-2 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <CategoryIcon className="w-5 h-5" />
+                    <span>{category}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}

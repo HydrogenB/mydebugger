@@ -97,15 +97,18 @@ const Home: React.FC = () => {
         
         <div className="h-6 border-r border-gray-300 mx-2"></div>
         
-        {allCategories.map((category) => (
-          <FilterTab 
-            key={category} 
-            label={category} 
-            isActive={activeFilter === category} 
-            onClick={() => setActiveFilter(category)} 
-            icon={<categories[category].icon className="h-4 w-4 mr-1.5" />}
-          />
-        ))}
+        {allCategories.map((category) => {
+          const CategoryIcon = categories[category].icon;
+          return (
+            <FilterTab 
+              key={category} 
+              label={category} 
+              isActive={activeFilter === category} 
+              onClick={() => setActiveFilter(category)} 
+              icon={<CategoryIcon className="h-4 w-4 mr-1.5" />}
+            />
+          );
+        })}
       </div>
       
       {/* Tools Grid */}
