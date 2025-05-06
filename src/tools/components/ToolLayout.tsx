@@ -22,10 +22,10 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
   showDescription = true,
   showRelatedTools = true
 }) => {
-  const { title, description, category, metadata, id } = tool;
+  const { title, description, metadata, id } = tool;
   const pageTitle = `${title} | MyDebugger`;
   const pageDescription = description;
-  const { isDarkMode } = useTheme();
+  const { } = useTheme();
 
   return (
     <>

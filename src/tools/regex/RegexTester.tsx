@@ -4,7 +4,6 @@ import { getToolByRoute } from '../index';
 import ToolLayout from '../components/ToolLayout';
 import Card from '../components/Card';
 import Button from '../components/Button';
-import InputOutput from '../components/InputOutput';
 
 interface RegexMatch {
   index: number;

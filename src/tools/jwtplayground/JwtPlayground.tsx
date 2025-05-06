@@ -2,11 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 
 // Interfaces
-interface JwtParts {
-  header: any;
-  payload: any;
-  signature: string;
-}
 
 // Algorithm options
 const algorithmOptions = [

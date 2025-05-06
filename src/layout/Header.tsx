@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 
 const Header: React.FC = () => {
   const allCategories = getAllCategories();
-  const { isDarkMode } = useTheme();
+  const { /* isDarkMode removed */ } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const toggleMobileMenu = () => {
