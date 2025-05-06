@@ -71,83 +71,61 @@ const ClickJackingValidator: React.FC = () => {
     }
 
     try {
-      // Create a proxy request to check headers (to avoid CORS issues)
-      const proxyUrl = `https://cors-anywhere.herokuapp.com/${formattedUrl}`;
+      // Use our server-side API endpoint instead of direct requests
+      const apiEndpoint = `/api/clickjacking-analysis?url=${encodeURIComponent(formattedUrl)}`;
       
       // Prepare the result object
       const result: ValidationResult = {
         url: formattedUrl,
         headers: {},
-        canBeFramed: true, // Default to true, will be updated based on headers
+        canBeFramed: true, // Default to true, will be updated based on API response
         frameLoaded: false,
         timestamp: new Date()
       };
       
       try {
-        // Fetch headers
-        const response = await fetch(proxyUrl, {
-          method: 'HEAD',
-          headers: {
-            'Origin': window.location.origin
-          }
-        });
+        // Fetch analysis from our serverless function
+        const response = await fetch(apiEndpoint);
         
-        result.statusCode = response.status;
-        result.statusText = response.statusText;
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
         
-        // Check for X-Frame-Options header (case-insensitive)
-        const xFrameOptions = response.headers.get('x-frame-options');
-        if (xFrameOptions) {
-          const xfoValue = xFrameOptions.toLowerCase();
-          result.headers['x-frame-options'] = xfoValue;
+        const analysis = await response.json();
+        
+        result.statusCode = analysis.status;
+        result.statusText = analysis.statusText;
+        
+        // Update headers based on the API response
+        if (analysis.headers['x-frame-options']) {
+          result.headers['x-frame-options'] = analysis.headers['x-frame-options'];
+        }
+        
+        if (analysis.headers['content-security-policy']) {
+          result.headers['content-security-policy'] = analysis.headers['content-security-policy'];
           
-          // Check if X-Frame-Options prevents framing (case-insensitive check)
-          if (xfoValue.includes('deny') || xfoValue.includes('sameorigin')) {
-            result.canBeFramed = false;
-            result.message = `X-Frame-Options header is set to ${xFrameOptions}`;
+          // Extract frame-ancestors if available in the CSP
+          if (analysis.clickjackingProtection?.frameAncestorsValue) {
+            result.headers['frame-ancestors'] = analysis.clickjackingProtection.frameAncestorsValue;
           }
         }
         
-        // Check for Content-Security-Policy header
-        const csp = response.headers.get('content-security-policy');
-        if (csp) {
-          result.headers['content-security-policy'] = csp;
-          
-          // Extract frame-ancestors directive with improved regex to handle various formats
-          const frameAncestorsMatch = csp.match(/frame-ancestors\s+([^;]+)/i);
-          if (frameAncestorsMatch) {
-            const frameAncestors = frameAncestorsMatch[1].trim();
-            result.headers['frame-ancestors'] = frameAncestors;
-            
-            // More robust check for CSP frame-ancestors
-            if (
-              frameAncestors.includes("'none'") || 
-              (frameAncestors.includes("'self'") && !frameAncestors.includes('*')) ||
-              !frameAncestors.includes('*')
-            ) {
-              result.canBeFramed = false;
-              result.message = `Content-Security-Policy header restricts framing with: ${frameAncestors}`;
-            }
+        // Update clickjacking protection status
+        result.canBeFramed = !analysis.clickjackingProtection.protected;
+        
+        if (!result.canBeFramed) {
+          if (analysis.clickjackingProtection.hasXFrameOptions) {
+            result.message = `X-Frame-Options header is set to ${analysis.headers['x-frame-options']}`;
+          } else if (analysis.clickjackingProtection.hasCSPProtection) {
+            result.message = `Content-Security-Policy header restricts framing with: ${analysis.clickjackingProtection.frameAncestorsValue}`;
           }
+        } else if (analysis.recommendations && analysis.recommendations.length > 0) {
+          result.message = `Recommendations: ${analysis.recommendations.join('; ')}`;
         }
-
-        // Also check for a common alternative header format
-        const cspReportOnly = response.headers.get('content-security-policy-report-only');
-        if (cspReportOnly && cspReportOnly.includes('frame-ancestors')) {
-          if (!result.headers['content-security-policy']) {
-            result.headers['content-security-policy'] = cspReportOnly + ' (report-only)';
-          }
-          
-          const frameAncestorsMatch = cspReportOnly.match(/frame-ancestors\s+([^;]+)/i);
-          if (frameAncestorsMatch) {
-            const frameAncestors = frameAncestorsMatch[1].trim();
-            result.headers['frame-ancestors'] = frameAncestors + ' (report-only)';
-            // Note: We don't set canBeFramed=false for report-only headers
-          }
-        }
-      } catch (headersError) {
-        console.error('Error fetching headers:', headersError);
-        result.message = 'Could not fetch headers. CORS policy might be preventing the check.';
+        
+      } catch (apiError) {
+        console.error('Error with API request:', apiError);
+        result.message = 'Error analyzing headers. Please try again.';
       }
       
       // Set the results
