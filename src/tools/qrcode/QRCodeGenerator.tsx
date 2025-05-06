@@ -228,8 +228,7 @@ const QRCodeGenerator: React.FC = () => {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mydebugger.vercel.app/qrcode" />
         <meta name="twitter:card" content="summary" />
-                    onChange={(e) => setErrorCorrection(e.target.value)}
-                  >"twitter:description" content={pageDescription} />
+        <meta name="twitter:description" content={pageDescription} />
         <link rel="canonical" href="https://mydebugger.vercel.app/qrcode" />
       </Helmet>
       
