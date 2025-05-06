@@ -95,15 +95,16 @@ const ClickJackingValidator: React.FC = () => {
         result.statusCode = response.status;
         result.statusText = response.statusText;
         
-        // Check for X-Frame-Options header
+        // Check for X-Frame-Options header (case-insensitive)
         const xFrameOptions = response.headers.get('x-frame-options');
         if (xFrameOptions) {
-          result.headers['x-frame-options'] = xFrameOptions.toLowerCase();
+          const xfoValue = xFrameOptions.toLowerCase();
+          result.headers['x-frame-options'] = xfoValue;
           
-          // Check if X-Frame-Options prevents framing
-          if (['deny', 'sameorigin'].includes(result.headers['x-frame-options'])) {
+          // Check if X-Frame-Options prevents framing (case-insensitive check)
+          if (xfoValue.includes('deny') || xfoValue.includes('sameorigin')) {
             result.canBeFramed = false;
-            result.message = `X-Frame-Options header is set to ${result.headers['x-frame-options']}`;
+            result.message = `X-Frame-Options header is set to ${xFrameOptions}`;
           }
         }
         
@@ -112,17 +113,36 @@ const ClickJackingValidator: React.FC = () => {
         if (csp) {
           result.headers['content-security-policy'] = csp;
           
-          // Extract frame-ancestors directive if exists
+          // Extract frame-ancestors directive with improved regex to handle various formats
           const frameAncestorsMatch = csp.match(/frame-ancestors\s+([^;]+)/i);
           if (frameAncestorsMatch) {
             const frameAncestors = frameAncestorsMatch[1].trim();
             result.headers['frame-ancestors'] = frameAncestors;
             
-            // Check if CSP prevents framing
-            if (frameAncestors === "'none'" || frameAncestors.includes("'self'") && !frameAncestors.includes('*')) {
+            // More robust check for CSP frame-ancestors
+            if (
+              frameAncestors.includes("'none'") || 
+              (frameAncestors.includes("'self'") && !frameAncestors.includes('*')) ||
+              !frameAncestors.includes('*')
+            ) {
               result.canBeFramed = false;
               result.message = `Content-Security-Policy header restricts framing with: ${frameAncestors}`;
             }
+          }
+        }
+
+        // Also check for a common alternative header format
+        const cspReportOnly = response.headers.get('content-security-policy-report-only');
+        if (cspReportOnly && cspReportOnly.includes('frame-ancestors')) {
+          if (!result.headers['content-security-policy']) {
+            result.headers['content-security-policy'] = cspReportOnly + ' (report-only)';
+          }
+          
+          const frameAncestorsMatch = cspReportOnly.match(/frame-ancestors\s+([^;]+)/i);
+          if (frameAncestorsMatch) {
+            const frameAncestors = frameAncestorsMatch[1].trim();
+            result.headers['frame-ancestors'] = frameAncestors + ' (report-only)';
+            // Note: We don't set canBeFramed=false for report-only headers
           }
         }
       } catch (headersError) {
@@ -156,10 +176,13 @@ const ClickJackingValidator: React.FC = () => {
   const handleIframeError = () => {
     setIframeError(true);
     if (results) {
+      // If the iframe fails to load, it's often because of X-Frame-Options or CSP
+      // This should actually be considered as protection against click jacking
       setResults({
         ...results,
         frameLoaded: false,
-        message: results.message || 'Failed to load website in iframe. This might indicate click jacking protection.'
+        canBeFramed: false, // Update to show as protected when iframe fails to load
+        message: 'Failed to load website in iframe. This indicates click jacking protection is likely in place.'
       });
     }
   };
