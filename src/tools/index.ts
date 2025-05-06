@@ -74,6 +74,17 @@ const toolRegistry: Tool[] = [
       learnMoreUrl: 'https://www.cloudflare.com/learning/dns/what-is-dns/',
     },
   },
+  {
+    route: '/qrcode',
+    title: 'QR Code Generator',
+    description: 'Generate, customize, and download QR codes for any URL or text.',
+    component: lazy(() => import('./qrcode/QRCodeGenerator')),
+    category: 'Utilities',
+    metadata: {
+      keywords: ['qr code', 'qrcode', 'generator', 'scanner', 'mobile'],
+      learnMoreUrl: 'https://en.wikipedia.org/wiki/QR_code',
+    },
+  },
 ];
 
 export default toolRegistry;
