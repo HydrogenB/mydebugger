@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import ToolLayout from '../components/ToolLayout';
@@ -37,6 +37,8 @@ const LinkTracer: React.FC = () => {
   const [selectedUserAgent, setSelectedUserAgent] = useState<string>('default');
   const [customUserAgent, setCustomUserAgent] = useState<string>('');
   const [maxHops, setMaxHops] = useState<number>(20);
+  const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  const feedbackTimeoutRef = useRef<number | null>(null);
 
   // User agent presets
   const userAgentOptions: UserAgentOption[] = [
@@ -137,7 +139,9 @@ const LinkTracer: React.FC = () => {
   const handleCopyJSON = () => {
     if (!traceResults) return;
     navigator.clipboard.writeText(JSON.stringify(traceResults, null, 2));
-    alert('JSON copied to clipboard!');
+    
+    // Show feedback
+    showFeedback('JSON copied to clipboard!');
   };
 
   const handleExportCSV = () => {
@@ -159,9 +163,35 @@ const LinkTracer: React.FC = () => {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    
+    // Show feedback
+    showFeedback('CSV file downloaded!');
   };
 
-  // Get status code class (for styling)
+  // Helper to show temporary feedback message
+  const showFeedback = (message: string) => {
+    setExportFeedback(message);
+    
+    // Clear any existing timeout
+    if (feedbackTimeoutRef.current) {
+      window.clearTimeout(feedbackTimeoutRef.current);
+    }
+    
+    // Set new timeout to clear message
+    feedbackTimeoutRef.current = window.setTimeout(() => {
+      setExportFeedback(null);
+    }, 3000);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (feedbackTimeoutRef.current) {
+        window.clearTimeout(feedbackTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const getStatusClass = (status: number): string => {
     if (status >= 200 && status < 300) {
       return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
@@ -409,29 +439,57 @@ const LinkTracer: React.FC = () => {
                 </div>
 
                 {/* Export Options */}
-                <div className="flex justify-end space-x-3">
-                  <Button
-                    onClick={handleCopyJSON}
-                    variant="light"
-                    size="sm"
-                  >
-                    Copy as JSON
-                  </Button>
-                  <Button
-                    onClick={handleExportCSV}
-                    variant="light"
-                    size="sm"
-                  >
-                    Export CSV
-                  </Button>
-                  <Button
-                    onClick={() => window.open(traceResults.hops[traceResults.hops.length - 1].url, '_blank')}
-                    variant="primary"
-                    size="sm"
-                  >
-                    Open Final URL
-                  </Button>
+                <div className="flex flex-wrap justify-between items-center mt-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-md border border-gray-200 dark:border-gray-700">
+                  <div>
+                    <h3 className="font-medium text-gray-900 dark:text-white">Export Results</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Download or copy trace data in different formats</p>
+                  </div>
+                  <div className="flex space-x-2 mt-3 sm:mt-0">
+                    <Button
+                      onClick={handleCopyJSON}
+                      variant="light"
+                      size="sm"
+                      className="flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5H6C4.89543 5 4 5.89543 4 7V19C4 20.1046 4.89543 21 6 21H16C17.1046 21 18 20.1046 18 19V18M8 5C8 3.89543 8.89543 3 10 3H14C15.1046 3 16 3.89543 16 5V7M8 5V7H16V5M16 10H20M18 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      JSON
+                    </Button>
+                    <Button
+                      onClick={handleExportCSV}
+                      variant="light"
+                      size="sm"
+                      className="flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 10V16M12 16L9 13M12 16L15 13M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H14L19 8V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      CSV
+                    </Button>
+                    <Button
+                      onClick={() => window.open(traceResults.hops[traceResults.hops.length - 1].url, '_blank')}
+                      variant="primary"
+                      size="sm"
+                      className="flex items-center"
+                    >
+                      <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 6H6C4.89543 6 4 6.89543 4 8V18C4 19.1046 4.89543 20 6 20H16C17.1046 20 18 19.1046 18 18V14M14 4H20M20 4V10M20 4L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Open URL
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Export Feedback */}
+                {exportFeedback && (
+                  <div className="mt-2 flex items-center justify-center p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md text-green-700 dark:text-green-400 text-sm">
+                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    {exportFeedback}
+                  </div>
+                )}
               </div>
             )}
           </div>
