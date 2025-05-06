@@ -182,7 +182,7 @@ const ClickJackingValidator: React.FC = () => {
         ...results,
         frameLoaded: false,
         canBeFramed: false, // Update to show as protected when iframe fails to load
-        message: 'Failed to load website in iframe. This indicates click jacking protection is likely in place.'
+        message: 'Website refused to load in iframe. This indicates click jacking protection is in place.'
       });
     }
   };
