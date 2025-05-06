@@ -1,4 +1,4 @@
-import React, { ReactNode, forwardRef } from 'react';
+import React, { ReactNode, forwardRef, ComponentType } from 'react';
 import Button, { ButtonProps, ButtonRadius, ButtonSize, ButtonVariant } from './Button';
 
 export interface ButtonGroupProps {
@@ -77,10 +77,8 @@ const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
           child.type === Button ||
           (typeof child.type === 'object' && 
            child.type !== null &&
-           child.type !== undefined &&
-           'displayName' in child.type &&
-           typeof child.type.displayName === 'string' &&
-           child.type.displayName === 'Button');
+           'displayName' in (child.type as ComponentType<any>) &&
+           (child.type as any).displayName === 'Button');
         
         if (!isButtonComponent) {
           return child;
