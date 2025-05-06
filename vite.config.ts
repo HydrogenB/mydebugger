@@ -8,7 +8,7 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    minify: 'terser',
+    minify: 'esbuild', // Changed from 'terser' to 'esbuild', which is included with Vite
     sourcemap: false,
     rollupOptions: {
       output: {
