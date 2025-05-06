@@ -5,6 +5,21 @@ import { Helmet } from 'react-helmet';
 import QRCode from 'qrcode';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+// Interface definitions for saved QR codes
+interface SavedQRCode {
+  id: string;
+  url: string;
+  nickname: string;
+  createdAt: number;
+  qrCodeUrl: string;
+  settings: {
+    size: number;
+    errorCorrection: string;
+    darkColor: string;
+    lightColor: string;
+  };
+}
+
 const DeepLinkQRGenerator: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,10 +38,19 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [showCosmeticOptions, setShowCosmeticOptions] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   
+  // Collection related state
+  const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
+  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+  const [nickname, setNickname] = useState<string>('');
+  
+  // Large QR code modal state
+  const [showLargeQRModal, setShowLargeQRModal] = useState<boolean>(false);
+  
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeoutRef = useRef<number | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   
-  // Check if device is mobile
+  // Check if device is mobile and load saved QR codes
   useEffect(() => {
     const checkMobile = () => {
       const userAgent = navigator.userAgent || navigator.vendor;
@@ -50,7 +74,28 @@ const DeepLinkQRGenerator: React.FC = () => {
         console.error("Error loading saved options:", error);
       }
     }
-  }, []);
+    
+    // Load saved QR codes from localStorage
+    const savedCodes = localStorage.getItem('savedQRCodes');
+    if (savedCodes) {
+      try {
+        setSavedQRCodes(JSON.parse(savedCodes));
+      } catch (error) {
+        console.error("Error loading saved QR codes:", error);
+      }
+    }
+    
+    // Handle URL query parameter for link
+    if (initialLink) {
+      try {
+        // Make sure to handle the URL properly by decoding it
+        setInput(decodeURIComponent(initialLink));
+      } catch (error) {
+        console.error("Error processing URL parameter:", error);
+        setInput(initialLink); // Use as is if decoding fails
+      }
+    }
+  }, [initialLink]);
 
   // Save cosmetic options to localStorage when they change
   useEffect(() => {
@@ -189,12 +234,47 @@ const DeepLinkQRGenerator: React.FC = () => {
   const handleDownloadQR = () => {
     if (!canvasRef.current || !input) return;
     
+    // Generate a new canvas with the QR code and URL text
+    const tempCanvas = document.createElement('canvas');
+    const ctx = tempCanvas.getContext('2d');
+    
+    // Set sizes to allow for text below QR code
+    const padding = 20;
+    tempCanvas.width = size + (padding * 2);
+    tempCanvas.height = size + (padding * 3) + 20; // Extra space for text
+    
+    if (ctx) {
+      // Fill with light color
+      ctx.fillStyle = lightColor;
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // Draw the QR code from our hidden canvas
+      ctx.drawImage(canvasRef.current, padding, padding, size, size);
+      
+      // Draw the URL text below QR code
+      ctx.font = '12px Arial';
+      ctx.fillStyle = '#333333';
+      ctx.textAlign = 'center';
+      
+      // Truncate long URLs for display
+      const displayText = input.length > 50 ? input.substring(0, 47) + '...' : input;
+      ctx.fillText(displayText, tempCanvas.width / 2, size + (padding * 2));
+      
+      // Add a "Generated with MyDebugger" note
+      ctx.font = '10px Arial';
+      ctx.fillStyle = '#666666';
+      ctx.fillText('Generated with MyDebugger QR Tool', tempCanvas.width / 2, size + (padding * 2) + 15);
+    }
+    
+    // Create download link
     const link = document.createElement('a');
-    link.download = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}.png`;
-    link.href = canvasRef.current.toDataURL('image/png');
+    const fileName = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+    link.download = fileName;
+    link.href = tempCanvas.toDataURL('image/png');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
     setToastMessage("QR code downloaded!");
   };
   
@@ -230,6 +310,94 @@ const DeepLinkQRGenerator: React.FC = () => {
     navigate('/qrcode', { replace: true });
   };
   
+  // Save QR code to collection
+  const handleSaveToCollection = () => {
+    if (!input || !qrCodeUrl) return;
+    setShowSaveModal(true);
+    // Set default nickname based on URL
+    const domain = new URL(input).hostname || input.split('/')[0].split('?')[0];
+    setNickname(domain || 'My QR Code');
+  };
+  
+  // Save QR code with nickname to collection
+  const handleConfirmSave = () => {
+    if (!input || !qrCodeUrl) return;
+    
+    const newCode: SavedQRCode = {
+      id: `qr-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      url: input,
+      nickname: nickname || 'My QR Code',
+      createdAt: Date.now(),
+      qrCodeUrl,
+      settings: {
+        size,
+        errorCorrection,
+        darkColor,
+        lightColor
+      }
+    };
+    
+    const updatedCollection = [...savedQRCodes, newCode];
+    setSavedQRCodes(updatedCollection);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('savedQRCodes', JSON.stringify(updatedCollection));
+      setToastMessage('QR code saved to collection!');
+    } catch (error) {
+      console.error("Error saving to collection:", error);
+      setToastMessage('Error saving QR code');
+    }
+    
+    setShowSaveModal(false);
+    setNickname('');
+  };
+  
+  // Load QR code from collection
+  const handleLoadFromCollection = (saved: SavedQRCode) => {
+    setInput(saved.url);
+    setSize(saved.settings.size);
+    setErrorCorrection(saved.settings.errorCorrection);
+    setDarkColor(saved.settings.darkColor);
+    setLightColor(saved.settings.lightColor);
+    setQrCodeUrl(saved.qrCodeUrl);
+  };
+  
+  // Remove QR code from collection
+  const handleRemoveFromCollection = (id: string) => {
+    const updatedCollection = savedQRCodes.filter(code => code.id !== id);
+    setSavedQRCodes(updatedCollection);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('savedQRCodes', JSON.stringify(updatedCollection));
+      setToastMessage('Removed from collection');
+    } catch (error) {
+      console.error("Error removing from collection:", error);
+    }
+  };
+  
+  // Show large QR code
+  const handleShowLargeQR = () => {
+    if (!qrCodeUrl) return;
+    setShowLargeQRModal(true);
+  };
+  
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (modalRef.current && !modalRef.current.contains(event.target)) {
+        setShowSaveModal(false);
+        setShowLargeQRModal(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalRef]);
+
   // SEO metadata
   const pageTitle = "Deep-Link Tester & QR Generator | MyDebugger";
   const pageDescription = "Generate QR codes for links & deeplinks, test them directly and share with your team.";
@@ -274,7 +442,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Enter a URL or deeplink (e.g., trueapp://app.true.th/home)"
+                placeholder="https://example.com/"
                 autoFocus
               />
               
@@ -485,8 +653,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                     <img 
                       src={qrCodeUrl} 
                       alt={`QR Code for: ${input}`} 
-                      className="mb-4 max-w-full"
+                      className="mb-4 max-w-full cursor-pointer hover:opacity-90 transition"
                       style={{ maxHeight: `${size}px`, height: 'auto' }}
+                      onClick={handleShowLargeQR}
+                      title="Click to view larger size"
                     />
                     <div className="text-xs text-center text-gray-500 break-all mt-2 px-4">
                       {input}
@@ -529,6 +699,15 @@ const DeepLinkQRGenerator: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     Download PNG
+                  </button>
+                  <button
+                    onClick={handleSaveToCollection}
+                    className="flex items-center justify-center px-4 py-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white transition"
+                  >
+                    <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save to My Collection
                   </button>
                 </div>
               )}
@@ -596,6 +775,101 @@ const DeepLinkQRGenerator: React.FC = () => {
             </a>
           </div>
         </div>
+        
+        {/* Save Modal */}
+        {showSaveModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h3 className="text-lg font-medium mb-4">Save QR Code to My Collection</h3>
+              <label htmlFor="nickname" className="block text-sm font-medium text-gray-700 mb-2">
+                Nickname
+              </label>
+              <input
+                type="text"
+                id="nickname"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 mb-4"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Enter a nickname for this QR code"
+              />
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowSaveModal(false)}
+                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmSave}
+                  className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Large QR Modal */}
+        {showLargeQRModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl">
+              <h3 className="text-lg font-medium mb-4">Large QR Code</h3>
+              <div className="flex justify-center mb-4">
+                <img src={qrCodeUrl} alt="Large QR Code" className="max-w-full" />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowLargeQRModal(false)}
+                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* My Collection */}
+        {savedQRCodes.length > 0 && (
+          <div className="mt-8 border-t border-gray-200 pt-6">
+            <h2 className="text-xl font-semibold mb-4">My Collection</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {savedQRCodes.map((code) => (
+                <div key={code.id} className="bg-white p-4 rounded-md border border-gray-200">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-medium text-lg">{code.nickname}</h3>
+                    <button
+                      onClick={() => handleRemoveFromCollection(code.id)}
+                      className="text-red-500 hover:text-red-600 transition"
+                      title="Remove from collection"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <img src={code.qrCodeUrl} alt={`QR Code for: ${code.url}`} className="mb-2 max-w-full" />
+                  <div className="text-xs text-gray-500 break-all mb-2">{code.url}</div>
+                  <div className="flex justify-between items-center">
+                    <button
+                      onClick={() => handleLoadFromCollection(code)}
+                      className="px-3 py-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-sm transition"
+                    >
+                      Load
+                    </button>
+                    <button
+                      onClick={() => handleShowLargeQR()}
+                      className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm transition"
+                    >
+                      View Large
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
