@@ -40,6 +40,7 @@ interface TabPanelProps {
   id: string;
   children: ReactNode;
   keepMounted?: boolean;
+  active?: boolean; // Added missing active property
 }
 
 /**

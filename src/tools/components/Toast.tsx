@@ -244,7 +244,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
 
   // Auto-dismiss toasts after duration
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
+    const timers: number[] = [];
     
     toasts.forEach((toast) => {
       if (toast.duration !== Infinity) {

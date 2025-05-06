@@ -111,14 +111,6 @@ function DataTable<T extends Record<string, any>>({
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(initialPageSize);
-  const totalItems = useMemo(() => 
-    serverSide ? externalTotalItems || 0 : filteredData.length,
-    [serverSide, externalTotalItems, filteredData]
-  );
-  const totalPages = useMemo(() => 
-    Math.max(1, Math.ceil(totalItems / pageSize)),
-    [totalItems, pageSize]
-  );
 
   // Filter and sort data
   const filteredData = useMemo(() => {
@@ -174,6 +166,17 @@ function DataTable<T extends Record<string, any>>({
 
     return result;
   }, [data, filters, sortKey, sortDirection, columns, filterable, sortable, serverSide]);
+
+  // Calculate total items based on filtered data
+  const totalItems = useMemo(() => 
+    serverSide ? externalTotalItems || 0 : filteredData.length,
+    [serverSide, externalTotalItems, filteredData]
+  );
+
+  const totalPages = useMemo(() => 
+    Math.max(1, Math.ceil(totalItems / pageSize)),
+    [totalItems, pageSize]
+  );
 
   // Get current page data
   const currentData = useMemo(() => {

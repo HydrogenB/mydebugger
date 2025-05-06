@@ -7,8 +7,7 @@ export type ToolCategory =
   | 'Testing' 
   | 'Utilities' 
   | 'Conversion' 
-  | 'Formatters'
-  | 'UI Components';
+  | 'Formatters';
 
 // Icons for tools and categories
 export interface IconProps {
@@ -89,10 +88,6 @@ export const categories: Record<ToolCategory, { icon: React.FC<IconProps>, descr
   'Formatters': { 
     icon: FormattersIcon,
     description: 'Format and prettify code and data'
-  },
-  'UI Components': {
-    icon: UtilitiesIcon,
-    description: 'UI component library and showcase'
   }
 };
 
@@ -271,25 +266,6 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: true
-    }
-  },
-  {
-    id: 'component-showcase',
-    route: '/component-showcase',
-    title: 'Component Showcase',
-    description: 'Comprehensive showcase of all button variants, text inputs, and other UI components.',
-    icon: UtilitiesIcon,
-    component: lazy(() => import('./components/ComponentShowcase')),
-    category: 'UI Components',
-    isNew: true,
-    metadata: {
-      keywords: ['components', 'ui', 'buttons', 'inputs', 'showcase', 'design system', 'ui kit', 'interface', 'responsive'],
-      learnMoreUrl: 'https://tailwindcss.com/docs',
-      relatedTools: ['components-demo'],
-    },
-    uiOptions: {
-      fullWidth: true,
-      showExamples: false
     }
   },
 ];
