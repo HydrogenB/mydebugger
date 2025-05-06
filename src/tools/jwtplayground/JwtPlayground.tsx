@@ -18,7 +18,10 @@ const algorithmOptions = [
   { value: 'RS512', label: 'RS512' },
   { value: 'ES256', label: 'ES256' },
   { value: 'ES384', label: 'ES384' },
-  { value: 'ES512', label: 'ES512' }
+  { value: 'ES512', label: 'ES512' },
+  { value: 'PS256', label: 'PS256' },
+  { value: 'PS384', label: 'PS384' },
+  { value: 'PS512', label: 'PS512' }
 ];
 
 // Default values
@@ -39,6 +42,24 @@ const base64UrlEncode = (str: string): string => {
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
+// Base64URL decode function
+const base64UrlDecode = (str: string): string => {
+  // Add padding if needed
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  switch (str.length % 4) {
+    case 0: break;
+    case 2: str += '=='; break;
+    case 3: str += '='; break;
+    default: throw new Error('Invalid base64url string');
+  }
+  
+  try {
+    return decodeURIComponent(escape(atob(str)));
+  } catch (e) {
+    return atob(str);
+  }
+};
+
 const JwtPlayground: React.FC = () => {
   const [algorithm, setAlgorithm] = useState<string>('HS256');
   const [header, setHeader] = useState<string>(JSON.stringify(defaultHeader, null, 2));
@@ -50,6 +71,7 @@ const JwtPlayground: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'encoded' | 'decoded'>('decoded');
   const [copied, setCopied] = useState<boolean>(false);
   const [isValid, setIsValid] = useState<boolean>(true);
+  const [shareUrl, setShareUrl] = useState<string>('');
 
   // Generate JWT token when header, payload or secret changes
   useEffect(() => {
@@ -71,18 +93,53 @@ const JwtPlayground: React.FC = () => {
       const encodedPayload = base64UrlEncode(JSON.stringify(parsedPayload));
       
       // For demonstration - in a real app we'd use proper signing
-      // This just creates a placeholder signature based on algorithm
       const signature = base64UrlEncode(`SIGNATURE_PLACEHOLDER_${algorithm}`);
       
       const token = `${encodedHeader}.${encodedPayload}.${signature}`;
       setEncodedJwt(token);
       setIsValid(true);
       setError(null);
+      
+      // Update share URL
+      setShareUrl(`${window.location.origin}/jwt?token=${encodeURIComponent(token)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate JWT');
       setIsValid(false);
     }
   }, [header, payload, secret, algorithm, isBase64Encoded]);
+
+  // Check for token in URL when component loads
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tokenParam = params.get('token');
+    
+    if (tokenParam) {
+      try {
+        setEncodedJwt(tokenParam);
+        setActiveTab('encoded');
+        
+        // Try to decode the token parts
+        const parts = tokenParam.split('.');
+        if (parts.length === 3) {
+          try {
+            const decodedHeader = JSON.parse(base64UrlDecode(parts[0]));
+            const decodedPayload = JSON.parse(base64UrlDecode(parts[1]));
+            
+            setHeader(JSON.stringify(decodedHeader, null, 2));
+            setPayload(JSON.stringify(decodedPayload, null, 2));
+            
+            if (decodedHeader.alg && algorithmOptions.some(opt => opt.value === decodedHeader.alg)) {
+              setAlgorithm(decodedHeader.alg);
+            }
+          } catch (e) {
+            // Silently fail decoding
+          }
+        }
+      } catch (e) {
+        // Handle invalid token in URL
+      }
+    }
+  }, []);
 
   // Reset copied state after 2 seconds
   useEffect(() => {
@@ -95,7 +152,10 @@ const JwtPlayground: React.FC = () => {
   // Validate JSON on header blur
   const validateHeader = () => {
     try {
-      JSON.parse(header);
+      const parsedHeader = JSON.parse(header);
+      if (parsedHeader.alg && algorithmOptions.some(opt => opt.value === parsedHeader.alg)) {
+        setAlgorithm(parsedHeader.alg);
+      }
       setError(null);
     } catch (err) {
       setError('Invalid header JSON');
@@ -112,8 +172,52 @@ const JwtPlayground: React.FC = () => {
     }
   };
 
+  // Handle pasted token in the encoded tab
+  const handleEncodedJwtChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const token = e.target.value;
+    setEncodedJwt(token);
+    
+    if (!token) {
+      return;
+    }
+    
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        try {
+          const decodedHeader = JSON.parse(base64UrlDecode(parts[0]));
+          const decodedPayload = JSON.parse(base64UrlDecode(parts[1]));
+          
+          setHeader(JSON.stringify(decodedHeader, null, 2));
+          setPayload(JSON.stringify(decodedPayload, null, 2));
+          
+          if (decodedHeader.alg && algorithmOptions.some(opt => opt.value === decodedHeader.alg)) {
+            setAlgorithm(decodedHeader.alg);
+          }
+          
+          setError(null);
+          setIsValid(true);
+        } catch (e) {
+          setError('Invalid token format: could not decode header or payload');
+          setIsValid(false);
+        }
+      } else {
+        setError('Invalid token format: JWT should have 3 parts separated by dots');
+        setIsValid(false);
+      }
+    } catch (e) {
+      setError('Failed to process token');
+      setIsValid(false);
+    }
+  };
+
   const handleCopyJwt = () => {
     navigator.clipboard.writeText(encodedJwt);
+    setCopied(true);
+  };
+  
+  const handleCopyShareUrl = () => {
+    navigator.clipboard.writeText(shareUrl);
     setCopied(true);
   };
 
@@ -137,6 +241,19 @@ const JwtPlayground: React.FC = () => {
     setSecret('your-256-bit-secret');
     setAlgorithm('HS256');
     setError(null);
+    setActiveTab('decoded');
+  };
+  
+  const formatDate = (timestamp: number): string => {
+    try {
+      return new Date(timestamp * 1000).toLocaleString();
+    } catch (e) {
+      return 'Invalid date';
+    }
+  };
+  
+  const isExpired = (exp: number): boolean => {
+    return Date.now() > exp * 1000;
   };
 
   // SEO metadata
@@ -151,11 +268,11 @@ const JwtPlayground: React.FC = () => {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mydebugger.vercel.app/jwt-playground" />
+        <meta property="og:url" content="https://mydebugger.vercel.app/jwt" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
-        <link rel="canonical" href="https://mydebugger.vercel.app/jwt-playground" />
+        <link rel="canonical" href="https://mydebugger.vercel.app/jwt" />
       </Helmet>
       
       <div className="container mx-auto px-4 py-8">
@@ -167,7 +284,7 @@ const JwtPlayground: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
           <div className="warning bg-yellow-50 p-4 border-b border-yellow-100 rounded-t-lg">
             <strong className="text-yellow-800">Warning:</strong>
-            <span className="text-yellow-700"> JWTs are credentials which can grant access to resources. Be careful where you paste them!</span>
+            <span className="text-yellow-700"> JWTs are credentials which can grant access to resources. Be careful where you paste them! We do not record tokens, all validation and debugging is done on the client side.</span>
           </div>
           
           <div className="p-4 border-b border-gray-200">
@@ -190,14 +307,14 @@ const JwtPlayground: React.FC = () => {
           
           <div className="flex border-b border-gray-200">
             <div 
-              className={`px-4 py-2 cursor-pointer ${activeTab === 'encoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
+              className={`px-4 py-2 cursor-pointer transition ${activeTab === 'encoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
               onClick={() => setActiveTab('encoded')}
             >
               Encoded
               <small className="block text-xs text-gray-500">paste a token here</small>
             </div>
             <div 
-              className={`px-4 py-2 cursor-pointer ${activeTab === 'decoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600'}`}
+              className={`px-4 py-2 cursor-pointer transition ${activeTab === 'decoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
               onClick={() => setActiveTab('decoded')}
             >
               Decoded
@@ -215,8 +332,9 @@ const JwtPlayground: React.FC = () => {
                   id="encoded-jwt"
                   className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32"
                   value={encodedJwt}
-                  onChange={(e) => setEncodedJwt(e.target.value)}
+                  onChange={handleEncodedJwtChange}
                   placeholder="Paste your JWT token here..."
+                  spellCheck="false"
                 />
               </div>
             ) : (
@@ -228,10 +346,11 @@ const JwtPlayground: React.FC = () => {
                     </label>
                     <textarea
                       id="header"
-                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32"
+                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32 bg-gray-50"
                       value={header}
                       onChange={(e) => setHeader(e.target.value)}
                       onBlur={validateHeader}
+                      spellCheck="false"
                     />
                   </div>
                   
@@ -241,10 +360,11 @@ const JwtPlayground: React.FC = () => {
                     </label>
                     <textarea
                       id="payload"
-                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-48"
+                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-48 bg-gray-50"
                       value={payload}
                       onChange={(e) => setPayload(e.target.value)}
                       onBlur={validatePayload}
+                      spellCheck="false"
                     />
                   </div>
                 </div>
@@ -256,7 +376,7 @@ const JwtPlayground: React.FC = () => {
                     </label>
                     <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
                       <div className="mb-2 font-mono text-sm">
-                        {algorithm.startsWith('HS') ? 'HMACSHA256' : algorithm}
+                        {algorithm.startsWith('HS') ? `HMACSHA${algorithm.substring(2)}` : algorithm}
                         <span className="block">(</span>
                       </div>
                       
@@ -266,7 +386,7 @@ const JwtPlayground: React.FC = () => {
                       
                       <div className="ml-4 mb-2">
                         <label htmlFor="secret" className="block text-sm mb-1">
-                          {algorithm.startsWith('HS') ? 'your-secret' : 'your-private-key'}
+                          {algorithm.startsWith('HS') ? 'your-secret' : algorithm.startsWith('RS') || algorithm.startsWith('PS') ? 'your-private-key' : 'your-private-key'}
                         </label>
                         <input
                           type="text"
@@ -298,7 +418,15 @@ const JwtPlayground: React.FC = () => {
                       Encoding
                     </div>
                     <div className="bg-gray-50 p-4 rounded-md border border-gray-200 font-mono text-sm overflow-x-auto break-all">
-                      {encodedJwt}
+                      {encodedJwt && (
+                        <>
+                          <span className="text-blue-600">{encodedJwt.split('.')[0]}</span>
+                          <span className="text-gray-500">.</span>
+                          <span className="text-purple-600">{encodedJwt.split('.')[1]}</span>
+                          <span className="text-gray-500">.</span>
+                          <span className="text-red-500">{encodedJwt.split('.')[2]}</span>
+                        </>
+                      )}
                     </div>
                     
                     <div className={`mt-4 flex items-center py-2 px-3 rounded-md ${isValid ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
@@ -352,10 +480,78 @@ const JwtPlayground: React.FC = () => {
               >
                 {copied ? 'Copied!' : 'Copy JWT'}
               </button>
+              <button
+                onClick={handleCopyShareUrl}
+                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md transition"
+                title="Copy a URL with this token to share with others"
+              >
+                Share
+              </button>
             </div>
           </div>
         </div>
         
+        {/* Token claims display */}
+        {activeTab === 'decoded' && encodedJwt && (
+          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold mb-2">Decoded Token Claims</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(() => {
+                  try {
+                    const parsedPayload = JSON.parse(payload);
+                    return (
+                      <>
+                        {parsedPayload.exp && (
+                          <div className={`p-3 rounded-md ${isExpired(parsedPayload.exp) ? 'bg-red-50' : 'bg-green-50'}`}>
+                            <span className="font-medium">Expiration:</span> {formatDate(parsedPayload.exp)}
+                            <span className={`ml-2 text-sm font-semibold ${isExpired(parsedPayload.exp) ? 'text-red-600' : 'text-green-600'}`}>
+                              {isExpired(parsedPayload.exp) ? '(Expired)' : '(Valid)'}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {parsedPayload.iat && (
+                          <div className="p-3 rounded-md bg-blue-50">
+                            <span className="font-medium">Issued at:</span> {formatDate(parsedPayload.iat)}
+                          </div>
+                        )}
+                        
+                        {parsedPayload.nbf && (
+                          <div className="p-3 rounded-md bg-blue-50">
+                            <span className="font-medium">Not valid before:</span> {formatDate(parsedPayload.nbf)}
+                          </div>
+                        )}
+                        
+                        {parsedPayload.sub && (
+                          <div className="p-3 rounded-md bg-gray-50">
+                            <span className="font-medium">Subject:</span> {parsedPayload.sub}
+                          </div>
+                        )}
+                        
+                        {parsedPayload.iss && (
+                          <div className="p-3 rounded-md bg-gray-50">
+                            <span className="font-medium">Issuer:</span> {parsedPayload.iss}
+                          </div>
+                        )}
+                        
+                        {parsedPayload.aud && (
+                          <div className="p-3 rounded-md bg-gray-50">
+                            <span className="font-medium">Audience:</span> {Array.isArray(parsedPayload.aud) ? parsedPayload.aud.join(', ') : parsedPayload.aud}
+                          </div>
+                        )}
+                      </>
+                    );
+                  } catch (e) {
+                    return <div className="text-red-600">Error parsing payload</div>;
+                  }
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Learn about JWT */}
         <div className="mt-8 border-t border-gray-200 pt-6">
           <h2 className="text-xl font-semibold mb-4">Learn More About JWT</h2>
           <div className="bg-white p-4 rounded-md border border-gray-200">
@@ -420,18 +616,18 @@ const JwtPlayground: React.FC = () => {
           <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
-              href="/jwt"
-              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
-            >
-              <h3 className="font-medium text-lg mb-1">JWT Decoder</h3>
-              <p className="text-gray-600">A simpler tool to decode and verify JSON Web Tokens.</p>
-            </a>
-            <a
               href="/url-encoder"
               className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
             >
               <h3 className="font-medium text-lg mb-1">URL Encoder/Decoder</h3>
               <p className="text-gray-600">Encode or decode URL components safely.</p>
+            </a>
+            <a
+              href="/headers"
+              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
+            >
+              <h3 className="font-medium text-lg mb-1">HTTP Headers Analyzer</h3>
+              <p className="text-gray-600">Analyze and understand HTTP request/response headers.</p>
             </a>
           </div>
         </div>
