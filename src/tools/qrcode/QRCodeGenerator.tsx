@@ -88,11 +88,12 @@ const DeepLinkQRGenerator: React.FC = () => {
     // Handle URL query parameter for link
     if (initialLink) {
       try {
-        // Make sure to handle the URL properly by decoding it
-        setInput(decodeURIComponent(initialLink));
+        // Ensure the link has a valid protocol
+        const url = new URL(initialLink);
+        setInput(decodeURIComponent(url.href));
       } catch (error) {
-        console.error("Error processing URL parameter:", error);
-        setInput(initialLink); // Use as is if decoding fails
+        console.error("Invalid URL, adding default protocol:", error);
+        setInput(`https://${decodeURIComponent(initialLink)}`);
       }
     }
   }, [initialLink]);
