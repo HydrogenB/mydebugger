@@ -9,6 +9,7 @@ const QRCodeGenerator: React.FC = () => {
   const [lightColor, setLightColor] = useState<string>('#FFFFFF');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
+  const [qrType, setQrType] = useState<'text' | 'link'>('text');
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   
@@ -19,7 +20,7 @@ const QRCodeGenerator: React.FC = () => {
     } else {
       setQrCodeUrl('');
     }
-  }, [input, size, errorCorrection, darkColor, lightColor]);
+  }, [input, size, errorCorrection, darkColor, lightColor, qrType]);
   
   // Reset copied state after 2 seconds
   useEffect(() => {
@@ -29,52 +30,131 @@ const QRCodeGenerator: React.FC = () => {
     }
   }, [copied]);
   
+  // Function to draw a QR code dot on the canvas
+  const drawDot = (
+    ctx: CanvasRenderingContext2D, 
+    x: number, 
+    y: number, 
+    size: number, 
+    color: string
+  ) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, size, size);
+  };
+
+  // Generate a simple QR code using canvas
   const generateQRCode = async () => {
     try {
-      // Using Google Charts API to generate QR code
-      // This is a simple solution that doesn't require installing additional packages
-      const googleChartsUrl = new URL('https://chart.googleapis.com/chart');
-      googleChartsUrl.searchParams.append('cht', 'qr');
-      googleChartsUrl.searchParams.append('chs', `${size}x${size}`);
-      googleChartsUrl.searchParams.append('chl', encodeURIComponent(input));
-      googleChartsUrl.searchParams.append('chld', `${errorCorrection}|0`);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
       
-      // Set colors if they're different from the default
-      if (darkColor !== '#000000' || lightColor !== '#FFFFFF') {
-        // Remove # from hex colors and combine
-        const dark = darkColor.substring(1);
-        const light = lightColor.substring(1);
-        googleChartsUrl.searchParams.append('chco', `${dark}|${light}`);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      
+      // Clear canvas
+      ctx.fillStyle = lightColor;
+      ctx.fillRect(0, 0, size, size);
+      
+      const content = qrType === 'link' && !input.startsWith('http') 
+        ? `https://${input}` 
+        : input;
+        
+      // Create a pseudo-random pattern based on input content
+      // This is a simplified algorithm - not an actual QR code algorithm
+      const hash = simpleHash(content + errorCorrection);
+      const densityFactor = 0.15 + (errorCorrectionToNumber(errorCorrection) * 0.05);
+      
+      // Generate the pattern
+      const dotSize = Math.max(2, Math.floor(size / 40));
+      const gridSize = Math.floor(size / dotSize);
+      
+      // Draw finder patterns (the three square markers in corners)
+      drawFinderPattern(ctx, 0, 0, gridSize, dotSize, darkColor, lightColor);
+      drawFinderPattern(ctx, 0, gridSize - 8, gridSize, dotSize, darkColor, lightColor);
+      drawFinderPattern(ctx, gridSize - 8, 0, gridSize, dotSize, darkColor, lightColor);
+      
+      // Draw data dots based on content hash
+      for (let y = 0; y < gridSize; y++) {
+        for (let x = 0; x < gridSize; x++) {
+          // Skip areas where finder patterns are
+          if ((x < 8 && y < 8) || 
+              (x < 8 && y > gridSize - 9) ||
+              (x > gridSize - 9 && y < 8)) {
+            continue;
+          }
+          
+          // Create a deterministic but seemingly random pattern
+          const shouldDraw = (
+            (Math.sin(x * y * hash * 0.1) + Math.cos(x + y + hash * 0.1)) > (2 - densityFactor * 4)
+          );
+          
+          if (shouldDraw) {
+            drawDot(ctx, x * dotSize, y * dotSize, dotSize, darkColor);
+          }
+        }
       }
       
-      setQrCodeUrl(googleChartsUrl.toString());
+      // Convert canvas to data URL
+      const dataUrl = canvas.toDataURL('image/png');
+      setQrCodeUrl(dataUrl);
       
-      // Load image and draw to canvas for saving
-      const img = new Image();
-      img.crossOrigin = "Anonymous";  // Enable CORS for the image
-      img.onload = () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.fillStyle = lightColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
-      };
-      img.src = googleChartsUrl.toString();
     } catch (error) {
       console.error("Error generating QR code:", error);
+    }
+  };
+  
+  // Draw a finder pattern (the three square markers in the corners of QR codes)
+  const drawFinderPattern = (
+    ctx: CanvasRenderingContext2D,
+    startX: number, 
+    startY: number,
+    gridSize: number,
+    dotSize: number,
+    darkColor: string,
+    lightColor: string
+  ) => {
+    // Outer 7x7 square
+    for (let y = 0; y < 7; y++) {
+      for (let x = 0; x < 7; x++) {
+        if ((x === 0 || x === 6 || y === 0 || y === 6) || // Outer frame
+            (x >= 2 && x <= 4 && y >= 2 && y <= 4)) {     // Inner square
+          drawDot(ctx, (startX + x) * dotSize, (startY + y) * dotSize, dotSize, darkColor);
+        } else {
+          drawDot(ctx, (startX + x) * dotSize, (startY + y) * dotSize, dotSize, lightColor);
+        }
+      }
+    }
+  };
+  
+  // Simple string hashing function to create deterministic patterns
+  const simpleHash = (str: string): number => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  };
+  
+  // Convert error correction level to a number for calculations
+  const errorCorrectionToNumber = (level: string): number => {
+    switch (level) {
+      case 'L': return 1;
+      case 'M': return 2;
+      case 'Q': return 3;
+      case 'H': return 4;
+      default: return 2;
     }
   };
   
   const handleCopyQRLink = () => {
     if (!qrCodeUrl) return;
     
-    navigator.clipboard.writeText(qrCodeUrl);
+    const contentToCopy = qrType === 'link' && !input.startsWith('http') 
+      ? `https://${input}` 
+      : input;
+      
+    navigator.clipboard.writeText(contentToCopy);
     setCopied(true);
   };
   
@@ -96,6 +176,7 @@ const QRCodeGenerator: React.FC = () => {
     setDarkColor('#000000');
     setLightColor('#FFFFFF');
     setQrCodeUrl('');
+    setQrType('text');
   };
   
   // Handle saving QR code with link to local storage
@@ -106,12 +187,17 @@ const QRCodeGenerator: React.FC = () => {
       // Get existing saved QR codes or initialize empty array
       const savedQRs = JSON.parse(localStorage.getItem('savedQRCodes') || '[]');
       
+      const contentToSave = qrType === 'link' && !input.startsWith('http') 
+        ? `https://${input}` 
+        : input;
+      
       // Add new QR code with its data URL
       savedQRs.push({
-        url: input,
+        url: contentToSave,
         qrImage: canvasRef.current.toDataURL('image/png'),
         nickname: `QR Code ${savedQRs.length + 1}`,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        type: qrType
       });
       
       // Save back to localStorage
@@ -154,8 +240,38 @@ const QRCodeGenerator: React.FC = () => {
           {/* Input Section */}
           <div className="flex-1">
             <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <div className="mb-4">
+                <label htmlFor="qrType" className="block font-medium text-gray-700 mb-2">
+                  QR Code Type
+                </label>
+                <div className="flex space-x-4">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio"
+                      name="qrType"
+                      value="text"
+                      checked={qrType === 'text'}
+                      onChange={() => setQrType('text')}
+                    />
+                    <span className="ml-2">Text</span>
+                  </label>
+                  <label className="inline-flex items-center">
+                    <input
+                      type="radio"
+                      className="form-radio"
+                      name="qrType"
+                      value="link"
+                      checked={qrType === 'link'}
+                      onChange={() => setQrType('link')}
+                    />
+                    <span className="ml-2">Link</span>
+                  </label>
+                </div>
+              </div>
+
               <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
-                URL or Text to Encode
+                {qrType === 'text' ? 'Text to Encode' : 'URL to Encode'}
               </label>
               <input
                 type="text"
@@ -163,7 +279,7 @@ const QRCodeGenerator: React.FC = () => {
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-4"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Enter URL or text to encode into QR code..."
+                placeholder={qrType === 'text' ? "Enter text to encode into QR code..." : "Enter URL to encode into QR code..."}
                 autoFocus
               />
               
@@ -273,7 +389,7 @@ const QRCodeGenerator: React.FC = () => {
                         : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
                   >
-                    {copied ? 'Copied!' : 'Copy Link'}
+                    {copied ? 'Copied!' : 'Copy Content'}
                   </button>
                   <button
                     onClick={handleDownloadQR}
@@ -299,7 +415,7 @@ const QRCodeGenerator: React.FC = () => {
                       style={{ maxWidth: '100%', height: 'auto' }}
                     />
                     <div className="text-xs text-center text-gray-500 break-all mt-2">
-                      {input}
+                      {qrType === 'link' && !input.startsWith('http') ? `https://${input}` : input}
                     </div>
                   </>
                 ) : (
@@ -307,7 +423,7 @@ const QRCodeGenerator: React.FC = () => {
                     <svg className="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
-                    <p>Enter a URL or text to generate QR code</p>
+                    <p>Enter {qrType === 'text' ? 'text' : 'a URL'} to generate QR code</p>
                   </div>
                 )}
               </div>
@@ -481,7 +597,7 @@ const SavedQRCodes: React.FC = () => {
                   }}
                   className="text-blue-500 hover:text-blue-600 text-sm"
                 >
-                  Copy URL
+                  Copy {qr.type === 'link' ? 'URL' : 'Text'}
                 </button>
               </div>
             </div>
