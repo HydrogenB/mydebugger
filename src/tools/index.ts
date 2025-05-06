@@ -232,6 +232,24 @@ const toolRegistry: Tool[] = [
       showExamples: false
     }
   },
+  {
+    id: 'device-trace',
+    route: '/device-trace',
+    title: 'Dynamic-Link Probe',
+    description: 'Test how App Flyer/OneLink URLs behave across different device contexts and installation states.',
+    icon: LinkTracerIcon, // Reusing the same icon for now
+    component: lazy(() => import('./linktracer/DeviceTrace')),
+    category: 'Testing',
+    isNew: true,
+    metadata: {
+      keywords: ['app flyer', 'one link', 'dynamic link', 'deep link', 'device probe', 'app store', 'play store', 'universal link'],
+      learnMoreUrl: 'https://support.appsflyer.com/hc/en-us/articles/207032366-OneLink-overview',
+      relatedTools: ['link-tracer', 'headers-analyzer'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
 ];
 
 export default toolRegistry;
