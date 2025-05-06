@@ -58,7 +58,8 @@ import {
   HeadersIcon,
   RegexIcon,
   DnsIcon,
-  QrCodeIcon
+  QrCodeIcon,
+  ClickJackingIcon
 } from './components/icons';
 
 // Category definitions with icons for consistent UI
@@ -140,7 +141,7 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['http', 'headers', 'request', 'response', 'analyze'],
       learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers',
-      relatedTools: ['jwt-playground', 'url-encoder'],
+      relatedTools: ['jwt-playground', 'url-encoder', 'clickjacking-validator'],
     }
   },
   {
@@ -191,6 +192,24 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: true
+    }
+  },
+  {
+    id: 'clickjacking-validator',
+    route: '/clickjacking',
+    title: 'Click Jacking Validator',
+    description: 'Check if websites are vulnerable to click jacking attacks by analyzing headers and iframe loading.',
+    icon: ClickJackingIcon,
+    component: lazy(() => import('./clickjacking/ClickJackingValidator')),
+    category: 'Security',
+    isNew: true,
+    metadata: {
+      keywords: ['clickjacking', 'security', 'x-frame-options', 'csp', 'iframe', 'vulnerability', 'content-security-policy', 'frame-ancestors'],
+      learnMoreUrl: 'https://owasp.org/www-community/attacks/Clickjacking',
+      relatedTools: ['headers-analyzer'],
+    },
+    uiOptions: {
+      showExamples: false
     }
   },
 ];
