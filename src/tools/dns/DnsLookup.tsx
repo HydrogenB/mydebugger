@@ -29,6 +29,9 @@ const DnsLookup: React.FC = () => {
   // DNS record types
   const recordTypes = ['ALL', 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT'];
   
+  // API endpoint URL - replace with your actual deployed API URL
+  const API_URL = '/api/dns-lookup';
+  
   const handleLookup = async () => {
     if (!domain) {
       setError('Please enter a domain name');
@@ -46,9 +49,14 @@ const DnsLookup: React.FC = () => {
       // Remove path and query parameters if present
       formattedDomain = formattedDomain.split('/')[0];
       
-      // Use a DNS API service - for demo purposes we'll simulate this
-      // In a real app, you'd call an API like Google DNS, Cloudflare DNS, or a DNS resolution service
-      await simulateDnsLookup(formattedDomain);
+      // Call the real DNS API
+      const response = await fetchDnsRecords(formattedDomain);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      setDnsResults(response);
       
     } catch (err) {
       setError(`Error performing DNS lookup: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -57,85 +65,38 @@ const DnsLookup: React.FC = () => {
     }
   };
 
-  const simulateDnsLookup = (domain: string): Promise<void> => {
-    return new Promise((resolve) => {
-      // Simulate API call delay
-      setTimeout(() => {
-        // Generate mock DNS records based on the domain
-        const mockResults: DnsResult = {
-          domain,
-          records: [
-            {
-              type: 'A',
-              name: domain,
-              value: '93.184.216.34',
-              ttl: 300
-            },
-            {
-              type: 'A',
-              name: domain,
-              value: '93.184.216.35',
-              ttl: 300
-            },
-            {
-              type: 'AAAA',
-              name: domain,
-              value: '2606:2800:220:1:248:1893:25c8:1946',
-              ttl: 300
-            },
-            {
-              type: 'NS',
-              name: domain,
-              value: 'ns1.example.org',
-              ttl: 86400
-            },
-            {
-              type: 'NS',
-              name: domain,
-              value: 'ns2.example.org',
-              ttl: 86400
-            },
-            {
-              type: 'MX',
-              name: domain,
-              value: '10 mail.example.org',
-              ttl: 3600
-            },
-            {
-              type: 'MX',
-              name: domain,
-              value: '20 mail2.example.org',
-              ttl: 3600
-            },
-            {
-              type: 'TXT',
-              name: domain,
-              value: 'v=spf1 include:_spf.example.org -all',
-              ttl: 3600
-            },
-            {
-              type: 'CNAME',
-              name: `www.${domain}`,
-              value: domain,
-              ttl: 3600
-            },
-            {
-              type: 'SOA',
-              name: domain,
-              value: 'ns1.example.org. hostmaster.example.org. 2023042501 7200 900 1209600 86400',
-              ttl: 60
-            }
-          ]
-        };
-        
-        setDnsResults(mockResults);
-        resolve();
-      }, 1000);
-    });
+  const fetchDnsRecords = async (domain: string): Promise<any> => {
+    try {
+      const url = new URL(API_URL, window.location.origin);
+      url.searchParams.append('domain', domain);
+      url.searchParams.append('recordType', selectedRecordType);
+      
+      const response = await fetch(url.toString());
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch DNS records');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('DNS Lookup Error:', error);
+      throw error;
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      handleLookup();
+    }
+  };
+  
+  // Function to handle record type change
+  const handleRecordTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedRecordType(e.target.value);
+    
+    // If results already exist, refresh with new record type
+    if (dnsResults) {
       handleLookup();
     }
   };
@@ -192,7 +153,7 @@ const DnsLookup: React.FC = () => {
                 </Button>
               </div>
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Enter a domain name to query its DNS records
+                Enter a domain name to query its DNS records (e.g., example.com, google.com)
               </p>
             </div>
 
@@ -219,7 +180,7 @@ const DnsLookup: React.FC = () => {
                     <select
                       id="record-type"
                       value={selectedRecordType}
-                      onChange={(e) => setSelectedRecordType(e.target.value)}
+                      onChange={handleRecordTypeChange}
                       className="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
                     >
                       {recordTypes.map(type => (
@@ -267,7 +228,7 @@ const DnsLookup: React.FC = () => {
                               {record.value}
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                              {record.ttl}s
+                              {record.ttl > 0 ? `${record.ttl}s` : '-'}
                             </td>
                           </tr>
                         ))}
