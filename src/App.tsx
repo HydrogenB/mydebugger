@@ -5,36 +5,40 @@ import Footer from './layout/Footer';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import toolRegistry from './tools';
+import { ThemeProvider } from './context/ThemeContext';
+import LoadingSpinner from './tools/components/LoadingSpinner';
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        
-        <main className="flex-grow">
-          <Suspense fallback={<div className="container mx-auto p-8 text-center">Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              
-              {/* Dynamic routes for all tools */}
-              {toolRegistry.map((tool) => (
-                <Route
-                  key={tool.route}
-                  path={tool.route}
-                  element={<tool.component />}
-                />
-              ))}
-              
-              {/* Catch-all route for 404s */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </main>
-        
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+          <Header />
+          
+          <main className="flex-grow">
+            <Suspense fallback={<LoadingSpinner />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                
+                {/* Dynamic routes for all tools */}
+                {toolRegistry.map((tool) => (
+                  <Route
+                    key={tool.route}
+                    path={tool.route}
+                    element={<tool.component />}
+                  />
+                ))}
+                
+                {/* Catch-all route for 404s */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </main>
+          
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 };
 

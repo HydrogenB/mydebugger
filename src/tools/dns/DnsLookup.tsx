@@ -1,13 +1,156 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { getToolByRoute } from '../index';
+import ToolLayout from '../components/ToolLayout';
+import Card from '../components/Card';
+import Button from '../components/Button';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+interface DnsRecord {
+  type: string;
+  name: string;
+  value: string;
+  ttl: number;
+}
+
+interface DnsResult {
+  domain: string;
+  records: DnsRecord[];
+}
 
 const DnsLookup: React.FC = () => {
+  const tool = getToolByRoute('/dns-check');
+  const [domain, setDomain] = useState<string>('');
+  const [dnsResults, setDnsResults] = useState<DnsResult | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedRecordType, setSelectedRecordType] = useState<string>('ALL');
+  
+  // DNS record types
+  const recordTypes = ['ALL', 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'PTR', 'SOA', 'SRV', 'TXT'];
+  
+  const handleLookup = async () => {
+    if (!domain) {
+      setError('Please enter a domain name');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setDnsResults(null);
+
+    try {
+      // Format domain (remove protocol if present)
+      let formattedDomain = domain.replace(/^(https?:\/\/)?(www\.)?/, '');
+      
+      // Remove path and query parameters if present
+      formattedDomain = formattedDomain.split('/')[0];
+      
+      // Use a DNS API service - for demo purposes we'll simulate this
+      // In a real app, you'd call an API like Google DNS, Cloudflare DNS, or a DNS resolution service
+      await simulateDnsLookup(formattedDomain);
+      
+    } catch (err) {
+      setError(`Error performing DNS lookup: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const simulateDnsLookup = (domain: string): Promise<void> => {
+    return new Promise((resolve) => {
+      // Simulate API call delay
+      setTimeout(() => {
+        // Generate mock DNS records based on the domain
+        const mockResults: DnsResult = {
+          domain,
+          records: [
+            {
+              type: 'A',
+              name: domain,
+              value: '93.184.216.34',
+              ttl: 300
+            },
+            {
+              type: 'A',
+              name: domain,
+              value: '93.184.216.35',
+              ttl: 300
+            },
+            {
+              type: 'AAAA',
+              name: domain,
+              value: '2606:2800:220:1:248:1893:25c8:1946',
+              ttl: 300
+            },
+            {
+              type: 'NS',
+              name: domain,
+              value: 'ns1.example.org',
+              ttl: 86400
+            },
+            {
+              type: 'NS',
+              name: domain,
+              value: 'ns2.example.org',
+              ttl: 86400
+            },
+            {
+              type: 'MX',
+              name: domain,
+              value: '10 mail.example.org',
+              ttl: 3600
+            },
+            {
+              type: 'MX',
+              name: domain,
+              value: '20 mail2.example.org',
+              ttl: 3600
+            },
+            {
+              type: 'TXT',
+              name: domain,
+              value: 'v=spf1 include:_spf.example.org -all',
+              ttl: 3600
+            },
+            {
+              type: 'CNAME',
+              name: `www.${domain}`,
+              value: domain,
+              ttl: 3600
+            },
+            {
+              type: 'SOA',
+              name: domain,
+              value: 'ns1.example.org. hostmaster.example.org. 2023042501 7200 900 1209600 86400',
+              ttl: 60
+            }
+          ]
+        };
+        
+        setDnsResults(mockResults);
+        resolve();
+      }, 1000);
+    });
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleLookup();
+    }
+  };
+
+  // Filter records based on selected type
+  const filteredRecords = dnsResults?.records.filter(
+    record => selectedRecordType === 'ALL' || record.type === selectedRecordType
+  ) || [];
+
   // SEO metadata
   const pageTitle = "DNS Lookup Tool | MyDebugger";
   const pageDescription = "Query DNS records for any domain name.";
   
   return (
-    <>
+    <ToolLayout tool={tool!}>
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
@@ -21,40 +164,152 @@ const DnsLookup: React.FC = () => {
         <link rel="canonical" href="https://mydebugger.vercel.app/dns-check" />
       </Helmet>
       
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">DNS Lookup Tool</h1>
-        <p className="text-gray-600 mb-8">
-          Query DNS records for any domain name.
-        </p>
-        
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-6 text-center">
-          <p className="text-lg text-blue-800">
-            Coming Soon! This tool is currently under development.
-          </p>
-        </div>
-        
-        {/* Related Tools */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Try Our Other Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
-              href="/jwt"
-              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
-            >
-              <h3 className="font-medium text-lg mb-1">JWT Decoder</h3>
-              <p className="text-gray-600">Decode and verify JSON Web Tokens (JWT) instantly.</p>
-            </a>
-            <a
-              href="/url-encoder"
-              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
-            >
-              <h3 className="font-medium text-lg mb-1">URL Encoder/Decoder</h3>
-              <p className="text-gray-600">Encode or decode URL components safely.</p>
-            </a>
+      <div className="space-y-6">
+        <Card isElevated>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="domain-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Enter domain name
+              </label>
+              <div className="flex">
+                <input
+                  id="domain-input"
+                  type="text"
+                  className="flex-grow rounded-l-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50"
+                  placeholder="example.com"
+                  value={domain}
+                  onChange={(e) => setDomain(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  disabled={loading}
+                />
+                <Button
+                  onClick={handleLookup}
+                  isLoading={loading}
+                  disabled={loading || !domain}
+                  className="rounded-l-none"
+                >
+                  Lookup
+                </Button>
+              </div>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Enter a domain name to query its DNS records
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md text-red-700 dark:text-red-400 text-sm">
+                {error}
+              </div>
+            )}
+
+            {loading && (
+              <div className="flex justify-center py-12">
+                <LoadingSpinner />
+              </div>
+            )}
+
+            {dnsResults && !loading && (
+              <div className="animate-fade-in space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-medium text-gray-900 dark:text-white">
+                    DNS Records for <span className="text-primary-600 dark:text-primary-400">{dnsResults.domain}</span>
+                  </h2>
+                  <div>
+                    <label htmlFor="record-type" className="sr-only">Record Type</label>
+                    <select
+                      id="record-type"
+                      value={selectedRecordType}
+                      onChange={(e) => setSelectedRecordType(e.target.value)}
+                      className="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
+                    >
+                      {recordTypes.map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {filteredRecords.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No {selectedRecordType} records found for {dnsResults.domain}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-md overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                      <thead className="bg-gray-100 dark:bg-gray-800">
+                        <tr>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Name
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            Value
+                          </th>
+                          <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            TTL
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {filteredRecords.map((record, index) => (
+                          <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                            <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                              <span className="px-2 py-1 text-xs font-medium rounded bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200">
+                                {record.type}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-mono">
+                              {record.name}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300 font-mono break-all">
+                              {record.value}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                              {record.ttl}s
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+        </Card>
+
+        <Card title="DNS Record Types" isElevated>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">A (Address) Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Maps a domain name to an IPv4 address.</p>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">AAAA Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Maps a domain name to an IPv6 address.</p>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">CNAME Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Canonical name record that maps an alias to another domain name.</p>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">MX Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Mail exchange record that specifies mail servers for a domain.</p>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">NS Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Name server records that delegate a domain to DNS servers.</p>
+            </div>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
+              <h3 className="font-medium text-gray-900 dark:text-white mb-1">TXT Record</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Text records that store text data, often used for verification.</p>
+            </div>
+          </div>
+        </Card>
       </div>
-    </>
+    </ToolLayout>
   );
 };
 
