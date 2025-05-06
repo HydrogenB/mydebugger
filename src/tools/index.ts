@@ -31,6 +31,17 @@ const toolRegistry: Tool[] = [
     },
   },
   {
+    route: '/jwt-playground',
+    title: 'JWT Playground',
+    description: 'Generate, decode, and experiment with JSON Web Tokens interactively.',
+    component: lazy(() => import('./jwtplayground/JwtPlayground')),
+    category: 'Security',
+    metadata: {
+      keywords: ['jwt', 'token', 'generator', 'decoder', 'playground', 'json web token', 'authentication'],
+      learnMoreUrl: 'https://jwt.io/introduction',
+    },
+  },
+  {
     route: '/url-encoder',
     title: 'URL Encoder/Decoder',
     description: 'Encode or decode URL components safely.',
