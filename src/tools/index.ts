@@ -250,6 +250,24 @@ const toolRegistry: Tool[] = [
       showExamples: false
     }
   },
+  {
+    id: 'components-demo',
+    route: '/components-demo',
+    title: 'Components Demo',
+    description: 'Showcase of various UI components and their usage.',
+    icon: UtilitiesIcon,
+    component: lazy(() => import('./componentsdemo/ComponentsDemo')),
+    category: 'Utilities',
+    isNew: true,
+    metadata: {
+      keywords: ['components', 'demo', 'ui', 'showcase'],
+      learnMoreUrl: 'https://reactjs.org/docs/components-and-props.html',
+      relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: true
+    }
+  },
 ];
 
 export default toolRegistry;
