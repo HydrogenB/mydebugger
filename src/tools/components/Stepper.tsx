@@ -186,7 +186,7 @@ const Stepper: React.FC<StepperProps> = ({
     // Custom connector or default line
     const connectorElement = connector || (
       <div 
-        className={`flex-1 ${statusClasses[connectorStatus].line} ${
+        className={`flex-1 ${statusClasses[connectorStatus as StepStatus].line} ${
           orientation === 'horizontal' ? `${sizeClasses[size].line} mx-1` : 'w-0.5 my-1'
         }`}
       />
@@ -222,7 +222,7 @@ const Stepper: React.FC<StepperProps> = ({
               <div 
                 className={`
                   flex items-center justify-center
-                  rounded-full ${statusClasses[status].icon} ${sizeClasses[size].icon}
+                  rounded-full ${statusClasses[status as StepStatus].icon} ${sizeClasses[size].icon}
                   ${isClickable ? 'cursor-pointer hover:opacity-80 focus:outline-none focus:ring-2' : ''}
                 `}
                 onClick={onClick}
@@ -241,7 +241,7 @@ const Stepper: React.FC<StepperProps> = ({
                   ${alternating && orientation === 'horizontal' && index % 2 === 1 ? 'mb-2 mt-0' : ''}
                 `}
               >
-                <div className={`${statusClasses[status].text} ${sizeClasses[size].text}`}>
+                <div className={`${statusClasses[status as StepStatus].text} ${sizeClasses[size].text}`}>
                   {label}
                 </div>
                 

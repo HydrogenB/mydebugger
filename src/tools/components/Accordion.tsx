@@ -252,4 +252,5 @@ export const AccordionItem: React.FC<AccordionItemProps & { index?: number }> = 
   );
 };
 
-export default { Accordion, AccordionItem };
+// Fix the default export to export the Accordion component directly
+export default Accordion;

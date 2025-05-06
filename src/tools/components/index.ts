@@ -5,8 +5,7 @@ export { default as Card } from './Card';
 export { default as TextInput } from './TextInput';
 export { default as Modal } from './Modal';
 export { default as Select } from './Select';
-export { default as TabGroup } from './TabGroup';
-export { default as Form } from './Form';
+// Remove TabGroup and Form exports as they don't exist
 export { default as Tooltip } from './Tooltip';
 export { default as ThemeToggle } from './ThemeToggle';
 export { default as InfoBox } from './InfoBox';

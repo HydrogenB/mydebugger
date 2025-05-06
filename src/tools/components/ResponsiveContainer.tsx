@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-export type ContainerWidth = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full' | 'none';
+export type ContainerWidth = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full' | 'none';
 export type ContainerPadding = 'none' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface ResponsiveContainerProps {

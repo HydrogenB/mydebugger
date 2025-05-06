@@ -208,12 +208,13 @@ export const AvatarGroup: React.FC<AvatarGroupProps> = ({
   return (
     <div className={`flex items-center ${className}`}>
       {visibleAvatars.map((child, index) => {
-        if (React.isValidElement(child)) {
+        if (React.isValidElement<AvatarProps>(child)) {
+          // Add type assertion to fix TypeScript error
           return React.cloneElement(child, {
             key: index,
             size,
             inGroup: index > 0,
-          });
+          } as Partial<AvatarProps>);
         }
         return child;
       })}
