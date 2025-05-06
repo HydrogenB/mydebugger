@@ -256,7 +256,7 @@ const toolRegistry: Tool[] = [
     title: 'Components Demo',
     description: 'Showcase of various UI components and their usage.',
     icon: UtilitiesIcon,
-    component: lazy(() => import('./componentsdemo/ComponentsDemo')),
+    component: lazy(() => import('./components-demo/ComponentsDemo')),
     category: 'Utilities',
     isNew: true,
     metadata: {

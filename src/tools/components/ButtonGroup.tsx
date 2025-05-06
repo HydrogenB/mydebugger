@@ -76,8 +76,10 @@ const ButtonGroup = forwardRef<HTMLDivElement, ButtonGroupProps>(
         const isButtonComponent = 
           child.type === Button ||
           (typeof child.type === 'object' && 
-           child.type && 
-           'displayName' in child.type && 
+           child.type !== null &&
+           child.type !== undefined &&
+           'displayName' in child.type &&
+           typeof child.type.displayName === 'string' &&
            child.type.displayName === 'Button');
         
         if (!isButtonComponent) {
