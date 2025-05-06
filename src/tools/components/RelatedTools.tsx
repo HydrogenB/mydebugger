@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getRelatedTools } from '../index';
+import { ResponsiveContainer } from './index';
 
 interface RelatedToolsProps {
   toolId: string;
@@ -15,7 +16,7 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({ toolId }) => {
   if (relatedTools.length === 0) return null;
   
   return (
-    <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6 animate-fade-in">
+    <ResponsiveContainer className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6 animate-fade-in">
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Related Tools</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {relatedTools.map((tool) => (
@@ -34,7 +35,7 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({ toolId }) => {
           </Link>
         ))}
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 };
 

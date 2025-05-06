@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Tool } from '../index';
 import RelatedTools from './RelatedTools';
 import { useTheme } from '../../context/ThemeContext';
+import { ResponsiveContainer } from './index';
 
 interface ToolLayoutProps {
   tool: Tool;
@@ -43,7 +44,7 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
         <link rel="canonical" href={`https://mydebugger.vercel.app${tool.route}`} />
       </Helmet>
       
-      <div className="container mx-auto px-4 py-8 transition-colors duration-200">
+      <ResponsiveContainer maxWidth="6xl" padding="md" className="transition-colors duration-200">
         {showHeader && (
           <div className="flex items-center mb-2">
             <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
@@ -95,7 +96,7 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
             </div>
           </div>
         )}
-      </div>
+      </ResponsiveContainer>
     </>
   );
 };

@@ -10,6 +10,7 @@ import {
   categories 
 } from '../tools';
 import Card from '../tools/components/Card';
+import { ResponsiveContainer } from '../tools/components';
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -44,7 +45,7 @@ const Home: React.FC = () => {
   });
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <ResponsiveContainer maxWidth="7xl" padding="md">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 mb-12 shadow-lg text-white">
         <div className="max-w-3xl mx-auto text-center">
@@ -132,7 +133,7 @@ const Home: React.FC = () => {
           </button>
         </div>
       )}
-    </div>
+    </ResponsiveContainer>
   );
 };
 

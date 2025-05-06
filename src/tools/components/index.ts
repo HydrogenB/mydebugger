@@ -11,6 +11,7 @@ export { default as Tooltip } from './Tooltip';
 export { default as ThemeToggle } from './ThemeToggle';
 export { default as InfoBox } from './InfoBox';
 export { default as LoadingSpinner } from './LoadingSpinner';
+export { default as ResponsiveContainer } from './ResponsiveContainer';
 
 // New Advanced UI Components
 export { default as Accordion, AccordionItem } from './Accordion';
