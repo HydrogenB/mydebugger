@@ -2,17 +2,20 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 
 type EncodingMode = 'encode' | 'decode';
+type EncodingMethod = 'encodeURIComponent' | 'encodeURI' | 'escape';
 
 const UrlEncoder: React.FC = () => {
   const [input, setInput] = useState<string>('');
   const [output, setOutput] = useState<string>('');
   const [mode, setMode] = useState<EncodingMode>('encode');
   const [copied, setCopied] = useState<boolean>(false);
+  const [method, setMethod] = useState<EncodingMethod>('encodeURIComponent');
+  const [batchMode, setBatchMode] = useState<boolean>(false);
   
-  // Process input when mode or input changes
+  // Process input when mode, method or input changes
   React.useEffect(() => {
     processInput();
-  }, [input, mode]);
+  }, [input, mode, method, batchMode]);
   
   // Reset copied state after 2 seconds
   React.useEffect(() => {
@@ -30,12 +33,56 @@ const UrlEncoder: React.FC = () => {
     
     try {
       if (mode === 'encode') {
-        setOutput(encodeURIComponent(input));
+        if (batchMode) {
+          // Process each line separately
+          const lines = input.split('\n');
+          const encodedLines = lines.map(line => encodeByMethod(line, method));
+          setOutput(encodedLines.join('\n'));
+        } else {
+          setOutput(encodeByMethod(input, method));
+        }
       } else {
-        setOutput(decodeURIComponent(input));
+        if (batchMode) {
+          // Process each line separately
+          const lines = input.split('\n');
+          const decodedLines = lines.map(line => decodeByMethod(line, method));
+          setOutput(decodedLines.join('\n'));
+        } else {
+          setOutput(decodeByMethod(input, method));
+        }
       }
     } catch (error) {
       setOutput(`Error: ${error instanceof Error ? error.message : 'Invalid input'}`);
+    }
+  };
+  
+  const encodeByMethod = (text: string, method: EncodingMethod): string => {
+    switch (method) {
+      case 'encodeURIComponent':
+        return encodeURIComponent(text);
+      case 'encodeURI':
+        return encodeURI(text);
+      case 'escape':
+        return escape(text);
+      default:
+        return encodeURIComponent(text);
+    }
+  };
+  
+  const decodeByMethod = (text: string, method: EncodingMethod): string => {
+    try {
+      switch (method) {
+        case 'encodeURIComponent':
+          return decodeURIComponent(text);
+        case 'encodeURI':
+          return decodeURI(text);
+        case 'escape':
+          return unescape(text);
+        default:
+          return decodeURIComponent(text);
+      }
+    } catch (error) {
+      throw new Error(`Failed to decode "${text}". Please check if it's properly encoded.`);
     }
   };
   
@@ -101,6 +148,36 @@ const UrlEncoder: React.FC = () => {
                 </button>
               </div>
             </div>
+            
+            <div className="flex gap-4 mb-2">
+              <div className="flex-1">
+                <label htmlFor="method" className="block text-sm font-medium text-gray-700 mb-1">
+                  Encoding Method
+                </label>
+                <select
+                  id="method"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                  value={method}
+                  onChange={(e) => setMethod(e.target.value as EncodingMethod)}
+                >
+                  <option value="encodeURIComponent">encodeURIComponent (recommended)</option>
+                  <option value="encodeURI">encodeURI (preserves URL structure)</option>
+                  <option value="escape">escape (legacy, not recommended)</option>
+                </select>
+              </div>
+              <div className="flex items-end mb-1">
+                <label className="inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="form-checkbox h-5 w-5 text-blue-500"
+                    checked={batchMode}
+                    onChange={(e) => setBatchMode(e.target.checked)}
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Batch Mode (process line by line)</span>
+                </label>
+              </div>
+            </div>
+            
             <textarea
               id="input"
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-40"
@@ -206,6 +283,39 @@ const UrlEncoder: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        
+        {/* Methods Comparison */}
+        <div className="mt-8 border-t border-gray-200 pt-6">
+          <h2 className="text-xl font-semibold mb-4">Encoding Methods Compared</h2>
+          <div className="bg-white p-4 rounded-md border border-gray-200">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2">Method</th>
+                  <th className="text-left py-2">Usage</th>
+                  <th className="text-left py-2">Characters Preserved</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b">
+                  <td className="py-2 font-mono">encodeURIComponent</td>
+                  <td className="py-2">For encoding URL parameters and query values</td>
+                  <td className="py-2">A-Z a-z 0-9 - _ . ! ~ * ' ( )</td>
+                </tr>
+                <tr className="border-b">
+                  <td className="py-2 font-mono">encodeURI</td>
+                  <td className="py-2">For encoding a complete URL</td>
+                  <td className="py-2">A-Z a-z 0-9 - _ . ! ~ * ' ( ) ; / ? : @ & = + $ , #</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-mono">escape</td>
+                  <td className="py-2">Legacy method, not recommended</td>
+                  <td className="py-2">A-Z a-z 0-9 * @ - _ + . /</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
         
