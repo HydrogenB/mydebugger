@@ -127,10 +127,11 @@ export const Accordion: React.FC<AccordionProps> = ({
       divider && index > 0 ? 'border-t border-gray-200 dark:border-gray-700' : '',
     ].filter(Boolean).join(' ');
 
+    // Use proper type assertion for the props
     return React.cloneElement(child, {
       index,
       className: itemClassName,
-    });
+    } as Partial<AccordionItemProps & { index: number }>);
   });
 
   return (
