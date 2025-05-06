@@ -180,15 +180,16 @@ const toolRegistry: Tool[] = [
   {
     id: 'qrcode-generator',
     route: '/qrcode',
-    title: 'QR Code Generator',
-    description: 'Generate, customize, and download QR codes for any URL or text.',
+    title: 'Deep-Link Tester & QR Generator',
+    description: 'Generate QR codes for any link or deeplink, test them directly and share with your team.',
     icon: QrCodeIcon,
     component: lazy(() => import('./qrcode/QRCodeGenerator')),
     category: 'Utilities',
+    isPopular: true,
     metadata: {
-      keywords: ['qr code', 'qrcode', 'generator', 'scanner', 'mobile'],
+      keywords: ['qr code', 'qrcode', 'generator', 'scanner', 'mobile', 'deeplink', 'app link', 'url testing'],
       learnMoreUrl: 'https://en.wikipedia.org/wiki/QR_code',
-      relatedTools: ['url-encoder'],
+      relatedTools: ['url-encoder', 'headers-analyzer'],
     },
     uiOptions: {
       showExamples: true

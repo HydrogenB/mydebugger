@@ -1,47 +1,116 @@
 // @ts-nocheck
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import QRCode from 'qrcode';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-const QRCodeGenerator: React.FC = () => {
-  const [input, setInput] = useState<string>('');
-  const [size, setSize] = useState<number>(250);
+const DeepLinkQRGenerator: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const initialLink = searchParams.get('link') || '';
+  
+  const [input, setInput] = useState<string>(initialLink);
+  const [encodedLink, setEncodedLink] = useState<string>('');
+  const [size, setSize] = useState<number>(256);
   const [errorCorrection, setErrorCorrection] = useState<string>('M');
   const [darkColor, setDarkColor] = useState<string>('#000000');
   const [lightColor, setLightColor] = useState<string>('#FFFFFF');
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [copied, setCopied] = useState<boolean>(false);
-  const [qrType, setQrType] = useState<'text' | 'link'>('text');
+  const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [showCosmeticOptions, setShowCosmeticOptions] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const timeoutRef = useRef<number | null>(null);
+  
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const userAgent = navigator.userAgent || navigator.vendor;
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|windows phone/i.test(userAgent);
+      setIsMobile(isMobileDevice);
+    };
+    
+    checkMobile();
+    
+    // Load saved cosmetic options
+    const savedOptions = localStorage.getItem('qrCosmeticOptions');
+    if (savedOptions) {
+      try {
+        const options = JSON.parse(savedOptions);
+        setSize(options.size || 256);
+        setErrorCorrection(options.errorCorrection || 'M');
+        setDarkColor(options.darkColor || '#000000');
+        setLightColor(options.lightColor || '#FFFFFF');
+        setShowCosmeticOptions(options.showCosmeticOptions || false);
+      } catch (error) {
+        console.error("Error loading saved options:", error);
+      }
+    }
+  }, []);
+
+  // Save cosmetic options to localStorage when they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('qrCosmeticOptions', JSON.stringify({
+        size,
+        errorCorrection,
+        darkColor,
+        lightColor,
+        showCosmeticOptions
+      }));
+    } catch (error) {
+      console.error("Error saving options:", error);
+    }
+  }, [size, errorCorrection, darkColor, lightColor, showCosmeticOptions]);
   
   // Generate QR code when input or properties change
   useEffect(() => {
     if (input) {
-      generateQRCode();
+      // Set encoded link for display
+      setEncodedLink(encodeURIComponent(input));
+      // Generate QR code after short debounce
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        generateQRCode();
+      }, 300) as unknown as number;
     } else {
       setQrCodeUrl('');
+      setEncodedLink('');
     }
-  }, [input, size, errorCorrection, darkColor, lightColor, qrType]);
+    
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, [input, size, errorCorrection, darkColor, lightColor]);
   
-  // Reset copied state after 2 seconds
+  // Clear toast message after 2 seconds
   useEffect(() => {
-    if (copied) {
-      const timer = setTimeout(() => setCopied(false), 2000);
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(''), 2000);
       return () => clearTimeout(timer);
     }
-  }, [copied]);
+  }, [toastMessage]);
+
+  // Show helper message if deeplink taking too long
+  useEffect(() => {
+    if (isRunningLink) {
+      const timer = setTimeout(() => {
+        setToastMessage("If nothing happens, the app may not be installed or this link type isn't supported on your device.");
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isRunningLink]);
 
   // Generate QR code using the qrcode library
   const generateQRCode = async () => {
     try {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      
-      const content = qrType === 'link' && !input.startsWith('http') 
-        ? `https://${input}` 
-        : input;
+      if (!canvas || !input) return;
       
       // Configure QR code options
       const options = {
@@ -55,7 +124,7 @@ const QRCodeGenerator: React.FC = () => {
       };
       
       // Generate QR code on canvas
-      await QRCode.toCanvas(canvas, content, options);
+      await QRCode.toCanvas(canvas, input, options);
       
       // Convert canvas to data URL
       const dataUrl = canvas.toDataURL('image/png');
@@ -66,15 +135,55 @@ const QRCodeGenerator: React.FC = () => {
     }
   };
   
-  const handleCopyQRLink = () => {
-    if (!qrCodeUrl) return;
+  const copyToClipboard = useCallback((text: string, message: string) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setToastMessage(message);
+    } catch (error) {
+      console.error("Clipboard error:", error);
+      setToastMessage("Clipboard access denied. Please update your browser permissions.");
+    }
+  }, []);
+
+  const handleCopyEncodedLink = () => {
+    if (!encodedLink) return;
+    copyToClipboard(encodedLink, "Encoded link copied!");
+  };
+  
+  const handleCopyRawLink = () => {
+    if (!input) return;
+    copyToClipboard(input, "Link copied!");
+  };
+  
+  const handleCopyQRAsImage = async () => {
+    if (!canvasRef.current) return;
     
-    const contentToCopy = qrType === 'link' && !input.startsWith('http') 
-      ? `https://${input}` 
-      : input;
+    try {
+      const dataUrl = canvasRef.current.toDataURL('image/png');
+      const blob = await (await fetch(dataUrl)).blob();
       
-    navigator.clipboard.writeText(contentToCopy);
-    setCopied(true);
+      // Try to use the clipboard API for images if supported
+      if (navigator.clipboard && navigator.clipboard.write) {
+        const clipboardItem = new ClipboardItem({
+          [blob.type]: blob
+        });
+        await navigator.clipboard.write([clipboardItem]);
+        setToastMessage("QR image copied to clipboard!");
+      } else {
+        // Fallback - create a temp link and download
+        const link = document.createElement('a');
+        link.download = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setToastMessage("QR image downloaded (copy not supported in this browser)");
+      }
+    } catch (error) {
+      console.error("Error copying QR:", error);
+      handleDownloadQR();
+      setToastMessage("Image copy failed - downloaded instead");
+    }
   };
   
   const handleDownloadQR = () => {
@@ -86,53 +195,44 @@ const QRCodeGenerator: React.FC = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    setToastMessage("QR code downloaded!");
+  };
+  
+  const handleRunLink = () => {
+    if (!input || isMobile) return;
+    
+    setIsRunningLink(true);
+    setTimeout(() => {
+      try {
+        window.location.href = input;
+      } catch (error) {
+        console.error("Error opening link:", error);
+        setToastMessage("Error opening link");
+      }
+      setTimeout(() => setIsRunningLink(false), 1000);
+    }, 10);
+  };
+
+  const handleSharePageWithLink = () => {
+    if (!input) return;
+    
+    const currentUrl = new URL(window.location.href);
+    currentUrl.search = `?link=${encodeURIComponent(input)}`;
+    copyToClipboard(currentUrl.toString(), "Shareable link copied! Send to your team.");
   };
   
   const handleReset = () => {
     setInput('');
-    setSize(250);
-    setErrorCorrection('M');
-    setDarkColor('#000000');
-    setLightColor('#FFFFFF');
-    setQrCodeUrl('');
-    setQrType('text');
-  };
-  
-  // Handle saving QR code with link to local storage
-  const handleSaveToCollection = () => {
-    if (!input || !qrCodeUrl || !canvasRef.current) return;
+    setIsRunningLink(false);
     
-    try {
-      // Get existing saved QR codes or initialize empty array
-      const savedQRs = JSON.parse(localStorage.getItem('savedQRCodes') || '[]');
-      
-      const contentToSave = qrType === 'link' && !input.startsWith('http') 
-        ? `https://${input}` 
-        : input;
-      
-      // Add new QR code with its data URL
-      savedQRs.push({
-        url: contentToSave,
-        qrImage: canvasRef.current.toDataURL('image/png'),
-        nickname: `QR Code ${savedQRs.length + 1}`,
-        createdAt: new Date().toISOString(),
-        type: qrType
-      });
-      
-      // Save back to localStorage
-      localStorage.setItem('savedQRCodes', JSON.stringify(savedQRs));
-      
-      // Show temporary success message (could be implemented with a state variable)
-      alert('QR code saved to your collection!');
-    } catch (error) {
-      console.error("Error saving QR code:", error);
-      alert('Failed to save QR code');
-    }
+    // Don't reset cosmetic options as they're persistent
+    // Instead update the URL to remove the link param
+    navigate('/qrcode', { replace: true });
   };
   
   // SEO metadata
-  const pageTitle = "QR Code Generator | MyDebugger";
-  const pageDescription = "Generate QR codes for links, text, or data instantly without uploading to a server.";
+  const pageTitle = "Deep-Link Tester & QR Generator | MyDebugger";
+  const pageDescription = "Generate QR codes for links & deeplinks, test them directly and share with your team.";
   
   return (
     <>
@@ -149,191 +249,247 @@ const QRCodeGenerator: React.FC = () => {
       </Helmet>
       
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">QR Code Generator</h1>
+        <h1 className="text-3xl font-bold mb-2">Deep-Link Tester & QR Generator</h1>
         <p className="text-gray-600 mb-8">
-          Generate, customize, and download QR codes for any URL or text.
+          Generate QR codes for any URL or mobile deeplink (e.g., trueapp://app.true.th/home), test them on your device, and share with your team.
         </p>
         
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
+        {/* Toast Message */}
+        {toastMessage && (
+          <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+            {toastMessage}
+          </div>
+        )}
+        
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* Input Section */}
           <div className="flex-1">
             <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
-              <div className="mb-4">
-                <label htmlFor="qrType" className="block font-medium text-gray-700 mb-2">
-                  QR Code Type
-                </label>
-                <div className="flex space-x-4">
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio"
-                      name="qrType"
-                      value="text"
-                      checked={qrType === 'text'}
-                      onChange={() => setQrType('text')}
-                    />
-                    <span className="ml-2">Text</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    <input
-                      type="radio"
-                      className="form-radio"
-                      name="qrType"
-                      value="link"
-                      checked={qrType === 'link'}
-                      onChange={() => setQrType('link')}
-                    />
-                    <span className="ml-2">Link</span>
-                  </label>
-                </div>
-              </div>
-
               <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
-                {qrType === 'text' ? 'Text to Encode' : 'URL to Encode'}
+                URL or Deeplink
               </label>
               <input
                 type="text"
                 id="input"
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-4"
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={qrType === 'text' ? "Enter text to encode into QR code..." : "Enter URL to encode into QR code..."}
+                placeholder="Enter a URL or deeplink (e.g., trueapp://app.true.th/home)"
                 autoFocus
               />
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-1">
-                    Size (px)
+              {/* Encoded URL Display */}
+              {encodedLink && (
+                <div className="mt-2 mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Percent-Encoded (Safe for Sharing)
                   </label>
-                  <input
-                    type="range"
-                    id="size"
-                    className="w-full"
-                    min="100"
-                    max="500"
-                    step="10"
-                    value={size}
-                    onChange={(e) => setSize(parseInt(e.target.value))}
-                  />
-                  <div className="text-sm text-gray-500 text-right">{size}px</div>
-                </div>
-                <div>
-                  <label htmlFor="errorCorrection" className="block text-sm font-medium text-gray-700 mb-1">
-                    Error Correction
-                  </label>
-                  <select
-                    id="errorCorrection"
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                    value={errorCorrection}
-                    onChange={(e) => setErrorCorrection(e.target.value)}
-                  >
-                    <option value="L">Low (7%)</option>
-                    <option value="M">Medium (15%)</option>
-                    <option value="Q">Quartile (25%)</option>
-                    <option value="H">High (30%)</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label htmlFor="darkColor" className="block text-sm font-medium text-gray-700 mb-1">
-                    Dark Color
-                  </label>
-                  <div className="flex items-center">
-                    <input
-                      type="color"
-                      id="darkColor"
-                      className="h-8 w-8 rounded mr-2"
-                      value={darkColor}
-                      onChange={(e) => setDarkColor(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                      value={darkColor}
-                      onChange={(e) => setDarkColor(e.target.value)}
-                      maxLength={7}
-                    />
+                  <div className="flex">
+                    <div className="flex-1 bg-gray-50 rounded-md border border-gray-300 p-2 text-sm text-gray-600 break-all">
+                      {encodedLink}
+                    </div>
+                    <button
+                      onClick={handleCopyEncodedLink}
+                      className="ml-2 px-3 flex-shrink-0 rounded-md bg-gray-200 hover:bg-gray-300 transition"
+                      title="Copy encoded link"
+                    >
+                      <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                    </button>
                   </div>
                 </div>
-                <div>
-                  <label htmlFor="lightColor" className="block text-sm font-medium text-gray-700 mb-1">
-                    Light Color
-                  </label>
-                  <div className="flex items-center">
-                    <input
-                      type="color"
-                      id="lightColor"
-                      className="h-8 w-8 rounded mr-2"
-                      value={lightColor}
-                      onChange={(e) => setLightColor(e.target.value)}
-                    />
-                    <input
-                      type="text"
-                      className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                      value={lightColor}
-                      onChange={(e) => setLightColor(e.target.value)}
-                      maxLength={7}
-                    />
-                  </div>
-                </div>
-              </div>
+              )}
               
-              <div className="flex space-x-2">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                <button
+                  onClick={handleCopyRawLink}
+                  disabled={!input}
+                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
+                    input
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Copy Raw Link
+                </button>
+                <button
+                  onClick={handleSharePageWithLink}
+                  disabled={!input}
+                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
+                    input
+                      ? 'bg-indigo-500 hover:bg-indigo-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
+                  Share Page with Link Pre-filled
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  onClick={handleRunLink}
+                  disabled={!input || isMobile}
+                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
+                    input && !isMobile
+                      ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {isRunningLink ? "Opening..." : "Run on This Device"}
+                </button>
                 <button
                   onClick={handleReset}
-                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
+                  className="flex items-center justify-center px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
                 >
+                  <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
                   Reset
                 </button>
               </div>
+              
+              {/* Collapsible Cosmetic Options */}
+              <details 
+                className="mt-6 border-t border-gray-200 pt-4"
+                open={showCosmeticOptions}
+              >
+                <summary 
+                  className="text-md font-medium text-gray-700 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCosmeticOptions(!showCosmeticOptions);
+                  }}
+                >
+                  <span className="flex items-center">
+                    <svg 
+                      className={`h-5 w-5 mr-2 transition-transform ${showCosmeticOptions ? 'transform rotate-90' : ''}`} 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                    Customize QR Code
+                  </span>
+                </summary>
+                
+                <div className="pt-4 grid grid-cols-1 gap-4">
+                  <div>
+                    <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-1">
+                      Size (px)
+                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="range"
+                        id="size"
+                        className="flex-1 mr-3"
+                        min="128"
+                        max="512"
+                        step="8"
+                        value={size}
+                        onChange={(e) => setSize(parseInt(e.target.value))}
+                      />
+                      <div className="text-sm text-gray-500 w-12 text-right">{size}px</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="errorCorrection" className="block text-sm font-medium text-gray-700 mb-1">
+                        Error Correction
+                      </label>
+                      <select
+                        id="errorCorrection"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        value={errorCorrection}
+                        onChange={(e) => setErrorCorrection(e.target.value)}
+                      >
+                        <option value="L">Low (7%)</option>
+                        <option value="M">Medium (15%)</option>
+                        <option value="Q">Quartile (25%)</option>
+                        <option value="H">High (30%)</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="darkColor" className="block text-sm font-medium text-gray-700 mb-1">
+                        Dark Color
+                      </label>
+                      <div className="flex items-center">
+                        <input
+                          type="color"
+                          id="darkColor"
+                          className="h-8 w-8 rounded mr-2"
+                          value={darkColor}
+                          onChange={(e) => setDarkColor(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                          value={darkColor}
+                          onChange={(e) => setDarkColor(e.target.value)}
+                          maxLength={7}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="lightColor" className="block text-sm font-medium text-gray-700 mb-1">
+                        Light Color
+                      </label>
+                      <div className="flex items-center">
+                        <input
+                          type="color"
+                          id="lightColor"
+                          className="h-8 w-8 rounded mr-2"
+                          value={lightColor}
+                          onChange={(e) => setLightColor(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                          value={lightColor}
+                          onChange={(e) => setLightColor(e.target.value)}
+                          maxLength={7}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </details>
             </div>
           </div>
           
-          {/* Output Section */}
+          {/* QR Code Output Section */}
           <div className="flex-1">
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">QR Code Preview</h2>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={handleCopyQRLink}
-                    disabled={!qrCodeUrl}
-                    className={`px-3 py-1 rounded-md text-sm transition ${
-                      qrCodeUrl
-                        ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {copied ? 'Copied!' : 'Copy Content'}
-                  </button>
-                  <button
-                    onClick={handleDownloadQR}
-                    disabled={!qrCodeUrl}
-                    className={`px-3 py-1 rounded-md text-sm transition ${
-                      qrCodeUrl
-                        ? 'bg-green-500 hover:bg-green-600 text-white'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    Download PNG
-                  </button>
-                </div>
               </div>
               
-              <div className={`qr-preview flex flex-col items-center justify-center p-4 rounded bg-${lightColor === '#FFFFFF' ? 'gray-50' : 'white'} border border-gray-100`}>
+              <div className="flex-1 flex flex-col items-center justify-center p-4 rounded bg-gray-50 border border-gray-100 mb-4">
                 {qrCodeUrl ? (
                   <>
                     <img 
                       src={qrCodeUrl} 
-                      alt="QR Code" 
-                      className="mb-4" 
-                      style={{ maxWidth: '100%', height: 'auto' }}
+                      alt={`QR Code for: ${input}`} 
+                      className="mb-4 max-w-full"
+                      style={{ maxHeight: `${size}px`, height: 'auto' }}
                     />
-                    <div className="text-xs text-center text-gray-500 break-all mt-2">
-                      {qrType === 'link' && !input.startsWith('http') ? `https://${input}` : input}
+                    <div className="text-xs text-center text-gray-500 break-all mt-2 px-4">
+                      {input}
                     </div>
                   </>
                 ) : (
@@ -341,7 +497,7 @@ const QRCodeGenerator: React.FC = () => {
                     <svg className="h-16 w-16 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                     </svg>
-                    <p>Enter {qrType === 'text' ? 'text' : 'a URL'} to generate QR code</p>
+                    <p>Enter a URL or deeplink to generate QR code</p>
                   </div>
                 )}
               </div>
@@ -353,16 +509,26 @@ const QRCodeGenerator: React.FC = () => {
                 height={size}
               />
               
+              {/* QR Actions */}
               {qrCodeUrl && (
-                <div className="mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
-                    onClick={handleSaveToCollection}
-                    className="w-full py-2 rounded-md bg-indigo-500 hover:bg-indigo-600 text-white transition flex items-center justify-center"
+                    onClick={handleCopyQRAsImage}
+                    className="flex items-center justify-center px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
                   >
                     <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Save to My Collection
+                    Copy QR Image
+                  </button>
+                  <button
+                    onClick={handleDownloadQR}
+                    className="flex items-center justify-center px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white transition"
+                  >
+                    <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download PNG
                   </button>
                 </div>
               )}
@@ -370,80 +536,43 @@ const QRCodeGenerator: React.FC = () => {
           </div>
         </div>
         
-        {/* Saved QR Codes Section */}
-        <SavedQRCodes />
-        
-        {/* How to Use Section */}
+        {/* Usage Tips */}
         <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">How to Use QR Codes</h2>
+          <h2 className="text-xl font-semibold mb-4">Deep-Link Testing Tips</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <div className="text-blue-500 mb-3">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-              </div>
-              <h3 className="font-medium mb-2">Website URLs</h3>
-              <p className="text-sm text-gray-600">
-                Generate a QR code for your website to make it easy for mobile users to visit without typing the URL.
-              </p>
-            </div>
             <div className="bg-white p-4 rounded-md border border-gray-200">
               <div className="text-blue-500 mb-3">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="font-medium mb-2">Mobile Apps</h3>
+              <h3 className="font-medium mb-2">App Deeplinks</h3>
               <p className="text-sm text-gray-600">
-                Create QR codes for app download links, deep links, or to share contact information with others.
+                For custom scheme deeplinks (like <code>myapp://</code>), scan the QR code with a phone that has the app installed.
               </p>
             </div>
             <div className="bg-white p-4 rounded-md border border-gray-200">
               <div className="text-blue-500 mb-3">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="font-medium mb-2">Secure Sharing</h3>
+              <h3 className="font-medium mb-2">Share with Team</h3>
               <p className="text-sm text-gray-600">
-                Share sensitive links via QR codes for contactless transfer of information between devices.
+                Use "Share Page with Link Pre-filled" to send a ready-to-use link to teammates with the QR already configured.
               </p>
             </div>
-          </div>
-        </div>
-        
-        {/* Learn More Section */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Learn More</h2>
-          <div className="bg-white p-4 rounded-md border border-gray-200">
-            <p className="mb-2">
-              QR codes (Quick Response codes) are two-dimensional barcodes that can store data and be scanned by smartphone cameras.
-              They're widely used for sharing URLs, contact info, Wi-Fi credentials, and more.
-            </p>
-            <p className="mb-2">
-              Our QR code generator creates codes directly in your browser without sending your data to any server, protecting your privacy.
-            </p>
-            <div className="mt-4">
-              <h3 className="font-medium mb-2">Error Correction Levels:</h3>
-              <ul className="list-disc pl-5 text-gray-700">
-                <li className="mb-1"><strong>Low (L):</strong> Recovers up to 7% damage</li>
-                <li className="mb-1"><strong>Medium (M):</strong> Recovers up to 15% damage</li>
-                <li className="mb-1"><strong>Quartile (Q):</strong> Recovers up to 25% damage</li>
-                <li className="mb-1"><strong>High (H):</strong> Recovers up to 30% damage</li>
-              </ul>
+            <div className="bg-white p-4 rounded-md border border-gray-200">
+              <div className="text-blue-500 mb-3">
+                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+              </div>
+              <h3 className="font-medium mb-2">Testing Best Practices</h3>
+              <p className="text-sm text-gray-600">
+                For regression testing, first test your deeplinks on a fresh app install before testing on your development build.
+              </p>
             </div>
-            <a 
-              href="https://en.wikipedia.org/wiki/QR_code" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 font-medium inline-flex items-center mt-3"
-            >
-              Learn more about QR codes
-              <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
           </div>
         </div>
         
@@ -459,11 +588,11 @@ const QRCodeGenerator: React.FC = () => {
               <p className="text-gray-600">Encode or decode URL components safely.</p>
             </a>
             <a
-              href="/jwt"
+              href="/headers-analyzer"
               className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
             >
-              <h3 className="font-medium text-lg mb-1">JWT Decoder</h3>
-              <p className="text-gray-600">Decode and verify JSON Web Tokens (JWT) instantly.</p>
+              <h3 className="font-medium text-lg mb-1">Headers Analyzer</h3>
+              <p className="text-gray-600">Analyze HTTP headers and security policies of any website.</p>
             </a>
           </div>
         </div>
@@ -472,58 +601,4 @@ const QRCodeGenerator: React.FC = () => {
   );
 };
 
-// Component to display saved QR codes from localStorage
-const SavedQRCodes: React.FC = () => {
-  const [savedQRs, setSavedQRs] = useState<any[]>([]);
-  
-  // Load saved QR codes from localStorage on component mount
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('savedQRCodes') || '[]');
-      setSavedQRs(saved);
-    } catch (error) {
-      console.error("Error loading saved QR codes:", error);
-    }
-  }, []);
-  
-  // If no saved QR codes, don't render this section
-  if (!savedQRs.length) return null;
-  
-  return (
-    <div className="mt-8 border-t border-gray-200 pt-6">
-      <h2 className="text-xl font-semibold mb-4">Your Saved QR Codes</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {savedQRs.map((qr, index) => (
-          <div key={index} className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md">
-            <div className="flex justify-center mb-3">
-              <img src={qr.qrImage} alt="Saved QR Code" className="w-32 h-32" />
-            </div>
-            <div className="text-center">
-              <h3 className="font-medium text-gray-800">{qr.nickname}</h3>
-              <p className="text-xs text-gray-500 truncate mt-1">{qr.url}</p>
-              <div className="flex justify-center space-x-2 mt-2">
-                <a 
-                  href={qr.qrImage} 
-                  download={`${qr.nickname.replace(/[^a-zA-Z0-9]/g, '-')}.png`} 
-                  className="text-blue-500 hover:text-blue-600 text-sm"
-                >
-                  Download
-                </a>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(qr.url);
-                  }}
-                  className="text-blue-500 hover:text-blue-600 text-sm"
-                >
-                  Copy {qr.type === 'link' ? 'URL' : 'Text'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-export default QRCodeGenerator;
+export default DeepLinkQRGenerator;
