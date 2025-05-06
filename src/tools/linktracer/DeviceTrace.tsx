@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import ToolLayout from '../components/ToolLayout';
@@ -30,14 +30,76 @@ interface DeviceTraceResult {
   results: ScenarioResult[];
 }
 
+// Custom hook for persistent storage
+function useLocalStorage<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  // Get stored value from localStorage or use initialValue
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(`Error reading localStorage key "${key}":`, error);
+      return initialValue;
+    }
+  });
+
+  // Return a wrapped setter function that persists to localStorage
+  const setValue: React.Dispatch<React.SetStateAction<T>> = value => {
+    try {
+      // Allow function updates (same API as useState)
+      const valueToStore = value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error(`Error writing localStorage key "${key}":`, error);
+    }
+  };
+
+  return [storedValue, setValue];
+}
+
 const DeviceTrace: React.FC = () => {
   const tool = getToolByRoute('/device-trace');
+  
+  // URL and standard state
   const [url, setUrl] = useState<string>('');
+  const [showRecentUrls, setShowRecentUrls] = useState<boolean>(false);
   const [traceResults, setTraceResults] = useState<DeviceTraceResult | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [exportFeedback, setExportFeedback] = useState<string | null>(null);
+  
+  // Persistent storage for app identifiers and URL history
+  const [iosAppId, setIosAppId] = useLocalStorage<string>('probe:lastIosAppId', '');
+  const [androidPackage, setAndroidPackage] = useLocalStorage<string>('probe:lastAndroidPkg', '');
+  const [deepLinkScheme, setDeepLinkScheme] = useLocalStorage<string>('probe:lastScheme', '');
+  const [lastLink, setLastLink] = useLocalStorage<string>('probe:lastLink', '');
+  const [recentLinks, setRecentLinks] = useLocalStorage<string[]>('probe:recentLinks', []);
+  
   const feedbackTimeoutRef = useRef<number | null>(null);
+  const recentDropdownRef = useRef<HTMLDivElement | null>(null);
+  
+  // Set URL input from last link on mount
+  useEffect(() => {
+    if (lastLink) {
+      setUrl(lastLink);
+    }
+  }, [lastLink]);
+  
+  // Close recent URLs dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (recentDropdownRef.current && 
+          !recentDropdownRef.current.contains(event.target as Node)) {
+        setShowRecentUrls(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   // Handle trace submission
   const handleTrace = async () => {
@@ -45,6 +107,10 @@ const DeviceTrace: React.FC = () => {
       setError('Please enter a URL');
       return;
     }
+
+    // Update persistent storage
+    updateRecentLinks(url);
+    setLastLink(url);
 
     setLoading(true);
     setError(null);
@@ -75,6 +141,24 @@ const DeviceTrace: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Update recent links list
+  const updateRecentLinks = (newUrl: string) => {
+    setRecentLinks(prev => {
+      // Remove duplicate if exists
+      const filtered = prev.filter(link => link !== newUrl);
+      // Add new URL at the beginning
+      const updated = [newUrl, ...filtered];
+      // Keep only the last 3
+      return updated.slice(0, 3);
+    });
+  };
+  
+  // Select URL from recent list
+  const selectRecentUrl = (selectedUrl: string) => {
+    setUrl(selectedUrl);
+    setShowRecentUrls(false);
   };
 
   // Handle Enter key press
@@ -107,13 +191,13 @@ const DeviceTrace: React.FC = () => {
   const handleCopyTableCSV = () => {
     if (!traceResults) return;
     
-    // Create CSV header
-    let csv = 'Scenario,Final URL,Status,Hops,Latency (ms),Outcome\n';
+    // Create CSV header - Remove Outcome column
+    let csv = 'Scenario,Final URL,Status,Hops,Latency (ms)\n';
     
-    // Add each result row
+    // Add each result row - Remove Outcome value
     traceResults.results.forEach(result => {
       const finalHop = result.hops[result.hops.length - 1] || { status: 'N/A' };
-      csv += `"${result.name}","${result.finalUrl}",${finalHop.status},${result.hops.length},${result.totalTimeMs},"${result.isValidOutcome ? 'PASS' : 'FAIL'}"\n`;
+      csv += `"${result.name}","${result.finalUrl}",${finalHop.status},${result.hops.length},${result.totalTimeMs}\n`;
     });
     
     // Copy to clipboard
@@ -139,7 +223,7 @@ const DeviceTrace: React.FC = () => {
   };
 
   // Cleanup timeout on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (feedbackTimeoutRef.current) {
         window.clearTimeout(feedbackTimeoutRef.current);
@@ -190,19 +274,57 @@ const DeviceTrace: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Enter Dynamic Link (App Flyer / OneLink URL)
+                Dynamic Link URL
               </label>
-              <div className="flex">
-                <input
-                  id="url-input"
-                  type="text"
-                  className="flex-grow rounded-l-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50"
-                  placeholder="https://s.true.th/3aCz/s90009500"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  disabled={loading}
-                />
+              <div className="flex relative">
+                <div className="flex-grow flex">
+                  <input
+                    id="url-input"
+                    type="text"
+                    className="flex-grow rounded-l-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50"
+                    placeholder="https://example.onelink.me/abc"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    disabled={loading}
+                  />
+                  {recentLinks.length > 0 && (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        className="h-full px-3 border-t border-b border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200"
+                        onClick={() => setShowRecentUrls(!showRecentUrls)}
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      
+                      {showRecentUrls && (
+                        <div 
+                          ref={recentDropdownRef}
+                          className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-10"
+                        >
+                          <div className="py-1">
+                            <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                              Recent URLs
+                            </div>
+                            {recentLinks.map((link, i) => (
+                              <button
+                                key={i}
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 truncate"
+                                onClick={() => selectRecentUrl(link)}
+                              >
+                                {link}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
                 <Button
                   onClick={handleTrace}
                   isLoading={loading}
@@ -212,8 +334,52 @@ const DeviceTrace: React.FC = () => {
                   Probe Link
                 </Button>
               </div>
+              
+              {/* Additional fields for app identifiers */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+                <div>
+                  <label htmlFor="ios-app-id" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    iOS App Store ID (optional)
+                  </label>
+                  <input
+                    id="ios-app-id"
+                    type="text"
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
+                    placeholder="id123456789"
+                    value={iosAppId}
+                    onChange={(e) => setIosAppId(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="android-pkg" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Android Package Name (optional)
+                  </label>
+                  <input
+                    id="android-pkg"
+                    type="text"
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
+                    placeholder="com.example.app"
+                    value={androidPackage}
+                    onChange={(e) => setAndroidPackage(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="deep-link-scheme" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Deep-Link Scheme / Prefix (optional)
+                  </label>
+                  <input
+                    id="deep-link-scheme"
+                    type="text"
+                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
+                    placeholder="example://"
+                    value={deepLinkScheme}
+                    onChange={(e) => setDeepLinkScheme(e.target.value)}
+                  />
+                </div>
+              </div>
+              
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Enter any App Flyer dynamic link to test how it behaves across different device contexts.
+                Enter any App Flyer or Firebase dynamic link to test how it behaves across different device contexts.
               </p>
             </div>
 
@@ -261,9 +427,6 @@ const DeviceTrace: React.FC = () => {
                           <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             Latency
                           </th>
-                          <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                            Outcome
-                          </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -272,7 +435,7 @@ const DeviceTrace: React.FC = () => {
                           return (
                             <tr 
                               key={result.scenario} 
-                              className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'} ${!result.isValidOutcome ? 'bg-red-50 dark:bg-red-900/10' : ''}`}
+                              className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
                             >
                               <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {result.name}
@@ -286,7 +449,9 @@ const DeviceTrace: React.FC = () => {
                                     ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
                                     : (finalHop.status >= 300 && finalHop.status < 400)
                                       ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                                      : 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
+                                      : (finalHop.status >= 400 && finalHop.status < 500)
+                                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
+                                        : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                                 }`}>
                                   {finalHop.status}
                                 </span>
@@ -296,23 +461,6 @@ const DeviceTrace: React.FC = () => {
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                                 {result.totalTimeMs}ms
-                              </td>
-                              <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getOutcomeClass(result.isValidOutcome)}`}>
-                                  {result.isValidOutcome ? 'PASS' : 'FAIL'}
-                                </span>
-                                {result.warnings.length > 0 && (
-                                  <div className="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
-                                    {result.warnings.map((warning, i) => (
-                                      <div key={i} className="flex items-center">
-                                        <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                          <path d="M12 9V11M12 15H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0377 2.66667 10.2679 4L3.33975 16C2.56998 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                        </svg>
-                                        {formatWarning(warning)}
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
                               </td>
                             </tr>
                           );
