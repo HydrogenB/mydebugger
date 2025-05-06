@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
+import QRCode from 'qrcode';
 
 const QRCodeGenerator: React.FC = () => {
   const [input, setInput] = useState<string>('');
@@ -32,70 +32,30 @@ const QRCodeGenerator: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [copied]);
-  
-  // Function to draw a QR code dot on the canvas
-  const drawDot = (
-    ctx: CanvasRenderingContext2D, 
-    x: number, 
-    y: number, 
-    size: number, 
-    color: string
-  ) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, size, size);
-  };
 
-  // Generate a simple QR code using canvas
+  // Generate QR code using the qrcode library
   const generateQRCode = async () => {
     try {
       const canvas = canvasRef.current;
       if (!canvas) return;
       
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      
-      // Clear canvas
-      ctx.fillStyle = lightColor;
-      ctx.fillRect(0, 0, size, size);
-      
       const content = qrType === 'link' && !input.startsWith('http') 
         ? `https://${input}` 
         : input;
-        
-      // Create a pseudo-random pattern based on input content
-      // This is a simplified algorithm - not an actual QR code algorithm
-      const hash = simpleHash(content + errorCorrection);
-      const densityFactor = 0.15 + (errorCorrectionToNumber(errorCorrection) * 0.05);
       
-      // Generate the pattern
-      const dotSize = Math.max(2, Math.floor(size / 40));
-      const gridSize = Math.floor(size / dotSize);
-      
-      // Draw finder patterns (the three square markers in corners)
-      drawFinderPattern(ctx, 0, 0, gridSize, dotSize, darkColor, lightColor);
-      drawFinderPattern(ctx, 0, gridSize - 8, gridSize, dotSize, darkColor, lightColor);
-      drawFinderPattern(ctx, gridSize - 8, 0, gridSize, dotSize, darkColor, lightColor);
-      
-      // Draw data dots based on content hash
-      for (let y = 0; y < gridSize; y++) {
-        for (let x = 0; x < gridSize; x++) {
-          // Skip areas where finder patterns are
-          if ((x < 8 && y < 8) || 
-              (x < 8 && y > gridSize - 9) ||
-              (x > gridSize - 9 && y < 8)) {
-            continue;
-          }
-          
-          // Create a deterministic but seemingly random pattern
-          const shouldDraw = (
-            (Math.sin(x * y * hash * 0.1) + Math.cos(x + y + hash * 0.1)) > (2 - densityFactor * 4)
-          );
-          
-          if (shouldDraw) {
-            drawDot(ctx, x * dotSize, y * dotSize, dotSize, darkColor);
-          }
+      // Configure QR code options
+      const options = {
+        errorCorrectionLevel: errorCorrection,
+        margin: 1,
+        width: size,
+        color: {
+          dark: darkColor,
+          light: lightColor
         }
-      }
+      };
+      
+      // Generate QR code on canvas
+      await QRCode.toCanvas(canvas, content, options);
       
       // Convert canvas to data URL
       const dataUrl = canvas.toDataURL('image/png');
@@ -103,50 +63,6 @@ const QRCodeGenerator: React.FC = () => {
       
     } catch (error) {
       console.error("Error generating QR code:", error);
-    }
-  };
-  
-  // Draw a finder pattern (the three square markers in the corners of QR codes)
-  const drawFinderPattern = (
-    ctx: CanvasRenderingContext2D,
-    startX: number, 
-    startY: number,
-    gridSize: number,
-    dotSize: number,
-    darkColor: string,
-    lightColor: string
-  ) => {
-    // Outer 7x7 square
-    for (let y = 0; y < 7; y++) {
-      for (let x = 0; x < 7; x++) {
-        if ((x === 0 || x === 6 || y === 0 || y === 6) || // Outer frame
-            (x >= 2 && x <= 4 && y >= 2 && y <= 4)) {     // Inner square
-          drawDot(ctx, (startX + x) * dotSize, (startY + y) * dotSize, dotSize, darkColor);
-        } else {
-          drawDot(ctx, (startX + x) * dotSize, (startY + y) * dotSize, dotSize, lightColor);
-        }
-      }
-    }
-  };
-  
-  // Simple string hashing function to create deterministic patterns
-  const simpleHash = (str: string): number => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i);
-      hash |= 0;
-    }
-    return Math.abs(hash);
-  };
-  
-  // Convert error correction level to a number for calculations
-  const errorCorrectionToNumber = (level: string): number => {
-    switch (level) {
-      case 'L': return 1;
-      case 'M': return 2;
-      case 'Q': return 3;
-      case 'H': return 4;
-      default: return 2;
     }
   };
   
