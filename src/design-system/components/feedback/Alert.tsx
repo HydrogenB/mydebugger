@@ -28,7 +28,63 @@ export interface AlertProps {
 }
 
 /**
- * Alert Component - Used to display important messages to the user
+ * Alert - A component that displays important messages or feedback to users
+ * 
+ * @description
+ * Alerts are used to communicate status, provide feedback, or give information to users 
+ * about actions they've taken or issues they need to address. They can be informational, 
+ * confirmational (success), cautionary (warning), or error notifications.
+ * 
+ * Alerts support different visual styles based on their purpose, optional icons, 
+ * dismissibility, actions, and both filled and outlined appearances. They're designed 
+ * to draw appropriate attention while fitting into the UI seamlessly.
+ * 
+ * @accessibility
+ * - Uses appropriate ARIA role="alert" for dynamic alerts
+ * - Provides clear visual indications through color coding and icons
+ * - Close buttons include aria-label and visible text for screen readers
+ * - Color contrasts meet WCAG standards for all alert types
+ * - Supports keyboard navigation for interactive elements
+ * - Animations respect reduced motion preferences
+ * 
+ * @example
+ * ```tsx
+ * // Basic info alert
+ * <Alert type="info">
+ *   This is an informational message.
+ * </Alert>
+ * 
+ * // Success alert with title
+ * <Alert 
+ *   type="success" 
+ *   title="Operation completed"
+ * >
+ *   Your changes have been saved successfully.
+ * </Alert>
+ * 
+ * // Dismissible warning alert
+ * <Alert 
+ *   type="warning" 
+ *   dismissible 
+ *   onDismiss={() => console.log('Alert dismissed')}
+ * >
+ *   Your session will expire in 5 minutes.
+ * </Alert>
+ * 
+ * // Error alert with action button
+ * <Alert 
+ *   type="error" 
+ *   title="Connection failed"
+ *   action={<Button size="sm">Retry</Button>}
+ * >
+ *   Unable to connect to the server. Please check your connection.
+ * </Alert>
+ * 
+ * // Outlined style alert
+ * <Alert type="info" outlined>
+ *   This is an outlined informational alert.
+ * </Alert>
+ * ```
  */
 export const Alert: React.FC<AlertProps> = ({
   type = 'info',
@@ -44,17 +100,23 @@ export const Alert: React.FC<AlertProps> = ({
   action,
 }) => {
   const [visible, setVisible] = React.useState(true);
+  const [isExiting, setIsExiting] = React.useState(false);
   
   if (!visible) {
     return null;
   }
   
-  // Handle close button click
+  // Handle close button click with exit animation
   const handleDismiss = () => {
-    setVisible(false);
-    if (onDismiss) {
-      onDismiss();
-    }
+    setIsExiting(true);
+    
+    // Wait for animation to complete
+    setTimeout(() => {
+      setVisible(false);
+      if (onDismiss) {
+        onDismiss();
+      }
+    }, 300); // Match transition duration
   };
   
   // Configure styles based on alert type
@@ -99,14 +161,26 @@ export const Alert: React.FC<AlertProps> = ({
   
   const style = outlined ? alertStyles[type].outlined : alertStyles[type].solid;
   
+  // Animation classes
+  const animationClasses = isExiting
+    ? 'animate-fade-out motion-reduce:opacity-0 motion-reduce:transition-opacity'
+    : 'animate-fade-in motion-reduce:animate-none';
+  
   return (
     <div id={id} className={`${containerClassName}`}>
       <div
-        className={`flex p-4 mb-4 border-l-4 rounded-md ${style} ${className}`}
+        className={`flex p-4 mb-4 border-l-4 rounded-md ${style} ${animationClasses} transition-all duration-300 motion-reduce:transition-none ${className}`}
         role="alert"
+        aria-live="polite"
       >
         <div className="flex items-start">
-          {showIcon && <div className="flex-shrink-0 mr-3">{alertStyles[type].icon}</div>}
+          {showIcon && (
+            <div className="flex-shrink-0 mr-3">
+              <div className="transition-transform duration-200 ease-in-out motion-reduce:transform-none">
+                {alertStyles[type].icon}
+              </div>
+            </div>
+          )}
           <div className="flex-1">
             {title && <h3 className="text-sm font-medium mb-1">{title}</h3>}
             <div className="text-sm">{children}</div>
@@ -117,14 +191,14 @@ export const Alert: React.FC<AlertProps> = ({
         {dismissible && (
           <button
             type="button"
-            className="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 motion-reduce:transition-none"
             onClick={handleDismiss}
             aria-label="Close"
           >
             <span className="sr-only">Close</span>
             <svg
               aria-hidden="true"
-              className="w-5 h-5"
+              className="w-5 h-5 transform transition-transform duration-200 hover:scale-110 motion-reduce:transform-none"
               fill="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"

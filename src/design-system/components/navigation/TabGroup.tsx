@@ -68,7 +68,75 @@ export interface TabPanelProps {
 }
 
 /**
- * TabGroup Component - A component that organizes content into multiple tabs
+ * TabGroup - A component that organizes content into multiple selectable tabs
+ * 
+ * @description
+ * TabGroup organizes content into multiple tabs, showing one panel at a time.
+ * This component improves UI organization for complex interfaces by separating
+ * content into logical sections that users can switch between. TabGroup supports
+ * different visual styles, sizes, and alignments to match design requirements.
+ * 
+ * TabGroup consists of Tab components for navigation and TabPanel components for content,
+ * and can be controlled (external state) or uncontrolled (internal state).
+ * 
+ * @accessibility
+ * - Implements ARIA roles (tablist, tab, tabpanel) for proper screen reader navigation
+ * - Manages keyboard focus and tabIndex for keyboard navigation
+ * - Includes proper ARIA relationships between tabs and panels
+ * - Provides visible active states with appropriate color contrast
+ * - Supports disabled tabs with proper styling and ARIA attributes
+ * - Includes smooth animations with reduced motion support
+ * 
+ * @example
+ * ```tsx
+ * // Basic tab group
+ * <TabGroup>
+ *   <Tab id="tab1" label="Details" />
+ *   <Tab id="tab2" label="Settings" />
+ *   <Tab id="tab3" label="History" disabled />
+ *   
+ *   <TabPanel id="tab1">
+ *     <p>Details content goes here</p>
+ *   </TabPanel>
+ *   <TabPanel id="tab2">
+ *     <p>Settings content goes here</p>
+ *   </TabPanel>
+ *   <TabPanel id="tab3">
+ *     <p>History content goes here</p>
+ *   </TabPanel>
+ * </TabGroup>
+ * 
+ * // Custom styled tab group
+ * <TabGroup 
+ *   variant="pills" 
+ *   size="lg"
+ *   alignment="center"
+ *   defaultTab="settings"
+ * >
+ *   <Tab id="account" label="Account" icon={<UserIcon />} />
+ *   <Tab id="settings" label="Settings" icon={<GearIcon />} />
+ *   <TabPanel id="account">{accountContent}</TabPanel>
+ *   <TabPanel id="settings">{settingsContent}</TabPanel>
+ * </TabGroup>
+ * 
+ * // Controlled tab group
+ * const [activeTab, setActiveTab] = useState("tab1");
+ * 
+ * <TabGroup 
+ *   activeTab={activeTab} 
+ *   onChange={setActiveTab}
+ * >
+ *   {tabs.map(tab => (
+ *     <Tab key={tab.id} id={tab.id} label={tab.label} />
+ *   ))}
+ *   
+ *   {tabs.map(tab => (
+ *     <TabPanel key={tab.id} id={tab.id}>
+ *       {tab.content}
+ *     </TabPanel>
+ *   ))}
+ * </TabGroup>
+ * ```
  */
 export const TabGroup: React.FC<TabGroupProps> = ({
   id = 'tab-group',
@@ -207,7 +275,31 @@ export const TabGroup: React.FC<TabGroupProps> = ({
 };
 
 /**
- * Tab Component - Individual tab button
+ * Tab - Individual selectable tab button within a TabGroup
+ * 
+ * @description
+ * Tab represents a single selectable option within a TabGroup.
+ * When selected, it displays its corresponding TabPanel content.
+ * 
+ * Tabs can include text labels, icons, and status badges, and can be
+ * enabled or disabled based on application needs.
+ * 
+ * @example
+ * ```tsx
+ * // Basic tab
+ * <Tab id="profile" label="User Profile" />
+ * 
+ * // Tab with icon and badge
+ * <Tab 
+ *   id="notifications" 
+ *   label="Notifications" 
+ *   icon={<BellIcon />} 
+ *   badge={<Badge>3</Badge>}
+ * />
+ * 
+ * // Disabled tab
+ * <Tab id="admin" label="Admin Settings" disabled />
+ * ```
  */
 export const Tab: React.FC<TabItemProps> = ({
   id,
@@ -244,7 +336,7 @@ export const Tab: React.FC<TabItemProps> = ({
   // Get classes based on variant
   const getTabClasses = () => {
     const classes = [
-      'focus:outline-none transition-all duration-200 font-medium',
+      'focus:outline-none transition-all duration-200 motion-reduce:transition-none font-medium',
       sizeClasses[size],
       disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       className,
@@ -257,15 +349,16 @@ export const Tab: React.FC<TabItemProps> = ({
     switch (variant) {
       case 'pills':
         classes.push(
-          'rounded-md',
+          'rounded-md transform transition-transform duration-150 motion-reduce:transform-none',
           isActive
-            ? 'bg-primary-600 text-white dark:bg-primary-500 shadow-sm'
-            : 'text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
+            ? 'bg-primary-600 text-white dark:bg-primary-500 shadow-sm scale-105'
+            : 'text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95'
         );
         break;
         
       case 'boxed':
         classes.push(
+          'transition-colors duration-200 motion-reduce:transition-none',
           isActive
             ? 'bg-white dark:bg-gray-800 border-b-2 border-primary-500 dark:border-primary-400'
             : 'bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-750'
@@ -280,16 +373,16 @@ export const Tab: React.FC<TabItemProps> = ({
         
       case 'buttons':
         classes.push(
-          'border rounded-md',
+          'border rounded-md transform transition-transform duration-150 motion-reduce:transform-none',
           isActive
-            ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 dark:border-primary-500 text-primary-700 dark:text-primary-300'
-            : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500'
+            ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-500 dark:border-primary-500 text-primary-700 dark:text-primary-300 shadow-sm'
+            : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 active:scale-95'
         );
         break;
         
       default: // underlined
         classes.push(
-          'pb-2 border-b-2',
+          'pb-2 border-b-2 transition-all duration-200 motion-reduce:transition-none',
           isActive
             ? 'border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-400'
             : 'border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 hover:border-gray-300 dark:hover:text-gray-100 dark:hover:border-gray-600'
@@ -312,10 +405,10 @@ export const Tab: React.FC<TabItemProps> = ({
       disabled={disabled}
     >
       <div className="flex items-center">
-        {icon && <span className="mr-2">{icon}</span>}
+        {icon && <span className="mr-2 transition-transform duration-200 group-hover:translate-y-0.5 motion-reduce:transform-none">{icon}</span>}
         {label}
         {badge && (
-          <span className="ml-2">{badge}</span>
+          <span className="ml-2 transition-transform duration-200 motion-reduce:transform-none">{badge}</span>
         )}
       </div>
     </button>
@@ -323,7 +416,25 @@ export const Tab: React.FC<TabItemProps> = ({
 };
 
 /**
- * TabPanel - Content panel for a tab
+ * TabPanel - Content container that corresponds to a Tab
+ * 
+ * @description
+ * TabPanel contains the content associated with a specific Tab.
+ * It's shown when its corresponding tab is active and hidden otherwise.
+ * 
+ * TabPanels can optionally be kept mounted in the DOM even when hidden,
+ * which preserves state but may impact performance.
+ * 
+ * @example
+ * ```tsx
+ * <TabPanel id="profile">
+ *   <UserProfileForm />
+ * </TabPanel>
+ * 
+ * <TabPanel id="settings" keepMounted>
+ *   <SettingsForm />
+ * </TabPanel>
+ * ```
  */
 export const TabPanel: React.FC<TabPanelProps> = ({
   id,
@@ -350,7 +461,8 @@ export const TabPanel: React.FC<TabPanelProps> = ({
       id={`tabpanel-${id}`}
       role="tabpanel"
       aria-labelledby={`tab-${id}`}
-      className={isActive ? 'animate-fadeIn' : 'hidden'}
+      className={isActive ? 'animate-fadeIn motion-reduce:animate-none' : 'hidden'}
+      tabIndex={0}
     >
       {children}
     </div>

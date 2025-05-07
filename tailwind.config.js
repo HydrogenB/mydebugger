@@ -45,16 +45,27 @@ export default {
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
+        'fade-out': 'fadeOut 0.3s ease-in-out',
         'slide-in-right': 'slideInRight 0.3s ease-in-out',
         'slide-in-left': 'slideInLeft 0.3s ease-in-out',
         'slide-in-up': 'slideInUp 0.3s ease-in-out',
         'slide-in-down': 'slideInDown 0.3s ease-in-out',
         'bounce-in': 'bounceIn 0.5s ease-in-out',
+        'scale-in': 'scaleIn 0.3s ease-out',
+        'scale-out': 'scaleOut 0.3s ease-in',
+        'tooltip-fade-down': 'tooltipFadeDown 0.2s ease-out forwards',
+        'tooltip-fade-up': 'tooltipFadeUp 0.2s ease-out forwards',
+        'tooltip-fade-left': 'tooltipFadeLeft 0.2s ease-out forwards',
+        'tooltip-fade-right': 'tooltipFadeRight 0.2s ease-out forwards',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
         },
         slideInRight: {
           '0%': { transform: 'translateX(100%)', opacity: '0' },
@@ -77,6 +88,44 @@ export default {
           '70%': { transform: 'scale(1.05)', opacity: '1' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        scaleIn: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        scaleOut: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '100%': { transform: 'scale(0.9)', opacity: '0' },
+        },
+        tooltipFadeDown: {
+          '0%': { opacity: '0', transform: 'translateY(-8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        tooltipFadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        tooltipFadeLeft: {
+          '0%': { opacity: '0', transform: 'translateX(8px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        tooltipFadeRight: {
+          '0%': { opacity: '0', transform: 'translateX(-8px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+      },
+      transitionDuration: {
+        '50': '50ms',
+        '250': '250ms',
+        '350': '350ms',
+        '450': '450ms',
+        '600': '600ms',
+      },
+      transitionTimingFunction: {
+        'emphasized': 'cubic-bezier(0.2, 0, 0, 1)',
+        'emphasized-decelerate': 'cubic-bezier(0.05, 0.7, 0.1, 1.0)',
+        'emphasized-accelerate': 'cubic-bezier(0.3, 0, 0.8, 0.15)',
+        'spring': 'cubic-bezier(0.5, 0, 0.1, 1.2)',
+        'bounce': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
       },
       typography: {
         DEFAULT: {
@@ -93,11 +142,33 @@ export default {
         'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
         'soft': '0 2px 15px 0 rgba(0, 0, 0, 0.05)',
         'card': '0 5px 15px rgba(0, 0, 0, 0.08)',
+        'interactive': '0 2px 10px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1)',
+        'elevated': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
       },
     },
   },
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
+    function({ addUtilities }) {
+      const newUtilities = {
+        // Add reduced motion utilities
+        '.motion-reduce': {
+          '@media (prefers-reduced-motion: reduce)': {
+            'animation-duration': '0.001ms !important',
+            'transition-duration': '0.001ms !important',
+            'animation-iteration-count': '1 !important',
+          }
+        },
+        // Custom animation utilities for components
+        '.animate-fade-in-dialog': {
+          animation: 'scaleIn 0.3s ease-out forwards'
+        },
+        '.animate-fade-out-dialog': {
+          animation: 'scaleOut 0.2s ease-in forwards'
+        },
+      }
+      addUtilities(newUtilities)
+    }
   ],
 }

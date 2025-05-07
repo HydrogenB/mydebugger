@@ -41,8 +41,35 @@ export interface BadgeProps {
 }
 
 /**
- * Badge component for displaying counts and status indicators
- * Supports different variants, sizes, and display modes
+ * Badge - A versatile component for displaying status indicators, counts, and notifications
+ * 
+ * @description
+ * Badges are small visual indicators typically used to display counts, status, or to 
+ * highlight new or unread items. They can appear as standalone components or be attached 
+ * to other elements like buttons or navigation items.
+ * 
+ * @accessibility
+ * - When used as a button (with onClick handler), includes appropriate role="button" and tabIndex
+ * - Contrast ratios meet WCAG standards for all variants
+ * - When displaying numbers, respects max prop to ensure the text remains readable
+ * 
+ * @example
+ * ```tsx
+ * // Basic badge
+ * <Badge>42</Badge>
+ * 
+ * // Status badge
+ * <Badge variant="success">Active</Badge>
+ * 
+ * // Notification dot
+ * <BadgeContainer>
+ *   <Icon name="bell" />
+ *   <Badge dot variant="danger" />
+ * </BadgeContainer>
+ * 
+ * // With maximum value
+ * <Badge max={99}>150</Badge> // Displays "99+"
+ * ```
  */
 export const Badge: React.FC<BadgeProps> = ({
   children,
@@ -134,10 +161,35 @@ export const Badge: React.FC<BadgeProps> = ({
 };
 
 /**
- * Badge container component to position badges relative to their containers
+ * BadgeContainer - A wrapper component to position badges relative to their parent elements
+ * 
+ * @description
+ * BadgeContainer creates a positioning context for badges, allowing them to be properly
+ * positioned relative to other elements like icons, buttons, or menu items.
+ * 
+ * @accessibility
+ * - Maintains proper parent-child relationship for assistive technologies
+ * - Preserves the accessibility of wrapped children
+ * 
+ * @example
+ * ```tsx
+ * // Basic usage with notification badge
+ * <BadgeContainer>
+ *   <Button>Notifications</Button>
+ *   <Badge>5</Badge>
+ * </BadgeContainer>
+ * 
+ * // With status indicator
+ * <BadgeContainer>
+ *   <Avatar src="/user.jpg" alt="User profile" />
+ *   <Badge dot variant="success" />
+ * </BadgeContainer>
+ * ```
  */
 export const BadgeContainer: React.FC<{
+  /** Elements to wrap with the badge container */
   children: React.ReactNode;
+  /** Optional CSS class to apply to the container */
   className?: string;
 }> = ({ 
   children, 

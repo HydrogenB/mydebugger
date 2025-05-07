@@ -68,7 +68,60 @@ interface ModalComponent extends React.FC<ModalProps> {
 }
 
 /**
- * Modal component for creating accessible dialogs
+ * Modal - A dialog component that focuses user attention on specific content or actions
+ * 
+ * @description
+ * Modals present content in a layer that sits above the page, requiring user interaction
+ * before they can return to the underlying page. They're useful for focusing attention on
+ * important information, collecting user input, or presenting details without navigating
+ * away from the current context.
+ * 
+ * The Modal component provides a customizable and accessible dialog with support for
+ * different sizes, animations, headers, footers, and content areas. It manages focus
+ * trapping and keyboard interactions automatically.
+ * 
+ * @accessibility
+ * - Uses ARIA role="dialog" and aria-modal="true" for screen reader identification
+ * - Manages keyboard focus trapping within the modal when open
+ * - Supports closing via ESC key for keyboard users
+ * - Associates header text with the dialog using aria-labelledby
+ * - Associates description text with the dialog using aria-describedby
+ * - Provides proper focus management when opening and closing
+ * - Respects reduced motion preferences for animations
+ * 
+ * @example
+ * ```tsx
+ * // Basic modal with title and buttons
+ * const [isOpen, setIsOpen] = useState(false);
+ * 
+ * <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
+ * 
+ * <Modal
+ *   isOpen={isOpen}
+ *   onClose={() => setIsOpen(false)}
+ *   title="Confirm Action"
+ *   footer={
+ *     <>
+ *       <Button variant="light" onClick={() => setIsOpen(false)}>Cancel</Button>
+ *       <Button onClick={handleConfirm}>Confirm</Button>
+ *     </>
+ *   }
+ * >
+ *   <p>Are you sure you want to proceed with this action?</p>
+ * </Modal>
+ * 
+ * // Using Modal with compositional components
+ * <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+ *   <Modal.Header title="Edit Profile" subtitle="Update your profile information" onClose={handleClose} />
+ *   <Modal.Body>
+ *     <Form>{/* form fields */}</Form>
+ *   </Modal.Body>
+ *   <Modal.Footer>
+ *     <Button variant="light" onClick={handleClose}>Cancel</Button>
+ *     <Button onClick={handleSave}>Save Changes</Button>
+ *   </Modal.Footer>
+ * </Modal>
+ * ```
  */
 export const Modal: ModalComponent = ({
   isOpen,
@@ -152,13 +205,13 @@ export const Modal: ModalComponent = ({
     full: 'max-w-full min-h-screen w-full m-0',
   };
   
-  // Transition classes
+  // Transition classes with reduced motion support
   const backdropTransitionClasses = animate 
-    ? 'transition-opacity duration-300 ease-in-out'
+    ? 'transition-opacity duration-300 ease-in-out motion-reduce:transition-none'
     : '';
     
   const modalTransitionClasses = animate
-    ? 'transition-all duration-300 ease-in-out'
+    ? 'transition-all duration-300 ease-in-out motion-reduce:transition-none'
     : '';
   
   // Modal container classes
@@ -204,7 +257,7 @@ export const Modal: ModalComponent = ({
         ref={modalRef}
         className={modalContainerClasses}
         style={{ 
-          transform: isOpen ? 'scale(1)' : 'scale(0.95)',
+          transform: isOpen ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(-10px)',
           opacity: isOpen ? 1 : 0
         }}
         id={id}
@@ -236,11 +289,11 @@ export const Modal: ModalComponent = ({
             {showCloseButton && (
               <button
                 type="button"
-                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors duration-200 motion-reduce:transition-none"
                 onClick={onClose}
                 aria-label="Close modal"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
@@ -252,7 +305,7 @@ export const Modal: ModalComponent = ({
         <div className={`p-6 ${fullHeight ? 'overflow-y-auto flex-1' : ''}`}>
           {loading ? (
             <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500"></div>
+              <div className="animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite] rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-500"></div>
             </div>
           ) : (
             children
@@ -275,6 +328,19 @@ export const Modal: ModalComponent = ({
 
 /**
  * Modal.Header - A reusable header component for modals
+ * 
+ * @description
+ * Provides a consistent header layout for modals with optional title, subtitle,
+ * and close button. Use this component for semantic markup and consistent styling.
+ * 
+ * @example
+ * ```tsx
+ * <Modal.Header 
+ *   title="Edit Profile"
+ *   subtitle="Update your personal information" 
+ *   onClose={handleClose}
+ * />
+ * ```
  */
 Modal.Header = function ModalHeader({
   title,
@@ -300,7 +366,7 @@ Modal.Header = function ModalHeader({
       {onClose && (
         <button
           type="button"
-          className="p-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full"
+          className="p-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-full transition-colors duration-200 motion-reduce:transition-none"
           onClick={onClose}
           aria-label="Close"
         >
@@ -315,6 +381,18 @@ Modal.Header = function ModalHeader({
 
 /**
  * Modal.Footer - A reusable footer component for modals
+ * 
+ * @description
+ * Provides a consistent footer layout for modals, typically containing action buttons.
+ * The footer is styled with a top border and right-aligned content by default.
+ * 
+ * @example
+ * ```tsx
+ * <Modal.Footer>
+ *   <Button variant="light" onClick={handleCancel}>Cancel</Button>
+ *   <Button onClick={handleSave}>Save Changes</Button>
+ * </Modal.Footer>
+ * ```
  */
 Modal.Footer = function ModalFooter({
   children,
@@ -329,6 +407,20 @@ Modal.Footer = function ModalFooter({
 
 /**
  * Modal.Body - A component for the modal's body content
+ * 
+ * @description
+ * Provides consistent padding and styling for the main content area of a modal.
+ * 
+ * @example
+ * ```tsx
+ * <Modal.Body>
+ *   <p>This is the main content of the modal.</p>
+ *   <Form>
+ *     <TextInput label="Name" />
+ *     <TextInput label="Email" type="email" />
+ *   </Form>
+ * </Modal.Body>
+ * ```
  */
 Modal.Body = function ModalBody({
   children,

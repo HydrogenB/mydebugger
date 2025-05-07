@@ -45,7 +45,53 @@ export interface CardProps {
 }
 
 /**
- * Card component - Versatile container component for grouped content
+ * Card - A flexible container for grouping and displaying content
+ * 
+ * @description
+ * Cards are used to group and display content in a clear and concise format.
+ * They can contain text, images, actions, and other UI components. Cards provide
+ * a consistent way to present information across the application, with options
+ * for headers, footers, and different visual styles.
+ * 
+ * Cards can be simple containers or interactive elements that link to detailed content.
+ * They support various states including loading, hover effects, and color variants
+ * to match different use cases and information priority levels.
+ * 
+ * @accessibility
+ * - When used as interactive elements (with onClick or href), includes proper focus styles
+ * - Maintains proper heading hierarchy when using titles
+ * - Provides visual loading state with accessible indicators
+ * - Ensures sufficient color contrast in all variants and modes
+ * - Uses semantic HTML structure with appropriate ARIA attributes when needed
+ * 
+ * @example
+ * ```tsx
+ * // Basic card
+ * <Card title="Card Title">
+ *   <p>Card content goes here</p>
+ * </Card>
+ * 
+ * // Card with all features
+ * <Card
+ *   title="Feature Overview"
+ *   subtitle="Learn about our product features"
+ *   actions={<Button variant="ghost" size="sm">View All</Button>}
+ *   footer="Last updated: Yesterday"
+ *   isElevated
+ * >
+ *   <p>Detailed description of features...</p>
+ * </Card>
+ * 
+ * // Interactive card
+ * <Card
+ *   isInteractive
+ *   onClick={() => navigateToDetail(item.id)}
+ *   title={item.name}
+ *   image={{ src: item.imageUrl, alt: item.name }}
+ * >
+ *   <p>{item.description}</p>
+ * </Card>
+ * ```
  */
 export const Card: React.FC<CardProps> & {
   Header: typeof CardHeader;
@@ -76,10 +122,11 @@ export const Card: React.FC<CardProps> & {
     'bg-white dark:bg-gray-800 overflow-hidden flex flex-col h-full',
     bordered ? 'border border-gray-200 dark:border-gray-700' : '',
     shadowed || isElevated ? 'shadow-sm' : '',
-    (hoverable || isInteractive) ? 'transition-shadow duration-200 hover:shadow-md' : '',
+    (hoverable || isInteractive) ? 'transition-all duration-200 motion-reduce:transition-none hover:shadow-md' : '',
     'rounded-lg',
-    (onClick || href || isInteractive) ? 'cursor-pointer' : '',
+    (onClick || href || isInteractive) ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2' : '',
     isElevated ? 'shadow-md' : '',
+    isInteractive ? 'transform hover:-translate-y-1 transition-transform duration-300 motion-reduce:transform-none' : '',
     className,
   ];
   
@@ -116,6 +163,7 @@ export const Card: React.FC<CardProps> & {
     id,
     ...(href ? { href } : {}),
     ...(onClick ? { onClick: handleClick } : {}),
+    ...(onClick || href ? { tabIndex: 0, role: 'button' } : {}),
   };
   
   return (
@@ -126,7 +174,7 @@ export const Card: React.FC<CardProps> & {
           <img
             src={image.src}
             alt={image.alt || ''}
-            className={`w-full object-cover ${image.className || ''}`}
+            className={`w-full object-cover transition-opacity duration-300 motion-reduce:transition-none ${image.className || ''}`}
             style={{ height: image.height }}
           />
         </div>
@@ -155,7 +203,7 @@ export const Card: React.FC<CardProps> & {
       <div className={`flex-1 ${padded && !title ? 'p-4' : ''}`}>
         {loading ? (
           <div className="flex justify-center items-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
+            <div className="animate-spin motion-reduce:animate-[spin_1.5s_linear_infinite] rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-500"></div>
           </div>
         ) : (
           children
@@ -173,13 +221,36 @@ export const Card: React.FC<CardProps> & {
 };
 
 /**
- * CardHeader - Component for the card header
+ * CardHeader - Component for the card header section
+ * 
+ * @description
+ * A specialized component for creating consistent card headers
+ * with optional title, subtitle, and action elements.
+ * 
+ * @example
+ * ```tsx
+ * <Card>
+ *   <Card.Header 
+ *     title="Analytics Overview" 
+ *     subtitle="Past 30 days" 
+ *     actions={<Button size="sm">Refresh</Button>}
+ *   />
+ *   <Card.Body>
+ *     {content}
+ *   </Card.Body>
+ * </Card>
+ * ```
  */
 const CardHeader: React.FC<{
+  /** Header title */
   title?: React.ReactNode;
+  /** Header subtitle */
   subtitle?: React.ReactNode;
+  /** Actions to display in the header (e.g. buttons) */
   actions?: React.ReactNode;
+  /** Custom CSS class */
   className?: string;
+  /** Whether to show a divider below the header */
   divider?: boolean;
 }> = ({ 
   title, 
@@ -208,11 +279,27 @@ const CardHeader: React.FC<{
 };
 
 /**
- * CardBody - Component for the card content
+ * CardBody - Component for the main content area of a card
+ * 
+ * @description
+ * Contains the primary content of a card with optional padding control.
+ * 
+ * @example
+ * ```tsx
+ * <Card>
+ *   <Card.Header title="User Profile" />
+ *   <Card.Body padded>
+ *     <UserProfileContent />
+ *   </Card.Body>
+ * </Card>
+ * ```
  */
 const CardBody: React.FC<{
+  /** Card body content */
   children: React.ReactNode;
+  /** Custom CSS class */
   className?: string;
+  /** Whether to add padding around content */
   padded?: boolean;
 }> = ({ 
   children, 
@@ -227,12 +314,31 @@ const CardBody: React.FC<{
 };
 
 /**
- * CardFooter - Component for the card footer
+ * CardFooter - Component for the card footer section
+ * 
+ * @description
+ * A specialized component for creating consistent card footers
+ * with options for content alignment and styling.
+ * 
+ * @example
+ * ```tsx
+ * <Card>
+ *   <Card.Body>{content}</Card.Body>
+ *   <Card.Footer align="between">
+ *     <span>Created 2 days ago</span>
+ *     <Button variant="primary">View Details</Button>
+ *   </Card.Footer>
+ * </Card>
+ * ```
  */
 const CardFooter: React.FC<{
+  /** Footer content */
   children: React.ReactNode;
+  /** Custom CSS class */
   className?: string;
+  /** Whether to show a divider above the footer */
   divider?: boolean;
+  /** Content alignment */
   align?: 'left' | 'center' | 'right' | 'between';
 }> = ({
   children,

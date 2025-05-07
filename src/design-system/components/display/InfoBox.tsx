@@ -25,14 +25,51 @@ export interface InfoBoxProps {
 /**
  * InfoBox - A component for displaying contextual information and messages with different variants
  * 
+ * @description
+ * InfoBox is used to communicate important contextual information to users.
+ * Different variants provide visual cues about the nature of the information:
+ * - info: General information (blue)
+ * - success: Success messages and confirmations (green)
+ * - warning: Warning messages that require attention (yellow)
+ * - error: Error messages and critical information (red)
+ * 
+ * Each InfoBox displays a title and content, with optional elements like icons
+ * and tooltips for additional context.
+ * 
+ * @accessibility
+ * - Uses semantic heading (h4) for the title to maintain document outline
+ * - Color combinations meet WCAG contrast requirements in both light and dark modes
+ * - Provides visual differentiation beyond just color through borders and backgrounds
+ * - Integrates with Tooltip component for additional context when needed
+ * - Accepts custom ID for programmatic identification
+ * 
  * @example
  * ```tsx
+ * // Basic info box
+ * <InfoBox title="Information">
+ *   This is some helpful information for the user.
+ * </InfoBox>
+ * 
+ * // Warning variant with tooltip
  * <InfoBox 
  *   title="Warning Notice" 
  *   variant="warning"
  *   infoTooltip="More details about this warning"
  * >
- *   This is a warning message with details.
+ *   This operation has potential side effects.
+ * </InfoBox>
+ * 
+ * // Error variant with custom icon and rich content
+ * <InfoBox 
+ *   title="Connection Failed" 
+ *   variant="error"
+ *   icon={<AlertIcon className="h-5 w-5" />}
+ * >
+ *   <p>Unable to connect to the server.</p>
+ *   <ul className="list-disc ml-4 mt-2">
+ *     <li>Check your network connection</li>
+ *     <li>Verify server status</li>
+ *   </ul>
  * </InfoBox>
  * ```
  */
