@@ -49,6 +49,11 @@ export interface FormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'on
   onValidationFailed?: (invalidFields: string[]) => void;
 }
 
+// Form component with Item property added to the type
+interface FormComponent extends React.FC<FormProps> {
+  Item: React.FC<FormItemProps>;
+}
+
 // Create form context
 const FormContext = createContext<FormContextType>({
   layout: 'vertical',
@@ -69,7 +74,7 @@ export const useFormContext = () => useContext(FormContext);
  * Form - A responsive form component with support for different layouts,
  * validation states, and field styling.
  */
-export const Form: React.FC<FormProps> = ({
+export const Form = (({
   children,
   layout = 'vertical',
   status = 'idle',
@@ -181,7 +186,7 @@ export const Form: React.FC<FormProps> = ({
             
             {status === 'error' && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-3 rounded-md">
-                There was an error processing the form
+                An error occurred while submitting the form
               </div>
             )}
           </div>
@@ -191,7 +196,7 @@ export const Form: React.FC<FormProps> = ({
       </form>
     </FormContext.Provider>
   );
-};
+}) as FormComponent;
 
 // Form.Item component for form fields
 export interface FormItemProps {

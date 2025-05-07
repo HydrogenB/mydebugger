@@ -183,7 +183,9 @@ export const BuilderWizard: React.FC = () => {
       }
       
       // Sign the token
-      const token = await cryptoWorker.sign(header, payload, privateKey, algorithm);
+      // Make sure the algorithm is included in the header
+      header.alg = algorithm;
+      const token = await cryptoWorker.sign(header, payload, privateKey);
       setGeneratedToken(token);
       setTokenSizeBytes(new TextEncoder().encode(token).length);
     } catch (e) {

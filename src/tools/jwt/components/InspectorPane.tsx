@@ -183,12 +183,14 @@ export const InspectorPane: React.FC = () => {
                 <TabGroup>
                   <div className="border-b border-gray-200 dark:border-gray-700">
                     <Tab 
+                      id="tab-json"
                       isActive={activeTab === 'json'} 
                       onClick={() => setActiveTab('json')}
                     >
                       JSON
                     </Tab>
                     <Tab 
+                      id="tab-claims"
                       isActive={activeTab === 'claims'} 
                       onClick={() => setActiveTab('claims')}
                     >
@@ -199,13 +201,13 @@ export const InspectorPane: React.FC = () => {
                   <div className="p-4">
                     <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">HEADER</h3>
                     
-                    <TabPanel isActive={activeTab === 'json'}>
+                    <TabPanel id="panel-json-header" isActive={activeTab === 'json'}>
                       <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto">
                         <pre className="text-sm">{JSON.stringify(decoded.header, null, 2)}</pre>
                       </div>
                     </TabPanel>
                     
-                    <TabPanel isActive={activeTab === 'claims'}>
+                    <TabPanel id="panel-claims-header" isActive={activeTab === 'claims'}>
                       <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead className="border-b border-gray-200 dark:border-gray-700">
@@ -228,13 +230,13 @@ export const InspectorPane: React.FC = () => {
                     
                     <h3 className="font-medium text-gray-800 dark:text-gray-200 mt-6 mb-2">PAYLOAD</h3>
                     
-                    <TabPanel isActive={activeTab === 'json'}>
+                    <TabPanel id="panel-json-payload" isActive={activeTab === 'json'}>
                       <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto">
                         <pre className="text-sm">{JSON.stringify(decoded.payload, null, 2)}</pre>
                       </div>
                     </TabPanel>
                     
-                    <TabPanel isActive={activeTab === 'claims'}>
+                    <TabPanel id="panel-claims-payload" isActive={activeTab === 'claims'}>
                       <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead className="border-b border-gray-200 dark:border-gray-700">
