@@ -5,8 +5,62 @@ import { Button } from '../../design-system/components/inputs';
 // Temporary placeholder components for components not yet migrated to the design system
 type OtpType = 'sms' | 'email' | 'app' | 'generic';
 
+// Define interfaces for placeholder components
+interface OtpInputProps {
+  length?: number;
+  onComplete: (value: string) => void;
+  title: string;
+  phoneNumber?: string;
+  emailAddress?: string;
+  referenceCode: string;
+  expiryTime: string;
+  resendTime: number;
+  className?: string;
+  inputClassName?: string;
+  autofillHint?: string;
+  onResend: () => void;
+  compact?: boolean;
+  showHeader?: boolean;
+  otpType?: OtpType;
+}
+
+interface TextInputProps {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  fullWidth?: boolean;
+}
+
+interface SwitchProps {
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  label?: string;
+}
+
+interface InfoBoxProps {
+  title: string;
+  variant?: 'info' | 'success';
+  children: React.ReactNode;
+}
+
 // Placeholder OtpInput component
-const OtpInput = ({ length = 6, onComplete, title, phoneNumber, emailAddress, referenceCode, expiryTime, resendTime, className = "", inputClassName = "", autofillHint = "one-time-code", onResend, compact = false, showHeader = true, otpType = "sms" }) => (
+const OtpInput: React.FC<OtpInputProps> = ({ 
+  length = 6, 
+  onComplete, 
+  title, 
+  phoneNumber, 
+  emailAddress, 
+  referenceCode, 
+  expiryTime, 
+  resendTime, 
+  className = "", 
+  inputClassName = "", 
+  autofillHint = "one-time-code", 
+  onResend, 
+  compact = false, 
+  showHeader = true, 
+  otpType = "sms" 
+}) => (
   <div className={className}>
     <div className={`text-center ${compact ? 'mb-3' : 'mb-6'}`}>
       {showHeader && <h3 className="text-lg font-semibold mb-1">{title}</h3>}
@@ -43,7 +97,7 @@ const OtpInput = ({ length = 6, onComplete, title, phoneNumber, emailAddress, re
 );
 
 // Placeholder TextInput component
-const TextInput = ({ value, onChange, placeholder, fullWidth }) => (
+const TextInput: React.FC<TextInputProps> = ({ value, onChange, placeholder, fullWidth }) => (
   <input
     type="text"
     value={value}
@@ -54,7 +108,7 @@ const TextInput = ({ value, onChange, placeholder, fullWidth }) => (
 );
 
 // Placeholder Switch component
-const Switch = ({ checked, onChange, label = "" }) => (
+const Switch: React.FC<SwitchProps> = ({ checked, onChange, label = "" }) => (
   <button 
     className={`w-10 h-5 relative rounded-full ${checked ? 'bg-blue-600' : 'bg-gray-300'}`}
     onClick={() => onChange(!checked)}
@@ -67,7 +121,7 @@ const Switch = ({ checked, onChange, label = "" }) => (
 );
 
 // Placeholder InfoBox component
-const InfoBox = ({ title, variant = "info", children }) => (
+const InfoBox: React.FC<InfoBoxProps> = ({ title, variant = "info", children }) => (
   <div className={`p-4 rounded-md ${variant === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-blue-50 border-blue-200 text-blue-800'} border`}>
     <h4 className="font-medium mb-1">{title}</h4>
     <div className="text-sm">{children}</div>

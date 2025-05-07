@@ -6,8 +6,23 @@ import { Card } from '../../design-system/components/layout';
 import { Button } from '../../design-system/components/inputs';
 import OtpInputDemo from './OtpInputDemo';
 
+// Define proper interfaces for placeholder components
+interface TooltipProps {
+  children: React.ReactNode;
+  content: React.ReactNode;
+  position?: "top" | "right" | "bottom" | "left";
+  maxWidth?: string;
+}
+
+interface InfoBoxProps {
+  title: string;
+  children: React.ReactNode;
+  variant?: "info" | "success" | "warning" | "error";
+  infoTooltip?: React.ReactNode;
+}
+
 // Temporarily import placeholder components until they are properly migrated
-const Tooltip = ({ children, content, position = "top", maxWidth = "" }) => (
+const Tooltip: React.FC<TooltipProps> = ({ children, content, position = "top", maxWidth = "" }) => (
   <div className="relative inline-block">
     {children}
     <div className={`absolute hidden group-hover:block z-50 ${maxWidth}`}>
@@ -18,7 +33,7 @@ const Tooltip = ({ children, content, position = "top", maxWidth = "" }) => (
   </div>
 );
 
-const InfoBox = ({ title, children, variant = "info", infoTooltip }) => (
+const InfoBox: React.FC<InfoBoxProps> = ({ title, children, variant = "info", infoTooltip }) => (
   <div className={`p-4 rounded-md ${variant === 'info' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 
     variant === 'success' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 
     variant === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 
@@ -120,7 +135,7 @@ const ComponentsDemo: React.FC = () => {
               </p>
               
               <div className="space-y-4">
-                <InfoBox title="Information Box" variant="info">
+                <InfoBox title="Information Box" variant="info" infoTooltip={null}>
                   This is a standard information box that provides helpful context to users.
                 </InfoBox>
                 
@@ -132,7 +147,7 @@ const ComponentsDemo: React.FC = () => {
                   Operation completed successfully. All data was processed correctly.
                 </InfoBox>
                 
-                <InfoBox title="Warning Notice" variant="warning">
+                <InfoBox title="Warning Notice" variant="warning" infoTooltip={null}>
                   <p>Please be aware of the following limitations:</p>
                   <ul className="list-disc list-inside mt-2">
                     <li>Maximum file size: 10MB</li>
