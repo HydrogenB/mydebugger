@@ -44,6 +44,14 @@ const OtpInput: React.FC<OtpInputProps> = ({
   
   // Ref for the hidden input used for autofill
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Helper function to safely focus an input element
+  const safelyFocusInput = (index: number) => {
+    const inputElement = inputRefs.current[index];
+    if (inputElement) {
+      inputElement.focus();
+    }
+  };
   
   // Initialize refs array based on length
   useEffect(() => {
@@ -53,7 +61,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
   // Focus first input on mount if autoFocus is true
   useEffect(() => {
     if (autoFocus && inputRefs.current[0]) {
-      inputRefs.current[0].focus();
+      safelyFocusInput(0);
     }
   }, [autoFocus]);
 
@@ -83,9 +91,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
       }
       
       // Focus last input to give visual feedback
-      if (inputRefs.current[length - 1]) {
-        inputRefs.current[length - 1].focus();
-      }
+      safelyFocusInput(length - 1);
     }
   };
 
@@ -102,8 +108,8 @@ const OtpInput: React.FC<OtpInputProps> = ({
     setOtp(newOtp);
     
     // Auto advance to next input if a character was entered
-    if (digit && index < length - 1 && inputRefs.current[index + 1]) {
-      inputRefs.current[index + 1].focus();
+    if (digit && index < length - 1) {
+      safelyFocusInput(index + 1);
     }
     
     // Check if OTP is complete
@@ -115,15 +121,15 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
   // Handle key press for backspace and arrow navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0 && inputRefs.current[index - 1]) {
+    if (e.key === 'Backspace' && !otp[index] && index > 0) {
       // Move to previous field on backspace if current field is empty
-      inputRefs.current[index - 1].focus();
-    } else if (e.key === 'ArrowLeft' && index > 0 && inputRefs.current[index - 1]) {
+      safelyFocusInput(index - 1);
+    } else if (e.key === 'ArrowLeft' && index > 0) {
       // Navigate left
-      inputRefs.current[index - 1].focus();
-    } else if (e.key === 'ArrowRight' && index < length - 1 && inputRefs.current[index + 1]) {
+      safelyFocusInput(index - 1);
+    } else if (e.key === 'ArrowRight' && index < length - 1) {
       // Navigate right
-      inputRefs.current[index + 1].focus();
+      safelyFocusInput(index + 1);
     }
   };
 
@@ -138,9 +144,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
       setOtp(otpArray);
       
       // Focus last input
-      if (inputRefs.current[length - 1]) {
-        inputRefs.current[length - 1].focus();
-      }
+      safelyFocusInput(length - 1);
       
       // Trigger onComplete callback
       if (onComplete) {
