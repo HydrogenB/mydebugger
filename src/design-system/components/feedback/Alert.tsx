@@ -117,7 +117,7 @@ export const Alert: React.FC<AlertProps> = ({
         {dismissible && (
           <button
             type="button"
-            className="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex h-8 w-8 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={handleDismiss}
             aria-label="Close"
           >
