@@ -20,10 +20,7 @@ mydebugger/
 ├── api/                   # API endpoints for server-side functionality
 │   ├── clickjacking-analysis.js
 │   ├── device-trace.js
-│   ├── dns-lookup.js
-│   ├── header-audit.js
-│   ├── iframe-test.js
-│   └── link-trace.js
+│   └── ... (other API files)
 ├── public/                # Static assets
 │   └── favicon.svg
 ├── src/
@@ -32,56 +29,152 @@ mydebugger/
 │   ├── assets/            # Images, icons, and other assets
 │   ├── context/           # React context providers
 │   │   └── ThemeContext.tsx
+│   ├── design-system/     # Design system architecture
+│   │   ├── index.ts       # Main export file for design system
+│   │   ├── foundations/   # Design tokens and base styles
+│   │   │   ├── colors.ts  # Color tokens
+│   │   │   ├── typography.ts # Typography definitions
+│   │   │   ├── spacing.ts # Spacing scales
+│   │   │   └── animations.ts # Animation definitions
+│   │   ├── components/    # UI components organized by type
+│   │   │   ├── feedback/  # Alerts, toasts, progress indicators
+│   │   │   ├── inputs/    # Form controls and inputs
+│   │   │   ├── layout/    # Layout components
+│   │   │   ├── navigation/ # Navigation components
+│   │   │   ├── overlays/  # Modals, drawers, tooltips
+│   │   │   └── display/   # Cards, tables, badges, etc.
+│   │   ├── icons/         # Emoji-based icon system
+│   │   ├── hooks/         # Shared component hooks
+│   │   └── context/       # Design system contexts
 │   ├── layout/            # Layout components
 │   │   ├── Header.tsx     # App header with navigation
 │   │   └── Footer.tsx     # App footer with links
 │   ├── pages/             # Main pages
 │   │   ├── Home.tsx       # Landing page with tool listings
 │   │   └── NotFound.tsx   # 404 page
-│   └── tools/             # Tool modules
+│   └── tools/             # Tool modules and legacy components
 │       ├── index.ts       # Tool registry (central configuration)
 │       ├── clickjacking/  # Clickjacking testing tools
-│       ├── components/    # Reusable UI components
-│       ├── components-demo/ # Component demonstrations
-│       ├── dns/           # DNS lookup tools
-│       ├── headers/       # HTTP headers analysis
-│       ├── jwt/           # JWT decoder and tools
-│       ├── jwtplayground/ # JWT interactive playground
-│       ├── linktracer/    # Link and device tracing tools
-│       ├── qrcode/        # QR code generator
-│       ├── regex/         # Regular expression testing
-│       └── url/           # URL encoding/decoding tools
+│       ├── components/    # Legacy UI components (being migrated to design system)
+│       └── ... (other tool directories)
 ├── index.html             # HTML entry point
 ├── package.json           # Project dependencies and scripts
-├── postcss.config.js      # PostCSS configuration
-├── tailwind.config.js     # TailwindCSS configuration
-├── tsconfig.json          # TypeScript configuration
-├── tsconfig.node.json     # TypeScript Node configuration
-└── vite.config.ts         # Vite build configuration
+└── ... (configuration files)
 ```
+
+## 🎨 Design System
+
+The project has been restructured to implement a comprehensive design system architecture for better component reuse and consistency. The design system is located in `src/design-system/` and follows a modular approach.
+
+### Design System Architecture
+
+#### 1. Foundations
+
+The building blocks of the design system, defining the basic design tokens:
+
+| Foundation | Description | File |
+|------------|-------------|------|
+| Colors | Color palette and utility functions | `foundations/colors.ts` |
+| Typography | Font families, sizes, weights, and styles | `foundations/typography.ts` |
+| Spacing | Spacing scale for consistent layout | `foundations/spacing.ts` |
+| Animations | Animation keyframes and durations | `foundations/animations.ts` |
+
+#### 2. Components
+
+UI components organized by functional category:
+
+| Category | Purpose | Components |
+|----------|---------|------------|
+| Inputs | User input elements | Button, ThemeToggle |
+| Feedback | User feedback components | Alert |
+| Layout | Structural components | Card |
+| Display | Information display | Badge, BadgeContainer |
+| Overlays | Floating elements | Modal |
+| Navigation | Navigational elements | TabGroup, Tab, TabPanel |
+
+#### 3. Icon System
+
+The design system uses an emoji-based icon system for consistency and ease of use:
+
+```typescript
+// Example usage of the icon system
+import { getIcon } from '@/design-system/icons';
+
+const infoIcon = getIcon('info');   // Returns ℹ️
+const successIcon = getIcon('check'); // Returns ✓
+```
+
+#### 4. Theme System
+
+A context-based theme system supports light and dark modes as well as color scheme customization:
+
+```tsx
+// Wrapping your application with the ThemeProvider
+import { ThemeProvider } from '@/design-system/context/ThemeContext';
+
+function App() {
+  return (
+    <ThemeProvider>
+      {/* Your app content */}
+    </ThemeProvider>
+  );
+}
+
+// Using the theme in components
+import { useTheme } from '@/design-system/context/ThemeContext';
+
+function MyComponent() {
+  const { isDark, toggleTheme } = useTheme();
+  
+  return (
+    <button onClick={toggleTheme}>
+      Switch to {isDark ? 'Light' : 'Dark'} Mode
+    </button>
+  );
+}
+```
+
+### Using the Design System
+
+All design system components and utilities can be imported from a single entry point:
+
+```tsx
+// Importing components
+import { Button, Card, Alert, Badge, Modal } from '@/design-system';
+
+// Using foundation utilities
+import { getColor } from '@/design-system';
+const primaryColor = getColor('primary.500');
+```
+
+### Component Documentation
+
+Each component in the design system follows a consistent pattern:
+
+- TypeScript interfaces for props
+- JSDoc comments for documentation
+- Consistent prop naming conventions
+- Support for emoji-based icons
+- Dark mode compatibility
+- Accessibility features
 
 ## 🧪 Component Library
 
-The project includes a comprehensive component library located in `src/tools/components/`. These components are built with accessibility, reusability, and TypeScript type safety in mind.
+The project includes both the new design system components and a legacy component library located in `src/tools/components/`. The legacy components are gradually being migrated to the design system architecture.
 
 ### Core Components
 
 | Component | Description | Location |
 |-----------|-------------|----------|
-| Accordion | Collapsible content panels | `components/Accordion.tsx` |
-| Alert | User notifications | `components/Alert.tsx` |
-| Button | Customizable action buttons | `components/Button.tsx` |
-| Card | Content container with various styles | `components/Card.tsx` |
-| DataTable | Interactive data tables | `components/DataTable.tsx` |
-| Form | Form controls and validation | `components/Form.tsx` |
-| InfoBox | Contextual information display | `components/InfoBox.tsx` |
-| Modal | Dialog windows | `components/Modal.tsx` |
-| OtpInput | One-time password input with autofill | `components/OtpInput.tsx` |
-| Tabs | Content organization with tabs | `components/TabGroup.tsx` |
-| TextInput | Text input fields | `components/TextInput.tsx` |
-| Tooltip | Contextual help tooltips | `components/Tooltip.tsx` |
+| Button | Customizable action buttons | `design-system/components/inputs/Button.tsx` |
+| Alert | User notifications | `design-system/components/feedback/Alert.tsx` |
+| Card | Content container with various styles | `design-system/components/layout/Card.tsx` |
+| Badge | Status indicators and counters | `design-system/components/display/Badge.tsx` |
+| Modal | Dialog windows | `design-system/components/overlays/Modal.tsx` |
+| TabGroup | Content organization with tabs | `design-system/components/navigation/TabGroup.tsx` |
+| ThemeToggle | Theme switcher | `design-system/components/inputs/ThemeToggle.tsx` |
 
-The components can be viewed and tested in the Components Demo section of the application at `src/tools/components-demo/`.
+The components can be viewed and tested in the Components Demo section of the application.
 
 ## 🚀 Available Tools
 
@@ -121,29 +214,34 @@ The components can be viewed and tested in the Components Demo section of the ap
    npm run dev
    ```
 
-### Adding New Components
+### Adding New Components to the Design System
 
-1. Create a new component file in `src/tools/components/`
-2. Follow the existing patterns for props, TypeScript interfaces, and styling
-3. Add exports to `src/tools/components/index.ts`
-4. Create demonstration examples in `src/tools/components-demo/`
+1. Identify the appropriate category for your component (inputs, feedback, layout, etc.)
+2. Create a new component file in `src/design-system/components/[category]/`
+3. Follow the design system patterns for props, TypeScript interfaces, and styling
+4. Add emoji icon support where appropriate using the `getIcon` utility
+5. Add exports to the category's index.ts file
+6. Update the main design system index.ts if needed
 
-### Adding New Tools
+### Component Design Principles
 
-1. Create a new directory in `src/tools/`
-2. Implement your tool component as the main export
-3. Add the tool definition to `src/tools/index.ts` with required metadata:
-   ```typescript
-   {
-     id: 'unique-id',
-     title: 'Tool Name',
-     description: 'Short description of the tool',
-     route: '/route-path',
-     category: 'Category Name',
-     component: lazy(() => import('./path/to/Component')),
-     icon: IconComponent
-   }
-   ```
+- **Consistency**: Follow established patterns for props and styling
+- **Accessibility**: Ensure keyboard navigation, screen reader support, and proper ARIA attributes
+- **Responsiveness**: Components should adapt to different screen sizes
+- **Theme Support**: Support both light and dark modes
+- **Icon System**: Use the emoji-based icon system for consistent visuals
+- **Reusability**: Design components for maximum reuse across the application
+- **Documentation**: Include JSDoc comments and clear prop interfaces
+
+### Migrating Legacy Components
+
+When migrating components from the legacy system to the design system:
+
+1. Create a new component file in the appropriate design system category
+2. Enhance the component with emoji icon support and theme awareness
+3. Ensure proper TypeScript typing and JSDoc documentation
+4. Update imports in consuming components to use the new design system component
+5. Remove the legacy component once all usages are migrated
 
 ### Code Style and Conventions
 
@@ -155,16 +253,16 @@ The components can be viewed and tested in the Components Demo section of the ap
 - Include JSDoc comments for components
 - Follow responsive design patterns
 
-## 🧠 Design System
+## 🧠 Design System Principles
 
-The application uses a consistent design system based on TailwindCSS:
+The design system follows these core principles:
 
-- **Colors**: Uses a defined color palette with primary, secondary, and accent colors
-- **Typography**: Consistent font usage with defined heading sizes
-- **Spacing**: Standard spacing scale for margins and padding
-- **Shadows**: Consistent elevation system for depth
-- **Borders**: Standard border radiuses and widths
-- **Dark Mode**: Supports light and dark mode via ThemeContext
+- **Consistency**: Uniform appearance and behavior across all components
+- **Modularity**: Components can be used independently or combined
+- **Flexibility**: Components adapt to different contexts and requirements
+- **Maintainability**: Easy to update and extend
+- **Performance**: Optimized for speed and minimal bundle size
+- **Accessibility**: Follows WCAG guidelines for inclusive design
 
 ## 🔍 Performance Considerations
 

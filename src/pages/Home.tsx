@@ -9,8 +9,48 @@ import {
   Tool, 
   categories 
 } from '../tools';
-import Card from '../tools/components/Card';
-import { ResponsiveContainer } from '../tools/components';
+
+// Import components from design system instead of legacy components
+import { Card } from '../design-system/components/layout';
+import { Button } from '../design-system/components/inputs';
+import { Badge } from '../design-system/components/display';
+import { getIcon } from '../design-system/icons';
+
+// Responsive container component (we can create this in the layout category if needed)
+const ResponsiveContainer: React.FC<{
+  children: React.ReactNode;
+  maxWidth?: string;
+  padding?: string;
+}> = ({ children, maxWidth = "7xl", padding = "md" }) => {
+  const maxWidthClass = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    '5xl': 'max-w-5xl',
+    '6xl': 'max-w-6xl',
+    '7xl': 'max-w-7xl',
+    full: 'max-w-full',
+  }[maxWidth] || 'max-w-7xl';
+
+  const paddingClass = {
+    none: 'px-0',
+    xs: 'px-2',
+    sm: 'px-4',
+    md: 'px-6',
+    lg: 'px-8',
+    xl: 'px-12',
+  }[padding] || 'px-6';
+
+  return (
+    <div className={`${maxWidthClass} mx-auto w-full ${paddingClass}`}>
+      {children}
+    </div>
+  );
+};
 
 const Home: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -57,9 +97,8 @@ const Home: React.FC = () => {
           {/* Search Box */}
           <div className="relative max-w-xl mx-auto">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+              {/* Using the design system icon */}
+              <span className="text-blue-300">{getIcon('search')}</span>
             </div>
             <input
               type="text"
@@ -122,15 +161,15 @@ const Home: React.FC = () => {
         <div className="text-center py-12">
           <h3 className="text-xl font-medium text-gray-700 mb-2">No matching tools found</h3>
           <p className="text-gray-500 mb-4">Try adjusting your search or filter criteria</p>
-          <button
+          <Button
+            variant="primary"
             onClick={() => {
               setSearchQuery('');
               setActiveFilter('all');
             }}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
           >
             Reset Filters
-          </button>
+          </Button>
         </div>
       )}
     </ResponsiveContainer>
@@ -156,27 +195,29 @@ const FilterTab: React.FC<FilterTabProps> = ({
   icon
 }) => {
   return (
-    <button
+    <Button
       onClick={onClick}
+      variant={isActive ? "primary" : "ghost"}
+      size="sm"
+      icon={icon}
       className={`
-        px-4 py-2 rounded-full flex items-center text-sm font-medium transition-all
-        ${isActive 
-          ? 'bg-blue-500 text-white shadow-sm' 
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
+        rounded-full
         ${highlight && !isActive ? 'ring-2 ring-green-400' : ''}
       `}
     >
-      {icon}
       {label}
       {count !== undefined && (
-        <span className={`
-          ml-1.5 px-1.5 py-0.5 text-xs rounded-full
-          ${isActive ? 'bg-white bg-opacity-30 text-white' : 'bg-gray-200 text-gray-700'}
-        `}>
+        <Badge 
+          variant={isActive ? "light" : "secondary"} 
+          size="xs" 
+          inline 
+          pill
+          className="ml-1.5"
+        >
           {count}
-        </span>
+        </Badge>
       )}
-    </button>
+    </Button>
   );
 };
 
@@ -190,7 +231,11 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
   
   return (
     <Link to={route}>
-      <Card isElevated isInteractive className="h-full">
+      <Card 
+        isElevated 
+        isInteractive 
+        className="h-full"
+      >
         <div className="flex flex-col h-full">
           <div className="flex items-start mb-4">
             <div className="p-2 rounded-lg bg-blue-50 mr-4">
@@ -200,14 +245,10 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
               <div className="flex items-center">
                 <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
                 {isNew && (
-                  <span className="ml-2 px-1.5 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">
-                    NEW
-                  </span>
+                  <Badge variant="success" size="sm" className="ml-2">NEW</Badge>
                 )}
                 {isBeta && (
-                  <span className="ml-2 px-1.5 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
-                    BETA
-                  </span>
+                  <Badge variant="warning" size="sm" className="ml-2">BETA</Badge>
                 )}
               </div>
             </div>
@@ -220,9 +261,7 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
             </span>
             <span className="text-blue-600 font-medium text-sm flex items-center">
               Try now
-              <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              {getIcon('arrow-right')}
             </span>
           </div>
         </div>

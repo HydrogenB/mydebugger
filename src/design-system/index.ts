@@ -1,0 +1,26 @@
+// Design System Main Export File
+
+// Export all foundation elements
+export * from './foundations/colors';
+export * from './foundations/typography';
+export * from './foundations/spacing';
+export * from './foundations/animations';
+
+// Export all icons
+export * from './icons';
+
+// Export components by category
+export * from './components/inputs';
+export * from './components/layout';
+export * from './components/navigation';
+export * from './components/feedback';
+export * from './components/display';
+export * from './components/overlays';
+
+// Re-export common components for convenience
+export { Button } from './components/inputs';
+export { Card } from './components/layout';
+export { Alert } from './components/feedback';
+export { Badge, BadgeContainer } from './components/display';
+export { Modal } from './components/overlays';
+export { TabGroup, Tab, TabPanel } from './components/navigation';

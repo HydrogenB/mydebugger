@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAllCategories, categories } from '../tools';
-import ThemeToggle from '../tools/components/ThemeToggle';
-import { useTheme } from '../context/ThemeContext';
+// Import components from design system instead of legacy components
+import { ThemeToggle } from '../design-system/components/inputs';
+import { useTheme } from '../design-system/context/ThemeContext';
+import { getIcon } from '../design-system/icons';
 
 const Header: React.FC = () => {
   const allCategories = getAllCategories();
-  const { /* isDarkMode removed */ } = useTheme();
+  const { isDark } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const toggleMobileMenu = () => {
@@ -18,9 +20,8 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-3">
           <Link to="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-xl hover:text-primary-700 dark:hover:text-primary-300 transition">
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
+            {/* Using emoji icon from our system */}
+            <span className="text-2xl">{getIcon('code')}</span>
             <span>MyDebugger</span>
           </Link>
           
@@ -49,13 +50,9 @@ const Header: React.FC = () => {
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <span>{getIcon('close')}</span>
               ) : (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <span>{getIcon('menu')}</span>
               )}
             </button>
           </div>
