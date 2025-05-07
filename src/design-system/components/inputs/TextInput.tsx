@@ -141,8 +141,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               : success
                 ? 'bg-green-50 dark:bg-green-900/20'
                 : 'bg-gray-100 dark:bg-gray-800',
-            !disabled && !error && !success &&
-              'focus:bg-white dark:focus:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-750'
+            !disabled && !error && !success
+              ? 'focus:bg-white dark:focus:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-750'
+              : ''
           );
           break;
           
@@ -154,8 +155,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               : success
                 ? 'border-green-500'
                 : 'border-gray-300 dark:border-gray-600',
-            !disabled && !error && !success &&
-              'hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-500 focus:ring-1 focus:ring-primary-200 dark:focus:ring-primary-900'
+            !disabled && !error && !success
+              ? 'hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-500 focus:ring-1 focus:ring-primary-200 dark:focus:ring-primary-900'
+              : ''
           );
           break;
           
@@ -168,8 +170,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
               : success
                 ? 'border-green-500'
                 : 'border-gray-300 dark:border-gray-600',
-            !disabled && !error && !success &&
-              'hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-400'
+            !disabled && !error && !success
+              ? 'hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-400'
+              : ''
           );
           break;
           
@@ -182,8 +185,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                 ? 'border-green-500'
                 : 'border-gray-300 dark:border-gray-600',
             'bg-white dark:bg-gray-900',
-            !disabled && !error && !success &&
-              'hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-500 focus:ring-1 focus:ring-primary-200 dark:focus:ring-primary-900'
+            !disabled && !error && !success
+              ? 'hover:border-gray-400 dark:hover:border-gray-500 focus:border-primary-500 dark:focus:border-primary-500 focus:ring-1 focus:ring-primary-200 dark:focus:ring-primary-900'
+              : ''
           );
       }
       

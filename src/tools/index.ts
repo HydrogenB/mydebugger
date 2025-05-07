@@ -45,7 +45,7 @@ export interface Tool {
   };
 }
 
-// Import icons
+// Import icons from design system
 import { 
   SecurityIcon, 
   EncodingIcon, 
@@ -61,7 +61,7 @@ import {
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon
-} from './components/icons';
+} from '../design-system/icons/tool-icons';
 
 // Category definitions with icons for consistent UI
 export const categories: Record<ToolCategory, { icon: React.FC<IconProps>, description: string }> = {

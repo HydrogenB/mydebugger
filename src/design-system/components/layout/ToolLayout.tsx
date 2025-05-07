@@ -1,7 +1,15 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet';
 import { Tool } from '../../../tools/index';
 import { ResponsiveContainer } from './ResponsiveContainer';
+import { LoadingSpinner } from '../feedback';
+
+// Import RelatedTools component dynamically
+const RelatedTools = lazy(() => 
+  import('../../../tools/RelatedTools')
+    .then(module => ({ default: module.default }))
+    .catch(() => ({ default: () => null }))
+);
 
 export interface ToolLayoutProps {
   /** Tool object containing metadata */
@@ -36,11 +44,6 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
   const { title, description, metadata, id } = tool;
   const pageTitle = `${title} | MyDebugger`;
   const pageDescription = description;
-
-  // Need to import and use RelatedTools component from design system
-  const RelatedToolsComponent = showRelatedTools 
-    ? require('../../../tools/components/RelatedTools').default 
-    : null;
 
   return (
     <>
@@ -90,7 +93,11 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
           {children}
         </div>
         
-        {showRelatedTools && RelatedToolsComponent && <RelatedToolsComponent toolId={id} />}
+        {showRelatedTools && (
+          <Suspense fallback={<LoadingSpinner size="sm" />}>
+            <RelatedTools toolId={id} />
+          </Suspense>
+        )}
         
         {metadata.learnMoreUrl && (
           <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">

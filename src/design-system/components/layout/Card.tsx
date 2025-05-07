@@ -38,6 +38,10 @@ export interface CardProps {
   href?: string;
   /** Card color variant */
   variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  /** Whether the card has elevation (shadow) */
+  isElevated?: boolean;
+  /** Whether the card is interactive (has hover effects) */
+  isInteractive?: boolean;
 }
 
 /**
@@ -64,15 +68,18 @@ export const Card: React.FC<CardProps> & {
   onClick,
   href,
   variant = 'default',
+  isElevated = false,
+  isInteractive = false,
 }) => {
   // Base card classes
   const cardClasses = [
     'bg-white dark:bg-gray-800 overflow-hidden flex flex-col h-full',
     bordered ? 'border border-gray-200 dark:border-gray-700' : '',
-    shadowed ? 'shadow-sm' : '',
-    hoverable ? 'transition-shadow duration-200 hover:shadow-md' : '',
+    shadowed || isElevated ? 'shadow-sm' : '',
+    (hoverable || isInteractive) ? 'transition-shadow duration-200 hover:shadow-md' : '',
     'rounded-lg',
-    onClick || href ? 'cursor-pointer' : '',
+    (onClick || href || isInteractive) ? 'cursor-pointer' : '',
+    isElevated ? 'shadow-md' : '',
     className,
   ];
   

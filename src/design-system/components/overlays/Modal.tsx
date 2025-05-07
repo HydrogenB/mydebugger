@@ -42,10 +42,35 @@ export interface ModalProps {
   fullHeight?: boolean;
 }
 
+// Define types for the subcomponents
+type ModalHeaderProps = {
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  onClose?: () => void;
+  className?: string;
+};
+
+type ModalFooterProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+type ModalBodyProps = {
+  children: React.ReactNode;
+  className?: string;
+};
+
+// Define the Modal component type with subcomponents
+interface ModalComponent extends React.FC<ModalProps> {
+  Header: React.FC<ModalHeaderProps>;
+  Footer: React.FC<ModalFooterProps>;
+  Body: React.FC<ModalBodyProps>;
+}
+
 /**
  * Modal component for creating accessible dialogs
  */
-export const Modal: React.FC<ModalProps> = ({
+export const Modal: ModalComponent = ({
   isOpen,
   onClose,
   title,
@@ -256,12 +281,7 @@ Modal.Header = function ModalHeader({
   subtitle,
   onClose,
   className = '',
-}: {
-  title?: React.ReactNode;
-  subtitle?: React.ReactNode;
-  onClose?: () => void;
-  className?: string;
-}) {
+}: ModalHeaderProps) {
   return (
     <div className={`px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center ${className}`}>
       <div>
@@ -299,10 +319,7 @@ Modal.Header = function ModalHeader({
 Modal.Footer = function ModalFooter({
   children,
   className = '',
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+}: ModalFooterProps) {
   return (
     <div className={`px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-2 ${className}`}>
       {children}
@@ -316,10 +333,7 @@ Modal.Footer = function ModalFooter({
 Modal.Body = function ModalBody({
   children,
   className = '',
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
+}: ModalBodyProps) {
   return (
     <div className={`p-6 ${className}`}>
       {children}

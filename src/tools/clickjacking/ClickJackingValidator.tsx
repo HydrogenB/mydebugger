@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import ToolLayout from '../components/ToolLayout';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { ToolLayout } from '../../design-system/components/layout';
+import { Card } from '../../design-system/components/layout';
+import { Button } from '../../design-system/components/inputs';
+import { LoadingSpinner } from '../../design-system/components/feedback';
 
 interface ValidationResult {
   url: string;

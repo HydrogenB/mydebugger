@@ -1,10 +1,78 @@
 import React, { useState } from 'react';
-import Card from '../components/Card';
-import OtpInput, { OtpType } from '../components/OtpInput';
-import Button from '../components/Button';
-import InfoBox from '../components/InfoBox';
-import TextInput from '../components/TextInput';
-import Switch from '../components/Switch';
+import { Card } from '../../design-system/components/layout';
+import { Button } from '../../design-system/components/inputs';
+
+// Temporary placeholder components for components not yet migrated to the design system
+type OtpType = 'sms' | 'email' | 'app' | 'generic';
+
+// Placeholder OtpInput component
+const OtpInput = ({ length = 6, onComplete, title, phoneNumber, emailAddress, referenceCode, expiryTime, resendTime, className = "", inputClassName = "", autofillHint = "one-time-code", onResend, compact = false, showHeader = true, otpType = "sms" }) => (
+  <div className={className}>
+    <div className={`text-center ${compact ? 'mb-3' : 'mb-6'}`}>
+      {showHeader && <h3 className="text-lg font-semibold mb-1">{title}</h3>}
+      <p className="text-sm text-gray-600">
+        {otpType === 'sms' && phoneNumber && `A verification code has been sent to ${phoneNumber}`}
+        {otpType === 'email' && emailAddress && `A verification code has been sent to ${emailAddress}`}
+        {otpType === 'app' && 'Enter the code from your authenticator app'}
+        {otpType === 'generic' && 'Enter your verification code'}
+      </p>
+    </div>
+    <div className="flex justify-center gap-2 my-4">
+      {Array.from({ length }).map((_, i) => (
+        <input
+          key={i}
+          className={`w-10 h-12 text-center border border-gray-300 rounded-md ${inputClassName}`}
+          maxLength={1}
+          onChange={(e) => {
+            if (e.target.value && e.target.nextElementSibling) {
+              (e.target.nextElementSibling as HTMLElement).focus();
+            }
+          }}
+        />
+      ))}
+    </div>
+    <div className="text-center mt-4">
+      <button 
+        className="text-blue-600 text-sm"
+        onClick={onResend}
+      >
+        Resend Code
+      </button>
+    </div>
+  </div>
+);
+
+// Placeholder TextInput component
+const TextInput = ({ value, onChange, placeholder, fullWidth }) => (
+  <input
+    type="text"
+    value={value}
+    onChange={onChange}
+    placeholder={placeholder}
+    className={`border border-gray-300 rounded-md px-3 py-2 ${fullWidth ? 'w-full' : ''}`}
+  />
+);
+
+// Placeholder Switch component
+const Switch = ({ checked, onChange, label = "" }) => (
+  <button 
+    className={`w-10 h-5 relative rounded-full ${checked ? 'bg-blue-600' : 'bg-gray-300'}`}
+    onClick={() => onChange(!checked)}
+  >
+    <span 
+      className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transform transition-transform ${checked ? 'translate-x-5' : ''}`}
+    />
+    {label && <span className="ml-2">{label}</span>}
+  </button>
+);
+
+// Placeholder InfoBox component
+const InfoBox = ({ title, variant = "info", children }) => (
+  <div className={`p-4 rounded-md ${variant === 'success' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-blue-50 border-blue-200 text-blue-800'} border`}>
+    <h4 className="font-medium mb-1">{title}</h4>
+    <div className="text-sm">{children}</div>
+  </div>
+);
 
 /**
  * Demo page for OTP input component with autofill functionality

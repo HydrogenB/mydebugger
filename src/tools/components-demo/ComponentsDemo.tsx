@@ -1,12 +1,45 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import ToolLayout from '../components/ToolLayout';
-import Card from '../components/Card';
-import Button from '../components/Button';
-import Tooltip from '../components/Tooltip';
-import InfoBox from '../components/InfoBox';
+import { ToolLayout } from '../../design-system/components/layout';
+import { Card } from '../../design-system/components/layout';
+import { Button } from '../../design-system/components/inputs';
 import OtpInputDemo from './OtpInputDemo';
+
+// Temporarily import placeholder components until they are properly migrated
+const Tooltip = ({ children, content, position = "top", maxWidth = "" }) => (
+  <div className="relative inline-block">
+    {children}
+    <div className={`absolute hidden group-hover:block z-50 ${maxWidth}`}>
+      <div className="bg-gray-800 text-white text-sm rounded p-2 shadow-lg">
+        {content}
+      </div>
+    </div>
+  </div>
+);
+
+const InfoBox = ({ title, children, variant = "info", infoTooltip }) => (
+  <div className={`p-4 rounded-md ${variant === 'info' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 
+    variant === 'success' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' : 
+    variant === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' : 
+    'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'} border`}>
+    <div className="flex items-center mb-2">
+      <h4 className={`font-medium ${variant === 'info' ? 'text-blue-800 dark:text-blue-300' : 
+        variant === 'success' ? 'text-green-800 dark:text-green-300' : 
+        variant === 'warning' ? 'text-yellow-800 dark:text-yellow-300' : 
+        'text-red-800 dark:text-red-300'}`}>{title}</h4>
+      {infoTooltip && (
+        <Tooltip content={infoTooltip}>
+          <span className="ml-1 cursor-help">ℹ️</span>
+        </Tooltip>
+      )}
+    </div>
+    <div className={`text-sm ${variant === 'info' ? 'text-blue-700 dark:text-blue-200' : 
+      variant === 'success' ? 'text-green-700 dark:text-green-200' : 
+      variant === 'warning' ? 'text-yellow-700 dark:text-yellow-200' : 
+      'text-red-700 dark:text-red-200'}`}>{children}</div>
+  </div>
+);
 
 /**
  * Demo component to showcase UI components and their usage

@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import toolRegistry from './tools';
 import { ThemeProvider } from './context/ThemeContext';
-import LoadingSpinner from './tools/components/LoadingSpinner';
+import { LoadingSpinner } from './design-system/components/feedback';
 
 const App: React.FC = () => {
   return (
