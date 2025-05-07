@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import Card from '../../design-system/components/layout/Card';
 import Button from '../../design-system/components/inputs/Button';
-import Alert from '../../design-system/components/feedback/Alert';
+import { Alert } from '../../design-system/components/feedback/Alert';
 
 interface JwtParts {
   header: any;
@@ -185,7 +185,7 @@ const JwtDecoder: React.FC = () => {
                 />
                 
                 {error && (
-                  <Alert variant="danger" className="mt-4">{error}</Alert>
+                  <Alert type="error" className="mt-4">{error}</Alert>
                 )}
                 
                 {decoded && (
