@@ -95,16 +95,18 @@ export const categories: Record<ToolCategory, { icon: React.FC<IconProps>, descr
 // This drives routes, homepage, SEO, and navigation
 const toolRegistry: Tool[] = [
   {
-    id: 'jwt-playground',
+    id: 'jwt-toolkit',
     route: '/jwt',
-    title: 'JWT Playground',
-    description: 'Generate, decode, and verify JSON Web Tokens interactively.',
+    title: 'JWT Toolkit',
+    description: 'Comprehensive toolkit for JWT: decode, build, inspect, verify and benchmark tokens.',
+    longDescription: 'Complete JWT toolkit for developers: decode, create, inspect, verify and benchmark JSON Web Tokens with security analysis and JWKS support.',
     icon: JwtIcon,
-    component: lazy(() => import('./jwtplayground/JwtPlayground')),
+    component: lazy(() => import('./jwt/JwtToolkit')),
     category: 'Security',
     isPopular: true,
+    isNew: true,
     metadata: {
-      keywords: ['jwt', 'token', 'generator', 'decoder', 'playground', 'json web token', 'authentication', 'verify'],
+      keywords: ['jwt', 'token', 'generator', 'decoder', 'verification', 'json web token', 'authentication', 'verify', 'jwks', 'security analysis', 'jwt inspector', 'jwt benchmark'],
       learnMoreUrl: 'https://jwt.io/introduction',
       relatedTools: ['url-encoder', 'headers-analyzer'],
     },
@@ -124,7 +126,7 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['url', 'encoding', 'decoding', 'uri', 'querystring'],
       learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent',
-      relatedTools: ['jwt-playground'],
+      relatedTools: ['jwt-toolkit'],
     },
     uiOptions: {
       showExamples: true
@@ -142,7 +144,7 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['http', 'headers', 'request', 'response', 'analyze'],
       learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers',
-      relatedTools: ['jwt-playground', 'url-encoder', 'clickjacking-validator'],
+      relatedTools: ['jwt-toolkit', 'url-encoder', 'clickjacking-validator'],
     }
   },
   {
@@ -208,7 +210,7 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['clickjacking', 'security', 'x-frame-options', 'csp', 'iframe', 'vulnerability', 'content-security-policy', 'frame-ancestors'],
       learnMoreUrl: 'https://owasp.org/www-community/attacks/Clickjacking',
-      relatedTools: ['headers-analyzer'],
+      relatedTools: ['headers-analyzer', 'jwt-toolkit'],
     },
     uiOptions: {
       showExamples: false

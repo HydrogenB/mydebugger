@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-
-// Interfaces
+import Card from '../../design-system/components/layout/Card';
+import Button from '../../design-system/components/inputs/Button';
+import { Alert } from '../../design-system/components/feedback/Alert';
 
 // Algorithm options
 const algorithmOptions = [
@@ -67,6 +68,7 @@ const JwtPlayground: React.FC = () => {
   const [copied, setCopied] = useState<boolean>(false);
   const [isValid, setIsValid] = useState<boolean>(true);
   const [shareUrl, setShareUrl] = useState<string>('');
+  const [activeClaimsView, setActiveClaimsView] = useState<'json' | 'table'>('json');
 
   // Generate JWT token when header, payload or secret changes
   useEffect(() => {
@@ -276,340 +278,410 @@ const JwtPlayground: React.FC = () => {
           Generate, decode, and experiment with JSON Web Tokens in real-time.
         </p>
         
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-          <div className="warning bg-yellow-50 p-4 border-b border-yellow-100 rounded-t-lg">
-            <strong className="text-yellow-800">Warning:</strong>
-            <span className="text-yellow-700"> JWTs are credentials which can grant access to resources. Be careful where you paste them! We do not record tokens, all validation and debugging is done on the client side.</span>
-          </div>
-          
-          <div className="p-4 border-b border-gray-200">
-            <label htmlFor="algorithm" className="block font-medium text-gray-700 mb-2">
-              Algorithm
-            </label>
-            <select
-              id="algorithm"
-              className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              value={algorithm}
-              onChange={handleAlgorithmChange}
-            >
-              {algorithmOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="flex border-b border-gray-200">
-            <div 
-              className={`px-4 py-2 cursor-pointer transition ${activeTab === 'encoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
-              onClick={() => setActiveTab('encoded')}
-            >
-              Encoded
-              <small className="block text-xs text-gray-500">paste a token here</small>
-            </div>
-            <div 
-              className={`px-4 py-2 cursor-pointer transition ${activeTab === 'decoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
-              onClick={() => setActiveTab('decoded')}
-            >
-              Decoded
-              <small className="block text-xs text-gray-500">edit the payload and secret</small>
-            </div>
-          </div>
-          
-          <div className="p-4">
-            {activeTab === 'encoded' ? (
-              <div>
-                <label htmlFor="encoded-jwt" className="block font-medium text-gray-700 mb-2">
-                  Encoded JWT
-                </label>
-                <textarea
-                  id="encoded-jwt"
-                  className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32"
-                  value={encodedJwt}
-                  onChange={handleEncodedJwtChange}
-                  placeholder="Paste your JWT token here..."
-                  spellCheck="false"
-                />
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <div className="mb-4">
-                    <label htmlFor="header" className="block font-medium text-gray-700 mb-2">
-                      HEADER: <span className="text-xs text-gray-500">ALGORITHM & TOKEN TYPE</span>
-                    </label>
-                    <textarea
-                      id="header"
-                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32 bg-gray-50"
-                      value={header}
-                      onChange={(e) => setHeader(e.target.value)}
-                      onBlur={validateHeader}
-                      spellCheck="false"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="payload" className="block font-medium text-gray-700 mb-2">
-                      PAYLOAD: <span className="text-xs text-gray-500">DATA</span>
-                    </label>
-                    <textarea
-                      id="payload"
-                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-48 bg-gray-50"
-                      value={payload}
-                      onChange={(e) => setPayload(e.target.value)}
-                      onBlur={validatePayload}
-                      spellCheck="false"
-                    />
+        <div className="mb-4 bg-yellow-50 p-4 border border-yellow-200 rounded-md">
+          <p className="text-yellow-800">
+            <span className="font-bold">Warning:</span> JWTs are credentials which can grant access to resources. 
+            Be careful where you paste them! All processing occurs in your browser - we do not record tokens.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card isElevated>
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">JWT Builder</h2>
+                  <div className="flex items-center">
+                    <label htmlFor="algorithm" className="mr-2 text-sm font-medium text-gray-700">Algorithm:</label>
+                    <select
+                      id="algorithm"
+                      className="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm"
+                      value={algorithm}
+                      onChange={handleAlgorithmChange}
+                    >
+                      {algorithmOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
-                
-                <div>
+              </div>
+              
+              <div className="flex border-b border-gray-200">
+                <div 
+                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'encoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+                  onClick={() => setActiveTab('encoded')}
+                >
+                  Encoded
+                  <small className="block text-xs text-gray-500">paste a token</small>
+                </div>
+                <div 
+                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'decoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+                  onClick={() => setActiveTab('decoded')}
+                >
+                  Decoded
+                  <small className="block text-xs text-gray-500">edit token parts</small>
+                </div>
+              </div>
+              
+              <div className="p-4">
+                {activeTab === 'encoded' ? (
                   <div>
-                    <label htmlFor="verify-signature" className="block font-medium text-gray-700 mb-2">
-                      VERIFY SIGNATURE
+                    <label htmlFor="encoded-jwt" className="block font-medium text-gray-700 mb-2">
+                      Encoded JWT
                     </label>
-                    <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
-                      <div className="mb-2 font-mono text-sm">
-                        {algorithm.startsWith('HS') ? `HMACSHA${algorithm.substring(2)}` : algorithm}
-                        <span className="block">(</span>
-                      </div>
-                      
-                      <div className="ml-4 mb-2">
-                        <span className="font-mono text-sm">base64UrlEncode(header) + "." + base64UrlEncode(payload),</span>
-                      </div>
-                      
-                      <div className="ml-4 mb-2">
-                        <label htmlFor="secret" className="block text-sm mb-1">
-                          {algorithm.startsWith('HS') ? 'your-secret' : algorithm.startsWith('RS') || algorithm.startsWith('PS') ? 'your-private-key' : 'your-private-key'}
+                    <textarea
+                      id="encoded-jwt"
+                      className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32"
+                      value={encodedJwt}
+                      onChange={handleEncodedJwtChange}
+                      placeholder="Paste your JWT token here..."
+                      spellCheck="false"
+                    />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <div className="mb-4">
+                        <label htmlFor="header" className="block font-medium text-gray-700 mb-2">
+                          <span className="text-blue-600">HEADER:</span> <span className="text-xs text-gray-500">ALGORITHM & TOKEN TYPE</span>
                         </label>
-                        <input
-                          type="text"
-                          id="secret"
-                          className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                          value={secret}
-                          onChange={(e) => setSecret(e.target.value)}
+                        <textarea
+                          id="header"
+                          className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-32 bg-gray-50"
+                          value={header}
+                          onChange={(e) => setHeader(e.target.value)}
+                          onBlur={validateHeader}
+                          spellCheck="false"
                         />
-                        <div className="flex items-center mt-2">
-                          <input
-                            type="checkbox"
-                            id="is-base64-encoded"
-                            checked={isBase64Encoded}
-                            onChange={() => setIsBase64Encoded(!isBase64Encoded)}
-                            className="rounded text-blue-500"
-                          />
-                          <label htmlFor="is-base64-encoded" className="ml-2 text-sm text-gray-600">
-                            secret base64 encoded
-                          </label>
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="payload" className="block font-medium text-gray-700 mb-2">
+                          <span className="text-purple-600">PAYLOAD:</span> <span className="text-xs text-gray-500">DATA</span>
+                        </label>
+                        <textarea
+                          id="payload"
+                          className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-48 bg-gray-50"
+                          value={payload}
+                          onChange={(e) => setPayload(e.target.value)}
+                          onBlur={validatePayload}
+                          spellCheck="false"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div>
+                        <label htmlFor="verify-signature" className="block font-medium text-gray-700 mb-2">
+                          <span className="text-red-500">VERIFY SIGNATURE</span>
+                        </label>
+                        <div className="p-4 bg-gray-50 rounded-md border border-gray-200">
+                          <div className="mb-2 font-mono text-sm">
+                            {algorithm.startsWith('HS') ? `HMACSHA${algorithm.substring(2)}` : algorithm}
+                            <span className="block">(</span>
+                          </div>
+                          
+                          <div className="ml-4 mb-2">
+                            <span className="font-mono text-sm">base64UrlEncode(header) + "." + base64UrlEncode(payload),</span>
+                          </div>
+                          
+                          <div className="ml-4 mb-2">
+                            <label htmlFor="secret" className="block text-sm mb-1">
+                              {algorithm.startsWith('HS') ? 'your-secret' : algorithm.startsWith('RS') || algorithm.startsWith('PS') ? 'your-private-key' : 'your-private-key'}
+                            </label>
+                            <input
+                              type="text"
+                              id="secret"
+                              className="w-full font-mono rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                              value={secret}
+                              onChange={(e) => setSecret(e.target.value)}
+                            />
+                            <div className="flex items-center mt-2">
+                              <input
+                                type="checkbox"
+                                id="is-base64-encoded"
+                                checked={isBase64Encoded}
+                                onChange={() => setIsBase64Encoded(!isBase64Encoded)}
+                                className="rounded text-blue-500"
+                              />
+                              <label htmlFor="is-base64-encoded" className="ml-2 text-sm text-gray-600">
+                                secret base64 encoded
+                              </label>
+                            </div>
+                          </div>
+                          
+                          <div className="font-mono text-sm">)</div>
                         </div>
                       </div>
                       
-                      <div className="font-mono text-sm">)</div>
+                      <div className="mt-6">
+                        <div className="font-medium text-gray-700 mb-2">
+                          Encoded Token
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-md border border-gray-200 font-mono text-sm overflow-x-auto break-all">
+                          {encodedJwt && (
+                            <>
+                              <span className="text-blue-600">{encodedJwt.split('.')[0]}</span>
+                              <span className="text-gray-500">.</span>
+                              <span className="text-purple-600">{encodedJwt.split('.')[1]}</span>
+                              <span className="text-gray-500">.</span>
+                              <span className="text-red-500">{encodedJwt.split('.')[2]}</span>
+                            </>
+                          )}
+                        </div>
+                        
+                        <div className={`mt-4 flex items-center py-2 px-3 rounded-md ${isValid ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+                          <svg
+                            className={`h-5 w-5 mr-2 ${isValid ? 'text-green-500' : 'text-red-500'}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            {isValid ? (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            ) : (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            )}
+                          </svg>
+                          <span>{isValid ? 'Signature Verified' : 'Invalid Signature'}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="mt-6">
-                    <div className="font-medium text-gray-700 mb-2">
-                      Encoding
-                    </div>
-                    <div className="bg-gray-50 p-4 rounded-md border border-gray-200 font-mono text-sm overflow-x-auto break-all">
-                      {encodedJwt && (
-                        <>
-                          <span className="text-blue-600">{encodedJwt.split('.')[0]}</span>
-                          <span className="text-gray-500">.</span>
-                          <span className="text-purple-600">{encodedJwt.split('.')[1]}</span>
-                          <span className="text-gray-500">.</span>
-                          <span className="text-red-500">{encodedJwt.split('.')[2]}</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    <div className={`mt-4 flex items-center py-2 px-3 rounded-md ${isValid ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-                      <svg
-                        className={`h-5 w-5 mr-2 ${isValid ? 'text-green-500' : 'text-red-500'}`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        {isValid ? (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        ) : (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        )}
-                      </svg>
-                      <span>{isValid ? 'Signature Verified' : 'Invalid Signature'}</span>
-                    </div>
+                )}
+              </div>
+              
+              {error && (
+                <Alert type="error" className="mx-4 mb-4">{error}</Alert>
+              )}
+              
+              <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-lg">
+                <div>
+                  <Button onClick={handleReset} variant="light">
+                    Reset
+                  </Button>
+                </div>
+                <div className="flex space-x-3">
+                  <Button onClick={handleCopyJwt} variant="primary">
+                    {copied ? 'Copied!' : 'Copy JWT'}
+                  </Button>
+                  <Button 
+                    onClick={handleCopyShareUrl} 
+                    variant="outline-primary"
+                    title="Copy a URL with this token to share with others"
+                  >
+                    Share URL
+                  </Button>
+                </div>
+              </div>
+            </Card>
+            
+            </div>
+          
+          {/* Token claims display */}
+          {activeTab === 'decoded' && encodedJwt && (
+            <Card isElevated className="mt-6">
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">Decoded Claims</h2>
+                  <div className="flex border border-gray-200 rounded-md">
+                    <button 
+                      className={`px-3 py-1 text-sm ${activeClaimsView === 'json' ? 'bg-gray-100 font-medium' : 'bg-white'}`}
+                      onClick={() => setActiveClaimsView('json')}
+                    >
+                      JSON
+                    </button>
+                    <button 
+                      className={`px-3 py-1 text-sm ${activeClaimsView === 'table' ? 'bg-gray-100 font-medium' : 'bg-white'}`}
+                      onClick={() => setActiveClaimsView('table')}
+                    >
+                      Table
+                    </button>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-          
-          {error && (
-            <div className="px-4 py-3 bg-red-50 border-t border-red-200 text-red-600">
-              {error}
-            </div>
-          )}
-          
-          <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center rounded-b-lg">
-            <div>
-              {isValid && (
-                <div className="flex items-center text-green-600">
-                  <svg className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  Signature verified
-                </div>
-              )}
-            </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={handleReset}
-                className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md transition"
-              >
-                Reset
-              </button>
-              <button
-                onClick={handleCopyJwt}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition"
-              >
-                {copied ? 'Copied!' : 'Copy JWT'}
-              </button>
-              <button
-                onClick={handleCopyShareUrl}
-                className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-md transition"
-                title="Copy a URL with this token to share with others"
-              >
-                Share
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        {/* Token claims display */}
-        {activeTab === 'decoded' && encodedJwt && (
-          <div className="mb-8 bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold mb-2">Decoded Token Claims</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <div className="p-4">
                 {(() => {
                   try {
                     const parsedPayload = JSON.parse(payload);
+                    
+                    if (activeClaimsView === 'json') {
+                      return (
+                        <pre className="bg-gray-50 p-3 rounded-md overflow-x-auto font-mono text-sm">
+                          {JSON.stringify(parsedPayload, null, 2)}
+                        </pre>
+                      );
+                    }
+                    
                     return (
-                      <>
-                        {parsedPayload.exp && (
-                          <div className={`p-3 rounded-md ${isExpired(parsedPayload.exp) ? 'bg-red-50' : 'bg-green-50'}`}>
-                            <span className="font-medium">Expiration:</span> {formatDate(parsedPayload.exp)}
-                            <span className={`ml-2 text-sm font-semibold ${isExpired(parsedPayload.exp) ? 'text-red-600' : 'text-green-600'}`}>
-                              {isExpired(parsedPayload.exp) ? '(Expired)' : '(Valid)'}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {parsedPayload.iat && (
-                          <div className="p-3 rounded-md bg-blue-50">
-                            <span className="font-medium">Issued at:</span> {formatDate(parsedPayload.iat)}
-                          </div>
-                        )}
-                        
-                        {parsedPayload.nbf && (
-                          <div className="p-3 rounded-md bg-blue-50">
-                            <span className="font-medium">Not valid before:</span> {formatDate(parsedPayload.nbf)}
-                          </div>
-                        )}
-                        
-                        {parsedPayload.sub && (
-                          <div className="p-3 rounded-md bg-gray-50">
-                            <span className="font-medium">Subject:</span> {parsedPayload.sub}
-                          </div>
-                        )}
-                        
-                        {parsedPayload.iss && (
-                          <div className="p-3 rounded-md bg-gray-50">
-                            <span className="font-medium">Issuer:</span> {parsedPayload.iss}
-                          </div>
-                        )}
-                        
-                        {parsedPayload.aud && (
-                          <div className="p-3 rounded-md bg-gray-50">
-                            <span className="font-medium">Audience:</span> {Array.isArray(parsedPayload.aud) ? parsedPayload.aud.join(', ') : parsedPayload.aud}
-                          </div>
-                        )}
-                      </>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="text-left py-2 px-4 font-medium">Claim</th>
+                              <th className="text-left py-2 px-4 font-medium">Value</th>
+                              <th className="text-left py-2 px-4 font-medium">Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {Object.entries(parsedPayload).map(([key, value]) => (
+                              <tr key={key} className="border-b border-gray-100">
+                                <td className="py-3 px-4 font-medium">{key}</td>
+                                <td className="py-3 px-4 font-mono">
+                                  {key === 'exp' || key === 'iat' || key === 'nbf' 
+                                    ? (
+                                      <div>
+                                        <div>{String(value)}</div>
+                                        <div className={`text-xs mt-1 ${key === 'exp' && isExpired(value as number) ? 'text-red-600' : 'text-gray-500'}`}>
+                                          {formatDate(value as number)}
+                                          {key === 'exp' && (
+                                            <span className="ml-1">
+                                              {isExpired(value as number) ? '(Expired)' : '(Valid)'}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ) 
+                                    : Array.isArray(value) 
+                                      ? value.join(', ')
+                                      : String(value)}
+                                </td>
+                                <td className="py-3 px-4 text-gray-600">
+                                  {key === 'iss' && 'Issuer of the JWT'}
+                                  {key === 'sub' && 'Subject of the JWT (the user)'}
+                                  {key === 'aud' && 'Audience of the JWT (recipient)'}
+                                  {key === 'exp' && 'Expiration time'}
+                                  {key === 'nbf' && 'Not valid before time'}
+                                  {key === 'iat' && 'Issued at time'}
+                                  {key === 'jti' && 'JWT ID'}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     );
                   } catch (e) {
-                    return <div className="text-red-600">Error parsing payload</div>;
+                    return <Alert type="error">Error parsing payload JSON</Alert>;
                   }
                 })()}
               </div>
-            </div>
+            </Card>
+          )}
+          
           </div>
-        )}
-        
-        {/* Learn about JWT */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Learn More About JWT</h2>
-          <div className="bg-white p-4 rounded-md border border-gray-200">
-            <p className="mb-2">
-              JSON Web Token (JWT) is an open standard (RFC 7519) that defines a compact and self-contained way for securely transmitting information between parties as a JSON object. This information can be verified and trusted because it is digitally signed.
-            </p>
-            <ul className="list-disc pl-5 text-gray-700">
-              <li className="mb-1">
-                <strong>Header:</strong> Identifies which algorithm is used to generate the signature
-              </li>
-              <li className="mb-1">
-                <strong>Payload:</strong> Contains the claims or the pieces of information being passed
-              </li>
-              <li className="mb-1">
-                <strong>Signature:</strong> Ensures that the token hasn't been altered
-              </li>
-            </ul>
-            <p className="mt-2">
-              JWTs can be signed using a secret (with the HMAC algorithm) or a public/private key pair using RSA or ECDSA.
-            </p>
-            <a 
-              href="https://jwt.io/introduction" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:text-blue-600 font-medium inline-flex items-center mt-3"
-            >
-              Read more about JWT
-              <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          </div>
-        </div>
-        
-        {/* Common usages of JWT */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Common JWT Use Cases</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <h3 className="font-medium text-lg mb-2">Authentication</h3>
-              <p className="text-gray-600">
-                The most common scenario for using JWT. Once the user is logged in, each subsequent request will include the JWT, allowing the user to access routes, services, and resources that are permitted with that token.
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <h3 className="font-medium text-lg mb-2">Information Exchange</h3>
-              <p className="text-gray-600">
-                JWTs are a good way of securely transmitting information between parties because they can be signed, which means you can be sure that the senders are who they say they are.
-              </p>
-            </div>
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <h3 className="font-medium text-lg mb-2">Microservices</h3>
-              <p className="text-gray-600">
-                In microservices architectures, JWTs can be used to securely propagate user identity and claims between different services without requiring a central session store.
-              </p>
-            </div>
+          
+          <div>
+            <Card isElevated>
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold">About JWT</h2>
+              </div>
+              <div className="p-4">
+                <p className="text-sm text-gray-700 mb-3">
+                  JWT consists of three parts separated by dots:
+                </p>
+                <ul className="list-disc pl-5 text-sm text-gray-700 mb-3">
+                  <li className="mb-1">
+                    <span className="text-blue-600 font-medium">Header</span>: Algorithm & token type
+                  </li>
+                  <li className="mb-1">
+                    <span className="text-purple-600 font-medium">Payload</span>: Data (claims)
+                  </li>
+                  <li className="mb-1">
+                    <span className="text-red-500 font-medium">Signature</span>: Verification
+                  </li>
+                </ul>
+                <a 
+                  href="https://jwt.io/introduction" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-600 text-sm font-medium inline-flex items-center"
+                >
+                  Learn more about JWT
+                  <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </Card>
+            
+            <Card isElevated className="mt-6">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold">Standard JWT Claims</h2>
+              </div>
+              <div className="p-4">
+                <ul className="space-y-3 text-sm">
+                  <li>
+                    <span className="font-medium">iss</span> (Issuer): 
+                    <span className="block text-gray-600 mt-1">Entity that issued the token</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">sub</span> (Subject): 
+                    <span className="block text-gray-600 mt-1">Entity identifier (typically user ID)</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">aud</span> (Audience): 
+                    <span className="block text-gray-600 mt-1">Recipients the token is intended for</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">exp</span> (Expiration): 
+                    <span className="block text-gray-600 mt-1">Timestamp when token becomes invalid</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">nbf</span> (Not Before): 
+                    <span className="block text-gray-600 mt-1">Timestamp when token starts being valid</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">iat</span> (Issued At): 
+                    <span className="block text-gray-600 mt-1">Timestamp when token was issued</span>
+                  </li>
+                  <li>
+                    <span className="font-medium">jti</span> (JWT ID): 
+                    <span className="block text-gray-600 mt-1">Unique identifier for this token</span>
+                  </li>
+                </ul>
+              </div>
+            </Card>
+            
+            <Card isElevated className="mt-6">
+              <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold">Common Use Cases</h2>
+              </div>
+              <div className="p-4">
+                <ul className="space-y-3 text-sm text-gray-700">
+                  <li className="p-3 bg-blue-50 rounded-md">
+                    <span className="font-medium">Authentication</span>
+                    <span className="block mt-1">Secure user sessions without server-side storage</span>
+                  </li>
+                  <li className="p-3 bg-green-50 rounded-md">
+                    <span className="font-medium">API Authorization</span>
+                    <span className="block mt-1">Secure access to protected resources</span>
+                  </li>
+                  <li className="p-3 bg-purple-50 rounded-md">
+                    <span className="font-medium">Information Exchange</span>
+                    <span className="block mt-1">Secure data transmission between parties</span>
+                  </li>
+                </ul>
+              </div>
+            </Card>
           </div>
         </div>
         
         {/* Related tools suggestion */}
         <div className="mt-8 border-t border-gray-200 pt-6">
           <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a
+              href="/jwt"
+              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
+            >
+              <h3 className="font-medium text-lg mb-1">JWT Decoder</h3>
+              <p className="text-gray-600">Decode and verify existing JWT tokens.</p>
+            </a>
             <a
               href="/url-encoder"
               className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
