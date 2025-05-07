@@ -6,6 +6,7 @@ import Card from '../components/Card';
 import Button from '../components/Button';
 import Tooltip from '../components/Tooltip';
 import InfoBox from '../components/InfoBox';
+import OtpInputDemo from './OtpInputDemo';
 
 /**
  * Demo component to showcase UI components and their usage
@@ -21,6 +22,9 @@ const ComponentsDemo: React.FC = () => {
       </Helmet>
       <ToolLayout tool={tool!}>
         <div className="space-y-8">
+          {/* OTP Input Demo */}
+          <OtpInputDemo />
+          
           {/* Tooltip Demo */}
           <Card title="Tooltip Component" isElevated>
             <div className="space-y-6">
