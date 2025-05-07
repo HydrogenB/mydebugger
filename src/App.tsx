@@ -11,7 +11,7 @@ import { LoadingSpinner } from './design-system/components/feedback';
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
           <Header />
           

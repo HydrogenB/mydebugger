@@ -8,8 +8,9 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    minify: 'esbuild', // Changed from 'terser' to 'esbuild', which is included with Vite
-    sourcemap: false,
+    minify: 'esbuild', 
+    sourcemap: true, // Enable sourcemaps to help debug issues
+    outDir: 'dist',
     rollupOptions: {
       output: {
         manualChunks: {
