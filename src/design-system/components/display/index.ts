@@ -3,7 +3,7 @@
 
 export { Badge, BadgeContainer } from './Badge';
 export { default as ResponsiveImage } from './ResponsiveImage';
+export { default as InfoBox } from './InfoBox';
 // export { Avatar } from './Avatar';
 // export { Tag } from './Tag';
-// export { InfoBox } from './InfoBox';
 // export { DataTable } from './DataTable';
