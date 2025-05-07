@@ -18,6 +18,16 @@ export const useTheme = (): ThemeContextType => {
   return context;
 };
 
+// Helper function to safely access localStorage
+const getStorageValue = (key: string, defaultValue: any) => {
+  // Check if window is defined (browser environment)
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(key);
+    return saved !== null ? saved : defaultValue;
+  }
+  return defaultValue;
+};
+
 interface ThemeProviderProps {
   children: ReactNode;
   defaultTheme?: Theme;
@@ -27,8 +37,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children, 
   defaultTheme = 'system' 
 }) => {
+  // Use the safe helper function instead of direct localStorage access
   const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem('theme') as Theme) || defaultTheme
+    () => getStorageValue('theme', defaultTheme) as Theme
   );
   
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -49,6 +60,9 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   
   // Set theme based on state
   useEffect(() => {
+    // Skip this effect during SSR
+    if (typeof window === 'undefined') return;
+    
     const root = window.document.documentElement;
     
     if (theme === 'system') {
@@ -62,7 +76,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme]);
   
   const setTheme = (newTheme: Theme) => {
-    localStorage.setItem('theme', newTheme);
+    // Safely set localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+    }
     setThemeState(newTheme);
   };
   
