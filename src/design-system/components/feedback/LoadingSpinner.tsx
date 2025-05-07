@@ -1,14 +1,32 @@
 import React from 'react';
 
-interface LoadingSpinnerProps {
+export interface LoadingSpinnerProps {
+  /** Size of the spinner */
   size?: 'sm' | 'md' | 'lg';
+  /** Color class name for the spinner */
   color?: string;
+  /** Whether the spinner should cover the full screen with an overlay */
   fullScreen?: boolean;
 }
 
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+/**
+ * LoadingSpinner component for indicating loading states
+ * 
+ * @example
+ * ```tsx
+ * // Basic spinner
+ * <LoadingSpinner />
+ * 
+ * // Custom size and color
+ * <LoadingSpinner size="lg" color="text-primary-500" />
+ * 
+ * // Full screen overlay spinner
+ * <LoadingSpinner fullScreen />
+ * ```
+ */
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
-  color = 'text-blue-600',
+  color = 'text-primary-600',
   fullScreen = false
 }) => {
   const sizeClasses = {

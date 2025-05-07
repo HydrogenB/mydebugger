@@ -52,10 +52,9 @@ mydebugger/
 │   ├── pages/             # Main pages
 │   │   ├── Home.tsx       # Landing page with tool listings
 │   │   └── NotFound.tsx   # 404 page
-│   └── tools/             # Tool modules and legacy components
+│   └── tools/             # Tool modules
 │       ├── index.ts       # Tool registry (central configuration)
 │       ├── clickjacking/  # Clickjacking testing tools
-│       ├── components/    # Legacy UI components (being migrated to design system)
 │       └── ... (other tool directories)
 ├── index.html             # HTML entry point
 ├── package.json           # Project dependencies and scripts
@@ -64,7 +63,7 @@ mydebugger/
 
 ## 🎨 Design System
 
-The project has been restructured to implement a comprehensive design system architecture for better component reuse and consistency. The design system is located in `src/design-system/` and follows a modular approach.
+The project uses a comprehensive design system architecture for better component reuse and consistency. The design system is located in `src/design-system/` and follows a modular approach.
 
 ### Design System Architecture
 
@@ -85,9 +84,9 @@ UI components organized by functional category:
 
 | Category | Purpose | Components |
 |----------|---------|------------|
-| Inputs | User input elements | Button, ThemeToggle |
-| Feedback | User feedback components | Alert |
-| Layout | Structural components | Card |
+| Inputs | User input elements | Button, ThemeToggle, TextInput, Form |
+| Feedback | User feedback components | Alert, LoadingSpinner |
+| Layout | Structural components | Card, ResponsiveContainer, ToolLayout |
 | Display | Information display | Badge, BadgeContainer |
 | Overlays | Floating elements | Modal |
 | Navigation | Navigational elements | TabGroup, Tab, TabPanel |
@@ -160,7 +159,7 @@ Each component in the design system follows a consistent pattern:
 
 ## 🧪 Component Library
 
-The project includes both the new design system components and a legacy component library located in `src/tools/components/`. The legacy components are gradually being migrated to the design system architecture.
+The project uses a unified design system for all components across the application. The previously separate legacy component library has been fully migrated to the design system architecture.
 
 ### Core Components
 
@@ -173,6 +172,8 @@ The project includes both the new design system components and a legacy componen
 | Modal | Dialog windows | `design-system/components/overlays/Modal.tsx` |
 | TabGroup | Content organization with tabs | `design-system/components/navigation/TabGroup.tsx` |
 | ThemeToggle | Theme switcher | `design-system/components/inputs/ThemeToggle.tsx` |
+| LoadingSpinner | Loading indicator | `design-system/components/feedback/LoadingSpinner.tsx` |
+| ToolLayout | Standard layout for tools | `design-system/components/layout/ToolLayout.tsx` |
 
 The components can be viewed and tested in the Components Demo section of the application.
 
@@ -233,15 +234,21 @@ The components can be viewed and tested in the Components Demo section of the ap
 - **Reusability**: Design components for maximum reuse across the application
 - **Documentation**: Include JSDoc comments and clear prop interfaces
 
-### Migrating Legacy Components
+### Adding New Tools
 
-When migrating components from the legacy system to the design system:
+When adding new tools to the application:
 
-1. Create a new component file in the appropriate design system category
-2. Enhance the component with emoji icon support and theme awareness
-3. Ensure proper TypeScript typing and JSDoc documentation
-4. Update imports in consuming components to use the new design system component
-5. Remove the legacy component once all usages are migrated
+1. Create a new directory under `src/tools/` for your tool
+2. Create a main component file for your tool (e.g., `NewTool.tsx`)
+3. Import components from the design system using the correct paths:
+   ```tsx
+   import { Card } from '../../design-system/components/layout';
+   import { Button } from '../../design-system/components/inputs';
+   import { LoadingSpinner } from '../../design-system/components/feedback';
+   import { ToolLayout } from '../../design-system/components/layout';
+   ```
+4. Register your tool in `src/tools/index.ts` by adding it to the tools array
+5. Include appropriate metadata, keywords, and related tools
 
 ### Code Style and Conventions
 
@@ -252,6 +259,47 @@ When migrating components from the legacy system to the design system:
 - Write meaningful component prop interfaces
 - Include JSDoc comments for components
 - Follow responsive design patterns
+
+## 🤖 AI Agent Handover Reference
+
+### Quick Start Instructions for AI Assistants
+
+If you're an AI agent working on this codebase, here are some tips to help you get started:
+
+1. **Project Structure**: Familiarize yourself with the project structure above. All components are now in the design system.
+
+2. **Component Usage**: When developing features, always use components from the design system:
+   ```tsx
+   // Import components from design system
+   import { Button, Card } from '../../design-system';
+   // Or from specific paths
+   import { ToolLayout } from '../../design-system/components/layout';
+   ```
+
+3. **Understanding Tool Files**: Each tool has its own directory in `src/tools/` with a main component file. These components use the `ToolLayout` component from the design system.
+
+4. **Important Context for AI**: 
+   - The project has completed migration from a legacy component system to a unified design system
+   - Always use components from `design-system/` and not from any legacy locations
+   - Follow the established patterns for creating and documenting components
+   - Use the emoji-based icon system for visual elements
+   - Ensure theme support for all new components (light/dark mode)
+
+5. **Getting Started Commands**:
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Start development server
+   npm run dev
+   ```
+
+### Important Files to Understand First
+
+1. `src/design-system/index.ts` - Main export file for design system
+2. `src/tools/index.ts` - Tool registry and configuration
+3. `src/App.tsx` - Main application routing
+4. `src/context/ThemeContext.tsx` - Theme context for light/dark mode
 
 ## 🧠 Design System Principles
 

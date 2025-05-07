@@ -1,22 +1,32 @@
 import React, { ReactNode } from 'react';
 import { Helmet } from 'react-helmet';
-import { Tool } from '../index';
-import RelatedTools from './RelatedTools';
-import { useTheme } from '../../context/ThemeContext';
-import { ResponsiveContainer } from './index';
+import { Tool } from '../../../tools/index';
+import { ResponsiveContainer } from './ResponsiveContainer';
 
-interface ToolLayoutProps {
+export interface ToolLayoutProps {
+  /** Tool object containing metadata */
   tool: Tool;
+  /** Content to be rendered inside the tool layout */
   children: ReactNode;
+  /** Whether to show the tool header */
   showHeader?: boolean;
+  /** Whether to show the tool description */
   showDescription?: boolean;
+  /** Whether to show related tools */
   showRelatedTools?: boolean;
 }
 
 /**
  * Standard layout wrapper for all tools with consistent UI
+ * 
+ * @example
+ * ```tsx
+ * <ToolLayout tool={tool}>
+ *   <div>Tool content goes here</div>
+ * </ToolLayout>
+ * ```
  */
-const ToolLayout: React.FC<ToolLayoutProps> = ({
+export const ToolLayout: React.FC<ToolLayoutProps> = ({
   tool,
   children,
   showHeader = true,
@@ -26,7 +36,11 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
   const { title, description, metadata, id } = tool;
   const pageTitle = `${title} | MyDebugger`;
   const pageDescription = description;
-  const { } = useTheme();
+
+  // Need to import and use RelatedTools component from design system
+  const RelatedToolsComponent = showRelatedTools 
+    ? require('../../../tools/components/RelatedTools').default 
+    : null;
 
   return (
     <>
@@ -76,7 +90,7 @@ const ToolLayout: React.FC<ToolLayoutProps> = ({
           {children}
         </div>
         
-        {showRelatedTools && <RelatedTools toolId={id} />}
+        {showRelatedTools && RelatedToolsComponent && <RelatedToolsComponent toolId={id} />}
         
         {metadata.learnMoreUrl && (
           <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">

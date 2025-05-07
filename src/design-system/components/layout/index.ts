@@ -3,3 +3,4 @@
 
 export { Card } from './Card';
 export { ResponsiveContainer } from './ResponsiveContainer';
+export { default as ToolLayout } from './ToolLayout';
