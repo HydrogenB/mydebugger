@@ -135,7 +135,7 @@ function MyComponent() {
 
 ### Using the Design System
 
-All design system components and utilities can be imported from a single entry point:
+All design system components and utilities can be imported from a single entry point:.
 
 ```tsx
 // Importing components
