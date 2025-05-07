@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 
+export type OtpType = 'sms' | 'email' | 'app' | 'generic';
+
 export interface OtpInputProps {
   length?: number;
   onComplete?: (otp: string) => void;
@@ -10,16 +12,21 @@ export interface OtpInputProps {
   title?: string;
   description?: string;
   phoneNumber?: string;
+  emailAddress?: string;
   referenceCode?: string;
   expiryTime?: string;
   resendTime?: number;
   autofillHint?: string;
   onResend?: () => void;
+  compact?: boolean;
+  showHeader?: boolean;
+  otpType?: OtpType;
 }
 
 /**
  * OTP Input component with autofill support
- * Uses autocomplete="one-time-code" to enable browser autofill from SMS
+ * Uses autocomplete attributes to enable browser autofill based on OTP type
+ * Compliant with Next.js best practices and WebOTP API standards
  */
 const OtpInput: React.FC<OtpInputProps> = ({
   length = 6,
@@ -28,14 +35,18 @@ const OtpInput: React.FC<OtpInputProps> = ({
   disabled = false,
   className = '',
   inputClassName = '',
-  title = 'OTP Verification',
-  description = 'OTP SMS has been sent to',
+  title = 'Verification Code',
+  description = '',
   phoneNumber = '',
+  emailAddress = '',
   referenceCode = '',
   expiryTime = '10 minutes',
   resendTime = 0,
-  autofillHint = 'one-time-code',
-  onResend
+  autofillHint,
+  onResend,
+  compact = false,
+  showHeader = true,
+  otpType = 'sms'
 }) => {
   // State to track OTP digits
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
@@ -48,6 +59,27 @@ const OtpInput: React.FC<OtpInputProps> = ({
   
   // Ref for the hidden input used for autofill
   const hiddenInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Determine the appropriate autofill hint based on OTP type if not explicitly provided
+  const effectiveAutofillHint = autofillHint || (
+    otpType === 'sms' ? 'one-time-code' :
+    otpType === 'email' ? 'one-time-code email' : 
+    'one-time-code'
+  );
+
+  // Determine the contact information based on OTP type
+  const contactInfo = 
+    otpType === 'sms' ? phoneNumber :
+    otpType === 'email' ? emailAddress :
+    otpType === 'app' ? 'your authenticator app' : '';
+  
+  // Determine description text based on OTP type if not provided
+  const effectiveDescription = description || (
+    otpType === 'sms' ? 'Verification code sent to' :
+    otpType === 'email' ? 'Verification code sent to' :
+    otpType === 'app' ? 'Enter the code from your authenticator app' :
+    'Enter verification code'
+  );
 
   // Helper function to safely focus an input element
   const safelyFocusInput = (index: number) => {
@@ -167,39 +199,82 @@ const OtpInput: React.FC<OtpInputProps> = ({
     }
   };
 
+  // Calculate input field size based on compact mode
+  const inputSize = compact ? 'w-12 h-12' : 'w-14 h-14';
+  const spacing = compact ? 'space-x-2' : 'space-x-4';
+  const fontSize = compact ? 'text-lg' : 'text-xl';
+
+  // OTP input type icon based on otpType
+  const getOtpTypeIcon = () => {
+    switch (otpType) {
+      case 'sms':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 2v10h14V5H4zm3 3a1 1 0 100 2h6a1 1 0 100-2H7z" />
+          </svg>
+        );
+      case 'email':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+          </svg>
+        );
+      case 'app':
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M6.625 2.655A9 9 0 0119 11a1 1 0 11-2 0A7 7 0 003.636 6.91L3.9 7.35A1 1 0 012.05 8.14l-1.8-3.2a1 1 0 011.41-1.3l3.2 1.8a1 1 0 01.14 1.85l-.44.26z" clipRule="evenodd" />
+            <path fillRule="evenodd" d="M10 2a8 8 0 108 8 1 1 0 112 0A10 10 0 110 10a1 1 0 012 0z" clipRule="evenodd" />
+          </svg>
+        );
+      default:
+        return (
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+          </svg>
+        );
+    }
+  };
+
   return (
     <div className={`flex flex-col ${className}`}>
-      {/* True dtac header with back button and title */}
-      <div className="w-full flex items-center justify-between mb-6">
-        <div className="flex items-center">
-          <button 
-            className="p-2 mr-2 text-blue-600"
-            aria-label="Back"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+      {/* Header with back button and title - only shown when showHeader is true */}
+      {showHeader && (
+        <div className="w-full flex items-center mb-6">
+          <div className="flex items-center">
+            <button 
+              className="p-2 mr-2 text-blue-600"
+              aria-label="Back"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="flex items-center">
+              <span className="bg-blue-100 text-blue-600 p-1.5 rounded-full mr-2">
+                {getOtpTypeIcon()}
+              </span>
+              <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/True_Dtac_Logo.png" alt="true dtac logo" className="h-8" />
-        </div>
-      </div>
+      )}
       
-      {/* Description text with phone number */}
-      <div className="w-full mb-8">
-        <p className="text-gray-700 text-lg">
-          {description} <span className="font-bold">{phoneNumber}</span>
+      {/* Description text with contact info */}
+      <div className={`w-full ${compact ? 'mb-4' : 'mb-8'}`}>
+        <p className={`text-gray-700 ${compact ? 'text-base' : 'text-lg'}`}>
+          {effectiveDescription} {contactInfo && (
+            <span className="font-bold">{contactInfo}</span>
+          )}
         </p>
       </div>
       
       {/* OTP Input fields - circular design */}
-      <div className="flex justify-center space-x-4 mb-6">
+      <div className={`flex justify-center ${spacing} ${compact ? 'mb-4' : 'mb-6'}`}>
         {Array.from({ length }, (_, index) => (
           <div 
             key={index}
-            className="relative w-14 h-14 flex items-center justify-center"
+            className={`relative ${inputSize} flex items-center justify-center`}
           >
             <input
               type="tel"
@@ -214,7 +289,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
               disabled={disabled}
               className={`
                 w-full h-full rounded-full bg-gray-50 border border-gray-200
-                text-center text-xl font-semibold
+                text-center ${fontSize} font-semibold
                 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200
                 disabled:opacity-60 disabled:cursor-not-allowed
                 shadow-sm
@@ -228,40 +303,43 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
       {/* Reference code */}
       {referenceCode && (
-        <div className="text-center mb-2">
-          <p className="text-gray-600 font-medium">Reference code {referenceCode}</p>
+        <div className={`text-center ${compact ? 'mb-1' : 'mb-2'}`}>
+          <p className={`text-gray-600 font-medium ${compact ? 'text-sm' : ''}`}>Reference code {referenceCode}</p>
         </div>
       )}
       
       {/* Expiry notice */}
-      <div className="text-center mb-3">
-        <p className="text-gray-600">This OTP will expire in {expiryTime}</p>
-      </div>
+      {expiryTime && (
+        <div className={`text-center ${compact ? 'mb-2' : 'mb-3'}`}>
+          <p className={`text-gray-600 ${compact ? 'text-sm' : ''}`}>This code will expire in {expiryTime}</p>
+        </div>
+      )}
       
       {/* Resend timer/button */}
-      <div className="text-center mb-6">
-        {countdown > 0 ? (
-          <p className="text-gray-700">
-            Didn't receive the OTP? Try again in{' '}
-            <span className="text-red-500 font-bold">{countdown}</span> secs
-          </p>
-        ) : (
-          <button
-            onClick={handleResend}
-            className="text-blue-600 font-medium hover:text-blue-800 focus:outline-none"
-            disabled={!onResend}
-          >
-            Resend OTP
-          </button>
-        )}
-      </div>
+      {onResend && (
+        <div className={`text-center ${compact ? 'mb-4' : 'mb-6'}`}>
+          {countdown > 0 ? (
+            <p className={`text-gray-700 ${compact ? 'text-sm' : ''}`}>
+              Didn't receive the code? Try again in{' '}
+              <span className="text-red-500 font-bold">{countdown}</span> secs
+            </p>
+          ) : (
+            <button
+              onClick={handleResend}
+              className="text-blue-600 font-medium hover:text-blue-800 focus:outline-none"
+            >
+              Resend code
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Hidden input for autofill */}
       <div className="relative w-0 h-0 overflow-hidden">
         <input
           type="text"
           inputMode="numeric"
-          autoComplete={autofillHint}
+          autoComplete={effectiveAutofillHint}
           ref={hiddenInputRef}
           onChange={handleHiddenInputChange}
           className="opacity-0 absolute"

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Card from '../components/Card';
-import OtpInput from '../components/OtpInput';
+import OtpInput, { OtpType } from '../components/OtpInput';
 import Button from '../components/Button';
 import InfoBox from '../components/InfoBox';
 import TextInput from '../components/TextInput';
+import Switch from '../components/Switch';
 
 /**
  * Demo page for OTP input component with autofill functionality
@@ -15,6 +16,10 @@ const OtpInputDemo: React.FC = () => {
   const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
   const [autofillHint, setAutofillHint] = useState<string>('one-time-code');
   const [phoneNumber, setPhoneNumber] = useState<string>('0945656671');
+  const [emailAddress, setEmailAddress] = useState<string>('user@example.com');
+  const [isCompact, setIsCompact] = useState<boolean>(false);
+  const [showHeader, setShowHeader] = useState<boolean>(true);
+  const [otpType, setOtpType] = useState<OtpType>('sms');
   
   // Reset demo state
   const handleReset = () => {
@@ -48,13 +53,22 @@ const OtpInputDemo: React.FC = () => {
       setShowSuccessMessage(false);
     }, 3000);
   };
+
+  // Get contact info based on selected OTP type
+  const getContactInfo = () => {
+    switch(otpType) {
+      case 'sms': return phoneNumber;
+      case 'email': return emailAddress;
+      default: return '';
+    }
+  };
   
   return (
     <Card title="OTP Auto-Fill Demo" isElevated>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <h3 className="text-xl font-medium mb-4">True dtac OTP Verification</h3>
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div>
+            <h3 className="text-xl font-medium mb-5">OTP Verification</h3>
             
             {/* Device frame */}
             <div className="max-w-sm mx-auto bg-white rounded-lg shadow-lg overflow-hidden border border-gray-300">
@@ -66,14 +80,14 @@ const OtpInputDemo: React.FC = () => {
                 </div>
               </div>
               
-              {/* True dtac OTP UI */}
+              {/* OTP UI */}
               <div className="p-5">
                 <OtpInput
                   length={6}
                   onComplete={setOtpValue}
-                  title="OTP Verification"
-                  description="OTP SMS has been sent to"
+                  title={`${otpType.toUpperCase()} Verification`}
                   phoneNumber={phoneNumber}
+                  emailAddress={emailAddress}
                   referenceCode="eTGqx"
                   expiryTime="10 minutes"
                   resendTime={11}
@@ -81,28 +95,134 @@ const OtpInputDemo: React.FC = () => {
                   inputClassName="bg-gray-50"
                   autofillHint={autofillHint}
                   onResend={handleResend}
+                  compact={isCompact}
+                  showHeader={showHeader}
+                  otpType={otpType}
                 />
               </div>
             </div>
             
+            {/* Demo controls section */}
+            {showSuccessMessage && (
+              <div className="mt-4 mb-2">
+                <InfoBox 
+                  title={isVerified ? "Verification Successful" : "Code Resent"} 
+                  variant="success"
+                >
+                  {isVerified 
+                    ? "The verification code has been successfully verified." 
+                    : `A new verification code has been sent to your ${otpType === 'email' ? 'email' : 'phone'}.`}
+                </InfoBox>
+              </div>
+            )}
+            
+            <div className="flex mt-4 gap-3 justify-center">
+              <Button 
+                variant="outline-primary"
+                onClick={handleReset}
+                disabled={isVerifying}
+              >
+                Reset Demo
+              </Button>
+
+              <Button
+                onClick={handleVerify}
+                isLoading={isVerifying}
+                loadingText="Verifying..."
+                disabled={!otpValue || otpValue.length !== 6 || isVerified}
+              >
+                {isVerified ? 'Verified' : 'Verify Code'}
+              </Button>
+            </div>
+          </div>
+          
+          {/* Right Column - Settings and Info */}
+          <div>
+            <h3 className="text-xl font-medium mb-4">OTP Settings & Information</h3>
+            
+            {/* OTP type selection */}
+            <div className="bg-white rounded-lg p-5 border border-gray-200 mb-6">
+              <h4 className="font-medium text-gray-700 mb-4">OTP Type</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button 
+                  className={`px-4 py-2 rounded-md flex flex-col items-center justify-center ${otpType === 'sms' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} border`}
+                  onClick={() => setOtpType('sms')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mb-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 3a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H3a1 1 0 01-1-1V3zm2 2v10h14V5H4zm3 3a1 1 0 100 2h6a1 1 0 100-2H7z" />
+                  </svg>
+                  <span className="text-sm">SMS</span>
+                </button>
+                
+                <button 
+                  className={`px-4 py-2 rounded-md flex flex-col items-center justify-center ${otpType === 'email' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} border`}
+                  onClick={() => setOtpType('email')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mb-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                  <span className="text-sm">Email</span>
+                </button>
+                
+                <button 
+                  className={`px-4 py-2 rounded-md flex flex-col items-center justify-center ${otpType === 'app' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} border`}
+                  onClick={() => setOtpType('app')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mb-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M6.625 2.655A9 9 0 0119 11a1 1 0 11-2 0A7 7 0 003.636 6.91L3.9 7.35A1 1 0 012.05 8.14l-1.8-3.2a1 1 0 011.41-1.3l3.2 1.8a1 1 0 01.14 1.85l-.44.26z" clipRule="evenodd" />
+                    <path fillRule="evenodd" d="M10 2a8 8 0 108 8 1 1 0 112 0A10 10 0 110 10a1 1 0 012 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">App</span>
+                </button>
+                
+                <button 
+                  className={`px-4 py-2 rounded-md flex flex-col items-center justify-center ${otpType === 'generic' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-gray-50 text-gray-600 border-gray-200'} border`}
+                  onClick={() => setOtpType('generic')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mb-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm">Generic</span>
+                </button>
+              </div>
+            </div>
+            
             {/* Autofill test controls */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <h4 className="font-medium text-gray-700 mb-3">Autofill Testing Controls</h4>
+            <div className="bg-gray-50 rounded-lg p-5 border border-gray-200 mb-6">
+              <h4 className="font-medium text-gray-700 mb-4 text-lg">Settings</h4>
               
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone Number
-                  </label>
-                  <TextInput
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter phone number"
-                    fullWidth
-                  />
+              <div className="grid grid-cols-1 gap-4 divide-y divide-gray-200">
+                {/* Phone or email input based on type */}
+                <div className="pb-3">
+                  {otpType === 'email' ? (
+                    <>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address
+                      </label>
+                      <TextInput
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
+                        placeholder="Enter email address"
+                        fullWidth
+                      />
+                    </>
+                  ) : otpType === 'sms' ? (
+                    <>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                      </label>
+                      <TextInput
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="Enter phone number"
+                        fullWidth
+                      />
+                    </>
+                  ) : null}
                 </div>
                 
-                <div>
+                <div className="py-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Autofill Hint
                   </label>
@@ -122,94 +242,77 @@ const OtpInputDemo: React.FC = () => {
                   </p>
                 </div>
                 
-                {/* Demo controls */}
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <Button 
-                    variant="outline-primary"
-                    onClick={handleReset}
-                    disabled={isVerifying}
-                  >
-                    Reset Demo
-                  </Button>
+                {/* Display options */}
+                <div className="py-3 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Compact Mode</span>
+                    <Switch 
+                      checked={isCompact} 
+                      onChange={setIsCompact}
+                      label=""
+                    />
+                  </div>
                   
-                  <Button
-                    onClick={handleVerify}
-                    isLoading={isVerifying}
-                    loadingText="Verifying..."
-                    disabled={!otpValue || otpValue.length !== 6 || isVerified}
-                  >
-                    {isVerified ? 'Verified' : 'Verify Code'}
-                  </Button>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-700">Show Header</span>
+                    <Switch 
+                      checked={showHeader} 
+                      onChange={setShowHeader}
+                      label=""
+                    />
+                  </div>
                 </div>
               </div>
             </div>
             
-            {showSuccessMessage && (
-              <div className="mt-4">
-                <InfoBox 
-                  title={isVerified ? "Verification Successful" : "OTP Resent"} 
-                  variant="success"
-                >
-                  {isVerified 
-                    ? "The OTP code has been successfully verified." 
-                    : "A new OTP code has been sent to your phone."}
-                </InfoBox>
-              </div>
-            )}
-          </div>
-          
-          <div className="space-y-6">
-            <h3 className="text-xl font-medium mb-4">Implementation Details</h3>
-            <div className="prose prose-sm max-w-none dark:prose-invert">
-              <h4>Key Features</h4>
-              <ul className="list-disc list-inside space-y-1 pl-2">
-                <li>Uses <code>autocomplete</code> attribute for browser autofill support</li>
-                <li>Circular input fields matching the True dtac design</li>
-                <li>Functioning countdown timer for resend option</li>
-                <li>Auto-advances focus when typing</li>
-                <li>Supports paste functionality</li>
-                <li>Shows reference code and expiration information</li>
-                <li>Support for changing autofill hint values</li>
-                <li>Dynamic button state based on countdown timer</li>
-              </ul>
-            </div>
-            
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-md p-4">
-              <h4 className="font-medium text-blue-800 dark:text-blue-300 mb-2">
-                How OTP Auto-fill Works
-              </h4>
-              <ol className="list-decimal list-inside text-sm text-blue-700 dark:text-blue-300 space-y-2 pl-2">
-                <li>The component uses visible circular inputs for each digit</li>
-                <li>A hidden input with <code>autoComplete</code> attribute captures autofill from keyboard suggestions</li>
-                <li>When the browser offers an autofill suggestion, tapping it will populate all fields</li>
-                <li>No SMS permissions required - relies on browser's native implementation</li>
-              </ol>
-            </div>
-            
-            <div className="bg-amber-50 border border-amber-100 rounded-md p-4">
-              <h4 className="font-medium text-amber-800 mb-2">
-                Browser Support
-              </h4>
-              <p className="text-sm text-amber-700">
-                OTP autofill is supported in modern browsers on mobile devices. For the keyboard suggestion 
-                to appear, the message format typically needs to include the verification code in a specific 
-                format that browsers can recognize.
-              </p>
-            </div>
-            
-            <div className="mt-4">
-              <h4 className="font-medium mb-2">Sample Usage:</h4>
+            {/* Implementation details section */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5">
+              <h4 className="font-medium text-gray-800 mb-3">Sample Usage</h4>
               <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md text-sm overflow-x-auto">
 {`<OtpInput
   length={6}
   onComplete={(code) => console.log(code)}
-  phoneNumber="${phoneNumber}"
+  ${otpType === 'sms' ? `phoneNumber="${phoneNumber}"` :
+    otpType === 'email' ? `emailAddress="${emailAddress}"` : ''}
   referenceCode="eTGqx"
   resendTime={60}
   autofillHint="${autofillHint}"
-  onResend={() => console.log('Resending OTP')}
+  compact={${isCompact}}
+  showHeader={${showHeader}}
+  otpType="${otpType}"
+  onResend={() => console.log('Resending code')}
 />`}
               </pre>
+              
+              <div className="mt-4">
+                <h4 className="font-medium text-gray-800 mb-2">Next.js Implementation</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  This component uses the Web OTP API standard for automatic code filling from 
+                  SMS. The hidden input with <code>autoComplete="{autofillHint}"</code> enables 
+                  the browser to suggest the verification code from messages.
+                </p>
+                
+                <div className="bg-amber-50 rounded-md p-3 mb-3">
+                  <h5 className="font-medium text-amber-800 mb-1 text-sm">SMS Format for Auto-detection</h5>
+                  <p className="text-xs text-amber-700">
+                    For best results with browsers that support WebOTP, format your SMS messages like this:
+                  </p>
+                  <pre className="bg-amber-100 rounded p-2 text-xs mt-1 text-amber-800 overflow-x-auto">
+                    Your verification code is: 123456
+                    
+                    @example.com #123456
+                  </pre>
+                </div>
+                
+                <div className="bg-blue-50 rounded-md p-3">
+                  <h5 className="font-medium text-blue-800 mb-1 text-sm">Next.js Compliance</h5>
+                  <p className="text-xs text-blue-700">
+                    This implementation follows Next.js best practices for form components, including 
+                    proper accessibility attributes, controlled inputs, and React state management.
+                    For server-side rendering, the component properly handles hydration.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
