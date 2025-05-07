@@ -2,7 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Card from '../../design-system/components/layout/Card';
-import TabGroup from '../../design-system/components/navigation/TabGroup';
+import { TabGroup } from '../../design-system/components/navigation/TabGroup';
 import ToolLayout from '../../design-system/components/layout/ToolLayout';
 import JwtRoutes from './routes';
 

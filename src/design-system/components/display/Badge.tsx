@@ -18,6 +18,8 @@ export interface BadgeProps {
   children?: React.ReactNode;
   /** The visual style variant of the badge */
   variant?: BadgeVariant;
+  /** Color alias for variant prop (for backwards compatibility) */
+  color?: BadgeVariant;
   /** Size of the badge */
   size?: BadgeSize;
   /** Whether the badge should be shown as a dot only */
@@ -74,6 +76,7 @@ export interface BadgeProps {
 export const Badge: React.FC<BadgeProps> = ({
   children,
   variant = 'primary',
+  color,
   size = 'md',
   dot = false,
   inline = false,
@@ -90,6 +93,9 @@ export const Badge: React.FC<BadgeProps> = ({
   if (invisible) {
     return null;
   }
+
+  // Use color prop as fallback for variant (for backwards compatibility)
+  const finalVariant = variant || color || 'primary';
 
   // Process content
   let content = children;
@@ -138,7 +144,7 @@ export const Badge: React.FC<BadgeProps> = ({
   // Combine all classes
   const badgeClasses = [
     dot ? 'flex' : 'inline-flex items-center justify-center',
-    variantClasses[variant],
+    variantClasses[finalVariant],
     sizeClasses[size],
     positionClasses,
     shapeClasses,

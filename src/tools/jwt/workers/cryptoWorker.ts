@@ -5,7 +5,30 @@
  * All heavy crypto operations run in a separate thread when supported
  */
 
-import { DecodedJwt, JwtHeader, JwtPayload } from '../context/JwtContext';
+// Define types that were previously imported from JwtContext
+export interface JwtHeader {
+  alg: string;
+  typ?: string;
+  kid?: string;
+  [key: string]: any;
+}
+
+export interface JwtPayload {
+  [key: string]: any;
+}
+
+export interface DecodedJwt {
+  header: JwtHeader | null;
+  payload: JwtPayload | null;
+  signature: string | null;
+  isValid: boolean;
+  raw: {
+    header: string;
+    payload: string;
+    signature: string;
+  };
+  error?: string;
+}
 
 // Check if we can use Web Workers in this environment
 const supportsWorkers = typeof Worker !== 'undefined';
@@ -116,6 +139,25 @@ const keyToArrayBuffer = (key: string, isBase64: boolean = false): ArrayBuffer =
   }
 };
 
+// Add proper typing for algorithm parameters
+interface HmacAlgorithm extends Algorithm {
+  name: string;
+  hash: string | Algorithm;
+}
+
+interface RsaAlgorithm extends Algorithm {
+  name: string;
+  hash: string | Algorithm;
+}
+
+interface EcdsaAlgorithm extends Algorithm {
+  name: string;
+  hash: string | Algorithm;
+  namedCurve?: string;
+}
+
+type JwtAlgorithm = HmacAlgorithm | RsaAlgorithm | EcdsaAlgorithm;
+
 /**
  * Verify a JWT token signature
  */
@@ -161,7 +203,7 @@ export const verifyToken = async (
     const data = encoder.encode(signedData);
 
     // Use the appropriate algorithm
-    let cryptoAlg: AlgorithmIdentifier;
+    let cryptoAlg: JwtAlgorithm;
     let isHmac = false;
 
     switch (alg) {
@@ -253,7 +295,7 @@ export const signToken = async (
     }
     
     // Prepare algorithm parameters
-    let cryptoAlg: AlgorithmIdentifier;
+    let cryptoAlg: JwtAlgorithm;
     let isHmac = false;
     
     switch (alg) {
@@ -370,3 +412,9 @@ export const benchmarkAlgorithm = async (algorithm: string): Promise<number> => 
   // Return operations per second
   return Math.floor(sampleSize / (totalTime / 1000));
 };
+
+// Add missing functions referenced by other files
+export const sign = signToken;
+export const verify = verifyToken;
+export const decode = decodeSafely;
+export const bench = benchmarkAlgorithm;

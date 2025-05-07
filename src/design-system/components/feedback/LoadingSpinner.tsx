@@ -7,6 +7,8 @@ export interface LoadingSpinnerProps {
   color?: string;
   /** Whether the spinner should cover the full screen with an overlay */
   fullScreen?: boolean;
+  /** Custom CSS class */
+  className?: string;
 }
 
 /**
@@ -27,7 +29,8 @@ export interface LoadingSpinnerProps {
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   size = 'md',
   color = 'text-primary-600',
-  fullScreen = false
+  fullScreen = false,
+  className = ''
 }) => {
   const sizeClasses = {
     sm: 'w-6 h-6',
@@ -36,7 +39,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   };
 
   const spinner = (
-    <div className="flex items-center justify-center">
+    <div className={`flex items-center justify-center ${className}`}>
       <div
         className={`${sizeClasses[size]} ${color} animate-spin rounded-full border-4 border-t-transparent border-current`}
         role="status"
@@ -54,7 +57,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   }
 
   return (
-    <div className="w-full h-full min-h-[10rem] flex items-center justify-center">
+    <div className={`w-full h-full min-h-[10rem] flex items-center justify-center ${className}`}>
       {spinner}
     </div>
   );

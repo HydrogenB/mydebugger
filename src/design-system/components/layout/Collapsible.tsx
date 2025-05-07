@@ -130,8 +130,8 @@ export const Collapsible: React.FC<CollapsibleProps> = ({
   };
   
   // Icons for expand/collapse
-  const defaultExpandIcon = <span className="text-gray-500 dark:text-gray-400">{getIcon('chevronDown')}</span>;
-  const defaultCollapseIcon = <span className="text-gray-500 dark:text-gray-400">{getIcon('chevronUp')}</span>;
+  const defaultExpandIcon = <span className="text-gray-500 dark:text-gray-400">{getIcon('arrow-down')}</span>;
+  const defaultCollapseIcon = <span className="text-gray-500 dark:text-gray-400">{getIcon('arrow-up')}</span>;
   const currentIcon = expanded 
     ? (collapseIcon || defaultCollapseIcon)
     : (expandIcon || defaultExpandIcon);

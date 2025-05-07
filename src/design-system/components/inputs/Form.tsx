@@ -322,6 +322,39 @@ export const FormItem: React.FC<FormItemProps> = ({
   );
 };
 
+// FormControl component for various input controls
+export interface FormControlProps {
+  /** Control content */
+  children: ReactNode;
+  /** Error state */
+  error?: boolean;
+  /** Success state */
+  success?: boolean;
+  /** Custom CSS class */
+  className?: string;
+}
+
+export const FormControl: React.FC<FormControlProps> = ({ 
+  children,
+  error = false,
+  success = false,
+  className = ''
+}) => {
+  // Styling for the control container
+  const controlClasses = [
+    'form-control',
+    error ? 'form-control-error' : '',
+    success ? 'form-control-success' : '',
+    className
+  ].filter(Boolean).join(' ');
+  
+  return (
+    <div className={controlClasses}>
+      {children}
+    </div>
+  );
+};
+
 Form.Item = FormItem;
 
 export default Form;

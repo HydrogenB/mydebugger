@@ -45,7 +45,7 @@ export interface TabItemProps {
   /** Unique ID for the tab */
   id: string;
   /** Tab label */
-  label: React.ReactNode;
+  label?: React.ReactNode;
   /** Icon to show before label */
   icon?: React.ReactNode;
   /** Badge content */
@@ -54,6 +54,12 @@ export interface TabItemProps {
   disabled?: boolean;
   /** Custom classes */
   className?: string;
+  /** Children content (alternative to label) */
+  children?: React.ReactNode;
+  /** Whether the tab is active */
+  isActive?: boolean;
+  /** Callback when tab is clicked */
+  onClick?: () => void;
 }
 
 export interface TabPanelProps {
@@ -65,6 +71,8 @@ export interface TabPanelProps {
   keepMounted?: boolean;
   /** When true, this panel is active */
   active?: boolean;
+  /** Alias for active prop */
+  isActive?: boolean;
 }
 
 /**
@@ -308,6 +316,9 @@ export const Tab: React.FC<TabItemProps> = ({
   badge,
   disabled = false,
   className = '',
+  children,
+  isActive: propIsActive,
+  onClick,
 }) => {
   // Get tab context
   const context = useContext(TabContext);
@@ -317,12 +328,17 @@ export const Tab: React.FC<TabItemProps> = ({
   }
   
   const { activeTab, setActiveTab, variant, size, alignment } = context;
-  const isActive = activeTab === id;
+  // Use prop-defined isActive if provided, otherwise use context
+  const isActive = propIsActive !== undefined ? propIsActive : activeTab === id;
   const buttonRef = useRef<HTMLButtonElement>(null);
   
   const handleClick = () => {
     if (!disabled) {
-      setActiveTab(id);
+      if (onClick) {
+        onClick();
+      } else {
+        setActiveTab(id);
+      }
     }
   };
   
@@ -392,6 +408,9 @@ export const Tab: React.FC<TabItemProps> = ({
     return classes.filter(Boolean).join(' ');
   };
   
+  // Use children if provided, otherwise use label
+  const displayContent = children || label;
+  
   return (
     <button
       ref={buttonRef}
@@ -406,7 +425,7 @@ export const Tab: React.FC<TabItemProps> = ({
     >
       <div className="flex items-center">
         {icon && <span className="mr-2 transition-transform duration-200 group-hover:translate-y-0.5 motion-reduce:transform-none">{icon}</span>}
-        {label}
+        {displayContent}
         {badge && (
           <span className="ml-2 transition-transform duration-200 motion-reduce:transform-none">{badge}</span>
         )}
@@ -441,6 +460,7 @@ export const TabPanel: React.FC<TabPanelProps> = ({
   children,
   keepMounted = false,
   active = false,
+  isActive: propIsActive,
 }) => {
   // Get tab context
   const context = useContext(TabContext);
@@ -450,7 +470,8 @@ export const TabPanel: React.FC<TabPanelProps> = ({
   }
   
   const { activeTab } = context;
-  const isActive = activeTab === id || active;
+  // Use propIsActive or active prop if provided, otherwise use context
+  const isActive = propIsActive !== undefined ? propIsActive : (active || activeTab === id);
   
   if (!keepMounted && !isActive) {
     return null;
