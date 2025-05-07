@@ -2,7 +2,6 @@ import React from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import { ToolLayout, Card, Button, Tooltip, InfoBox } from '../../design-system';
-import OtpInputDemo from './OtpInputDemo';
 
 /**
  * Demo component to showcase UI components and their usage
@@ -18,9 +17,6 @@ const ComponentsDemo: React.FC = () => {
       </Helmet>
       <ToolLayout tool={tool!}>
         <div className="space-y-8">
-          {/* OTP Input Demo */}
-          <OtpInputDemo />
-          
           {/* Tooltip Demo */}
           <Card title="Tooltip Component" isElevated>
             <div className="space-y-6">
