@@ -33,6 +33,7 @@ export type IconName =
   | 'arrow-right'
   | 'sun'
   | 'moon'
+  | 'xMark' // Added for Toast error icon
   // Domain-specific icons
   | 'security'
   | 'database'
@@ -77,6 +78,7 @@ const icons: Record<IconName, string> = {
   'arrow-right': '→',
   'sun': '☀️',
   'moon': '🌙',
+  'xMark': '❌', // Added for Toast error icon (using the same emoji as 'error' for consistency)
   // Domain-specific icons
   'security': '🔐',
   'database': '🗄️',

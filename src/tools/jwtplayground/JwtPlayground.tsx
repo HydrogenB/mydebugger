@@ -482,6 +482,7 @@ const JwtPlayground: React.FC = () => {
             </div>
           
           {/* Token claims display */}
+          <div className="lg:col-span-2"> {/* Add this wrapper div to fix the structure */}
           {activeTab === 'decoded' && encodedJwt && (
             <Card isElevated className="mt-6">
               <div className="p-4 border-b border-gray-200">

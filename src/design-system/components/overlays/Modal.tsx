@@ -90,7 +90,6 @@ interface ModalComponent extends React.FC<ModalProps> {
  * - Respects reduced motion preferences for animations
  * 
  * @example
- * ```tsx
  * // Basic modal with title and buttons
  * const [isOpen, setIsOpen] = useState(false);
  * 
@@ -114,14 +113,13 @@ interface ModalComponent extends React.FC<ModalProps> {
  * <Modal isOpen={isOpen} onClose={handleClose} size="lg">
  *   <Modal.Header title="Edit Profile" subtitle="Update your profile information" onClose={handleClose} />
  *   <Modal.Body>
- *     <Form>{/* form fields */}</Form>
+ *     <Form>Form fields go here</Form>
  *   </Modal.Body>
  *   <Modal.Footer>
  *     <Button variant="light" onClick={handleClose}>Cancel</Button>
  *     <Button onClick={handleSave}>Save Changes</Button>
  *   </Modal.Footer>
  * </Modal>
- * ```
  */
 export const Modal: ModalComponent = ({
   isOpen,
@@ -293,7 +291,7 @@ export const Modal: ModalComponent = ({
                 onClick={onClose}
                 aria-label="Close modal"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
               </button>
@@ -334,13 +332,11 @@ export const Modal: ModalComponent = ({
  * and close button. Use this component for semantic markup and consistent styling.
  * 
  * @example
- * ```tsx
  * <Modal.Header 
  *   title="Edit Profile"
  *   subtitle="Update your personal information" 
  *   onClose={handleClose}
  * />
- * ```
  */
 Modal.Header = function ModalHeader({
   title,
@@ -387,12 +383,10 @@ Modal.Header = function ModalHeader({
  * The footer is styled with a top border and right-aligned content by default.
  * 
  * @example
- * ```tsx
  * <Modal.Footer>
  *   <Button variant="light" onClick={handleCancel}>Cancel</Button>
  *   <Button onClick={handleSave}>Save Changes</Button>
  * </Modal.Footer>
- * ```
  */
 Modal.Footer = function ModalFooter({
   children,
@@ -412,7 +406,6 @@ Modal.Footer = function ModalFooter({
  * Provides consistent padding and styling for the main content area of a modal.
  * 
  * @example
- * ```tsx
  * <Modal.Body>
  *   <p>This is the main content of the modal.</p>
  *   <Form>
@@ -420,7 +413,6 @@ Modal.Footer = function ModalFooter({
  *     <TextInput label="Email" type="email" />
  *   </Form>
  * </Modal.Body>
- * ```
  */
 Modal.Body = function ModalBody({
   children,
