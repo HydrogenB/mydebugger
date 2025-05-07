@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 3000,
+    // Add historyApiFallback for local development SPA routing
+    historyApiFallback: true
   },
   build: {
     minify: 'esbuild', 
