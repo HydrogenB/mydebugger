@@ -42,40 +42,50 @@ const OtpInputDemo: React.FC = () => {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">OTP Input with Auto-fill</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              This demo showcases an OTP input component that supports keyboard auto-fill suggestions
-              without requiring SMS permissions or SMS Retriever API.
-            </p>
+            <h3 className="text-lg font-medium">True dtac OTP Verification</h3>
             
-            <p className="text-gray-600 dark:text-gray-300">
-              Try entering the code: <strong>123456</strong>
-            </p>
-            
-            <div className="mt-6">
-              <OtpInput
-                length={6}
-                onComplete={setOtpValue}
-                title="Enter verification code"
-                description="Enter the code or use the auto-fill suggestion"
-              />
+            {/* Mobile phone frame */}
+            <div className="max-w-sm mx-auto bg-white rounded-3xl shadow-lg overflow-hidden border border-gray-300">
+              {/* Phone status bar */}
+              <div className="bg-gray-100 px-4 py-2 flex justify-between items-center">
+                <div>11:48</div>
+                <div className="flex items-center gap-2">
+                  <span>57%</span>
+                </div>
+              </div>
+              
+              {/* True dtac OTP UI */}
+              <div className="p-5">
+                <OtpInput
+                  length={6}
+                  onComplete={setOtpValue}
+                  title="OTP Verification"
+                  description="OTP SMS has been sent to"
+                  phoneNumber="0945656671"
+                  referenceCode="eTGqx"
+                  expiryTime="10 minutes"
+                  resendTime={11}
+                  className="w-full"
+                  inputClassName="bg-gray-100"
+                />
+              </div>
+              
+              {/* Phone navigation bar */}
+              <div className="bg-black p-4 flex justify-around">
+                <div className="w-6 h-6 bg-white mask mask-triangle-4"></div>
+                <div className="w-6 h-6 rounded-full border-2 border-white"></div>
+                <div className="w-6 h-6 border-2 border-white"></div>
+              </div>
             </div>
-            
-            <div className="mt-4 flex justify-center gap-3">
+
+            {/* Demo controls */}
+            <div className="flex justify-center gap-3 mt-6">
               <Button 
                 variant="outline-primary"
                 onClick={handleReset}
                 disabled={isVerifying}
               >
-                Reset
-              </Button>
-              <Button 
-                onClick={handleVerify}
-                isLoading={isVerifying}
-                loadingText="Verifying..."
-                disabled={!otpValue || otpValue.length !== 6 || isVerified}
-              >
-                {isVerified ? 'Verified' : 'Verify Code'}
+                Reset Demo
               </Button>
             </div>
             
@@ -96,18 +106,18 @@ const OtpInputDemo: React.FC = () => {
             <div className="prose prose-sm dark:prose-invert">
               <ul className="list-disc list-inside">
                 <li>Uses <code>autocomplete="one-time-code"</code> for browser autofill support</li>
-                <li>Implements keyboard navigation (arrow keys and backspace)</li>
+                <li>Circular input fields matching the True dtac design</li>
+                <li>Functioning countdown timer for resend option</li>
                 <li>Auto-advances focus when typing</li>
                 <li>Supports paste functionality</li>
-                <li>Accessible with ARIA attributes</li>
-                <li>Responsive design for mobile and desktop</li>
+                <li>Shows reference code and expiration information</li>
               </ul>
             </div>
             
             <div className="mt-4">
-              <h4 className="font-medium mb-2">How it works:</h4>
+              <h4 className="font-medium mb-2">How OTP Auto-fill Works:</h4>
               <ol className="list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-2">
-                <li>The component uses visible individual inputs for each digit</li>
+                <li>The component uses visible circular inputs for each digit</li>
                 <li>A hidden input with <code>autocomplete="one-time-code"</code> captures autofill from keyboard suggestions</li>
                 <li>When the browser offers an autofill suggestion, tapping it will populate all fields</li>
                 <li>No SMS permissions required - relies on browser's native implementation</li>
@@ -120,9 +130,22 @@ const OtpInputDemo: React.FC = () => {
               </h4>
               <p className="text-sm text-blue-700 dark:text-blue-300">
                 OTP autofill is supported in modern browsers on mobile devices. 
-                Actual behavior may vary between browsers and platforms. WebOTP API is 
-                supported in Chrome on Android, and similar functionality exists in iOS Safari.
+                For the keyboard suggestion to appear, the message format typically needs to include
+                the verification code in a specific format that browsers can recognize.
               </p>
+            </div>
+            
+            <div className="mt-4">
+              <h4 className="font-medium mb-2">Sample Usage:</h4>
+              <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md text-sm overflow-x-auto">
+{`<OtpInput
+  length={6}
+  onComplete={(code) => console.log(code)}
+  phoneNumber="0945656671"
+  referenceCode="eTGqx"
+  resendTime={60}
+/>`}
+              </pre>
             </div>
           </div>
         </div>

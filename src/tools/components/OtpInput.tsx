@@ -9,6 +9,10 @@ export interface OtpInputProps {
   inputClassName?: string;
   title?: string;
   description?: string;
+  phoneNumber?: string;
+  referenceCode?: string;
+  expiryTime?: string;
+  resendTime?: number;
 }
 
 /**
@@ -22,11 +26,18 @@ const OtpInput: React.FC<OtpInputProps> = ({
   disabled = false,
   className = '',
   inputClassName = '',
-  title = 'Enter verification code',
-  description = 'We sent a code to your phone'
+  title = 'OTP Verification',
+  description = 'OTP SMS has been sent to',
+  phoneNumber = '',
+  referenceCode = '',
+  expiryTime = '10 minutes',
+  resendTime = 0
 }) => {
   // State to track OTP digits
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
+  
+  // State to track countdown timer
+  const [countdown, setCountdown] = useState<number>(resendTime);
   
   // Refs for individual input fields
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -45,6 +56,17 @@ const OtpInput: React.FC<OtpInputProps> = ({
       inputRefs.current[0].focus();
     }
   }, [autoFocus]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown <= 0) return;
+    
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   // Handle hidden input change for autofill
   const handleHiddenInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -129,15 +151,39 @@ const OtpInput: React.FC<OtpInputProps> = ({
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <h3 className="text-lg font-medium text-center mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 mb-4">{description}</p>
+      {/* True dtac header with back button and title */}
+      <div className="w-full flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <button 
+            className="p-2 mr-4"
+            aria-label="Back"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+        </div>
+        <div className="flex items-center">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/True_Dtac_Logo.png" alt="true dtac logo" className="h-6" />
+        </div>
+      </div>
       
-      <div className="flex flex-col items-center">
-        {/* Individual OTP inputs */}
-        <div className="flex gap-2 mb-2">
-          {Array.from({ length }, (_, index) => (
+      {/* Description text with phone number */}
+      <div className="w-full text-left mb-8">
+        <p className="text-gray-700 text-lg">
+          {description} <span className="font-bold">{phoneNumber}</span>
+        </p>
+      </div>
+      
+      {/* OTP Input fields - circular design */}
+      <div className="flex justify-center space-x-4 mb-8">
+        {Array.from({ length }, (_, index) => (
+          <div 
+            key={index}
+            className="relative w-16 h-16 flex items-center justify-center"
+          >
             <input
-              key={index}
               type="tel"
               inputMode="numeric"
               maxLength={1}
@@ -148,40 +194,48 @@ const OtpInput: React.FC<OtpInputProps> = ({
               onPaste={index === 0 ? handlePaste : undefined}
               disabled={disabled}
               className={`
-                w-12 h-12 text-center text-xl font-bold rounded-md border border-gray-300 
-                dark:border-gray-600 dark:bg-gray-800 
-                focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+                w-full h-full rounded-full bg-gray-100 
+                text-center text-xl font-bold border-none
+                focus:outline-none focus:ring-2 focus:ring-blue-500
                 disabled:opacity-60 disabled:cursor-not-allowed
                 ${inputClassName}
               `}
               aria-label={`Digit ${index + 1}`}
             />
-          ))}
-        </div>
-
-        {/* Hidden input for autofill */}
-        <div className="relative w-0 h-0 overflow-hidden">
-          <input
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            ref={hiddenInputRef}
-            onChange={handleHiddenInputChange}
-            className="opacity-0 absolute"
-          />
-        </div>
-        
-        {/* Keyboard selection suggestion UI - Visual aid for users */}
-        <div className="mt-6 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center">
-            <svg className="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-            </svg>
-            <span className="text-sm text-gray-600 dark:text-gray-300">
-              If suggested, tap the code from your keyboard to auto-fill
-            </span>
           </div>
+        ))}
+      </div>
+
+      {/* Reference code */}
+      {referenceCode && (
+        <div className="text-center mb-2">
+          <p className="text-gray-700 font-medium">Reference code {referenceCode}</p>
         </div>
+      )}
+      
+      {/* Expiry notice */}
+      <div className="text-center mb-2">
+        <p className="text-gray-700">This OTP will expire in {expiryTime}</p>
+      </div>
+      
+      {/* Resend timer */}
+      <div className="text-center">
+        <p className="text-gray-700">
+          Didn't receive the OTP? Try again in{' '}
+          <span className="text-red-500 font-bold">{countdown}</span> secs
+        </p>
+      </div>
+
+      {/* Hidden input for autofill */}
+      <div className="relative w-0 h-0 overflow-hidden">
+        <input
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          ref={hiddenInputRef}
+          onChange={handleHiddenInputChange}
+          className="opacity-0 absolute"
+        />
       </div>
     </div>
   );
