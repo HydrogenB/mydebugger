@@ -149,8 +149,8 @@ export const BuilderWizard: React.FC = () => {
     setSignError(null);
     
     try {
-      // Prepare header
-      const header: Record<string, any> = { 
+      // Prepare header as JwtHeader type with required alg property
+      const header: cryptoWorker.JwtHeader = { 
         alg: algorithm, 
         typ: type 
       };
@@ -183,8 +183,6 @@ export const BuilderWizard: React.FC = () => {
       }
       
       // Sign the token
-      // Make sure the algorithm is included in the header
-      header.alg = algorithm;
       const token = await cryptoWorker.sign(header, payload, privateKey);
       setGeneratedToken(token);
       setTokenSizeBytes(new TextEncoder().encode(token).length);
@@ -600,18 +598,21 @@ export const BuilderWizard: React.FC = () => {
         <TabGroup>
           <div className="border-b border-gray-200 dark:border-gray-700">
             <Tab 
+              id="header-tab"
               isActive={activeStep === 'header'} 
               onClick={() => setActiveStep('header')}
             >
               1. Header
             </Tab>
             <Tab 
+              id="payload-tab"
               isActive={activeStep === 'payload'} 
               onClick={() => setActiveStep('payload')}
             >
               2. Payload
             </Tab>
             <Tab 
+              id="signature-tab"
               isActive={activeStep === 'signature'} 
               onClick={() => setActiveStep('signature')}
             >
