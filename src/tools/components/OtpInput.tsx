@@ -13,6 +13,8 @@ export interface OtpInputProps {
   referenceCode?: string;
   expiryTime?: string;
   resendTime?: number;
+  autofillHint?: string;
+  onResend?: () => void;
 }
 
 /**
@@ -31,7 +33,9 @@ const OtpInput: React.FC<OtpInputProps> = ({
   phoneNumber = '',
   referenceCode = '',
   expiryTime = '10 minutes',
-  resendTime = 0
+  resendTime = 0,
+  autofillHint = 'one-time-code',
+  onResend
 }) => {
   // State to track OTP digits
   const [otp, setOtp] = useState<string[]>(Array(length).fill(''));
@@ -152,14 +156,24 @@ const OtpInput: React.FC<OtpInputProps> = ({
       }
     }
   };
+  
+  // Handle resend click
+  const handleResend = () => {
+    if (countdown > 0 || !onResend) return;
+    
+    if (onResend) {
+      onResend();
+      setCountdown(resendTime); // Reset countdown
+    }
+  };
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
+    <div className={`flex flex-col ${className}`}>
       {/* True dtac header with back button and title */}
-      <div className="w-full flex items-center justify-between mb-4">
+      <div className="w-full flex items-center justify-between mb-6">
         <div className="flex items-center">
           <button 
-            className="p-2 mr-4"
+            className="p-2 mr-2 text-blue-600"
             aria-label="Back"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -169,28 +183,29 @@ const OtpInput: React.FC<OtpInputProps> = ({
           <h2 className="text-xl font-bold text-gray-800">{title}</h2>
         </div>
         <div className="flex items-center">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/True_Dtac_Logo.png" alt="true dtac logo" className="h-6" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/True_Dtac_Logo.png" alt="true dtac logo" className="h-8" />
         </div>
       </div>
       
       {/* Description text with phone number */}
-      <div className="w-full text-left mb-8">
+      <div className="w-full mb-8">
         <p className="text-gray-700 text-lg">
           {description} <span className="font-bold">{phoneNumber}</span>
         </p>
       </div>
       
       {/* OTP Input fields - circular design */}
-      <div className="flex justify-center space-x-4 mb-8">
+      <div className="flex justify-center space-x-4 mb-6">
         {Array.from({ length }, (_, index) => (
           <div 
             key={index}
-            className="relative w-16 h-16 flex items-center justify-center"
+            className="relative w-14 h-14 flex items-center justify-center"
           >
             <input
               type="tel"
               inputMode="numeric"
               maxLength={1}
+              pattern="[0-9]*"
               ref={el => inputRefs.current[index] = el}
               value={otp[index] || ''}
               onChange={e => handleChange(e, index)}
@@ -198,10 +213,11 @@ const OtpInput: React.FC<OtpInputProps> = ({
               onPaste={index === 0 ? handlePaste : undefined}
               disabled={disabled}
               className={`
-                w-full h-full rounded-full bg-gray-100 
-                text-center text-xl font-bold border-none
-                focus:outline-none focus:ring-2 focus:ring-blue-500
+                w-full h-full rounded-full bg-gray-50 border border-gray-200
+                text-center text-xl font-semibold
+                focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200
                 disabled:opacity-60 disabled:cursor-not-allowed
+                shadow-sm
                 ${inputClassName}
               `}
               aria-label={`Digit ${index + 1}`}
@@ -213,21 +229,31 @@ const OtpInput: React.FC<OtpInputProps> = ({
       {/* Reference code */}
       {referenceCode && (
         <div className="text-center mb-2">
-          <p className="text-gray-700 font-medium">Reference code {referenceCode}</p>
+          <p className="text-gray-600 font-medium">Reference code {referenceCode}</p>
         </div>
       )}
       
       {/* Expiry notice */}
-      <div className="text-center mb-2">
-        <p className="text-gray-700">This OTP will expire in {expiryTime}</p>
+      <div className="text-center mb-3">
+        <p className="text-gray-600">This OTP will expire in {expiryTime}</p>
       </div>
       
-      {/* Resend timer */}
-      <div className="text-center">
-        <p className="text-gray-700">
-          Didn't receive the OTP? Try again in{' '}
-          <span className="text-red-500 font-bold">{countdown}</span> secs
-        </p>
+      {/* Resend timer/button */}
+      <div className="text-center mb-6">
+        {countdown > 0 ? (
+          <p className="text-gray-700">
+            Didn't receive the OTP? Try again in{' '}
+            <span className="text-red-500 font-bold">{countdown}</span> secs
+          </p>
+        ) : (
+          <button
+            onClick={handleResend}
+            className="text-blue-600 font-medium hover:text-blue-800 focus:outline-none"
+            disabled={!onResend}
+          >
+            Resend OTP
+          </button>
+        )}
       </div>
 
       {/* Hidden input for autofill */}
@@ -235,7 +261,7 @@ const OtpInput: React.FC<OtpInputProps> = ({
         <input
           type="text"
           inputMode="numeric"
-          autoComplete="one-time-code"
+          autoComplete={autofillHint}
           ref={hiddenInputRef}
           onChange={handleHiddenInputChange}
           className="opacity-0 absolute"
