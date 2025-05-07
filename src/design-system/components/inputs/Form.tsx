@@ -1,284 +1,327 @@
-import React, { ReactNode, createContext, useContext, useState } from 'react';
+import React, { ReactNode, FormHTMLAttributes, createContext, useContext } from 'react';
 
-// Types and interfaces
+export type FormLayout = 'vertical' | 'horizontal' | 'inline' | 'compact';
+export type FormStatus = 'idle' | 'loading' | 'success' | 'error';
+export type FormSize = 'xs' | 'sm' | 'md' | 'lg';
+export type FormTheme = 'default' | 'ghost' | 'bordered';
+
 interface FormContextType {
-  values: Record<string, any>;
-  errors: Record<string, string | undefined>;
-  touched: Record<string, boolean>;
-  handleChange: (name: string, value: any) => void;
-  handleBlur: (name: string) => void;
-  handleSubmit: (e: React.FormEvent) => void;
-  resetForm: () => void;
+  layout: FormLayout;
+  status: FormStatus;
+  disabled: boolean;
+  size: FormSize;
+  theme: FormTheme;
+  requiredMark: boolean | ReactNode;
+  labelAlign: 'left' | 'right' | 'center';
+  requiredIndicator: ReactNode;
+  showErrorMessages: boolean;
+  showSuccessIndicator: boolean;
 }
 
-export interface FormProps<T> {
-  initialValues: T;
-  onSubmit: (values: T, helpers: FormHelpers<T>) => void | Promise<void>;
-  onReset?: () => void;
-  validate?: (values: T) => Record<string, string | undefined>;
-  validateOnChange?: boolean;
-  validateOnBlur?: boolean;
-  validateOnMount?: boolean;
-  enableReinitialize?: boolean;
+export interface FormProps extends Omit<FormHTMLAttributes<HTMLFormElement>, 'onSubmit'> {
+  /** Form content */
   children: ReactNode;
+  /** Form layout mode */
+  layout?: FormLayout;
+  /** Current status of the form */
+  status?: FormStatus;
+  /** Whether the form is disabled */
+  disabled?: boolean;
+  /** Size of form controls */
+  size?: FormSize;
+  /** Visual style theme */
+  theme?: FormTheme;
+  /** Whether to show a required mark next to labels */
+  requiredMark?: boolean | ReactNode;
+  /** Alignment of form labels */
+  labelAlign?: 'left' | 'right' | 'center';
+  /** Required field indicator */
+  requiredIndicator?: ReactNode;
+  /** Whether to show error messages below fields */
+  showErrorMessages?: boolean;
+  /** Whether to show success indicator on valid fields */
+  showSuccessIndicator?: boolean;
+  /** Custom CSS class */
   className?: string;
+  /** Form submission handler */
+  onSubmit?: (e: React.FormEvent<HTMLFormElement>, formData: FormData) => void;
+  /** Event triggered when form validation fails */
+  onValidationFailed?: (invalidFields: string[]) => void;
 }
 
-export interface FormHelpers<T> {
-  resetForm: () => void;
-  setErrors: React.Dispatch<React.SetStateAction<Record<string, string | undefined>>>;
-  setValues: React.Dispatch<React.SetStateAction<T>>;
-}
+// Create form context
+const FormContext = createContext<FormContextType>({
+  layout: 'vertical',
+  status: 'idle',
+  disabled: false,
+  size: 'md',
+  theme: 'default',
+  requiredMark: true,
+  labelAlign: 'left',
+  requiredIndicator: <span className="text-red-500 ml-1">*</span>,
+  showErrorMessages: true,
+  showSuccessIndicator: true
+});
 
-export interface FormControlProps {
-  name: string;
-  label?: string;
-  helpText?: string;
-  required?: boolean;
-  className?: string;
-  labelClassName?: string;
-  helpTextClassName?: string;
-  errorClassName?: string;
-  children: ReactNode | ((props: FormControlChildProps) => ReactNode);
-}
-
-export interface FormControlChildProps {
-  id: string;
-  name: string;
-  value: any;
-  error: string | undefined;
-  touched: boolean;
-  required: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
-  onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => void;
-}
-
-// Context creation
-const FormContext = createContext<FormContextType | undefined>(undefined);
+export const useFormContext = () => useContext(FormContext);
 
 /**
- * Form component - Manages form state, validation and submission
+ * Form - A responsive form component with support for different layouts,
+ * validation states, and field styling.
  */
-export function Form<T extends Record<string, any> = Record<string, any>>({
-  initialValues,
-  onSubmit,
-  onReset,
-  validate,
-  validateOnChange = true,
-  validateOnBlur = true,
-  validateOnMount = false,
-  enableReinitialize = false,
+export const Form: React.FC<FormProps> = ({
   children,
+  layout = 'vertical',
+  status = 'idle',
+  disabled = false,
+  size = 'md',
+  theme = 'default',
+  requiredMark = true,
+  labelAlign = 'left',
+  requiredIndicator = <span className="text-red-500 ml-1">*</span>,
+  showErrorMessages = true,
+  showSuccessIndicator = true,
   className = '',
-}: FormProps<T>) {
-  const [values, setValues] = useState<T>(initialValues);
-  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-  
-  // Re-initialize form values when initialValues changes
-  React.useEffect(() => {
-    if (enableReinitialize) {
-      setValues(initialValues);
-    }
-  }, [enableReinitialize, initialValues]);
-  
-  // Validate on mount if configured
-  React.useEffect(() => {
-    if (validateOnMount && validate) {
-      setErrors(validate(values));
-    }
-  }, [validateOnMount, validate]);
-  
-  // Handle form field change
-  const handleChange = (name: string, value: any) => {
-    setValues(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-    
-    // Validate on change if configured
-    if (validateOnChange && validate) {
-      const newErrors = validate({
-        ...values,
-        [name]: value,
-      });
-      
-      setErrors(prev => ({
-        ...prev,
-        [name]: newErrors[name],
-      }));
-    }
+  onSubmit,
+  onValidationFailed,
+  ...rest
+}) => {
+  // Form layout classes
+  const layoutClasses = {
+    vertical: 'flex flex-col gap-4',
+    horizontal: 'grid grid-cols-1 md:grid-cols-[30%_1fr] lg:grid-cols-[25%_1fr] gap-3',
+    inline: 'flex flex-wrap items-end gap-3',
+    compact: 'flex flex-col gap-2',
   };
-  
-  // Handle field blur
-  const handleBlur = (name: string) => {
-    setTouched(prev => ({
-      ...prev,
-      [name]: true,
-    }));
-    
-    // Validate on blur if configured
-    if (validateOnBlur && validate) {
-      const newErrors = validate(values);
-      
-      setErrors(prev => ({
-        ...prev,
-        [name]: newErrors[name],
-      }));
-    }
+
+  // Form theme classes
+  const themeClasses = {
+    default: '',
+    ghost: 'bg-transparent',
+    bordered: 'border p-6 rounded-lg'
   };
-  
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+
+  // Combine all classes
+  const formClasses = [
+    layoutClasses[layout],
+    themeClasses[theme],
+    disabled ? 'opacity-60 pointer-events-none' : '',
+    className
+  ].filter(Boolean).join(' ');
+
+  // Process form submission
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Mark all fields as touched
-    const allTouched = Object.keys(values).reduce((acc, key) => {
-      acc[key] = true;
-      return acc;
-    }, {} as Record<string, boolean>);
-    
-    setTouched(allTouched);
-    
-    // Final validation before submission
-    let formErrors = {};
-    
-    if (validate) {
-      formErrors = validate(values);
-      setErrors(formErrors);
-    }
-    
-    // Check if there are any errors
-    const hasErrors = Object.values(formErrors).some(error => error !== undefined);
-    
-    if (!hasErrors) {
-      // Form helpers for the submit handler
-      const helpers: FormHelpers<T> = {
-        resetForm: resetForm,
-        setErrors: setErrors,
-        setValues: setValues,
-      };
+    // Check HTML form validation
+    const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      e.stopPropagation();
       
-      // Submit the form
-      onSubmit(values, helpers);
+      // Get all invalid field names
+      const invalidFields = Array.from(form.elements)
+        .filter((element) => {
+          const el = element as HTMLInputElement;
+          return el.validity && !el.validity.valid && el.name;
+        })
+        .map((element) => (element as HTMLInputElement).name);
+      
+      if (onValidationFailed) {
+        onValidationFailed(invalidFields);
+      }
+      
+      return;
     }
-  };
-  
-  // Reset form to initial state
-  const resetForm = () => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
     
-    if (onReset) {
-      onReset();
+    if (onSubmit) {
+      const formData = new FormData(form);
+      onSubmit(e, formData);
     }
   };
-  
-  // Form context value
-  const contextValue: FormContextType = {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
-    handleSubmit,
-    resetForm,
-  };
-  
+
   return (
-    <FormContext.Provider value={contextValue}>
-      <form onSubmit={handleSubmit} className={className} noValidate>
+    <FormContext.Provider
+      value={{
+        layout,
+        status,
+        disabled,
+        size,
+        theme,
+        requiredMark,
+        labelAlign,
+        requiredIndicator,
+        showErrorMessages,
+        showSuccessIndicator
+      }}
+    >
+      <form 
+        className={formClasses} 
+        onSubmit={handleSubmit}
+        noValidate={rest.noValidate !== undefined ? rest.noValidate : true}
+        {...rest}
+      >
+        {/* Form status indicator - shown when loading or after success/error */}
+        {status !== 'idle' && (
+          <div className={`form-status ${status === 'loading' ? 'animate-pulse' : ''}`}>
+            {status === 'loading' && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 p-3 rounded-md flex items-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </div>
+            )}
+            
+            {status === 'success' && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 p-3 rounded-md">
+                Form submitted successfully
+              </div>
+            )}
+            
+            {status === 'error' && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 p-3 rounded-md">
+                There was an error processing the form
+              </div>
+            )}
+          </div>
+        )}
+
         {children}
       </form>
     </FormContext.Provider>
   );
+};
+
+// Form.Item component for form fields
+export interface FormItemProps {
+  /** Form field content */
+  children: ReactNode;
+  /** Label for the form item */
+  label?: ReactNode;
+  /** Whether the field is required */
+  required?: boolean;
+  /** Help text to show below the field */
+  help?: ReactNode;
+  /** Error message */
+  error?: string | string[];
+  /** Success status override */
+  success?: boolean;
+  /** Whether to hide the label */
+  hideLabel?: boolean;
+  /** Unique identifier for the form item */
+  id?: string;
+  /** Custom CSS class */
+  className?: string;
+  /** For certain field types, automatically display the field's validation message */
+  autoValidationMessage?: boolean;
 }
 
-/**
- * Custom hook to access form context
- */
-export function useFormContext() {
-  const context = useContext(FormContext);
-  
-  if (!context) {
-    throw new Error('useFormContext must be used within a Form component');
-  }
-  
-  return context;
-}
-
-/**
- * FormControl - Component to manage form field layout and display
- */
-export function FormControl({
-  name,
-  label,
-  helpText,
-  required = false,
-  className = '',
-  labelClassName = '',
-  helpTextClassName = '',
-  errorClassName = '',
+export const FormItem: React.FC<FormItemProps> = ({
   children,
-}: FormControlProps) {
+  label,
+  required = false,
+  help,
+  error,
+  success = false,
+  hideLabel = false,
+  id,
+  className = '',
+  autoValidationMessage = true,
+}) => {
   const {
-    values,
-    errors,
-    touched,
-    handleChange,
-    handleBlur,
+    layout,
+    requiredMark,
+    requiredIndicator,
+    labelAlign,
+    showErrorMessages,
+    showSuccessIndicator,
   } = useFormContext();
 
-  const id = `form-control-${name}`;
-  const error = touched[name] ? errors[name] : undefined;
-  const hasError = !!error;
+  // Process errors to display
+  const hasError = error && (Array.isArray(error) ? error.length > 0 : true);
+  const errorMessages = Array.isArray(error) ? error : error ? [error] : [];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    handleChange(name, e.target.value);
+  // Handle label alignment
+  const labelAlignClass = {
+    left: 'text-left',
+    right: 'text-right',
+    center: 'text-center',
   };
 
-  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    handleBlur(name);
+  // Layout-specific classes
+  const itemLayoutClasses = {
+    vertical: '',
+    horizontal: 'contents',
+    inline: 'flex-grow min-w-fit',
+    compact: '',
   };
 
-  // Props passed to child render function
-  const childProps: FormControlChildProps = {
-    id,
-    name,
-    value: values[name],
-    error,
-    touched: touched[name] || false,
-    required,
-    onChange: handleInputChange,
-    onBlur: handleInputBlur,
+  // Label styles based on layout
+  const labelLayoutClasses = {
+    vertical: 'block mb-1',
+    horizontal: 'py-2',
+    inline: 'mb-1',
+    compact: 'text-sm mb-1',
   };
+
+  // Item container classes
+  const itemClasses = [
+    itemLayoutClasses[layout],
+    className
+  ].filter(Boolean).join(' ');
 
   return (
-    <div className={`mb-4 ${className}`}>
-      {label && (
+    <div className={itemClasses}>
+      {/* Label */}
+      {label && !hideLabel && (
         <label
           htmlFor={id}
-          className={`block text-sm font-medium mb-1 ${hasError ? 'text-red-600 dark:text-red-500' : 'text-gray-700 dark:text-gray-300'} ${labelClassName}`}
+          className={`
+            ${labelLayoutClasses[layout]} 
+            ${labelAlignClass[labelAlign]} 
+            text-gray-700 dark:text-gray-300 font-medium
+          `}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && requiredMark && requiredIndicator}
         </label>
       )}
 
-      {typeof children === 'function' ? children(childProps) : children}
-
-      {hasError && (
-        <p className={`mt-1 text-sm text-red-600 dark:text-red-500 ${errorClassName}`}>
-          {error}
-        </p>
+      {/* Field container */}
+      <div className="relative">
+        {/* Field content */}
+        {children}
+        
+        {/* Success indicator */}
+        {showSuccessIndicator && success && !hasError && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+            </svg>
+          </div>
+        )}
+      </div>
+      
+      {/* Help text */}
+      {help && !hasError && (
+        <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          {help}
+        </div>
       )}
-
-      {helpText && !hasError && (
-        <p className={`mt-1 text-sm text-gray-500 dark:text-gray-400 ${helpTextClassName}`}>
-          {helpText}
-        </p>
+      
+      {/* Error messages */}
+      {showErrorMessages && hasError && (
+        <div className="mt-1 text-sm text-red-600 dark:text-red-400">
+          {errorMessages.map((msg, i) => (
+            <div key={i}>{msg}</div>
+          ))}
+        </div>
       )}
     </div>
   );
-}
+};
+
+Form.Item = FormItem;
+
+export default Form;

@@ -16,6 +16,7 @@ export * from './components/navigation';
 export * from './components/feedback';
 export * from './components/display';
 export * from './components/overlays';
+export * from './components/typography';
 
 // Re-export common components for convenience
 export { Button } from './components/inputs';
@@ -24,3 +25,5 @@ export { Alert } from './components/feedback';
 export { Badge, BadgeContainer } from './components/display';
 export { Modal } from './components/overlays';
 export { TabGroup, Tab, TabPanel } from './components/navigation';
+export { Text } from './components/typography';
+export { Grid } from './components/layout';
