@@ -2,5 +2,5 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "buildCommand": "node ./node_modules/typescript/lib/tsc.js --noEmit && vite build"
+  "buildCommand": "npx tsc --noEmit && npx vite build"
 }
