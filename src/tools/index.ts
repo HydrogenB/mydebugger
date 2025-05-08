@@ -287,7 +287,7 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: false
     }
-  },
+  }
 ];
 
 export default toolRegistry;
