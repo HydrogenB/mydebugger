@@ -167,8 +167,19 @@ const DeviceTrace: React.FC = () => {
       }
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Request failed with status ${response.status}`);
+        // Check if the response is JSON before trying to parse it
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Request failed with status ${response.status}`);
+        } else {
+          // Handle non-JSON error response
+          const errorText = await response.text();
+          throw new Error(`Server error (${response.status}): ${
+            errorText.length > 100 ? errorText.substring(0, 100) + '...' : errorText
+          }`);
+        }
       }
       
       const data = await response.json();
