@@ -93,3 +93,10 @@ export const LinkTracerIcon: React.FC<IconProps> = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
   </svg>
 );
+
+export const SequenceDiagramIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2 2m0-2l-2 2m-3 10l2 2m0-2l-2 2M10 5h4M9 9h6M14 19h-4M11 13h2" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12h18M7 6v12M17 6v12" />
+  </svg>
+);
