@@ -5,7 +5,9 @@
     { "source": "/(.*)\\.(.+)", "destination": "/$1.$2" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "buildCommand": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "vite",
   "headers": [
     {
       "source": "/(assets|_next|static)/(.*)\\.js",
