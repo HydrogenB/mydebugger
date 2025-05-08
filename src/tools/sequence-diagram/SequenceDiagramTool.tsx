@@ -563,4 +563,23 @@ const SequenceDiagramTool: React.FC = () => {
   );
 };
 
+/**
+ * Third-Party Software Acknowledgements
+ * 
+ * This component uses the following open-source libraries:
+ * 
+ * - lz-string: Used to create URLs for sharing sequence diagrams.
+ * - Canvas2Svg: Used to export the diagram into SVG file format.
+ * - CodeMirror: Used as the text editor.
+ * - Font Awesome: Used to provide icons for the icon participants.
+ * - Material Design Icons: Used to provide icons for the icon participants. Color of the icons is altered based on input.
+ * - Font Awesome 5 Free: Used to provide icons for the icon participants.
+ * - Font Awesome 6 Free: Used to provide icons for the icon participants. Color of the icons is altered based on input.
+ * - RBush: Used for collision detection calculations for onmousemove events.
+ * - DomPurify: Used as a safeguard when embedding SVG files from Font Awesome and Material Design Icons.
+ * - MSAL.js from Microsoft: Used for authentication towards Microsoft services.
+ * - OneDrive.js from Microsoft: Used for file picker for OneDrive and SharePoint.
+ * - gsi/client and api.js from Google: Used for authentication towards Google services and file picker for Google Drive and Team Drives.
+ */
+
 export default SequenceDiagramTool;

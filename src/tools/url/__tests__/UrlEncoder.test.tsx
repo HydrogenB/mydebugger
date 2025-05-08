@@ -160,7 +160,7 @@ describe('UrlEncoder Component', () => {
     const input = screen.getByLabelText(/Input/i);
     fireEvent.change(input, { target: { value: '%invalid20text' } });
     
-    // Check for error message in output
+    // Check for error message in output - properly cast to HTMLInputElement
     const output = screen.getByLabelText(/Output/i) as HTMLInputElement;
     expect(output.value).toMatch(/Error:/);
   });
@@ -250,7 +250,7 @@ describe('UrlEncoder Component', () => {
     ];
     
     const input = screen.getByLabelText(/Input/i);
-    const output = screen.getByLabelText(/Output/i);
+    const output = screen.getByLabelText(/Output/i) as HTMLInputElement;
     
     testCases.forEach(testCase => {
       fireEvent.change(input, { target: { value: testCase.input } });

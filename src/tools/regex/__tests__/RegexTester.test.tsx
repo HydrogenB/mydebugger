@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '../../../test-utils/test-utils';
 import RegexTester from '../RegexTester';
+import { getToolByRoute } from '../../index';
 
-// Mock getToolByRoute as it's an external dependency
+// Mock the getToolByRoute function
 jest.mock('../../index', () => ({
-  getToolByRoute: jest.fn(() => ({ 
-    name: 'Regex Tester',
+  getToolByRoute: jest.fn().mockReturnValue({
     icon: 'regex',
     description: 'Test and debug regular expressions'
-  }))
+  })
 }));
 
 // Mock Helmet to avoid issues in tests
