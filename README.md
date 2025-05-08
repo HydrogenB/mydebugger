@@ -206,6 +206,54 @@ The JWT toolkit is a comprehensive tool with multiple features organized into a 
 - **JWKS**: JWKS tool and public key discovery
 - **Benchmark**: Algorithm performance testing
 
+## 🧪 Testing
+
+The project uses Jest and React Testing Library for unit and component testing. Tests are organized alongside the components they test.
+
+### Test Structure
+
+- Component tests are located in `__tests__` directories next to the components they test
+- Utility tests are located in `__tests__` directories within their feature directories
+- Test utils are provided in `src/test-utils/` for common testing patterns
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Run tests for a specific file or component
+npm test -- UrlEncoder
+```
+
+### Test Coverage
+
+The project aims for high test coverage of core components and utilities. Current coverage is reported in the `/coverage` directory after running the coverage command.
+
+### Testing Guidelines
+
+1. **Component Tests**:
+   - Test component rendering
+   - Test user interactions
+   - Test component props and variations
+   - Test accessibility where relevant
+
+2. **Utility Tests**:
+   - Test for expected outputs with various inputs
+   - Test edge cases and error handling
+
+3. **Test Best Practices**:
+   - Use `screen.getByRole` and other queries that support accessibility
+   - Prefer `userEvent` over `fireEvent` for user interactions
+   - Mock external dependencies
+   - Keep tests focused and small
+
 ## 💻 Development Guidelines
 
 ### Setting Up the Development Environment
@@ -236,6 +284,7 @@ The JWT toolkit is a comprehensive tool with multiple features organized into a 
 3. Follow the design system patterns for props, TypeScript interfaces, and styling
 4. Add exports to the category's index.ts file
 5. Update the main design system index.ts if needed
+6. Create a test file in `__tests__` directory alongside the component
 
 ### Component Design Principles
 
@@ -245,6 +294,7 @@ The JWT toolkit is a comprehensive tool with multiple features organized into a 
 - **Theme Support**: Support both light and dark modes
 - **Reusability**: Design components for maximum reuse across the application
 - **Documentation**: Include JSDoc comments and clear prop interfaces
+- **Testing**: Write tests for all component variations and interactions
 
 ### Adding New Tools
 
@@ -261,6 +311,7 @@ When adding new tools to the application:
    ```
 4. Register your tool in `src/tools/index.ts` by adding it to the tools array
 5. Include appropriate metadata, keywords, and related tools
+6. Add tests for your tool's functionality
 
 ### Code Style and Conventions
 
@@ -320,6 +371,32 @@ If you encounter issues during deployment:
 3. Ensure all dependencies are properly specified in package.json
 4. Use the debug.html page to check for environment-specific issues
 
+## 🛠️ Troubleshooting
+
+### Common Issues and Solutions
+
+#### Test Failures
+
+Some tests might fail due to structural changes in components. Key areas to check:
+
+1. **Button text with nested elements**: When testing buttons, be aware that text might be wrapped in spans for styling. Use custom matchers or more flexible query strategies.
+2. **Theme context**: Tests might fail if they don't properly mock the ThemeContext. Use the provided `mockThemeContext` utility.
+3. **Animation timing**: Tests involving animations might need to use `jest.useFakeTimers()` to properly test timeout-based effects.
+
+#### Component Structure Changes
+
+When a component's structure changes:
+
+1. Update related tests to match the new structure
+2. Check for usage throughout the application
+3. Document the changes in the component's JSDoc comments
+
+#### Environment-specific Issues
+
+1. **Windows path issues**: Ensure all imports use the correct path casing, as production environments are case-sensitive
+2. **Terminal commands**: Use cross-platform compatible commands in npm scripts
+3. **Environment variables**: Check for proper environment variable usage and fallbacks
+
 ## 🤖 AI Agent Handover Reference
 
 ### Quick Start Instructions for AI Assistants
@@ -337,6 +414,7 @@ If you're an AI agent working on this codebase, here are some essential details 
   - TailwindCSS 3.3.3 for styling
   - React Router DOM 6.14.0 for routing
   - React Helmet for SEO management
+  - Jest and React Testing Library for testing
 
 #### Repository Organization
 
@@ -353,6 +431,7 @@ The project follows a structured organization:
    - Component categories: display, feedback, inputs, layout, navigation, overlays, typography
    - Foundation definitions in `design-system/foundations/`
    - Tailwind integration for styling consistency
+   - Tests located in `__tests__` directories alongside components
 
 3. **Tools Implementation**:
    - Each tool has its own directory under `src/tools/`
@@ -370,11 +449,13 @@ The project follows a structured organization:
    - Fixed TypeScript errors in Form.tsx, BuilderWizard.tsx, and InspectorPane.tsx
    - Fixed JWT components to properly handle type definitions
    - Corrected build script in package.json for Vercel deployment (`npx tsc --noEmit && npx vite build`)
+   - Fixed UrlEncoder tests to handle nested element structures
 
 2. **Current Work**:
    - JWT Toolkit functionality is fully implemented with all features working
    - Component library is fully migrated to the design system architecture
    - Deployment configured for Vercel with appropriate optimizations
+   - Addressing test failures in various components
 
 #### Development Environment Setup
 
@@ -395,6 +476,9 @@ The project follows a structured organization:
    
    # Preview production build
    npm run preview
+   
+   # Run tests
+   npm test
    ```
 
 3. **Important Environment Variables**:
@@ -448,6 +532,12 @@ The project follows a structured organization:
    - Tailwind purges unused CSS in production
    - Vercel deployment is configured in vercel.json
 
+6. **Testing Approach**:
+   - Component tests use React Testing Library for rendering and querying
+   - Use `data-testid` attributes sparingly, prefer accessibility queries
+   - Mock external dependencies with Jest mocks
+   - Test user interactions with fireEvent or userEvent
+
 #### Common Pitfalls and Solutions
 
 1. **Design System Import Path**:
@@ -466,6 +556,10 @@ The project follows a structured organization:
    - **Issue**: Inconsistent layout in responsive views
    - **Solution**: Use the provided Grid, ResponsiveContainer, and layout components
 
+5. **Test Selection Issues**:
+   - **Issue**: Tests failing because they can't find elements after structural changes
+   - **Solution**: Use more flexible queries in tests, focusing on accessibility roles and text content instead of exact structure
+
 #### File and Code Generation Guidelines
 
 When generating code for this project, follow these patterns:
@@ -475,18 +569,21 @@ When generating code for this project, follow these patterns:
    - Include JSDoc comments
    - Implement dark mode with Tailwind
    - Follow accessibility best practices (ARIA roles, keyboard navigation)
+   - Create tests that focus on functionality, not implementation details
 
 2. **Tool Development**:
    - Use ToolLayout with proper metadata
    - Implement responsive design for all screen sizes
    - Include loading states and error handling
    - Register tool in the central registry
+   - Add comprehensive tests for tool functionality
 
 3. **Context Development**:
    - Provide a context provider
    - Include a custom hook for accessing context
    - Type all context values and actions
    - Handle loading/error states
+   - Add tests for context behavior
 
 #### Critical Files to Understand
 
@@ -495,6 +592,7 @@ When generating code for this project, follow these patterns:
 3. `src/App.tsx` - Main routing configuration
 4. `package.json` - Dependencies and build scripts
 5. `tailwind.config.js` - Tailwind configuration and theme extensions
+6. `jest.config.js` - Jest configuration for testing
 
 #### Project-Specific Terms and Concepts
 

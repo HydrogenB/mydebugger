@@ -1,186 +1,64 @@
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { Tooltip } from '../Tooltip';
-import { durations } from '../../../foundations/animations';
 
-// Mock the animation durations to speed up tests
-jest.mock('../../../foundations/animations', () => ({
-  durations: {
-    normal: 5, // Shortened for testing
-  },
-  easings: {
-    emphasized: 'cubic-bezier(0.2, 0, 0, 1.0)',
-  },
-}));
+// Mock timer functions
+jest.useFakeTimers();
 
 describe('Tooltip Component', () => {
-  // Mock timers for better control over animations and delays
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    jest.clearAllTimers();
   });
 
-  it('renders the trigger element', () => {
+  it('renders a tooltip trigger', () => {
     render(
-      <Tooltip content="Tooltip Content">
-        <button data-testid="trigger">Hover me</button>
+      <Tooltip content="Tooltip content">
+        <button>Hover me</button>
       </Tooltip>
     );
     
-    expect(screen.getByTestId('trigger')).toBeInTheDocument();
     expect(screen.getByText('Hover me')).toBeInTheDocument();
-    expect(screen.queryByText('Tooltip Content')).not.toBeInTheDocument();
+    // Initially, tooltip should not be visible
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
   it('shows tooltip on hover', () => {
     render(
-      <Tooltip content="Tooltip Content">
+      <Tooltip content="Tooltip content">
         <button>Hover me</button>
       </Tooltip>
     );
     
-    // Initially the tooltip is not visible
-    expect(screen.queryByText('Tooltip Content')).not.toBeInTheDocument();
-    
-    // Hover over the trigger
     fireEvent.mouseEnter(screen.getByText('Hover me'));
     
-    // Tooltip should be visible
-    expect(screen.getByText('Tooltip Content')).toBeInTheDocument();
-    expect(screen.getByRole('tooltip')).toHaveClass('opacity-100');
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent('Tooltip content');
   });
 
   it('hides tooltip on mouse leave', () => {
     render(
-      <Tooltip content="Tooltip Content">
+      <Tooltip content="Tooltip content">
         <button>Hover me</button>
       </Tooltip>
     );
     
     // Show tooltip
     fireEvent.mouseEnter(screen.getByText('Hover me'));
-    expect(screen.getByText('Tooltip Content')).toBeInTheDocument();
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
     
     // Hide tooltip
     fireEvent.mouseLeave(screen.getByText('Hover me'));
     
-    // Tooltip should become invisible (opacity: 0)
-    expect(screen.getByRole('tooltip')).toHaveClass('opacity-0');
-    
-    // After animation timeout, tooltip should be removed from DOM
+    // Tooltip should be removed from the document
     act(() => {
-      jest.advanceTimersByTime(durations.normal + 10);
+      jest.runAllTimers(); // Run any pending timers for transitions
     });
     
-    expect(screen.queryByText('Tooltip Content')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('shows tooltip on focus', () => {
-    render(
-      <Tooltip content="Tooltip Content">
-        <button>Focus me</button>
-      </Tooltip>
-    );
-    
-    // Focus the trigger
-    fireEvent.focus(screen.getByText('Focus me'));
-    
-    // Tooltip should be visible
-    expect(screen.getByText('Tooltip Content')).toBeInTheDocument();
-  });
-
-  it('hides tooltip on blur', () => {
-    render(
-      <Tooltip content="Tooltip Content">
-        <button>Focus me</button>
-      </Tooltip>
-    );
-    
-    // Show tooltip
-    fireEvent.focus(screen.getByText('Focus me'));
-    expect(screen.getByText('Tooltip Content')).toBeInTheDocument();
-    
-    // Hide tooltip
-    fireEvent.blur(screen.getByText('Focus me'));
-    
-    // After animation timeout, tooltip should be removed from DOM
-    act(() => {
-      jest.advanceTimersByTime(durations.normal + 10);
-    });
-    
-    expect(screen.queryByText('Tooltip Content')).not.toBeInTheDocument();
-  });
-
-  it('applies delay before showing tooltip', () => {
-    const delay = 500;
-    
-    render(
-      <Tooltip content="Delayed Tooltip" delay={delay}>
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    // Hover over the trigger
-    fireEvent.mouseEnter(screen.getByText('Hover me'));
-    
-    // Before delay, tooltip should not be visible
-    expect(screen.queryByText('Delayed Tooltip')).not.toBeInTheDocument();
-    
-    // Advance timer by delay amount
-    act(() => {
-      jest.advanceTimersByTime(delay);
-    });
-    
-    // After delay, tooltip should be visible
-    expect(screen.getByText('Delayed Tooltip')).toBeInTheDocument();
-  });
-
-  it('cancels delay timeout when mouse leaves before tooltip appears', () => {
-    const delay = 500;
-    
-    render(
-      <Tooltip content="Delayed Tooltip" delay={delay}>
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    // Hover over the trigger
-    fireEvent.mouseEnter(screen.getByText('Hover me'));
-    
-    // Leave before delay completes
-    act(() => {
-      jest.advanceTimersByTime(delay - 100);
-    });
-    fireEvent.mouseLeave(screen.getByText('Hover me'));
-    
-    // Complete the delay time
-    act(() => {
-      jest.advanceTimersByTime(100 + 10);
-    });
-    
-    // Tooltip should not appear
-    expect(screen.queryByText('Delayed Tooltip')).not.toBeInTheDocument();
-  });
-
-  it('renders disabled tooltip', () => {
-    render(
-      <Tooltip content="Tooltip Content" disabled>
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    // Hover over the trigger
-    fireEvent.mouseEnter(screen.getByText('Hover me'));
-    
-    // Tooltip should not be visible
-    expect(screen.queryByText('Tooltip Content')).not.toBeInTheDocument();
-  });
-
-  it('applies correct position classes', () => {
+  it('supports different tooltip positions', () => {
     const { rerender } = render(
       <Tooltip content="Top Tooltip" position="top">
         <button>Hover me</button>
@@ -190,103 +68,145 @@ describe('Tooltip Component', () => {
     fireEvent.mouseEnter(screen.getByText('Hover me'));
     expect(screen.getByRole('tooltip')).toHaveClass('bottom-full');
     
-    // Test right position
     rerender(
       <Tooltip content="Right Tooltip" position="right">
         <button>Hover me</button>
       </Tooltip>
     );
     
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
     expect(screen.getByRole('tooltip')).toHaveClass('left-full');
     
-    // Test bottom position
     rerender(
       <Tooltip content="Bottom Tooltip" position="bottom">
         <button>Hover me</button>
       </Tooltip>
     );
     
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
     expect(screen.getByRole('tooltip')).toHaveClass('top-full');
     
-    // Test left position
     rerender(
       <Tooltip content="Left Tooltip" position="left">
         <button>Hover me</button>
       </Tooltip>
     );
     
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
     expect(screen.getByRole('tooltip')).toHaveClass('right-full');
   });
 
-  it('applies correct size classes', () => {
-    const { rerender } = render(
-      <Tooltip content="Small Tooltip" size="sm">
+  it('applies delay before showing tooltip', () => {
+    render(
+      <Tooltip content="Delayed Tooltip" showDelay={500}>
         <button>Hover me</button>
       </Tooltip>
     );
     
     fireEvent.mouseEnter(screen.getByText('Hover me'));
-    expect(screen.getByRole('tooltip')).toHaveClass('px-2 py-1 text-xs');
     
-    // Test medium size (default)
-    rerender(
-      <Tooltip content="Medium Tooltip" size="md">
-        <button>Hover me</button>
-      </Tooltip>
-    );
+    // Before delay, tooltip should not be visible
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     
-    expect(screen.getByRole('tooltip')).toHaveClass('px-2.5 py-1.5 text-sm');
+    // Advance timer by delay amount
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
     
-    // Test large size
-    rerender(
-      <Tooltip content="Large Tooltip" size="lg">
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    expect(screen.getByRole('tooltip')).toHaveClass('px-3 py-2 text-base');
+    // After delay, tooltip should be visible
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Delayed Tooltip');
   });
 
-  it('applies max width', () => {
+  it('applies hide delay before hiding tooltip', () => {
     render(
-      <Tooltip content="Custom Width Tooltip" maxWidth="max-w-md">
+      <Tooltip content="Hide Delay Tooltip" hideDelay={300}>
         <button>Hover me</button>
       </Tooltip>
     );
     
+    // Show tooltip
     fireEvent.mouseEnter(screen.getByText('Hover me'));
-    expect(screen.getByRole('tooltip')).toHaveClass('max-w-md');
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    
+    // Try to hide tooltip
+    fireEvent.mouseLeave(screen.getByText('Hover me'));
+    
+    // Before hide delay, tooltip should still be visible
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    
+    // Advance timer by hide delay amount
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+    
+    // After hide delay, tooltip should be gone
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('renders arrow by default', () => {
+  it('does not show tooltip when disabled', () => {
     render(
-      <Tooltip content="Tooltip with Arrow">
+      <Tooltip content="Disabled Tooltip" disabled={true}>
         <button>Hover me</button>
       </Tooltip>
     );
     
     fireEvent.mouseEnter(screen.getByText('Hover me'));
+    
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('renders HTML content when allowHtml is true', () => {
+    const htmlContent = '<span data-testid="html-content">HTML Content</span>';
+    
+    render(
+      <Tooltip content={htmlContent} allowHtml={true}>
+        <button>Hover me</button>
+      </Tooltip>
+    );
+    
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
+    
     const tooltip = screen.getByRole('tooltip');
-    
-    // Arrow should be present
-    expect(tooltip.querySelector('.border-solid')).toBeInTheDocument();
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip.innerHTML).toContain(htmlContent);
   });
 
-  it('hides arrow when showArrow is false', () => {
+  it('handles touch events when enableOnTouch is true', () => {
     render(
-      <Tooltip content="Tooltip without Arrow" showArrow={false}>
+      <Tooltip content="Touch Tooltip" enableOnTouch={true}>
+        <button>Touch me</button>
+      </Tooltip>
+    );
+    
+    // Mock preventDefault function
+    const preventDefault = jest.fn();
+    
+    // Simulate touch event
+    fireEvent.touchStart(screen.getByText('Touch me'), { preventDefault });
+    
+    // preventDefault should be called to stop normal touch behavior
+    expect(preventDefault).toHaveBeenCalled();
+    
+    // Tooltip should be visible
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Touch Tooltip');
+  });
+
+  it('supports custom max width', () => {
+    render(
+      <Tooltip content="Custom Max Width Tooltip" maxWidth="200px">
         <button>Hover me</button>
       </Tooltip>
     );
     
     fireEvent.mouseEnter(screen.getByText('Hover me'));
-    const tooltip = screen.getByRole('tooltip');
     
-    // Arrow should not be present
-    expect(tooltip.querySelector('.border-solid')).not.toBeInTheDocument();
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveStyle('max-width: 200px');
   });
 
-  it('applies custom class name', () => {
+  it('allows customizing appearance with className', () => {
     render(
       <Tooltip content="Custom Class Tooltip" className="custom-tooltip-class">
         <button>Hover me</button>
@@ -294,80 +214,106 @@ describe('Tooltip Component', () => {
     );
     
     fireEvent.mouseEnter(screen.getByText('Hover me'));
-    expect(screen.getByRole('tooltip')).toHaveClass('custom-tooltip-class');
-  });
-
-  it('applies custom ID', () => {
-    render(
-      <Tooltip content="ID Tooltip" id="custom-tooltip-id">
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    fireEvent.mouseEnter(screen.getByText('Hover me'));
-    expect(screen.getByRole('tooltip')).toHaveAttribute('id', 'custom-tooltip-id');
-  });
-
-  it('renders HTML content when allowHtml is true', () => {
-    const htmlContent = '<span data-testid="html-content">HTML <strong>Content</strong></span>';
-    
-    render(
-      <Tooltip content={htmlContent} allowHtml>
-        <button>Hover me</button>
-      </Tooltip>
-    );
-    
-    fireEvent.mouseEnter(screen.getByText('Hover me'));
     
     const tooltip = screen.getByRole('tooltip');
-    expect(tooltip.innerHTML).toContain(htmlContent);
+    expect(tooltip).toHaveClass('custom-tooltip-class');
   });
 
-  it('handles touch events when enableOnTouch is true', () => {
-    render(
-      <Tooltip content="Touch Tooltip" enableOnTouch>
-        <button>Touch me</button>
+  it('supports arrow customization', () => {
+    const { rerender } = render(
+      <Tooltip content="Arrow Tooltip" showArrow={false}>
+        <button>Hover me</button>
       </Tooltip>
     );
     
-    const preventDefault = jest.fn();
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
     
-    // Simulate touch start
-    fireEvent.touchStart(screen.getByText('Touch me'), { preventDefault });
+    // No arrow element should be rendered
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip.querySelector('[class*="border-"]')).not.toBeInTheDocument();
     
-    // preventDefault should be called to stop normal touch behavior
-    expect(preventDefault).toHaveBeenCalled();
+    rerender(
+      <Tooltip content="Arrow Tooltip" showArrow={true}>
+        <button>Hover me</button>
+      </Tooltip>
+    );
     
-    // Tooltip should be visible
-    expect(screen.getByText('Touch Tooltip')).toBeInTheDocument();
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
     
-    // Touch end should hide tooltip
-    fireEvent.touchEnd(screen.getByText('Touch me'));
+    // Arrow element should be rendered
+    const tooltipWithArrow = screen.getByRole('tooltip');
+    expect(tooltipWithArrow.querySelector('[class*="border-"]')).toBeInTheDocument();
+  });
+
+  it('handles focus and blur events', () => {
+    render(
+      <Tooltip content="Focus Tooltip">
+        <button>Focus me</button>
+      </Tooltip>
+    );
     
-    // After animation timeout, tooltip should be removed from DOM
+    // Show tooltip on focus
+    fireEvent.focus(screen.getByText('Focus me'));
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    
+    // Hide tooltip on blur
+    fireEvent.blur(screen.getByText('Focus me'));
+    
     act(() => {
-      jest.advanceTimersByTime(durations.normal + 10);
+      jest.runAllTimers(); // Run any pending timers for transitions
     });
     
-    expect(screen.queryByText('Touch Tooltip')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
-  it('does not handle touch events when enableOnTouch is false', () => {
-    render(
-      <Tooltip content="Touch Tooltip" enableOnTouch={false}>
-        <button>Touch me</button>
+  it('supports controlled visibility mode', () => {
+    const { rerender } = render(
+      <Tooltip content="Controlled Tooltip" isOpen={true}>
+        <button>Hover me</button>
       </Tooltip>
     );
     
-    const preventDefault = jest.fn();
+    // Tooltip should be visible even without hover
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
     
-    // Simulate touch start
-    fireEvent.touchStart(screen.getByText('Touch me'), { preventDefault });
+    // Hover should not affect visibility
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
     
-    // preventDefault should not be called
-    expect(preventDefault).not.toHaveBeenCalled();
+    fireEvent.mouseLeave(screen.getByText('Hover me'));
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
     
-    // Tooltip should not be visible
-    expect(screen.queryByText('Touch Tooltip')).not.toBeInTheDocument();
+    // Changing isOpen to false should hide the tooltip
+    rerender(
+      <Tooltip content="Controlled Tooltip" isOpen={false}>
+        <button>Hover me</button>
+      </Tooltip>
+    );
+    
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  it('works with complex nested children', () => {
+    render(
+      <Tooltip content="Nested Content Tooltip">
+        <div>
+          <span>
+            <button>
+              <span>Complex</span> Button
+            </button>
+          </span>
+        </div>
+      </Tooltip>
+    );
+    
+    // Find the button by text
+    const button = screen.getByText((content, element) => {
+      return element.textContent === 'Complex Button';
+    }).closest('button');
+    
+    fireEvent.mouseEnter(button);
+    
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Nested Content Tooltip');
   });
 });

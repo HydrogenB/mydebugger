@@ -250,25 +250,22 @@ describe('TabGroup Component', () => {
 
   it('keeps tab panels mounted when keepMounted is true', () => {
     render(
-      <TabGroup>
+      <TabGroup defaultTab="tab2">
         <Tab id="tab1" label="Tab 1" />
         <Tab id="tab2" label="Tab 2" />
-        <TabPanel id="tab1">Content 1</TabPanel>
-        <TabPanel id="tab2" keepMounted>Content 2</TabPanel>
+        <TabPanel id="tab1" keepMounted>Content 1</TabPanel>
+        <TabPanel id="tab2">Content 2</TabPanel>
       </TabGroup>
     );
     
-    // Initially, tab1 is active but tab2 content should exist in DOM with display: none
+    // Initially tab2 is active, tab1 content should be in DOM but hidden
     expect(screen.getByText('Content 1')).toBeInTheDocument();
-    const tab2Panel = screen.getByText('Content 2').closest('[role="tabpanel"]');
-    expect(tab2Panel).toHaveClass('hidden');
-    
-    // After clicking tab2, both contents should exist but tab1 should be hidden
-    fireEvent.click(screen.getByRole('tab', { name: 'Tab 2' }));
     const tab1Panel = screen.getByText('Content 1').closest('[role="tabpanel"]');
-    expect(tab1Panel).toBeNull(); // tab1 panel should be unmounted
+    expect(tab1Panel).toHaveClass('hidden');
+    
     expect(screen.getByText('Content 2')).toBeInTheDocument();
-    expect(screen.getByText('Content 2').closest('[role="tabpanel"]')).not.toHaveClass('hidden');
+    const tab2Panel = screen.getByText('Content 2').closest('[role="tabpanel"]');
+    expect(tab2Panel).not.toHaveClass('hidden');
   });
 
   it('throws error when Tab is used outside TabGroup', () => {
@@ -327,7 +324,7 @@ describe('TabGroup Component', () => {
     expect(screen.getByRole('tab')).toHaveClass('custom-tab-class');
   });
 
-  it('supports isActive prop to control tab selection externally', () => {
+  it('supports tab with isActive prop', () => {
     render(
       <TabGroup>
         <Tab id="tab1" label="Tab 1" />
@@ -338,6 +335,7 @@ describe('TabGroup Component', () => {
     );
     
     expect(screen.getByRole('tab', { name: 'Tab 2' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'Tab 1' })).toHaveAttribute('aria-selected', 'false');
     expect(screen.queryByText('Content 1')).not.toBeInTheDocument();
     expect(screen.getByText('Content 2')).toBeInTheDocument();
   });

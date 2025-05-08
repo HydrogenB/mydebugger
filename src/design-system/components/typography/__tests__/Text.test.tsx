@@ -88,13 +88,13 @@ describe('Text Component', () => {
 
   it('renders with text transformations', () => {
     const { rerender } = render(<Text transform="uppercase">Uppercase Text</Text>);
-    expect(screen.getByText('UPPERCASE TEXT')).toHaveClass('uppercase');
+    expect(screen.getByText('Uppercase Text')).toHaveClass('uppercase');
     
     rerender(<Text transform="lowercase">LOWERCASE TEXT</Text>);
-    expect(screen.getByText('lowercase text')).toHaveClass('lowercase');
+    expect(screen.getByText('LOWERCASE TEXT')).toHaveClass('lowercase');
     
     rerender(<Text transform="capitalize">capitalize text</Text>);
-    expect(screen.getByText('Capitalize Text')).toHaveClass('capitalize');
+    expect(screen.getByText('capitalize text')).toHaveClass('capitalize');
   });
 
   it('renders with truncation', () => {
@@ -154,5 +154,167 @@ describe('Text Component', () => {
     const element = screen.getByText('Text with custom class');
     expect(element).toHaveClass('custom-class');
     expect(element).toHaveClass('text-base'); // Still has default classes
+  });
+
+  it('renders children correctly', () => {
+    render(<Text>Hello World</Text>);
+    expect(screen.getByText('Hello World')).toBeInTheDocument();
+  });
+
+  it('renders with different variants', () => {
+    const { rerender } = render(<Text variant="h1">Heading 1</Text>);
+    expect(screen.getByText('Heading 1').tagName).toBe('H1');
+    
+    rerender(<Text variant="h2">Heading 2</Text>);
+    expect(screen.getByText('Heading 2').tagName).toBe('H2');
+    
+    rerender(<Text variant="h3">Heading 3</Text>);
+    expect(screen.getByText('Heading 3').tagName).toBe('H3');
+    
+    rerender(<Text variant="h4">Heading 4</Text>);
+    expect(screen.getByText('Heading 4').tagName).toBe('H4');
+    
+    rerender(<Text variant="h5">Heading 5</Text>);
+    expect(screen.getByText('Heading 5').tagName).toBe('H5');
+    
+    rerender(<Text variant="h6">Heading 6</Text>);
+    expect(screen.getByText('Heading 6').tagName).toBe('H6');
+    
+    rerender(<Text variant="p">Paragraph</Text>);
+    expect(screen.getByText('Paragraph').tagName).toBe('P');
+    
+    rerender(<Text variant="span">Span</Text>);
+    expect(screen.getByText('Span').tagName).toBe('SPAN');
+  });
+
+  it('renders with different font weights', () => {
+    const { rerender } = render(<Text weight="normal">Normal Text</Text>);
+    expect(screen.getByText('Normal Text')).toHaveClass('font-normal');
+    
+    rerender(<Text weight="medium">Medium Text</Text>);
+    expect(screen.getByText('Medium Text')).toHaveClass('font-medium');
+    
+    rerender(<Text weight="semibold">Semibold Text</Text>);
+    expect(screen.getByText('Semibold Text')).toHaveClass('font-semibold');
+    
+    rerender(<Text weight="bold">Bold Text</Text>);
+    expect(screen.getByText('Bold Text')).toHaveClass('font-bold');
+  });
+
+  it('renders with different font sizes', () => {
+    const { rerender } = render(<Text size="xs">Extra Small</Text>);
+    expect(screen.getByText('Extra Small')).toHaveClass('text-xs');
+    
+    rerender(<Text size="sm">Small</Text>);
+    expect(screen.getByText('Small')).toHaveClass('text-sm');
+    
+    rerender(<Text size="base">Base</Text>);
+    expect(screen.getByText('Base')).toHaveClass('text-base');
+    
+    rerender(<Text size="lg">Large</Text>);
+    expect(screen.getByText('Large')).toHaveClass('text-lg');
+    
+    rerender(<Text size="xl">Extra Large</Text>);
+    expect(screen.getByText('Extra Large')).toHaveClass('text-xl');
+    
+    rerender(<Text size="2xl">2XL</Text>);
+    expect(screen.getByText('2XL')).toHaveClass('text-2xl');
+    
+    rerender(<Text size="3xl">3XL</Text>);
+    expect(screen.getByText('3XL')).toHaveClass('text-3xl');
+    
+    rerender(<Text size="4xl">4XL</Text>);
+    expect(screen.getByText('4XL')).toHaveClass('text-4xl');
+  });
+
+  it('renders with custom colors', () => {
+    const { rerender } = render(<Text color="primary">Primary</Text>);
+    expect(screen.getByText('Primary')).toHaveClass('text-primary-600');
+    
+    rerender(<Text color="secondary">Secondary</Text>);
+    expect(screen.getByText('Secondary')).toHaveClass('text-secondary-600');
+    
+    rerender(<Text color="success">Success</Text>);
+    expect(screen.getByText('Success')).toHaveClass('text-green-600');
+    
+    rerender(<Text color="warning">Warning</Text>);
+    expect(screen.getByText('Warning')).toHaveClass('text-yellow-600');
+    
+    rerender(<Text color="error">Error</Text>);
+    expect(screen.getByText('Error')).toHaveClass('text-red-600');
+    
+    rerender(<Text color="info">Info</Text>);
+    expect(screen.getByText('Info')).toHaveClass('text-blue-600');
+  });
+
+  it('renders with different alignments', () => {
+    const { rerender } = render(<Text align="left">Left</Text>);
+    expect(screen.getByText('Left')).toHaveClass('text-left');
+    
+    rerender(<Text align="center">Center</Text>);
+    expect(screen.getByText('Center')).toHaveClass('text-center');
+    
+    rerender(<Text align="right">Right</Text>);
+    expect(screen.getByText('Right')).toHaveClass('text-right');
+    
+    rerender(<Text align="justify">Justify</Text>);
+    expect(screen.getByText('Justify')).toHaveClass('text-justify');
+  });
+
+  it('renders with truncation and line clamp', () => {
+    render(<Text truncate>Truncated text that should not wrap</Text>);
+    expect(screen.getByText(/Truncated text/)).toHaveClass('truncate');
+    
+    render(<Text lineClamp={2}>Text with line clamp</Text>);
+    expect(screen.getByText('Text with line clamp')).toHaveClass('line-clamp-2');
+  });
+
+  it('applies custom className', () => {
+    render(<Text className="custom-class">Custom Class</Text>);
+    expect(screen.getByText('Custom Class')).toHaveClass('custom-class');
+  });
+
+  it('applies custom inline style', () => {
+    render(<Text style={{ marginTop: '10px' }}>Custom Style</Text>);
+    expect(screen.getByText('Custom Style')).toHaveStyle('margin-top: 10px');
+  });
+
+  it('renders as another element with "as" prop', () => {
+    render(<Text as="label">Label Text</Text>);
+    expect(screen.getByText('Label Text').tagName).toBe('LABEL');
+  });
+
+  it('applies spacing props', () => {
+    render(<Text mb={4} mt={2} mx={3}>Spacing Text</Text>);
+    const textElement = screen.getByText('Spacing Text');
+    expect(textElement).toHaveClass('mb-4');
+    expect(textElement).toHaveClass('mt-2');
+    expect(textElement).toHaveClass('mx-3');
+  });
+
+  it('handles line height options', () => {
+    const { rerender } = render(<Text lineHeight="tight">Tight</Text>);
+    expect(screen.getByText('Tight')).toHaveClass('leading-tight');
+    
+    rerender(<Text lineHeight="normal">Normal</Text>);
+    expect(screen.getByText('Normal')).toHaveClass('leading-normal');
+    
+    rerender(<Text lineHeight="loose">Loose</Text>);
+    expect(screen.getByText('Loose')).toHaveClass('leading-loose');
+  });
+
+  it('applies responsive size classes', () => {
+    render(<Text size={{ base: 'xs', md: 'lg', lg: '2xl' }}>Responsive Text</Text>);
+    const textElement = screen.getByText('Responsive Text');
+    expect(textElement).toHaveClass('text-xs');
+    expect(textElement).toHaveClass('md:text-lg');
+    expect(textElement).toHaveClass('lg:text-2xl');
+  });
+
+  it('supports numeric spacing values', () => {
+    render(<Text m={3} p={4}>Numeric Spacing</Text>);
+    const textElement = screen.getByText('Numeric Spacing');
+    expect(textElement).toHaveClass('m-3');
+    expect(textElement).toHaveClass('p-4');
   });
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '../../../../test-utils/test-utils';
+import { render, screen, fireEvent, waitFor } from '../../../test-utils/test-utils';
 import UrlEncoder from '../UrlEncoder';
 
 // Mock clipboard API
@@ -49,12 +49,16 @@ describe('UrlEncoder Component', () => {
     
     fireEvent.change(input, { target: { value: testValue } });
     
-    // Switch to decode mode
-    const toggleButton = screen.getByText('Encode →');
+    // Switch to decode mode - find the toggle button containing 'Encode'
+    const toggleButton = screen.getByRole('button', { 
+      name: (content) => content.includes('Encode') 
+    });
     fireEvent.click(toggleButton);
     
-    // Check button text changed
-    expect(screen.getByText('Decode →')).toBeInTheDocument();
+    // Check that we now have a decode button
+    expect(screen.getByRole('button', { 
+      name: (content) => content.includes('Decode') 
+    })).toBeInTheDocument();
     
     // Clear the input and put in encoded text to decode
     fireEvent.change(input, { target: { value: '' } });
@@ -146,8 +150,10 @@ describe('UrlEncoder Component', () => {
   it('shows error message for invalid decode input', () => {
     render(<UrlEncoder />);
     
-    // Switch to decode mode
-    const toggleButton = screen.getByText('Encode →');
+    // Switch to decode mode - find the toggle button containing 'Encode'
+    const toggleButton = screen.getByRole('button', { 
+      name: (content) => content.includes('Encode') 
+    });
     fireEvent.click(toggleButton);
     
     // Enter invalid encoded text (missing % character)
