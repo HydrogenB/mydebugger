@@ -10,6 +10,28 @@ const ALGORITHMS = [
   'PS256', 'PS384', 'PS512'
 ];
 
+// Algorithm family descriptions
+const algFamilyDescriptions: Record<string, string> = {
+  HS: 'HMAC with SHA-2 - Symmetric key signatures using a shared secret',
+  RS: 'RSASSA-PKCS1-v1_5 - RSA signatures with PKCS#1 v1.5 padding',
+  ES: 'ECDSA - Elliptic Curve Digital Signature Algorithm',
+  PS: 'RSASSA-PSS - RSA signatures with Probabilistic Signature Scheme'
+};
+
+// Define algorithm color groups
+const getAlgorithmColor = (alg: string): string => {
+  if (alg.startsWith('HS')) return 'bg-blue-500';
+  if (alg.startsWith('RS')) return 'bg-green-500';
+  if (alg.startsWith('ES')) return 'bg-purple-500';
+  if (alg.startsWith('PS')) return 'bg-orange-500';
+  return 'bg-gray-500';
+};
+
+// Format numbers for display
+const formatNumber = (num: number): string => {
+  return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+};
+
 interface BenchmarkResult {
   algorithm: string;
   operationsPerSecond: number;

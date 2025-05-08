@@ -279,496 +279,470 @@ const JwtDecoder: React.FC = () => {
             </p>
           </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left panel - Input */}
-          <div>
-            <Card isElevated className="h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Encoded JWT</h2>
-                <Button onClick={handleGenerateExample} variant="light" size="sm">Generate example</Button>
-              </div>
-              
-              <div className="p-4 flex-1 flex flex-col">
-                <textarea
-                  id="jwt-input"
-                  className="w-full font-mono text-sm rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 flex-1 min-h-[300px]"
-                  value={jwtToken}
-                  onChange={(e) => setJwtToken(e.target.value)}
-                  placeholder="Paste your JWT token here... (supports Bearer tokens and plain JWT)"
-                  autoFocus
-                  spellCheck="false"
-                />
-                
-                {/* Continue to iterate tooltip */}
-                {showIterationTooltip && decoded && (
-                  <div className="mt-4 flex justify-end">
-                    <Tooltip
-                      content={getIterationSuggestions()}
-                      position="bottom"
-                      size="lg"
-                    >
-                      <Badge variant="warning" className="cursor-help flex items-center">
-                        <span>👉 Continue to iterate?</span>
-                      </Badge>
-                    </Tooltip>
-                  </div>
-                )}
-                
-                {error && (
-                  <Alert type="error" className="mt-4">{error}</Alert>
-                )}
-
-                {parsingWarnings && parsingWarnings.length > 0 && (
-                  <Alert type="warning" className="mt-4">
-                    <div className="font-medium mb-1">Parsing Warnings:</div>
-                    <ul className="list-disc pl-5 text-sm">
-                      {parsingWarnings.map((warning, index) => (
-                        <li key={index}>{warning}</li>
-                      ))}
-                    </ul>
-                  </Alert>
-                )}
-                
-                {decoded && (
-                  <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-sm overflow-x-auto break-all">
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Header:</div>
-                      <div className={`${getTokenPartColor('header')} flex-1`}>{decoded.raw.header}</div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row mt-2">
-                      <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Payload:</div>
-                      <div className={`${getTokenPartColor('payload')} flex-1`}>{decoded.raw.payload}</div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row mt-2">
-                      <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Signature:</div>
-                      <div className={`${getTokenPartColor('signature')} flex-1`}>{decoded.raw.signature}</div>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="mt-4 flex justify-between">
-                  <div>
-                    <Button onClick={handleReset} variant="light">Reset</Button>
-                  </div>
-                  <div>
-                    <Button 
-                      onClick={() => handleCopyContent(jwtToken, 'token')} 
-                      variant="primary"
-                      disabled={!jwtToken}
-                    >
-                      {copied && copiedSection === 'token' ? 'Copied!' : 'Copy Token'}
-                    </Button>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left panel - Input */}
+            <div>
+              <Card isElevated className="h-full flex flex-col">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">Encoded JWT</h2>
+                  <Button onClick={handleGenerateExample} variant="light" size="sm">Generate example</Button>
                 </div>
-              </div>
-            </Card>
-          </div>
-          
-          {/* Right panel - Decoded data */}
-          <div>
-            <Card isElevated className="h-full flex flex-col">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Decoded Data</h2>
-                <div className="flex border border-gray-200 dark:border-gray-700 rounded">
-                  <button 
-                    className={`px-3 py-1 text-sm rounded-l ${activeTab === 'json' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
-                    onClick={() => setActiveTab('json')}
-                  >
-                    JSON
-                  </button>
-                  <button 
-                    className={`px-3 py-1 text-sm rounded-r ${activeTab === 'table' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
-                    onClick={() => setActiveTab('table')}
-                  >
-                    Table
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-4 flex-1 flex flex-col overflow-y-auto">
-                {!decoded ? (
-                  <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 text-center p-6">
-                    <div>
-                      <div className="mb-2">Paste a JWT token on the left to decode it</div>
-                      <div className="text-sm">
-                        <Button onClick={handleGenerateExample} variant="light" size="sm">
-                          Or try an example token
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex-1">
-                    <div>
-                      <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                        <span className={getTokenPartColor('header')}>HEADER</span>
-                        <Button 
-                          onClick={() => handleCopyContent(JSON.stringify(decoded.header, null, 2), 'header')} 
-                          variant="light" 
-                          size="xs" 
-                          className="ml-2"
-                        >
-                          {copied && copiedSection === 'header' ? 'Copied!' : 'Copy'}
-                        </Button>
-                      </h3>
-                      
-                      {activeTab === 'json' ? (
-                        <pre className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto mb-4 text-sm">
-                          {JSON.stringify(decoded.header, null, 2)}
-                        </pre>
-                      ) : (
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-md overflow-x-auto mb-4">
-                          <table className="w-full text-sm">
-                            <thead className="border-b border-gray-200 dark:border-gray-700">
-                              <tr>
-                                <th className="text-left py-2 px-3">Name</th>
-                                <th className="text-left py-2 px-3">Value</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(decoded.header).map(([key, value]) => (
-                                <tr key={key} className="border-b border-gray-100 dark:border-gray-800">
-                                  <td className="py-2 px-3 font-medium">{key}</td>
-                                  <td className="py-2 px-3">
-                                    <Tooltip content={key === 'alg' ? `Algorithm used to sign the token` : key === 'typ' ? 'Token type' : `Header claim: ${key}`}>
-                                      <span className="cursor-help border-b border-dotted border-gray-400">{String(value)}</span>
-                                    </Tooltip>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                      
-                      <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                        <span className={getTokenPartColor('payload')}>PAYLOAD</span>
-                        <Button 
-                          onClick={() => handleCopyContent(JSON.stringify(decoded.payload, null, 2), 'payload')} 
-                          variant="light" 
-                          size="xs" 
-                          className="ml-2"
-                        >
-                          {copied && copiedSection === 'payload' ? 'Copied!' : 'Copy'}
-                        </Button>
-                      </h3>
-                      
-                      {activeTab === 'json' ? (
-                        <pre className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto text-sm">
-                          {JSON.stringify(decoded.payload, null, 2)}
-                        </pre>
-                      ) : (
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-md overflow-x-auto">
-                          <table className="w-full text-sm">
-                            <thead className="border-b border-gray-200 dark:border-gray-700">
-                              <tr>
-                                <th className="text-left py-2 px-3">Claim</th>
-                                <th className="text-left py-2 px-3">Value</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(decoded.payload).map(([key, value]) => (
-                                <tr key={key} className="border-b border-gray-100 dark:border-gray-800">
-                                  <td className="py-2 px-3 font-medium">{key}</td>
-                                  <td className="py-2 px-3">
-                                    <Tooltip content={getClaimDescription(key)}>
-                                      <span className="cursor-help border-b border-dotted border-gray-400">
-                                        {key === 'exp' || key === 'iat' || key === 'nbf' ? (
-                                          <div>
-                                            <div>{String(value)}</div>
-                                            <div className={`text-xs mt-1 ${key === 'exp' && isExpired(value as number) ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
-                                              {formatDate(value as number)}
-                                              {key === 'exp' && (
-                                                <span className="ml-2">
-                                                  {isExpired(value as number) 
-                                                    ? <Badge color="danger" size="sm">Expired</Badge> 
-                                                    : <Badge color="success" size="sm">Valid</Badge>}
-                                                </span>
-                                              )}
-                                            </div>
-                                          </div>
-                                        ) : typeof value === 'boolean' ? (
-                                          <span className={value ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                            {String(value)}
-                                          </span>
-                                        ) : typeof value === 'object' && value !== null ? (
-                                          <details>
-                                            <summary className="cursor-pointer">View Object</summary>
-                                            <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-auto max-h-40">
-                                              {JSON.stringify(value, null, 2)}
-                                            </pre>
-                                          </details>
-                                        ) : (
-                                          String(value)
-                                        )}
-                                      </span>
-                                    </Tooltip>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Continue to iterate tooltip */}
-                    {showIterationTooltip && (
-                      <div className="relative ml-4">
-                        <Button 
-                          variant="outline-info" 
-                          onClick={() => setShowIterationTooltip(false)}
-                          size="sm"
-                          className="animate-pulse"
-                        >
-                          Next steps
-                        </Button>
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                        <span className={getTokenPartColor('signature')}>SIGNATURE</span>
-                        <Badge 
-                          color={isVerified === true ? "success" : isVerified === false ? "danger" : "light"}
-                          className="ml-2"
-                        >
-                          {isVerified === true ? "Verified" : isVerified === false ? "Invalid" : "Not verified"}
+                
+                <div className="p-4 flex-1 flex flex-col">
+                  <textarea
+                    id="jwt-input"
+                    className="w-full font-mono text-sm rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 flex-1 min-h-[300px]"
+                    value={jwtToken}
+                    onChange={(e) => setJwtToken(e.target.value)}
+                    placeholder="Paste your JWT token here... (supports Bearer tokens and plain JWT)"
+                    autoFocus
+                    spellCheck="false"
+                  />
+                  
+                  {/* Continue to iterate tooltip */}
+                  {showIterationTooltip && decoded && (
+                    <div className="mt-4 flex justify-end">
+                      <Tooltip
+                        content={getIterationSuggestions()}
+                        position="bottom"
+                        size="lg"
+                      >
+                        <Badge variant="warning" className="cursor-help flex items-center">
+                          <span>👉 Continue to iterate?</span>
                         </Badge>
-                      </h3>
-                      
-                      <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
-                        <p className="text-gray-600 dark:text-gray-400 mb-2">
-                          Signature algorithm: <span className="font-medium">{decoded.header.alg || 'HS256'}</span>
-                        </p>
-                        
-                        <div className="flex flex-col">
-                          <div className="flex-grow mb-2">
-                            <label htmlFor="algorithm-select" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                              Algorithm (optional, override header)
-                            </label>
-                            <select
-                              id="algorithm-select"
-                              className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                              value={selectedAlgorithm}
-                              onChange={(e) => setSelectedAlgorithm(e.target.value)}
-                            >
-                              <option value="">Use algorithm from header</option>
-                              <optgroup label="HMAC">
-                                <option value="HS256">HS256</option>
-                                <option value="HS384">HS384</option>
-                                <option value="HS512">HS512</option>
-                              </optgroup>
-                              <optgroup label="RSA">
-                                <option value="RS256">RS256</option>
-                                <option value="RS384">RS384</option>
-                                <option value="RS512">RS512</option>
-                              </optgroup>
-                              <optgroup label="RSA-PSS">
-                                <option value="PS256">PS256</option>
-                                <option value="PS384">PS384</option>
-                                <option value="PS512">PS512</option>
-                              </optgroup>
-                              <optgroup label="ECDSA">
-                                <option value="ES256">ES256</option>
-                                <option value="ES384">ES384</option>
-                                <option value="ES512">ES512</option>
-                              </optgroup>
-                            </select>
-                          </div>
+                      </Tooltip>
+                    </div>
+                  )}
+                  
+                  {error && (
+                    <Alert type="error" className="mt-4">{error}</Alert>
+                  )}
 
-                          <div className="flex-grow mb-2">
-                            <label htmlFor="secret-key" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                              Secret/Verification key
-                            </label>
-                            <textarea
-                              id="secret-key"
-                              rows={3}
-                              className="w-full font-mono text-xs rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-                              value={secret}
-                              onChange={(e) => setSecret(e.target.value)}
-                              placeholder={
-                                decoded.header.alg?.startsWith('HS') 
-                                ? "Enter your secret key... (raw string or base64 encoded)" 
-                                : decoded.header.alg?.startsWith('RS') || decoded.header.alg?.startsWith('PS') 
-                                ? "Enter your RSA public key (PEM format supported)"
-                                : "Enter your verification key..."
-                              }
-                            />
-                          </div>
-                          
-                          <div className="flex justify-end">
-                            <Button 
-                              onClick={handleVerifySignature} 
-                              variant="primary"
-                              size="sm"
-                              disabled={!secret}
-                            >
-                              Verify
-                            </Button>
-                          </div>
+                  {parsingWarnings && parsingWarnings.length > 0 && (
+                    <Alert type="warning" className="mt-4">
+                      <div className="font-medium mb-1">Parsing Warnings:</div>
+                      <ul className="list-disc pl-5 text-sm">
+                        {parsingWarnings.map((warning, index) => (
+                          <li key={index}>{warning}</li>
+                        ))}
+                      </ul>
+                    </Alert>
+                  )}
+                  
+                  {decoded && (
+                    <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-sm overflow-x-auto break-all">
+                      <div className="flex flex-col sm:flex-row">
+                        <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Header:</div>
+                        <div className={`${getTokenPartColor('header')} flex-1`}>{decoded.raw.header}</div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row mt-2">
+                        <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Payload:</div>
+                        <div className={`${getTokenPartColor('payload')} flex-1`}>{decoded.raw.payload}</div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row mt-2">
+                        <div className="sm:w-20 text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 mb-1 sm:mb-0">Signature:</div>
+                        <div className={`${getTokenPartColor('signature')} flex-1`}>{decoded.raw.signature}</div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-4 flex justify-between">
+                    <div>
+                      <Button onClick={handleReset} variant="light">Reset</Button>
+                    </div>
+                    <div>
+                      <Button 
+                        onClick={() => handleCopyContent(jwtToken, 'token')} 
+                        variant="primary"
+                        disabled={!jwtToken}
+                      >
+                        {copied && copiedSection === 'token' ? 'Copied!' : 'Copy Token'}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Right panel - Decoded data */}
+            <div>
+              <Card isElevated className="h-full flex flex-col">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                  <h2 className="text-xl font-semibold">Decoded Data</h2>
+                  <div className="flex border border-gray-200 dark:border-gray-700 rounded">
+                    <button 
+                      className={`px-3 py-1 text-sm rounded-l ${activeTab === 'json' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                      onClick={() => setActiveTab('json')}
+                    >
+                      JSON
+                    </button>
+                    <button 
+                      className={`px-3 py-1 text-sm rounded-r ${activeTab === 'table' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                      onClick={() => setActiveTab('table')}
+                    >
+                      Table
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="p-4 flex-1 flex flex-col overflow-y-auto">
+                  {!decoded ? (
+                    <div className="flex-1 flex items-center justify-center text-gray-500 dark:text-gray-400 text-center p-6">
+                      <div>
+                        <div className="mb-2">Paste a JWT token on the left to decode it</div>
+                        <div className="text-sm">
+                          <Button onClick={handleGenerateExample} variant="light" size="sm">
+                            Or try an example token
+                          </Button>
                         </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1">
+                      <div>
+                        <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
+                          <span className={getTokenPartColor('header')}>HEADER</span>
+                          <Button 
+                            onClick={() => handleCopyContent(JSON.stringify(decoded.header, null, 2), 'header')} 
+                            variant="light" 
+                            size="xs" 
+                            className="ml-2"
+                          >
+                            {copied && copiedSection === 'header' ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </h3>
                         
-                        {isVerified !== null && (
-                          <div className={`mt-3 p-2 rounded-md text-sm ${
-                            isVerified 
-                              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300' 
-                              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
-                          }`}>
-                            <div className="flex items-center">
-                              <svg
-                                className="h-4 w-4 mr-2"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                {isVerified ? (
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                ) : (
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                )}
-                              </svg>
-                              <span>{isVerified ? 'Signature verified successfully' : 'Invalid signature'}</span>
-                            </div>
+                        {activeTab === 'json' ? (
+                          <pre className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto mb-4 text-sm">
+                            {JSON.stringify(decoded.header, null, 2)}
+                          </pre>
+                        ) : (
+                          <div className="bg-gray-50 dark:bg-gray-800 rounded-md overflow-x-auto mb-4">
+                            <table className="w-full text-sm">
+                              <thead className="border-b border-gray-200 dark:border-gray-700">
+                                <tr>
+                                  <th className="text-left py-2 px-3">Name</th>
+                                  <th className="text-left py-2 px-3">Value</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.entries(decoded.header).map(([key, value]) => (
+                                  <tr key={key} className="border-b border-gray-100 dark:border-gray-800">
+                                    <td className="py-2 px-3 font-medium">{key}</td>
+                                    <td className="py-2 px-3">
+                                      <Tooltip content={key === 'alg' ? `Algorithm used to sign the token` : key === 'typ' ? 'Token type' : `Header claim: ${key}`}>
+                                        <span className="cursor-help border-b border-dotted border-gray-400">{String(value)}</span>
+                                      </Tooltip>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                        
+                        <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
+                          <span className={getTokenPartColor('payload')}>PAYLOAD</span>
+                          <Button 
+                            onClick={() => handleCopyContent(JSON.stringify(decoded.payload, null, 2), 'payload')} 
+                            variant="light" 
+                            size="xs" 
+                            className="ml-2"
+                          >
+                            {copied && copiedSection === 'payload' ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </h3>
+                        
+                        {activeTab === 'json' ? (
+                          <pre className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md overflow-x-auto text-sm">
+                            {JSON.stringify(decoded.payload, null, 2)}
+                          </pre>
+                        ) : (
+                          <div className="bg-gray-50 dark:bg-gray-800 rounded-md overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead className="border-b border-gray-200 dark:border-gray-700">
+                                <tr>
+                                  <th className="text-left py-2 px-3">Claim</th>
+                                  <th className="text-left py-2 px-3">Value</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {Object.entries(decoded.payload).map(([key, value]) => (
+                                  <tr key={key} className="border-b border-gray-100 dark:border-gray-800">
+                                    <td className="py-2 px-3 font-medium">{key}</td>
+                                    <td className="py-2 px-3">
+                                      <Tooltip content={getClaimDescription(key)}>
+                                        <span className="cursor-help border-b border-dotted border-gray-400">
+                                          {key === 'exp' || key === 'iat' || key === 'nbf' ? (
+                                            <div>
+                                              <div>{String(value)}</div>
+                                              <div className={`text-xs mt-1 ${key === 'exp' && isExpired(value as number) ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                {formatDate(value as number)}
+                                                {key === 'exp' && (
+                                                  <span className="ml-2">
+                                                    {isExpired(value as number) 
+                                                      ? <Badge color="danger" size="sm">Expired</Badge> 
+                                                      : <Badge color="success" size="sm">Valid</Badge>}
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </div>
+                                          ) : typeof value === 'boolean' ? (
+                                            <span className={value ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                              {String(value)}
+                                            </span>
+                                          ) : typeof value === 'object' && value !== null ? (
+                                            <details>
+                                              <summary className="cursor-pointer">View Object</summary>
+                                              <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-auto max-h-40">
+                                                {JSON.stringify(value, null, 2)}
+                                              </pre>
+                                            </details>
+                                          ) : (
+                                            String(value)
+                                          )}
+                                        </span>
+                                      </Tooltip>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         )}
                       </div>
-                    </div>
-
-                    {/* Security Issues */}
-                    {securityIssues && securityIssues.length > 0 && (
+                      
+                      {/* Continue to iterate tooltip */}
+                      {showIterationTooltip && (
+                        <div className="relative ml-4">
+                          <Button 
+                            variant="outline-info" 
+                            onClick={() => setShowIterationTooltip(false)}
+                            size="sm"
+                            className="animate-pulse"
+                          >
+                            Next steps
+                          </Button>
+                        </div>
+                      )}
+                      
                       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                         <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
-                          <span>SECURITY ANALYSIS</span>
+                          <span className={getTokenPartColor('signature')}>SIGNATURE</span>
                           <Badge 
-                            color={securityIssues.some(i => i.severity === 'high') 
-                              ? "danger" 
-                              : securityIssues.some(i => i.severity === 'medium') 
-                                ? "warning" 
-                                : "info"}
+                            color={isVerified === true ? "success" : isVerified === false ? "danger" : "light"}
                             className="ml-2"
                           >
-                            {securityIssues.length} Issue{securityIssues.length !== 1 ? 's' : ''}
+                            {isVerified === true ? "Verified" : isVerified === false ? "Invalid" : "Not verified"}
                           </Badge>
                         </h3>
-
-                        <div className="bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
-                          {securityIssues.map((issue) => (
-                            <div 
-                              key={issue.id}
-                              className="p-3 border-b last:border-b-0 border-gray-100 dark:border-gray-700"
-                            >
-                              <div className="flex justify-between items-center mb-1">
-                                <h4 className={`font-medium ${getSeverityColor(issue.severity)}`}>
-                                  {issue.title}
-                                </h4>
-                                <Badge 
-                                  color={
-                                    issue.severity === 'high' ? "danger" :
-                                    issue.severity === 'medium' ? "warning" :
-                                    issue.severity === 'low' ? "info" : "info"
-                                  }
-                                  size="sm"
-                                >
-                                  {issue.severity}
-                                </Badge>
-                              </div>
-                              <p className="text-gray-600 dark:text-gray-400">
-                                {issue.description}
-                              </p>
+                        
+                        <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
+                          <p className="text-gray-600 dark:text-gray-400 mb-2">
+                            Signature algorithm: <span className="font-medium">{decoded.header.alg || 'HS256'}</span>
+                          </p>
+                          
+                          <div className="flex flex-col">
+                            <div className="flex-grow mb-2">
+                              <label htmlFor="algorithm-select" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                Algorithm (optional, override header)
+                              </label>
+                              <select
+                                id="algorithm-select"
+                                className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                value={selectedAlgorithm}
+                                onChange={(e) => setSelectedAlgorithm(e.target.value)}
+                              >
+                                <option value="">Use algorithm from header</option>
+                                <optgroup label="HMAC">
+                                  <option value="HS256">HS256</option>
+                                  <option value="HS384">HS384</option>
+                                  <option value="HS512">HS512</option>
+                                </optgroup>
+                                <optgroup label="RSA">
+                                  <option value="RS256">RS256</option>
+                                  <option value="RS384">RS384</option>
+                                  <option value="RS512">RS512</option>
+                                </optgroup>
+                                <optgroup label="RSA-PSS">
+                                  <option value="PS256">PS256</option>
+                                  <option value="PS384">PS384</option>
+                                  <option value="PS512">PS512</option>
+                                </optgroup>
+                                <optgroup label="ECDSA">
+                                  <option value="ES256">ES256</option>
+                                  <option value="ES384">ES384</option>
+                                  <option value="ES512">ES512</option>
+                                </optgroup>
+                              </select>
                             </div>
-                          ))}
+
+                            <div className="flex-grow mb-2">
+                              <label htmlFor="secret-key" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                                Secret/Verification key
+                              </label>
+                              <textarea
+                                id="secret-key"
+                                rows={3}
+                                className="w-full font-mono text-xs rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                                value={secret}
+                                onChange={(e) => setSecret(e.target.value)}
+                                placeholder={
+                                  decoded.header.alg?.startsWith('HS') 
+                                  ? "Enter your secret key... (raw string or base64 encoded)" 
+                                  : decoded.header.alg?.startsWith('RS') || decoded.header.alg?.startsWith('PS') 
+                                  ? "Enter your RSA public key (PEM format supported)"
+                                  : "Enter your verification key..."
+                                }
+                              />
+                            </div>
+                            
+                            <div className="flex justify-end">
+                              <Button 
+                                onClick={handleVerifySignature} 
+                                variant="primary"
+                                size="sm"
+                                disabled={!secret}
+                              >
+                                Verify
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {isVerified !== null && (
+                            <div className={`mt-3 p-2 rounded-md text-sm ${
+                              isVerified 
+                                ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300' 
+                                : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                            }`}>
+                              <div className="flex items-center">
+                                <svg
+                                  className="h-4 w-4 mr-2"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  {isVerified ? (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  ) : (
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  )}
+                                </svg>
+                                <span>{isVerified ? 'Signature verified successfully' : 'Invalid signature'}</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
-                    )}
 
-                    {/* Continue to iterate tooltip */}
-                    {showIterationTooltip && (
-                      <div className="relative ml-4">
-                        <Button 
-                          variant="outline-info" 
-                          onClick={() => setShowIterationTooltip(false)}
-                          size="sm"
-                          className="animate-pulse"
-                        >
-                          Next steps
-                        </Button>
-                      </div>
-                    )}
+                      {/* Security Issues */}
+                      {securityIssues && securityIssues.length > 0 && (
+                        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                          <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
+                            <span>SECURITY ANALYSIS</span>
+                            <Badge 
+                              color={securityIssues.some(i => i.severity === 'high') 
+                                ? "danger" 
+                                : securityIssues.some(i => i.severity === 'medium') 
+                                  ? "warning" 
+                                  : "info"}
+                              className="ml-2"
+                            >
+                              {securityIssues.length} Issue{securityIssues.length !== 1 ? 's' : ''}
+                            </Badge>
+                          </h3>
+
+                          <div className="bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+                            {securityIssues.map((issue) => (
+                              <div 
+                                key={issue.id}
+                                className="p-3 border-b last:border-b-0 border-gray-100 dark:border-gray-700"
+                              >
+                                <div className="flex justify-between items-center mb-1">
+                                  <h4 className={`font-medium ${getSeverityColor(issue.severity)}`}>
+                                    {issue.title}
+                                  </h4>
+                                  <Badge 
+                                    color={
+                                      issue.severity === 'high' ? "danger" :
+                                      issue.severity === 'medium' ? "warning" :
+                                      issue.severity === 'low' ? "info" : "info"
+                                    }
+                                    size="sm"
+                                  >
+                                    {issue.severity}
+                                  </Badge>
+                                </div>
+                                <p className="text-gray-600 dark:text-gray-400">
+                                  {issue.description}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Continue to iterate tooltip */}
+                      {showIterationTooltip && (
+                        <div className="relative ml-4">
+                          <Button 
+                            variant="outline-info" 
+                            onClick={() => setShowIterationTooltip(false)}
+                            size="sm"
+                            className="animate-pulse"
+                          >
+                            Next steps
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </div>
+          </div>
+          
+          <div className="mt-8">
+            <Card>
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-lg font-semibold">About JWT</h2>
+              </div>
+              <div className="p-4 text-sm">
+                <p className="text-gray-700 dark:text-gray-300 mb-3">
+                  JSON Web Tokens (JWTs) are an open, industry standard RFC 7519 method for representing claims securely between two parties.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+                    <h3 className={`font-medium mb-1 ${getTokenPartColor('header')}`}>Header</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Contains metadata about the token's type and the signing algorithm.</p>
                   </div>
-                )}
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
+                    <h3 className={`font-medium mb-1 ${getTokenPartColor('payload')}`}>Payload</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Contains the token claims - statements about the user and additional metadata.</p>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
+                    <h3 className={`font-medium mb-1 ${getTokenPartColor('signature')}`}>Signature</h3>
+                    <p className="text-gray-600 dark:text-gray-400">Used to verify that the token wasn't changed along the way and came from an authentic source.</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 mt-3">
+                  <a 
+                    href="https://jwt.io/introduction" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center"
+                  >
+                    Learn more about JWT
+                    <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </p>
               </div>
             </Card>
           </div>
         </div>
-        
-        <div className="mt-8">
-          <Card>
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold">About JWT</h2>
-            </div>
-            <div className="p-4 text-sm">
-              <p className="text-gray-700 dark:text-gray-300 mb-3">
-                JSON Web Tokens (JWTs) are an open, industry standard RFC 7519 method for representing claims securely between two parties.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('header')}`}>Header</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Contains metadata about the token's type and the signing algorithm.</p>
-                </div>
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('payload')}`}>Payload</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Contains the token claims - statements about the user and additional metadata.</p>
-                </div>
-                <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('signature')}`}>Signature</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Used to verify that the token wasn't changed along the way and came from an authentic source.</p>
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mt-3">
-                <a 
-                  href="https://jwt.io/introduction" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center"
-                >
-                  Learn more about JWT
-            <div className="p-4 text-sm">
-              <p className="text-gray-700 dark:text-gray-300 mb-3">
-                JSON Web Tokens (JWTs) are an open, industry standard RFC 7519 method for representing claims securely between two parties.
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('header')}`}>Header</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Contains metadata about the token's type and the signing algorithm.</p>
-                </div>
-                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('payload')}`}>Payload</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Contains the token claims - statements about the user and additional metadata.</p>
-                </div>
-                <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
-                  <h3 className={`font-medium mb-1 ${getTokenPartColor('signature')}`}>Signature</h3>
-                  <p className="text-gray-600 dark:text-gray-400">Used to verify that the token wasn't changed along the way and came from an authentic source.</p>
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-400 mt-3">
-                <a 
-                  href="https://jwt.io/introduction" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center"
-                >
-                  Learn more about JWT
-                  <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              </p>
-            </div>
-          </Card>
-        </div>
       </div>
-    </div>
     </>
   );
 };
