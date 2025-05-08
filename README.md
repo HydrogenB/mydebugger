@@ -20,13 +20,18 @@ mydebugger/
 ├── api/                   # API endpoints for server-side functionality
 │   ├── clickjacking-analysis.js
 │   ├── device-trace.js
-│   └── ... (other API files)
+│   ├── dns-lookup.js
+│   ├── header-audit.js
+│   ├── iframe-test.js
+│   └── link-trace.js
 ├── public/                # Static assets
+│   ├── _redirects         # Netlify/Vercel redirect rules
+│   ├── debug.html         # Debug page for deployment troubleshooting
 │   └── favicon.svg
 ├── src/
 │   ├── App.tsx            # Main application with routing
 │   ├── main.tsx           # Application entry point
-│   ├── assets/            # Images, icons, and other assets
+│   ├── index.css          # Global styles
 │   ├── context/           # React context providers
 │   │   └── ThemeContext.tsx
 │   ├── design-system/     # Design system architecture
@@ -42,9 +47,9 @@ mydebugger/
 │   │   │   ├── layout/    # Layout components
 │   │   │   ├── navigation/ # Navigation components
 │   │   │   ├── overlays/  # Modals, drawers, tooltips
-│   │   │   └── display/   # Cards, tables, badges, etc.
-│   │   ├── icons/         # Emoji-based icon system
-│   │   ├── hooks/         # Shared component hooks
+│   │   │   ├── typography/ # Text components
+│   │   │   └── display/   # Cards, badges, etc.
+│   │   ├── icons/         # Icon system
 │   │   └── context/       # Design system contexts
 │   ├── layout/            # Layout components
 │   │   ├── Header.tsx     # App header with navigation
@@ -54,11 +59,15 @@ mydebugger/
 │   │   └── NotFound.tsx   # 404 page
 │   └── tools/             # Tool modules
 │       ├── index.ts       # Tool registry (central configuration)
+│       ├── RelatedTools.tsx # Related tools component
 │       ├── clickjacking/  # Clickjacking testing tools
 │       └── ... (other tool directories)
 ├── index.html             # HTML entry point
 ├── package.json           # Project dependencies and scripts
-└── ... (configuration files)
+├── vite.config.ts         # Vite configuration
+├── tailwind.config.js     # Tailwind CSS configuration
+├── vercel.json            # Vercel-specific configuration
+└── ... (other configuration files)
 ```
 
 ## 🎨 Design System
@@ -85,22 +94,28 @@ UI components organized by functional category:
 | Category | Purpose | Components |
 |----------|---------|------------|
 | Inputs | User input elements | Button, ThemeToggle, TextInput, Form |
-| Feedback | User feedback components | Alert, LoadingSpinner |
-| Layout | Structural components | Card, ResponsiveContainer, ToolLayout |
-| Display | Information display | Badge, BadgeContainer |
-| Overlays | Floating elements | Modal |
+| Feedback | User feedback components | Alert, LoadingSpinner, Skeleton, Toast |
+| Layout | Structural components | Card, ResponsiveContainer, ToolLayout, Grid, Collapsible |
+| Display | Information display | Badge, InfoBox, ResponsiveImage |
+| Overlays | Floating elements | Modal, Tooltip, Drawer |
 | Navigation | Navigational elements | TabGroup, Tab, TabPanel |
+| Typography | Text components | Text |
 
-#### 3. Icon System
+#### 3. Animation System
 
-The design system uses an emoji-based icon system for consistency and ease of use:
+The design system includes a robust animation system with predefined keyframes and animations:
 
-```typescript
-// Example usage of the icon system
-import { getIcon } from '@/design-system/icons';
+```tsx
+// Available animations in the design system
+- fadeIn/fadeOut
+- slideInRight/slideInLeft/slideInUp/slideInDown
+- bounceIn
+- scaleIn/scaleOut
+- tooltipFade(Down/Up/Left/Right)
 
-const infoIcon = getIcon('info');   // Returns ℹ️
-const successIcon = getIcon('check'); // Returns ✓
+// Animation usage example
+<div className="animate-fade-in">Content that fades in</div>
+<div className="animate-slide-in-right">Content that slides in from right</div>
 ```
 
 #### 4. Theme System
@@ -109,7 +124,7 @@ A context-based theme system supports light and dark modes as well as color sche
 
 ```tsx
 // Wrapping your application with the ThemeProvider
-import { ThemeProvider } from '@/design-system/context/ThemeContext';
+import { ThemeProvider } from '../../design-system/context/ThemeContext';
 
 function App() {
   return (
@@ -120,7 +135,7 @@ function App() {
 }
 
 // Using the theme in components
-import { useTheme } from '@/design-system/context/ThemeContext';
+import { useTheme } from '../../design-system/context/ThemeContext';
 
 function MyComponent() {
   const { isDark, toggleTheme } = useTheme();
@@ -135,27 +150,16 @@ function MyComponent() {
 
 ### Using the Design System
 
-All design system components and utilities can be imported from a single entry point:.
+All design system components and utilities can be imported from a single entry point:
 
 ```tsx
-// Importing components
-import { Button, Card, Alert, Badge, Modal } from '@/design-system';
+// Importing components from the main entry point
+import { Button, Card, Alert, Badge, Modal } from '../../design-system';
 
-// Using foundation utilities
-import { getColor } from '@/design-system';
-const primaryColor = getColor('primary.500');
+// Or importing from specific component categories
+import { Button } from '../../design-system/components/inputs';
+import { Card } from '../../design-system/components/layout';
 ```
-
-### Component Documentation
-
-Each component in the design system follows a consistent pattern:
-
-- TypeScript interfaces for props
-- JSDoc comments for documentation
-- Consistent prop naming conventions
-- Support for emoji-based icons
-- Dark mode compatibility
-- Accessibility features
 
 ## 🧪 Component Library
 
@@ -175,14 +179,13 @@ The project uses a unified design system for all components across the applicati
 | LoadingSpinner | Loading indicator | `design-system/components/feedback/LoadingSpinner.tsx` |
 | ToolLayout | Standard layout for tools | `design-system/components/layout/ToolLayout.tsx` |
 
-The components can be viewed and tested in the Components Demo section of the application.
+The components can be viewed and tested in the Components Demo section of the application (`/components-demo`).
 
 ## 🚀 Available Tools
 
 | Tool | Description | Path |
 |------|-------------|------|
-| JWT Decoder | Decode and verify JSON Web Tokens | `tools/jwt/` |
-| JWT Playground | Interactive JWT creation and testing | `tools/jwtplayground/` |
+| JWT Toolkit | Comprehensive JWT tool suite (decode, build, inspect, verify, benchmark) | `tools/jwt/` |
 | URL Encoder | Encode or decode URL components | `tools/url/` |
 | QR Code Generator | Generate QR codes | `tools/qrcode/` |
 | Regular Expression Tester | Test and debug regular expressions | `tools/regex/` |
@@ -190,7 +193,18 @@ The components can be viewed and tested in the Components Demo section of the ap
 | HTTP Headers Analyzer | Analyze HTTP headers | `tools/headers/` |
 | Clickjacking Validator | Test for clickjacking vulnerabilities | `tools/clickjacking/` |
 | Link Tracer | Trace link redirects | `tools/linktracer/` |
-| Device Trace | Device information tracing | `tools/linktracer/` |
+| Device Trace | Device information tracing | `tools/linktracer/DeviceTrace.tsx` |
+| Components Demo | Showcase of UI components | `tools/components-demo/` |
+
+### JWT Toolkit Structure
+
+The JWT toolkit is a comprehensive tool with multiple features organized into a tabbed interface:
+
+- **Decoder**: Decode and verify JWT tokens
+- **Inspector**: Deep inspection and security analysis of tokens
+- **Builder**: Create and sign new JWT tokens
+- **JWKS**: JWKS tool and public key discovery
+- **Benchmark**: Algorithm performance testing
 
 ## 💻 Development Guidelines
 
@@ -220,9 +234,8 @@ The components can be viewed and tested in the Components Demo section of the ap
 1. Identify the appropriate category for your component (inputs, feedback, layout, etc.)
 2. Create a new component file in `src/design-system/components/[category]/`
 3. Follow the design system patterns for props, TypeScript interfaces, and styling
-4. Add emoji icon support where appropriate using the `getIcon` utility
-5. Add exports to the category's index.ts file
-6. Update the main design system index.ts if needed
+4. Add exports to the category's index.ts file
+5. Update the main design system index.ts if needed
 
 ### Component Design Principles
 
@@ -230,7 +243,6 @@ The components can be viewed and tested in the Components Demo section of the ap
 - **Accessibility**: Ensure keyboard navigation, screen reader support, and proper ARIA attributes
 - **Responsiveness**: Components should adapt to different screen sizes
 - **Theme Support**: Support both light and dark modes
-- **Icon System**: Use the emoji-based icon system for consistent visuals
 - **Reusability**: Design components for maximum reuse across the application
 - **Documentation**: Include JSDoc comments and clear prop interfaces
 
@@ -260,58 +272,6 @@ When adding new tools to the application:
 - Include JSDoc comments for components
 - Follow responsive design patterns
 
-## 🤖 AI Agent Handover Reference
-
-### Quick Start Instructions for AI Assistants
-
-If you're an AI agent working on this codebase, here are some tips to help you get started:
-
-1. **Project Structure**: Familiarize yourself with the project structure above. All components are now in the design system.
-
-2. **Component Usage**: When developing features, always use components from the design system:
-   ```tsx
-   // Import components from design system
-   import { Button, Card } from '../../design-system';
-   // Or from specific paths
-   import { ToolLayout } from '../../design-system/components/layout';
-   ```
-
-3. **Understanding Tool Files**: Each tool has its own directory in `src/tools/` with a main component file. These components use the `ToolLayout` component from the design system.
-
-4. **Important Context for AI**: 
-   - The project has completed migration from a legacy component system to a unified design system
-   - Always use components from `design-system/` and not from any legacy locations
-   - Follow the established patterns for creating and documenting components
-   - Use the emoji-based icon system for visual elements
-   - Ensure theme support for all new components (light/dark mode)
-
-5. **Getting Started Commands**:
-   ```bash
-   # Install dependencies
-   npm install
-   
-   # Start development server
-   npm run dev
-   ```
-
-### Important Files to Understand First
-
-1. `src/design-system/index.ts` - Main export file for design system
-2. `src/tools/index.ts` - Tool registry and configuration
-3. `src/App.tsx` - Main application routing
-4. `src/context/ThemeContext.tsx` - Theme context for light/dark mode
-
-## 🧠 Design System Principles
-
-The design system follows these core principles:
-
-- **Consistency**: Uniform appearance and behavior across all components
-- **Modularity**: Components can be used independently or combined
-- **Flexibility**: Components adapt to different contexts and requirements
-- **Maintainability**: Easy to update and extend
-- **Performance**: Optimized for speed and minimal bundle size
-- **Accessibility**: Follows WCAG guidelines for inclusive design
-
 ## 🔍 Performance Considerations
 
 - Components use React.memo where appropriate
@@ -340,6 +300,211 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
+### Vercel Deployment Notes
+
+- The build script uses `npx` to ensure proper path resolution in containerized environments:
+  ```json
+  "build": "npx tsc --noEmit && npx vite build"
+  ```
+- A `vercel.json` file is included in the project root to configure Vercel-specific settings
+- The `public/debug.html` file is included to help troubleshoot deployment issues
+- API routes in the `/api` directory are automatically deployed as serverless functions
+
+### Deployment Troubleshooting
+
+If you encounter issues during deployment:
+
+1. Verify the build script in `package.json` is correct
+2. Check for any path-related issues in imports (case sensitivity matters in deployment)
+3. Ensure all dependencies are properly specified in package.json
+4. Use the debug.html page to check for environment-specific issues
+
+## 🤖 AI Agent Handover Reference
+
+### Quick Start Instructions for AI Assistants
+
+If you're an AI agent working on this codebase, here are some essential details to help you get started:
+
+#### Project Overview
+
+- **Project Type**: React + TypeScript + Vite application with a modular architecture
+- **Primary Purpose**: Collection of developer tools with a unified design system
+- **Key Technologies**:
+  - React 18.2.0 with functional components and hooks
+  - TypeScript 5.0.2 for type safety
+  - Vite 4.4.5 for build tooling
+  - TailwindCSS 3.3.3 for styling
+  - React Router DOM 6.14.0 for routing
+  - React Helmet for SEO management
+
+#### Repository Organization
+
+The project follows a structured organization:
+
+1. **Core Files**:
+   - `src/App.tsx`: Main routing configuration
+   - `src/main.tsx`: Application entry point
+   - `src/context/ThemeContext.tsx`: Theme handling (light/dark mode)
+   - `src/design-system/index.ts`: Central export for design system components
+
+2. **Design System**:
+   - Located in `src/design-system/`
+   - Component categories: display, feedback, inputs, layout, navigation, overlays, typography
+   - Foundation definitions in `design-system/foundations/`
+   - Tailwind integration for styling consistency
+
+3. **Tools Implementation**:
+   - Each tool has its own directory under `src/tools/`
+   - Tools are registered in the central registry at `src/tools/index.ts`
+   - JWT toolkit is the most complex tool with multiple components
+
+4. **API Routes**:
+   - API endpoints in `/api` directory 
+   - Use serverless architecture that deploys on Vercel
+   - Handle various backend functionality (DNS lookups, header analysis, etc.)
+
+#### Recent Changes and Current Status
+
+1. **Recently Fixed Issues**:
+   - Fixed TypeScript errors in Form.tsx, BuilderWizard.tsx, and InspectorPane.tsx
+   - Fixed JWT components to properly handle type definitions
+   - Corrected build script in package.json for Vercel deployment (`npx tsc --noEmit && npx vite build`)
+
+2. **Current Work**:
+   - JWT Toolkit functionality is fully implemented with all features working
+   - Component library is fully migrated to the design system architecture
+   - Deployment configured for Vercel with appropriate optimizations
+
+#### Development Environment Setup
+
+1. **Prerequisites**:
+   - Node.js 16+ (18+ recommended)
+   - npm or yarn 
+
+2. **Setup Commands**:
+   ```bash
+   # Install dependencies
+   npm install
+   
+   # Start development server
+   npm run dev
+   
+   # Type check and build for production
+   npm run build
+   
+   # Preview production build
+   npm run preview
+   ```
+
+3. **Important Environment Variables**:
+   - No sensitive environment variables are required for basic operation
+   - If adding API integrations, follow the pattern in `/api` directory
+
+#### Key Implementation Details
+
+1. **Component Patterns**:
+   - All components use functional pattern with hooks
+   - Props interfaces are defined for each component
+   - JSDoc comments document component usage
+   - Dark mode support via `dark:` Tailwind variants
+   - Tab navigation and accessibility attributes are implemented
+
+2. **Data Flow**:
+   - Context API for global state (theme, JWT data)
+   - Props for component-to-component communication
+   - Local state for component-specific data
+
+3. **Common Patterns**:
+   ```tsx
+   // Component pattern
+   interface ComponentProps {
+     // Props definition with JSDoc
+     /** Description of the prop */
+     propName: PropType;
+   }
+   
+   export const Component: React.FC<ComponentProps> = ({
+     propName = defaultValue,
+     // Other props
+   }) => {
+     // Implementation
+     return (
+       <div className="tailwind-classes dark:tailwind-dark-mode-classes">
+         {/* Component content */}
+       </div>
+     );
+   };
+   ```
+
+4. **Tool Registration Process**:
+   - Create tool components in `/src/tools/[toolname]/`
+   - Register in `/src/tools/index.ts` with proper metadata
+   - Component must use ToolLayout for consistent UI
+
+5. **Build and Deployment**:
+   - Vite handles bundling and optimization
+   - TypeScript checks run before build
+   - Tailwind purges unused CSS in production
+   - Vercel deployment is configured in vercel.json
+
+#### Common Pitfalls and Solutions
+
+1. **Design System Import Path**:
+   - **Issue**: Inconsistent import paths for design system components
+   - **Solution**: Always import from the appropriate path in `../../design-system/components/[category]`
+
+2. **TypeScript Strictness**:
+   - **Issue**: Type errors in complex components like TabGroup and JWT tools
+   - **Solution**: Ensure all props are typed properly, especially when using Record/dictionary types
+
+3. **Vercel Deployment Issues**:
+   - **Issue**: Permission errors with direct binary path references
+   - **Solution**: Use `npx` to run tools instead of direct paths in package.json scripts
+
+4. **Component Layout Issues**:
+   - **Issue**: Inconsistent layout in responsive views
+   - **Solution**: Use the provided Grid, ResponsiveContainer, and layout components
+
+#### File and Code Generation Guidelines
+
+When generating code for this project, follow these patterns:
+
+1. **Component Creation**:
+   - Use TypeScript interfaces for props
+   - Include JSDoc comments
+   - Implement dark mode with Tailwind
+   - Follow accessibility best practices (ARIA roles, keyboard navigation)
+
+2. **Tool Development**:
+   - Use ToolLayout with proper metadata
+   - Implement responsive design for all screen sizes
+   - Include loading states and error handling
+   - Register tool in the central registry
+
+3. **Context Development**:
+   - Provide a context provider
+   - Include a custom hook for accessing context
+   - Type all context values and actions
+   - Handle loading/error states
+
+#### Critical Files to Understand
+
+1. `src/design-system/index.ts` - Main design system exports
+2. `src/tools/index.ts` - Tool registry and tool type definitions
+3. `src/App.tsx` - Main routing configuration
+4. `package.json` - Dependencies and build scripts
+5. `tailwind.config.js` - Tailwind configuration and theme extensions
+
+#### Project-Specific Terms and Concepts
+
+1. **Tool**: A feature module that provides specific functionality
+2. **Design System**: The unified component library and styling system
+3. **ToolLayout**: The standard layout wrapper for all tools
+4. **JWT Toolkit**: The comprehensive JWT tool with multiple tabs/features
+5. **Foundation**: Base design tokens like colors, spacing, typography
+
+By understanding these details, you should be able to efficiently work with this codebase and implement changes that align with the existing architecture and patterns.
 
 ## 📝 License
 
