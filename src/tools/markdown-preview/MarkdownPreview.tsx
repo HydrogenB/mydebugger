@@ -157,35 +157,39 @@ const MarkdownPreview: React.FC = () => {
   
   // Convert markdown to HTML whenever content changes
   useEffect(() => {
-    try {
-      const html = marked.parse(markdown, {
-        gfm: true,
-        breaks: true,
-      });
-      setHtmlOutput(DOMPurify.sanitize(html));
-      
-      // Save to local storage
+    const parseMarkdown = async () => {
       try {
-        localStorage.setItem(STORAGE_KEY, markdown);
-      } catch (err) {
-        console.error('Error saving markdown:', err);
-      }
-      
-      // Apply syntax highlighting to code blocks
-      setTimeout(() => {
-        if (previewRef.current) {
-          const codeBlocks = previewRef.current.querySelectorAll('pre code');
-          codeBlocks.forEach((block) => {
-            Prism.highlightElement(block);
-          });
+        const html = await Promise.resolve(marked.parse(markdown, {
+          gfm: true,
+          breaks: true,
+        }));
+        setHtmlOutput(DOMPurify.sanitize(html));
+        
+        // Save to local storage
+        try {
+          localStorage.setItem(STORAGE_KEY, markdown);
+        } catch (err) {
+          console.error('Error saving markdown:', err);
         }
-      }, 0);
-      
-      setError(null);
-    } catch (err) {
-      console.error('Error parsing markdown:', err);
-      setError('Failed to parse markdown. Please check your syntax.');
-    }
+        
+        // Apply syntax highlighting to code blocks
+        setTimeout(() => {
+          if (previewRef.current) {
+            const codeBlocks = previewRef.current.querySelectorAll('pre code');
+            codeBlocks.forEach((block) => {
+              Prism.highlightElement(block);
+            });
+          }
+        }, 0);
+        
+        setError(null);
+      } catch (err) {
+        console.error('Error parsing markdown:', err);
+        setError('Failed to parse markdown. Please check your syntax.');
+      }
+    };
+    
+    parseMarkdown();
   }, [markdown]);
 
   // Reset copied state after 2 seconds
