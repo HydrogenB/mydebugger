@@ -10,7 +10,7 @@ import { ToolLayout } from '../../design-system/components/layout';
 import { Button } from '../../design-system/components/inputs';
 import { Alert, LoadingSpinner } from '../../design-system/components/feedback';
 import { getToolByRoute } from '../index';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../design-system/context/ThemeContext';
 import { Modal } from '../../design-system/components/overlays';
 import './MarkdownPreview.css'; // Import custom styles
 
@@ -131,7 +131,7 @@ const MarkdownPreview: React.FC = () => {
   const [filename, setFilename] = useState<string>('document.md');
   
   const tool = getToolByRoute('/markdown-preview');
-  const { isDarkMode: isDark } = useTheme();
+  const { isDark } = useTheme();
   
   const editorRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
