@@ -202,37 +202,73 @@ const MarkdownPreview: React.FC = () => {
     }
   }, [isCopied]);
   
+  // Break circular dependency by creating refs for the scroll handlers
+  const handlePreviewScrollRef = useRef<() => void>(() => {});
+  
   // Handle editor scroll - sync with preview if enabled
-  const handleEditorScroll = useCallback(() => {
+  const handleEditorScroll = useCallback((): void => {
     if (!syncScroll || !editorRef.current || !previewRef.current) return;
     
     const editorElement = editorRef.current;
     const previewElement = previewRef.current;
     
+    // Synchronize vertical scroll
     const editorScrollHeight = editorElement.scrollHeight - editorElement.clientHeight;
     const scrollRatio = editorElement.scrollTop / editorScrollHeight;
     
     const previewScrollHeight = previewElement.scrollHeight - previewElement.clientHeight;
     const previewScrollTop = scrollRatio * previewScrollHeight;
     
+    // Synchronize horizontal scroll
+    const editorScrollWidth = editorElement.scrollWidth - editorElement.clientWidth;
+    const horizontalScrollRatio = editorElement.scrollLeft / (editorScrollWidth || 1);
+    
+    const previewScrollWidth = previewElement.scrollWidth - previewElement.clientWidth;
+    const previewScrollLeft = horizontalScrollRatio * previewScrollWidth;
+    
+    // Apply both scrolls without triggering scroll events
+    previewElement.removeEventListener('scroll', handlePreviewScrollRef.current);
     previewElement.scrollTop = previewScrollTop;
+    previewElement.scrollLeft = previewScrollLeft;
+    setTimeout(() => {
+      previewElement.addEventListener('scroll', handlePreviewScrollRef.current);
+    }, 50);
   }, [syncScroll]);
   
   // Handle preview scroll - sync with editor if enabled
-  const handlePreviewScroll = useCallback(() => {
+  const handlePreviewScroll = useCallback((): void => {
     if (!syncScroll || !editorRef.current || !previewRef.current) return;
     
     const editorElement = editorRef.current;
     const previewElement = previewRef.current;
     
+    // Synchronize vertical scroll
     const previewScrollHeight = previewElement.scrollHeight - previewElement.clientHeight;
-    const scrollRatio = previewElement.scrollTop / previewScrollHeight;
+    const scrollRatio = previewElement.scrollTop / (previewScrollHeight || 1);
     
     const editorScrollHeight = editorElement.scrollHeight - editorElement.clientHeight;
     const editorScrollTop = scrollRatio * editorScrollHeight;
     
+    // Synchronize horizontal scroll
+    const previewScrollWidth = previewElement.scrollWidth - previewElement.clientWidth;
+    const horizontalScrollRatio = previewElement.scrollLeft / (previewScrollWidth || 1);
+    
+    const editorScrollWidth = editorElement.scrollWidth - editorElement.clientWidth;
+    const editorScrollLeft = horizontalScrollRatio * editorScrollWidth;
+    
+    // Apply both scrolls without triggering scroll events
+    editorElement.removeEventListener('scroll', handleEditorScroll);
     editorElement.scrollTop = editorScrollTop;
-  }, [syncScroll]);
+    editorElement.scrollLeft = editorScrollLeft;
+    setTimeout(() => {
+      editorElement.addEventListener('scroll', handleEditorScroll);
+    }, 50);
+  }, [syncScroll, handleEditorScroll]);
+
+  // Update the ref when the function changes
+  useEffect(() => {
+    handlePreviewScrollRef.current = handlePreviewScroll;
+  }, [handlePreviewScroll]);
 
   // Set up event listeners for scroll synchronization
   useEffect(() => {

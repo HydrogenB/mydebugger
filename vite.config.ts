@@ -8,7 +8,11 @@ export default defineConfig({
   server: {
     port: 3000,
     // Add historyApiFallback for local development SPA routing
-    historyApiFallback: true
+    historyApiFallback: true,
+    // Ensure proper MIME types for JavaScript modules
+    headers: {
+      'Content-Type': 'application/javascript; charset=utf-8'
+    }
   },
   build: {
     minify: 'esbuild', 
@@ -26,6 +30,8 @@ export default defineConfig({
         },
       },
     },
+    // Ensure the correct MIME type headers are set
+    assetsInlineLimit: 4096, // 4kb - files smaller than this will be inlined as base64
   },
   // Add polyfills for Node.js built-ins
   define: {

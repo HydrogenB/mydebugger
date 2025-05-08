@@ -50,49 +50,91 @@
   border-color: rgba(75, 85, 99, 1);
 }
 
-/* Syntax highlighting for code blocks */
-.editor-pane pre {
-  margin: 0;
-  padding: 0;
-  background: none;
+/* Enhanced code editor syntax highlighting */
+.editor-pane .w-tc-editor {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
 }
 
-/* Toolbar styles */
-.markdown-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  background-color: rgba(243, 244, 246, 1);
-  border-bottom: 1px solid rgba(209, 213, 219, 1);
+.editor-pane .w-tc-editor-text {
+  padding: 15px !important;
 }
 
-.dark .markdown-toolbar {
-  background-color: rgba(31, 41, 55, 1);
-  border-color: rgba(75, 85, 99, 1);
+/* Syntax highlighting colors for editor */
+.editor-pane .token.comment,
+.editor-pane .token.prolog,
+.editor-pane .token.doctype,
+.editor-pane .token.cdata {
+  color: #8292a2;
 }
 
-.toolbar-button {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  background-color: transparent;
-  color: rgba(107, 114, 128, 1);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-  transition: all 0.2s;
+.editor-pane .token.punctuation {
+  color: #f8f8f2;
 }
 
-.toolbar-button:hover {
-  background-color: rgba(229, 231, 235, 1);
-  color: rgba(55, 65, 81, 1);
+.editor-pane .token.namespace {
+  opacity: .7;
 }
 
-.dark .toolbar-button:hover {
-  background-color: rgba(55, 65, 81, 1);
-  color: rgba(209, 213, 219, 1);
+.editor-pane .token.property,
+.editor-pane .token.tag,
+.editor-pane .token.constant,
+.editor-pane .token.symbol,
+.editor-pane .token.deleted {
+  color: #ff79c6;
+}
+
+.editor-pane .token.boolean,
+.editor-pane .token.number {
+  color: #bd93f9;
+}
+
+.editor-pane .token.selector,
+.editor-pane .token.attr-name,
+.editor-pane .token.string,
+.editor-pane .token.char,
+.editor-pane .token.builtin,
+.editor-pane .token.inserted {
+  color: #50fa7b;
+}
+
+.editor-pane .token.operator,
+.editor-pane .token.entity,
+.editor-pane .token.url,
+.editor-pane .language-css .token.string,
+.editor-pane .style .token.string {
+  color: #f8f8f2;
+}
+
+.editor-pane .token.atrule,
+.editor-pane .token.attr-value,
+.editor-pane .token.keyword {
+  color: #8be9fd;
+}
+
+.editor-pane .token.function,
+.editor-pane .token.class-name {
+  color: #ffb86c;
+}
+
+.editor-pane .token.regex,
+.editor-pane .token.important,
+.editor-pane .token.variable {
+  color: #f1fa8c;
+}
+
+.editor-pane .token.important,
+.editor-pane .token.bold {
+  font-weight: bold;
+}
+
+.editor-pane .token.italic {
+  font-style: italic;
+}
+
+/* Line numbers */
+.editor-pane .line-numbers .line-numbers-rows {
+  border-right: 1px solid #6272a4;
 }
 
 /* Divider styles */
@@ -124,6 +166,13 @@
 .w-tc-editor {
   height: 100% !important;
   min-height: 100% !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  background-color: #282a36 !important; /* Dracula theme background */
+}
+
+/* Light mode override */
+body:not(.dark) .w-tc-editor {
+  background-color: #f8f8f2 !important; /* Light theme background */
 }
 
 .w-tc-editor-text {

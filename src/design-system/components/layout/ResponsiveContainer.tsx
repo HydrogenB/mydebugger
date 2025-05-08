@@ -59,15 +59,12 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
     xl: 'px-8 py-12'
   };
 
-  // Gutter classes (responsive spacing on the outside of the container)
-  const gutterClass = withGutter ? 'mx-4 md:mx-6 lg:mx-8' : '';
-
   // Container classes
   const containerClasses = [
     maxWidth !== 'none' ? maxWidthClasses[maxWidth] : '',
     centered ? 'mx-auto' : '',
     padding !== 'none' ? paddingClasses[padding] : '',
-    withGutter ? gutterClass : '',
+    withGutter ? 'px-4 md:px-6 lg:px-8' : '', // Consistent horizontal padding instead of margins
     className
   ].filter(Boolean).join(' ');
 

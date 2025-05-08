@@ -40,8 +40,9 @@ const Header: React.FC = () => {
           <div className="hidden md:flex md:items-center space-x-6">
             {allCategories.map((category) => {
               const CategoryIcon = categories[category].icon;
-              const categoryPath = `/category/${category.toLowerCase()}`;
-              const activeClass = isActive(categoryPath) 
+              // Fix the category path to use the category name for proper filtering
+              const categoryPath = `/?category=${encodeURIComponent(category)}`;
+              const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                 ? "text-primary-600 dark:text-primary-400" 
                 : "text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400";
               
@@ -50,7 +51,7 @@ const Header: React.FC = () => {
                   key={category}
                   to={categoryPath}
                   className={`flex items-center space-x-1 ${activeClass} transition`}
-                  aria-current={isActive(categoryPath) ? 'page' : undefined}
+                  aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
                 >
                   <CategoryIcon className="w-4 h-4" />
                   <span>{category}</span>
@@ -59,9 +60,9 @@ const Header: React.FC = () => {
             })}
             <div className="h-6 border-l border-gray-300 dark:border-gray-600"></div>
             <Link 
-              to="/tools"
+              to="/"
               className={`flex items-center space-x-1 ${
-                isActive('/tools') 
+                isActive('/') 
                   ? "text-primary-600 dark:text-primary-400" 
                   : "text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
               } transition`}
@@ -95,8 +96,9 @@ const Header: React.FC = () => {
             <div className="flex flex-col space-y-3">
               {allCategories.map((category) => {
                 const CategoryIcon = categories[category].icon;
-                const categoryPath = `/category/${category.toLowerCase()}`;
-                const activeClass = isActive(categoryPath) 
+                // Fix the category path to use the category name for proper filtering
+                const categoryPath = `/?category=${encodeURIComponent(category)}`;
+                const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                   ? "bg-gray-100 dark:bg-gray-700 text-primary-600 dark:text-primary-400" 
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
                 
@@ -105,7 +107,7 @@ const Header: React.FC = () => {
                     key={category}
                     to={categoryPath}
                     className={`flex items-center space-x-2 px-2 py-2 rounded-md ${activeClass} transition`}
-                    aria-current={isActive(categoryPath) ? 'page' : undefined}
+                    aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
                   >
                     <CategoryIcon className="w-5 h-5" />
                     <span>{category}</span>
@@ -114,9 +116,9 @@ const Header: React.FC = () => {
               })}
               <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
               <Link 
-                to="/tools"
+                to="/"
                 className={`flex items-center space-x-2 px-2 py-2 rounded-md ${
-                  isActive('/tools') 
+                  isActive('/') 
                     ? "bg-gray-100 dark:bg-gray-700 text-primary-600 dark:text-primary-400" 
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 } transition`}

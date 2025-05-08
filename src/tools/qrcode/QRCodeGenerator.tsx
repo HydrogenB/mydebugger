@@ -88,12 +88,20 @@ const DeepLinkQRGenerator: React.FC = () => {
     // Handle URL query parameter for link
     if (initialLink) {
       try {
-        // Ensure the link has a valid protocol
-        const url = new URL(initialLink);
-        setInput(decodeURIComponent(url.href));
+        // First try to decode the URL in case it's already URL encoded
+        const decodedLink = decodeURIComponent(initialLink);
+        
+        // Ensure the link has a valid protocol by trying to parse it
+        try {
+          const url = new URL(decodedLink);
+          setInput(decodedLink);
+        } catch {
+          // If no protocol, add https:// prefix
+          setInput(`https://${decodedLink}`);
+        }
       } catch (error) {
-        console.error("Invalid URL, adding default protocol:", error);
-        setInput(`https://${decodeURIComponent(initialLink)}`);
+        console.error("Invalid URL:", error);
+        setInput(initialLink); // Use as-is if decoding fails
       }
     }
   }, [initialLink]);
@@ -297,9 +305,23 @@ const DeepLinkQRGenerator: React.FC = () => {
   const handleSharePageWithLink = () => {
     if (!input) return;
     
-    const currentUrl = new URL(window.location.href);
-    currentUrl.search = `?link=${encodeURIComponent(input)}`;
-    copyToClipboard(currentUrl.toString(), "Shareable link copied! Send to your team.");
+    try {
+      // Create a URL object for the current page
+      const currentUrl = new URL(window.location.href);
+      
+      // Reset any existing search parameters
+      currentUrl.search = '';
+      
+      // Add the properly encoded link parameter
+      const encodedLink = encodeURIComponent(input);
+      currentUrl.searchParams.set('link', encodedLink);
+      
+      // Copy the full URL to clipboard
+      copyToClipboard(currentUrl.toString(), "Shareable link copied! Send to your team.");
+    } catch (error) {
+      console.error("Error creating shareable link:", error);
+      setToastMessage("Error creating shareable link");
+    }
   };
   
   const handleReset = () => {

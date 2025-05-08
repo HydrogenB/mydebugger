@@ -44,15 +44,15 @@ const Footer: React.FC = () => {
                 </a>
               </li>
               <li>
-                <Link to="/tools" className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition flex items-center">
+                <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition flex items-center">
                   <span className="mr-2">{getIcon('tool')}</span>
                   Tools
                 </Link>
               </li>
               <li>
-                <Link to="/debug" className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition flex items-center">
+                <Link to="/jwt" className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition flex items-center">
                   <span className="mr-2">{getIcon('bug')}</span>
-                  Debug
+                  JWT Tools
                 </Link>
               </li>
             </ul>
