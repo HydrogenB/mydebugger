@@ -594,60 +594,71 @@ export const BuilderWizard: React.FC = () => {
   
   return (
     <>
-      <Card className="mb-6">
-        <TabGroup>
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <Tab 
-              id="header-tab"
-              isActive={activeStep === 'header'} 
-              onClick={() => setActiveStep('header')}
-            >
-              1. Header
-            </Tab>
-            <Tab 
-              id="payload-tab"
-              isActive={activeStep === 'payload'} 
-              onClick={() => setActiveStep('payload')}
-            >
-              2. Payload
-            </Tab>
-            <Tab 
-              id="signature-tab"
-              isActive={activeStep === 'signature'} 
-              onClick={() => setActiveStep('signature')}
-            >
-              3. Signature
-            </Tab>
+      <div className="flex justify-center">
+        <div className="w-full max-w-5xl px-4 py-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2">JWT Builder</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Create and sign custom JSON Web Tokens with our step-by-step wizard.
+            </p>
           </div>
-          
-          {activeStep === 'header' && renderHeaderStep()}
-          {activeStep === 'payload' && renderPayloadStep()}
-          {activeStep === 'signature' && renderSignatureStep()}
-        </TabGroup>
-      </Card>
       
-      <Card>
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Generated Token</h3>
-          <Badge color="info">Size: {tokenSizeBytes} bytes</Badge>
-        </div>
-        
-        <div className="p-4">
-          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-sm overflow-x-auto whitespace-nowrap">
-            {generatedToken || 'Your token will appear here...'}
-          </div>
+          <Card className="mb-6">
+            <TabGroup>
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <Tab 
+                  id="header-tab"
+                  isActive={activeStep === 'header'} 
+                  onClick={() => setActiveStep('header')}
+                >
+                  1. Header
+                </Tab>
+                <Tab 
+                  id="payload-tab"
+                  isActive={activeStep === 'payload'} 
+                  onClick={() => setActiveStep('payload')}
+                >
+                  2. Payload
+                </Tab>
+                <Tab 
+                  id="signature-tab"
+                  isActive={activeStep === 'signature'} 
+                  onClick={() => setActiveStep('signature')}
+                >
+                  3. Signature
+                </Tab>
+              </div>
+              
+              {activeStep === 'header' && renderHeaderStep()}
+              {activeStep === 'payload' && renderPayloadStep()}
+              {activeStep === 'signature' && renderSignatureStep()}
+            </TabGroup>
+          </Card>
           
-          <div className="mt-4 flex justify-end">
-            <Button 
-              onClick={handleCopyToken}
-              variant="primary"
-              disabled={!generatedToken}
-            >
-              {copied ? 'Copied!' : 'Copy Token'}
-            </Button>
-          </div>
+          <Card>
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Generated Token</h3>
+              <Badge color="info">Size: {tokenSizeBytes} bytes</Badge>
+            </div>
+            
+            <div className="p-4">
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md border border-gray-200 dark:border-gray-700 font-mono text-sm overflow-x-auto whitespace-nowrap">
+                {generatedToken || 'Your token will appear here...'}
+              </div>
+              
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  onClick={handleCopyToken}
+                  variant="primary"
+                  disabled={!generatedToken}
+                >
+                  {copied ? 'Copied!' : 'Copy Token'}
+                </Button>
+              </div>
+            </div>
+          </Card>
         </div>
-      </Card>
+      </div>
     </>
   );
 };

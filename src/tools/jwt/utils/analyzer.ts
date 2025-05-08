@@ -91,6 +91,28 @@ const checkExpiration = (jwt: JwtInfo): Finding | null => {
   return null;
 };
 
+const checkImpendingExpiration = (jwt: JwtInfo): Finding | null => {
+  const expTimestamp = jwt.payload.exp;
+  
+  if (expTimestamp) {
+    const now = Math.floor(Date.now() / 1000);
+    const minutesUntilExpiry = Math.floor((expTimestamp - now) / 60);
+    
+    // Warning if token expires in less than 5 minutes
+    if (expTimestamp > now && minutesUntilExpiry < 5) {
+      return {
+        id: 'JWT-EXPIRING-SOON',
+        title: `Token expires soon (${minutesUntilExpiry} minute${minutesUntilExpiry !== 1 ? 's' : ''})`,
+        description: `This token will expire in ${minutesUntilExpiry} minute${minutesUntilExpiry !== 1 ? 's' : ''} at ${new Date(expTimestamp * 1000).toLocaleString()}.`,
+        severity: 'info',
+        recommendation: 'Consider refreshing this token soon to prevent authentication failures.'
+      };
+    }
+  }
+  
+  return null;
+};
+
 const checkIssueTime = (jwt: JwtInfo): Finding | null => {
   const iatTimestamp = jwt.payload.iat;
   
@@ -196,6 +218,79 @@ const checkKid = (jwt: JwtInfo): Finding | null => {
   return null;
 };
 
+const checkUnsafeJWTConstructs = (jwt: JwtInfo): Finding | null => {
+  // Check for "typ": "JWT" in header
+  if (!jwt.header.typ) {
+    return {
+      id: 'JWT-NO-TYP',
+      title: 'Missing type header (typ)',
+      description: 'This token does not specify the "typ" header, which helps identify it as a JWT token.',
+      severity: 'low',
+      recommendation: 'Include a "typ" header set to "JWT" to clearly identify the token type.'
+    };
+  } else if (jwt.header.typ !== 'JWT') {
+    return {
+      id: 'JWT-UNUSUAL-TYP',
+      title: `Unusual token type: "${jwt.header.typ}"`,
+      description: `This token uses an unusual "typ" value. Standard JWTs use "typ": "JWT".`,
+      severity: 'info',
+      recommendation: `Verify that the "typ": "${jwt.header.typ}" is expected for your application.`
+    };
+  }
+  
+  return null;
+};
+
+const checkAlgVsSignature = (jwt: JwtInfo): Finding | null => {
+  // Check if token claims to use a signature algorithm but has no/empty signature
+  if (jwt.header.alg && jwt.header.alg !== 'none' && (!jwt.signature || jwt.signature === '')) {
+    return {
+      id: 'JWT-MISSING-SIG',
+      title: 'Missing signature despite algorithm',
+      description: `This token uses algorithm "${jwt.header.alg}" but has no signature part.`,
+      severity: 'high',
+      recommendation: 'This token is malformed and should be rejected. A proper JWT with this algorithm requires a signature.'
+    };
+  }
+  
+  return null;
+};
+
+const checkNestedJWT = (jwt: JwtInfo): Finding | null => {
+  // Check for nested JWT patterns in payload
+  const payload = jwt.payload;
+  // Look through all string values to find potential nested JWTs
+  for (const [key, value] of Object.entries(payload)) {
+    if (typeof value === 'string' && /^ey[A-Za-z0-9_-]+\.ey[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(value)) {
+      return {
+        id: 'JWT-NESTED',
+        title: `Nested JWT detected in "${key}" claim`,
+        description: `This token contains what appears to be another JWT in the "${key}" claim. Nested tokens can create security challenges.`,
+        severity: 'medium',
+        recommendation: 'Consider flattening the token structure or reviewing your architecture to avoid nested tokens.'
+      };
+    }
+  }
+  
+  return null;
+};
+
+// New check for critical claims in JWT
+const checkCriticalClaims = (jwt: JwtInfo): Finding | null => {
+  // Check for "crit" header which is a special header for critical claims
+  if (jwt.header.crit) {
+    return {
+      id: 'JWT-CRIT-CLAIM',
+      title: 'Critical claims extension detected',
+      description: 'This token uses the "crit" header parameter, which requires special handling by JWT processors.',
+      severity: 'medium',
+      recommendation: 'Verify that your JWT processor correctly handles the critical claims extension and rejects the token if it doesn\'t understand the critical claims.'
+    };
+  }
+  
+  return null;
+};
+
 /**
  * Analyze a JWT token for potential security issues
  * @param jwt The parsed JWT information
@@ -208,11 +303,16 @@ export const analyzeToken = (jwt: JwtInfo): Finding[] => {
   const checks = [
     checkNoneAlgorithm,
     checkExpiration,
+    checkImpendingExpiration, // New check
     checkIssueTime,
     checkNotBefore,
     checkWeakAlgorithm,
     checkAudience,
     checkKid,
+    checkUnsafeJWTConstructs, // New check
+    checkAlgVsSignature, // New check
+    checkNestedJWT, // New check
+    checkCriticalClaims, // Added new check
   ];
   
   for (const check of checks) {

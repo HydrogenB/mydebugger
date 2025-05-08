@@ -30,6 +30,7 @@ interface JwtState {
   error: string | null;
   history: HistoryItem[];
   securityIssues: SecurityIssue[];
+  parsingWarnings: string[];
 }
 
 // Interface for security findings
@@ -51,6 +52,7 @@ type JwtAction =
   | { type: 'CLEAR_HISTORY' }
   | { type: 'REMOVE_HISTORY_ITEM'; payload: string }
   | { type: 'SET_SECURITY_ISSUES'; payload: SecurityIssue[] }
+  | { type: 'SET_PARSING_WARNINGS'; payload: string[] }
   | { type: 'RESET' };
 
 // Initial state
@@ -62,6 +64,7 @@ const initialState: JwtState = {
   error: null,
   history: [],
   securityIssues: [],
+  parsingWarnings: [],
 };
 
 // State reducer
@@ -92,6 +95,8 @@ function jwtReducer(state: JwtState, action: JwtAction): JwtState {
       };
     case 'SET_SECURITY_ISSUES':
       return { ...state, securityIssues: action.payload };
+    case 'SET_PARSING_WARNINGS':
+      return { ...state, parsingWarnings: action.payload };
     case 'RESET':
       return initialState;
     default:
@@ -152,13 +157,26 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       dispatch({ type: 'SET_DECODED', payload: null });
       dispatch({ type: 'SET_ERROR', payload: null });
       dispatch({ type: 'SET_VERIFIED', payload: null });
+      dispatch({ type: 'SET_PARSING_WARNINGS', payload: [] });
       return;
     }
     
     try {
+      // Clean up the token - handle "Bearer" prefix and whitespace
+      token = token.trim();
+      if (token.toLowerCase().startsWith('bearer ')) {
+        token = token.substring(7).trim();
+      }
+      
       // Try to import the worker if available
       const cryptoWorker = await import('../workers/cryptoWorker');
       const decoded = await cryptoWorker.decode(token);
+      
+      // Track warnings that are not fatal errors
+      const warnings: string[] = [];
+      if (decoded.error) {
+        warnings.push(decoded.error);
+      }
       
       // Convert DecodedJwt to JwtParts
       if (decoded.header && decoded.payload && decoded.signature) {
@@ -172,6 +190,7 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         dispatch({ type: 'SET_TOKEN', payload: token });
         dispatch({ type: 'SET_DECODED', payload: jwtParts });
         dispatch({ type: 'SET_ERROR', payload: null });
+        dispatch({ type: 'SET_PARSING_WARNINGS', payload: warnings });
         
         // Reset verification status when token changes
         dispatch({ type: 'SET_VERIFIED', payload: null });
@@ -202,24 +221,43 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       dispatch({ type: 'SET_DECODED', payload: null });
       dispatch({ type: 'SET_VERIFIED', payload: null });
+      dispatch({ type: 'SET_PARSING_WARNINGS', payload: [] });
     }
   };
 
   // Helper to verify the signature
   const verifySignature = async (algorithm: string, key: string): Promise<void> => {
-    if (!state.decoded || !key) return;
+    if (!state.token || !key) {
+      dispatch({ type: 'SET_VERIFIED', payload: null });
+      return;
+    }
     
     try {
       // Try to import the worker if available
       const cryptoWorker = await import('../workers/cryptoWorker');
+      
+      // The cryptoWorker now has enhanced key format detection
+      // so we can directly pass the key as is
       const isValid = await cryptoWorker.verify(
         state.token,
         key,
-        algorithm || state.decoded.header.alg
+        algorithm || (state.decoded?.header?.alg || 'HS256')
       );
       
       dispatch({ type: 'SET_VERIFICATION_KEY', payload: key });
       dispatch({ type: 'SET_VERIFIED', payload: isValid });
+      
+      // If verification failed, check if algorithm mismatch
+      if (!isValid && state.decoded && algorithm && state.decoded.header.alg !== algorithm) {
+        dispatch({ 
+          type: 'SET_ERROR', 
+          payload: `Algorithm mismatch: Token uses ${state.decoded.header.alg} but ${algorithm} was specified for verification`
+        });
+      } else if (!isValid) {
+        dispatch({ type: 'SET_ERROR', payload: 'Signature verification failed' });
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: null });
+      }
     } catch (err) {
       dispatch({ 
         type: 'SET_ERROR', 
@@ -279,14 +317,58 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     
     // Check for weak algorithm
+    if (state.decoded.header.alg) {
+      if (!['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512', 
+             'ES256', 'ES384', 'ES512', 'PS256', 'PS384', 'PS512'].includes(state.decoded.header.alg)) {
+        issues.push({
+          id: 'unsupported-algorithm',
+          severity: 'high',
+          title: 'Unsupported Algorithm',
+          description: `Algorithm ${state.decoded.header.alg} is not among the standard supported JWT algorithms.`
+        });
+      }
+      else if (['HS256', 'RS256'].includes(state.decoded.header.alg)) {
+        issues.push({
+          id: 'weak-algorithm',
+          severity: 'info',
+          title: 'Consider Stronger Algorithm',
+          description: `Algorithm ${state.decoded.header.alg} is widely used but consider stronger alternatives like ES256 or PS256 for better security.`
+        });
+      }
+    }
+    
+    // Check for missing key ID in asymmetric algorithms
     if (state.decoded.header.alg && 
-        ['HS256', 'RS256', 'ES256'].indexOf(state.decoded.header.alg) === -1) {
+        !state.decoded.header.alg.startsWith('HS') && 
+        !state.decoded.header.kid) {
       issues.push({
-        id: 'weak-algorithm',
-        severity: 'info',
-        title: 'Algorithm Consideration',
-        description: `Algorithm ${state.decoded.header.alg} is used. Consider using HS256, RS256, or ES256.`
+        id: 'missing-kid',
+        severity: 'low',
+        title: 'Missing Key Identifier',
+        description: 'This token uses an asymmetric algorithm but has no "kid" (key ID) claim in the header.'
       });
+    }
+    
+    // Check for proper values in standard claims
+    if (state.decoded.payload.iat && typeof state.decoded.payload.iat !== 'number') {
+      issues.push({
+        id: 'invalid-iat',
+        severity: 'medium',
+        title: 'Invalid Issued At Claim',
+        description: 'The "iat" claim should be a numeric timestamp.'
+      });
+    }
+    
+    if (state.decoded.payload.nbf) {
+      const nbfTime = state.decoded.payload.nbf * 1000;
+      if (nbfTime > Date.now()) {
+        issues.push({
+          id: 'future-nbf',
+          severity: 'medium',
+          title: 'Token Not Yet Valid',
+          description: `This token is not valid until ${new Date(nbfTime).toLocaleString()}.`
+        });
+      }
     }
     
     dispatch({ type: 'SET_SECURITY_ISSUES', payload: issues });
@@ -344,126 +426,14 @@ export const useJwt = () => {
   return context;
 };
 
+// Legacy simplified provider for backward compatibility
 export const JwtContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [jwtToken, setJwtToken] = useState<string>('');
-  const [decodedJwt, setDecodedJwt] = useState<JwtParts | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [secret, setSecret] = useState<string>('');
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
-  const [jwksUrl, setJwksUrl] = useState<string>('');
-  const [jwksData, setJwksData] = useState<any | null>(null);
-  const [algorithmBenchmarks, setAlgorithmBenchmarks] = useState<Record<string, number | null>>({
-    HS256: null,
-    HS384: null,
-    HS512: null,
-    RS256: null,
-    RS384: null,
-    RS512: null,
-    ES256: null,
-    ES384: null,
-    ES512: null,
-    PS256: null,
-    PS384: null,
-    PS512: null
-  });
-
-  // Decode JWT token
-  const decodeToken = (token: string) => {
-    if (!token) {
-      setDecodedJwt(null);
-      setError(null);
-      setIsVerified(null);
-      return;
-    }
-    
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT format. Expected three parts separated by dots.');
-      }
-      
-      const decoded: JwtParts = {
-        header: JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'))),
-        payload: JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))),
-        signature: parts[2],
-        raw: {
-          header: parts[0],
-          payload: parts[1],
-          signature: parts[2]
-        }
-      };
-      
-      setDecodedJwt(decoded);
-      setError(null);
-      
-      // Reset verification status when token changes
-      setIsVerified(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to decode JWT');
-      setDecodedJwt(null);
-      setIsVerified(null);
-    }
-  };
-
-  // Verify JWT signature
-  const verifySignature = async (token: string, secretKey: string): Promise<boolean> => {
-    if (!token || !secretKey) return false;
-    
-    try {
-      // Use WebCrypto API for verification
-      // This is a placeholder - in a real implementation we would verify against the crypto worker
-      // For now we'll just simulate verification success based on having a secret
-      const isValid = secretKey.length > 5;
-      setIsVerified(isValid);
-      return isValid;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify JWT');
-      setIsVerified(false);
-      return false;
-    }
-  };
-
-  // Create proper context value matching JwtContextType
-  const value: JwtContextType = {
-    state: {
-      token: jwtToken, 
-      decoded: decodedJwt,
-      isVerified,
-      verificationKey: secret,
-      error,
-      history: [],
-      securityIssues: []
-    },
-    dispatch: () => {}, // No-op for compatibility
-    decodeToken: (token) => {
-      decodeToken(token);
-      return Promise.resolve();
-    },
-    verifySignature: (algorithm, key) => {
-      // Call verifySignature but ignore the boolean return value
-      // as the JwtContextType expects Promise<void> not Promise<boolean>
-      return verifySignature(jwtToken, key).then(() => {});
-    },
-    analyzeToken: () => {
-      // Implementation not needed for build to pass
-    },
-    shareToken: () => {
-      // Return a shareable URL
-      return window.location.href;
-    },
-    loadFromHash: async () => {
-      // Implementation not needed for build to pass
-      return false;
-    }
-  };
-
-  return <JwtContext.Provider value={value}>{children}</JwtContext.Provider>;
+  // Implementation using the enhanced JwtProvider
+  const jwtContext = useJwt();
+  
+  return <>{children}</>;
 };
 
 export const useJwtContext = () => {
-  const context = useContext(JwtContext);
-  if (!context) {
-    throw new Error('useJwtContext must be used within a JwtContextProvider');
-  }
-  return context;
+  return useJwt();
 };

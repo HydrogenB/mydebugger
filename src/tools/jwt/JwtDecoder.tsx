@@ -5,65 +5,39 @@ import Button from '../../design-system/components/inputs/Button';
 import { Alert } from '../../design-system/components/feedback/Alert';
 import { Badge } from '../../design-system/components/display';
 import { Tooltip } from '../../design-system/components/overlays';
-
-interface JwtParts {
-  header: any;
-  payload: any;
-  signature: string;
-  raw: {
-    header: string;
-    payload: string;
-    signature: string;
-  }
-}
+import { useJwt } from './context/JwtContext';
 
 const JwtDecoder: React.FC = () => {
+  // Use the enhanced context instead of local state
+  const { state, decodeToken, verifySignature, analyzeToken } = useJwt();
+  const { token, decoded, error, isVerified, verificationKey, securityIssues, parsingWarnings } = state;
+  
   const [jwtToken, setJwtToken] = useState<string>('');
-  const [decoded, setDecoded] = useState<JwtParts | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [secret, setSecret] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const [secret, setSecret] = useState<string>('');
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState<'json' | 'table'>('table');
+  const [activeTab, setActiveTab] = useState<'json' | 'table'>('json');  // Setting default tab to JSON
+  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('');
   
-  // Decode JWT token when it changes
+  // Update local state from context state
   useEffect(() => {
-    if (!jwtToken) {
-      setDecoded(null);
-      setError(null);
-      setIsVerified(null);
-      return;
-    }
-    
-    try {
-      const parts = jwtToken.split('.');
-      if (parts.length !== 3) {
-        throw new Error('Invalid JWT format. Expected three parts separated by dots.');
+    setJwtToken(token);
+  }, [token]);
+  
+  useEffect(() => {
+    setSecret(verificationKey);
+  }, [verificationKey]);
+
+  // Decode JWT token when it changes in the textarea
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (jwtToken !== token) {
+        decodeToken(jwtToken);
       }
-      
-      const decoded: JwtParts = {
-        header: JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/'))),
-        payload: JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))),
-        signature: parts[2],
-        raw: {
-          header: parts[0],
-          payload: parts[1],
-          signature: parts[2]
-        }
-      };
-      
-      setDecoded(decoded);
-      setError(null);
-      
-      // Reset verification status when token changes
-      setIsVerified(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to decode JWT');
-      setDecoded(null);
-      setIsVerified(null);
-    }
-  }, [jwtToken]);
+    }, 300); // Debounce
+    
+    return () => clearTimeout(timeoutId);
+  }, [jwtToken, token, decodeToken]);
   
   // Reset copied state after 2 seconds
   useEffect(() => {
@@ -84,35 +58,62 @@ const JwtDecoder: React.FC = () => {
   
   const handleReset = () => {
     setJwtToken('');
-    setDecoded(null);
-    setError(null);
     setSecret('');
-    setIsVerified(null);
+    setSelectedAlgorithm('');
   };
 
   const handleGenerateExample = () => {
     // Generate an example token that will expire in 1 hour
-    const header = { alg: 'HS256', typ: 'JWT' };
+    const now = Math.floor(Date.now() / 1000);
+    const header = { 
+      alg: 'HS256', 
+      typ: 'JWT',
+      kid: 'example-key-id'
+    };
     const payload = {
+      // Standard JWT claims
       sub: '1234567890',
       name: 'John Doe',
-      admin: true,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 3600
+      email: 'john.doe@example.com',
+      iss: 'https://auth.example.com',
+      aud: 'client-id-123',
+      iat: now,
+      exp: now + 3600, // 1 hour from now
+      nbf: now,
+      jti: crypto.randomUUID().replace(/-/g, ''),
+      
+      // Additional common claims
+      given_name: 'John',
+      family_name: 'Doe',
+      nickname: 'Johnny',
+      preferred_username: 'john.doe',
+      picture: 'https://example.com/profile/johndoe.jpg',
+      website: 'https://johndoe.example.com',
+      gender: 'male',
+      birthdate: '1990-01-01',
+      phone_number: '+1-202-555-0123',
+      address: {
+        street_address: '123 Main St',
+        locality: 'Anytown',
+        region: 'State',
+        postal_code: '12345',
+        country: 'US'
+      },
+      roles: ['user', 'admin'],
+      scope: 'openid profile email',
+      auth_time: now - 300, // 5 minutes ago
+      sid: 'session_id_123456',
+      amr: ['pwd'], // Authentication Methods References
+      azp: 'authorized-party-123', // Authorized party
     };
     
     // This is just a mock token for demonstration
-    const exampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjM5MDIyfQ.sQGRWSev5kAPlYYkQgA1voON4tZdotVJO0xsJCRrCOw';
+    const exampleToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImV4YW1wbGUta2V5LWlkIn0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlzcyI6Imh0dHBzOi8vYXV0aC5leGFtcGxlLmNvbSIsImF1ZCI6ImNsaWVudC1pZC0xMjMiLCJpYXQiOjE2ODMyMDM1MjQsImV4cCI6MTY4MzIwNzEyNCwibmJmIjoxNjgzMjAzNTI0LCJqdGkiOiI4OTg5OGVlOGQ1YjI0ZjdkYjkzM2MwZGFiZDQzMWJjOCIsImdpdmVuX25hbWUiOiJKb2huIiwiZmFtaWx5X25hbWUiOiJEb2UiLCJuaWNrbmFtZSI6IkpvaG5ueSIsInByZWZlcnJlZF91c2VybmFtZSI6ImpvaG4uZG9lIiwicGljdHVyZSI6Imh0dHBzOi8vZXhhbXBsZS5jb20vcHJvZmlsZS9qb2huZG9lLmpwZyIsIndlYnNpdGUiOiJodHRwczovL2pvaG5kb2UuZXhhbXBsZS5jb20iLCJnZW5kZXIiOiJtYWxlIiwiYmlydGhkYXRlIjoiMTk5MC0wMS0wMSIsInBob25lX251bWJlciI6IisxLTIwMi01NTUtMDEyMyIsImFkZHJlc3MiOnsic3RyZWV0X2FkZHJlc3MiOiIxMjMgTWFpbiBTdCIsImxvY2FsaXR5IjoiQW55dG93biIsInJlZ2lvbiI6IlN0YXRlIiwicG9zdGFsX2NvZGUiOiIxMjM0NSIsImNvdW50cnkiOiJVUyJ9LCJyb2xlcyI6WyJ1c2VyIiwiYWRtaW4iXSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsImF1dGhfdGltZSI6MTY4MzIwMzIyNCwic2lkIjoic2Vzc2lvbl9pZF8xMjM0NTYiLCJhbXIiOlsicHdkIl0sImF6cCI6ImF1dGhvcml6ZWQtcGFydHktMTIzIn0.xlj7zV5XM7XQg6qNTDxXkpnyb9-4k9JSbzWl6YCGrX4';
     setJwtToken(exampleToken);
   };
   
-  const verifySignature = () => {
-    // In a real implementation, we would use a JWT library to verify the signature
-    // For now, just simulate verification to demonstrate UI flow
-    if (!decoded || !secret) return;
-    
-    // Simulated verification - in reality would check cryptographically
-    setIsVerified(secret.length > 10);
+  const handleVerifySignature = () => {
+    verifySignature(selectedAlgorithm, secret);
   };
   
   const formatDate = (timestamp: number): string => {
@@ -158,6 +159,17 @@ const JwtDecoder: React.FC = () => {
       default: return 'text-gray-600';
     }
   };
+
+  // Get security issue severity color
+  const getSeverityColor = (severity: string): string => {
+    switch(severity) {
+      case 'high': return 'text-red-600 dark:text-red-400';
+      case 'medium': return 'text-orange-600 dark:text-orange-400';
+      case 'low': return 'text-yellow-600 dark:text-yellow-400';
+      case 'info': return 'text-blue-600 dark:text-blue-400';
+      default: return 'text-gray-600 dark:text-gray-400';
+    }
+  };
   
   // SEO metadata
   const pageTitle = "JWT Decoder | MyDebugger";
@@ -178,19 +190,22 @@ const JwtDecoder: React.FC = () => {
         <link rel="canonical" href="https://mydebugger.vercel.app/jwt" />
       </Helmet>
     
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">JSON Web Token (JWT) Debugger</h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Decode, verify, and analyze JSON Web Tokens (JWT) instantly. All processing happens in your browser.
-        </p>
-        
-        <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 border border-yellow-200 dark:border-yellow-800 rounded-md">
-          <p className="text-yellow-800 dark:text-yellow-200 flex items-center">
-            <span className="mr-2">🔒</span>
-            <span className="font-bold">For your protection:</span> All JWT debugging and validation happens entirely in your browser. 
-            Your tokens and keys are never sent to any server.
-          </p>
-        </div>
+      <div className="flex justify-center">
+        <div className="w-full max-w-5xl px-4 py-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-2">JSON Web Token (JWT) Debugger</h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Decode, verify, and analyze JSON Web Tokens (JWT) instantly. All processing happens in your browser.
+            </p>
+          </div>
+          
+          <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 p-4 border border-yellow-200 dark:border-yellow-800 rounded-md">
+            <p className="text-yellow-800 dark:text-yellow-200 flex items-center justify-center">
+              <span className="mr-2">🔒</span>
+              <span className="font-bold">For your protection:</span> All JWT debugging and validation happens entirely in your browser. 
+              Your tokens and keys are never sent to any server.
+            </p>
+          </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left panel - Input */}
@@ -207,13 +222,24 @@ const JwtDecoder: React.FC = () => {
                   className="w-full font-mono text-sm rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 flex-1 min-h-[300px]"
                   value={jwtToken}
                   onChange={(e) => setJwtToken(e.target.value)}
-                  placeholder="Paste your JWT token here..."
+                  placeholder="Paste your JWT token here... (supports Bearer tokens and plain JWT)"
                   autoFocus
                   spellCheck="false"
                 />
                 
                 {error && (
                   <Alert type="error" className="mt-4">{error}</Alert>
+                )}
+
+                {parsingWarnings && parsingWarnings.length > 0 && (
+                  <Alert type="warning" className="mt-4">
+                    <div className="font-medium mb-1">Parsing Warnings:</div>
+                    <ul className="list-disc pl-5 text-sm">
+                      {parsingWarnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </Alert>
                 )}
                 
                 {decoded && (
@@ -378,6 +404,13 @@ const JwtDecoder: React.FC = () => {
                                           <span className={value ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
                                             {String(value)}
                                           </span>
+                                        ) : typeof value === 'object' && value !== null ? (
+                                          <details>
+                                            <summary className="cursor-pointer">View Object</summary>
+                                            <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-auto max-h-40">
+                                              {JSON.stringify(value, null, 2)}
+                                            </pre>
+                                          </details>
                                         ) : (
                                           String(value)
                                         )}
@@ -408,28 +441,71 @@ const JwtDecoder: React.FC = () => {
                           Signature algorithm: <span className="font-medium">{decoded.header.alg || 'HS256'}</span>
                         </p>
                         
-                        <div className="flex flex-col sm:flex-row sm:items-end">
-                          <div className="flex-grow mb-2 sm:mb-0 sm:mr-2">
-                            <label htmlFor="secret-key" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                              Secret key
+                        <div className="flex flex-col">
+                          <div className="flex-grow mb-2">
+                            <label htmlFor="algorithm-select" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                              Algorithm (optional, override header)
                             </label>
-                            <input
+                            <select
+                              id="algorithm-select"
+                              className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                              value={selectedAlgorithm}
+                              onChange={(e) => setSelectedAlgorithm(e.target.value)}
+                            >
+                              <option value="">Use algorithm from header</option>
+                              <optgroup label="HMAC">
+                                <option value="HS256">HS256</option>
+                                <option value="HS384">HS384</option>
+                                <option value="HS512">HS512</option>
+                              </optgroup>
+                              <optgroup label="RSA">
+                                <option value="RS256">RS256</option>
+                                <option value="RS384">RS384</option>
+                                <option value="RS512">RS512</option>
+                              </optgroup>
+                              <optgroup label="RSA-PSS">
+                                <option value="PS256">PS256</option>
+                                <option value="PS384">PS384</option>
+                                <option value="PS512">PS512</option>
+                              </optgroup>
+                              <optgroup label="ECDSA">
+                                <option value="ES256">ES256</option>
+                                <option value="ES384">ES384</option>
+                                <option value="ES512">ES512</option>
+                              </optgroup>
+                            </select>
+                          </div>
+
+                          <div className="flex-grow mb-2">
+                            <label htmlFor="secret-key" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                              Secret/Verification key
+                            </label>
+                            <textarea
                               id="secret-key"
-                              type="text"
+                              rows={3}
                               className="w-full font-mono text-xs rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
                               value={secret}
                               onChange={(e) => setSecret(e.target.value)}
-                              placeholder={decoded.header.alg?.startsWith('HS') ? "Enter your secret key..." : "Enter your verification key..."}
+                              placeholder={
+                                decoded.header.alg?.startsWith('HS') 
+                                ? "Enter your secret key... (raw string or base64 encoded)" 
+                                : decoded.header.alg?.startsWith('RS') || decoded.header.alg?.startsWith('PS') 
+                                ? "Enter your RSA public key (PEM format supported)"
+                                : "Enter your verification key..."
+                              }
                             />
                           </div>
-                          <Button 
-                            onClick={verifySignature} 
-                            variant="primary"
-                            size="sm"
-                            disabled={!secret}
-                          >
-                            Verify
-                          </Button>
+                          
+                          <div className="flex justify-end">
+                            <Button 
+                              onClick={handleVerifySignature} 
+                              variant="primary"
+                              size="sm"
+                              disabled={!secret}
+                            >
+                              Verify
+                            </Button>
+                          </div>
                         </div>
                         
                         {isVerified !== null && (
@@ -457,6 +533,53 @@ const JwtDecoder: React.FC = () => {
                         )}
                       </div>
                     </div>
+
+                    {/* Security Issues */}
+                    {securityIssues && securityIssues.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
+                          <span>SECURITY ANALYSIS</span>
+                          <Badge 
+                            color={securityIssues.some(i => i.severity === 'high') 
+                              ? "danger" 
+                              : securityIssues.some(i => i.severity === 'medium') 
+                                ? "warning" 
+                                : "info"}
+                            className="ml-2"
+                          >
+                            {securityIssues.length} Issue{securityIssues.length !== 1 ? 's' : ''}
+                          </Badge>
+                        </h3>
+
+                        <div className="bg-gray-50 dark:bg-gray-800 rounded-md text-sm">
+                          {securityIssues.map((issue) => (
+                            <div 
+                              key={issue.id}
+                              className="p-3 border-b last:border-b-0 border-gray-100 dark:border-gray-700"
+                            >
+                              <div className="flex justify-between items-center mb-1">
+                                <h4 className={`font-medium ${getSeverityColor(issue.severity)}`}>
+                                  {issue.title}
+                                </h4>
+                                <Badge 
+                                  color={
+                                    issue.severity === 'high' ? "danger" :
+                                    issue.severity === 'medium' ? "warning" :
+                                    issue.severity === 'low' ? "yellow" : "info"
+                                  }
+                                  size="sm"
+                                >
+                                  {issue.severity}
+                                </Badge>
+                              </div>
+                              <p className="text-gray-600 dark:text-gray-400">
+                                {issue.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -504,6 +627,7 @@ const JwtDecoder: React.FC = () => {
           </Card>
         </div>
       </div>
+    </div>
     </>
   );
 };
