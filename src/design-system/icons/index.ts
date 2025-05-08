@@ -44,7 +44,8 @@ export type IconName =
   | 'test'
   | 'bug'
   | 'link'
-  | 'document';
+  | 'document'
+  | 'tool'; // Added for tool icon
 
 const icons: Record<IconName, string> = {
   // UI icons
@@ -89,7 +90,8 @@ const icons: Record<IconName, string> = {
   'test': '🧪',
   'bug': '🐞',
   'link': '🔗',
-  'document': '📄'
+  'document': '📄',
+  'tool': '🔧' // Added for tool icon
 };
 
 /**
