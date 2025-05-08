@@ -161,7 +161,6 @@ const MarkdownPreview: React.FC = () => {
       const html = marked.parse(markdown, {
         gfm: true,
         breaks: true,
-        headerIds: true,
       });
       setHtmlOutput(DOMPurify.sanitize(html));
       
