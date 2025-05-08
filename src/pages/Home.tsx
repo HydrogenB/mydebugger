@@ -116,21 +116,21 @@ const Home: React.FC = () => {
 
       {/* Featured Tool - Markdown Preview */}
       {markdownPreviewTool && (
-        <div className="mb-12 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-lg border border-emerald-100 dark:border-emerald-800">
+        <div className="mb-12 bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-xl p-6 border border-teal-100 dark:border-teal-800 shadow-md">
           <div className="flex flex-col md:flex-row items-center">
             <div className="mb-6 md:mb-0 md:mr-8 flex-shrink-0">
-              <div className="p-4 bg-emerald-100 dark:bg-emerald-800 rounded-full">
-                <markdownPreviewTool.icon className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+              <div className="p-4 bg-teal-100 dark:bg-teal-800 rounded-full">
+                <markdownPreviewTool.icon className="h-12 w-12 text-teal-600 dark:text-teal-400" />
               </div>
             </div>
-            <div className="flex-grow md:mr-8">
-              <div className="flex items-center mb-2">
+            <div className="flex-grow md:mr-8 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start mb-2">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{markdownPreviewTool.title}</h2>
                 <Badge variant="success" size="sm" className="ml-3">NEW</Badge>
               </div>
               <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">{markdownPreviewTool.description}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Create documentation, format README files, and preview markdown in real-time with GitHub styling.
+                Perfect for README files, documentation, and notes with GitHub-style formatting and real-time preview.
               </p>
             </div>
             <div className="mt-6 md:mt-0">
@@ -138,9 +138,9 @@ const Home: React.FC = () => {
                 <Button 
                   variant="primary" 
                   size="lg"
-                  className="w-full md:w-auto"
+                  className="w-full md:w-auto animate-pulse hover:animate-none"
                 >
-                  Try Markdown Preview
+                  Try Markdown Editor
                   <span className="ml-2">{getIcon('arrow-right')}</span>
                 </Button>
               </Link>
