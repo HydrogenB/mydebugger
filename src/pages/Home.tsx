@@ -7,7 +7,8 @@ import {
   getAllTools, 
   ToolCategory, 
   Tool, 
-  categories 
+  categories,
+  getToolById 
 } from '../tools';
 
 // Import components from design system instead of legacy components
@@ -60,6 +61,8 @@ const Home: React.FC = () => {
   const allCategories = getAllCategories();
   const popularTools = getPopularTools();
   const newTools = getNewTools();
+  // Get Markdown Preview tool specifically
+  const markdownPreviewTool = getToolById('markdown-preview');
 
   // Filter tools based on search query and active filter
   const filteredTools = allTools.filter(tool => {
@@ -110,6 +113,41 @@ const Home: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Featured Tool - Markdown Preview */}
+      {markdownPreviewTool && (
+        <div className="mb-12 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-6 rounded-lg border border-emerald-100 dark:border-emerald-800">
+          <div className="flex flex-col md:flex-row items-center">
+            <div className="mb-6 md:mb-0 md:mr-8 flex-shrink-0">
+              <div className="p-4 bg-emerald-100 dark:bg-emerald-800 rounded-full">
+                <markdownPreviewTool.icon className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+              </div>
+            </div>
+            <div className="flex-grow md:mr-8">
+              <div className="flex items-center mb-2">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{markdownPreviewTool.title}</h2>
+                <Badge variant="success" size="sm" className="ml-3">NEW</Badge>
+              </div>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">{markdownPreviewTool.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Create documentation, format README files, and preview markdown in real-time with GitHub styling.
+              </p>
+            </div>
+            <div className="mt-6 md:mt-0">
+              <Link to={markdownPreviewTool.route}>
+                <Button 
+                  variant="primary" 
+                  size="lg"
+                  className="w-full md:w-auto"
+                >
+                  Try Markdown Preview
+                  <span className="ml-2">{getIcon('arrow-right')}</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-8">
