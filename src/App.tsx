@@ -20,14 +20,22 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/" element={<Home />} />
                 
-                {/* Dynamic routes for all tools */}
-                {toolRegistry.map((tool) => (
-                  <Route
-                    key={tool.route}
-                    path={tool.route}
-                    element={<tool.component />}
-                  />
-                ))}
+                {/* Special handling for JWT tool with nested routes */}
+                <Route path="/jwt/*" element={<React.Suspense fallback={<LoadingSpinner />}>
+                  {toolRegistry.find(tool => tool.id === 'jwt-toolkit')?.component}
+                </React.Suspense>} />
+                
+                {/* Dynamic routes for all other tools */}
+                {toolRegistry
+                  .filter(tool => tool.id !== 'jwt-toolkit') // Skip JWT as we handle it separately
+                  .map((tool) => (
+                    <Route
+                      key={tool.route}
+                      path={tool.route}
+                      element={<tool.component />}
+                    />
+                  ))
+                }
                 
                 {/* Catch-all route for 404s */}
                 <Route path="*" element={<NotFound />} />
