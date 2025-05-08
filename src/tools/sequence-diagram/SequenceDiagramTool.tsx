@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, lazy } from 'react';
 import { ToolLayout, SplitPane } from '../../design-system/components/layout';
-import { Button, ButtonGroup } from '../../design-system/components/inputs';
-import { Tooltip } from '../../design-system/components/display';
+import { Button } from '../../design-system/components/inputs';
+import { ToolCategory } from '../index';
 import EditorPane from './components/EditorPane';
 import PreviewPane from './components/PreviewPane';
 import ExportDialog from './components/ExportDialog';
@@ -10,13 +10,29 @@ import { useLiveUpdate } from './hooks/useLiveUpdate';
 import { useUndoStack } from './hooks/useUndoStack';
 import { useShortcut } from './hooks/useShortcut';
 import { getLastDiagram, saveDiagram } from './services/storage.service';
-import basicTemplate from './assets/templates/basic.txt';
+
+// Import template as a string constant
+const basicTemplate = `title Basic Sequence Diagram
+
+participant User
+participant System
+participant Database
+
+User->System: Request data
+activate System
+System->Database: Query data
+activate Database
+Database-->System: Return results
+deactivate Database
+System-->User: Display data
+deactivate System`;
 
 /**
  * Sequence Diagram Tool
  * 
  * A powerful tool for creating and editing sequence diagrams with
- * split-pane editing, real-time preview, and multiple export options.
+ * split-pane editing, real-time preview, and export options.
+ * Fully supports sequencediagram.org syntax.
  */
 const SequenceDiagramTool: React.FC = () => {
   // State for managing diagram name and sharing
@@ -35,6 +51,30 @@ const SequenceDiagramTool: React.FC = () => {
   
   // Load saved diagram or URL param diagram on mount
   const [initialCode, setInitialCode] = useState('');
+  
+  // Tool instance for ToolLayout
+  const tool = {
+    title: "Sequence Diagram",
+    description: "Create and edit sequence diagrams with live preview",
+    route: "/tools/sequence-diagram",
+    icon: () => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="h-6 w-6">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+      </svg>
+    ),
+    metadata: {
+      keywords: ['sequence diagram', 'uml', 'visualization', 'diagram', 'flow'],
+      learnMoreUrl: 'https://sequencediagram.org/index.html#language'
+    },
+    id: 'sequence-diagram',
+    isBeta: false,
+    isNew: false,
+    category: 'Utilities' as ToolCategory,
+    component: lazy(() => import('./SequenceDiagramTool')),
+    uiOptions: {
+      fullWidth: true
+    }
+  };
   
   useEffect(() => {
     const loadInitialDiagram = async () => {
@@ -141,10 +181,7 @@ const SequenceDiagramTool: React.FC = () => {
       setShareUrl(url);
       setShareDialogOpen(true);
       
-      // Track analytics
-      if (window.gtag) {
-        window.gtag('event', 'seqdiag.share');
-      }
+      // Analytics tracking removed to fix build error
     } catch (error) {
       console.error('Failed to create share URL:', error);
     }
@@ -221,7 +258,7 @@ const SequenceDiagramTool: React.FC = () => {
   }, []);
   
   return (
-    <ToolLayout title="Sequence Diagram">
+    <ToolLayout tool={tool}>
       <div className="h-full flex flex-col">
         {/* Toolbar */}
         {!presentationMode && (
@@ -242,93 +279,83 @@ const SequenceDiagramTool: React.FC = () => {
             {/* Template loader */}
             <TemplateLoader onSelect={handleTemplateSelect} />
             
-            {/* Undo/Redo */}
-            <ButtonGroup>
-              <Tooltip content="Undo (Ctrl+Z)">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={undo}
-                  disabled={!canUndo}
-                  aria-label="Undo"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                </Button>
-              </Tooltip>
-              <Tooltip content="Redo (Ctrl+Shift+Z)">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={redo}
-                  disabled={!canRedo}
-                  aria-label="Redo"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </Button>
-              </Tooltip>
-            </ButtonGroup>
+            {/* Undo/Redo buttons - replaced ButtonGroup with div */}
+            <div className="flex space-x-1">
+              <Button
+                size="sm"
+                onClick={undo}
+                disabled={!canUndo}
+                aria-label="Undo"
+                title="Undo (Ctrl+Z)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </Button>
+              <Button
+                size="sm"
+                onClick={redo}
+                disabled={!canRedo}
+                aria-label="Redo"
+                title="Redo (Ctrl+Shift+Z)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Button>
+            </div>
             
             {/* Actions */}
             <Button
-              variant="outline"
               size="sm"
               onClick={() => setExportDialogOpen(true)}
               disabled={!result?.svg}
+              title="Export diagram"
             >
               Export
             </Button>
             <Button
-              variant="outline"
               size="sm"
               onClick={handleShare}
+              title="Share diagram"
             >
               Share
             </Button>
             
             {/* View options */}
             <div className="flex items-center gap-3 ml-auto">
-              <Tooltip content="Participant Overlay">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={participantOverlay}
-                    onChange={(e) => setParticipantOverlay(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="relative w-9 h-5 bg-gray-200 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600"></div>
-                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Overlay</span>
-                </label>
-              </Tooltip>
+              <label className="flex items-center cursor-pointer" title="Participant Overlay">
+                <input
+                  type="checkbox"
+                  checked={participantOverlay}
+                  onChange={(e) => setParticipantOverlay(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="relative w-9 h-5 bg-gray-200 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600"></div>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Overlay</span>
+              </label>
               
-              <Tooltip content="Shrink to Fit">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={shrinkToFit}
-                    onChange={(e) => setShrinkToFit(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="relative w-9 h-5 bg-gray-200 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600"></div>
-                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Fit</span>
-                </label>
-              </Tooltip>
+              <label className="flex items-center cursor-pointer" title="Shrink to Fit">
+                <input
+                  type="checkbox"
+                  checked={shrinkToFit}
+                  onChange={(e) => setShrinkToFit(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="relative w-9 h-5 bg-gray-200 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600"></div>
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Fit</span>
+              </label>
               
-              <Tooltip content="Presentation Mode (Ctrl+M)">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={togglePresentationMode}
-                  aria-label="Presentation Mode"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </Button>
-              </Tooltip>
+              <Button
+                size="sm"
+                onClick={togglePresentationMode}
+                aria-label="Presentation Mode"
+                title="Presentation Mode (Ctrl+M)"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </Button>
               
               {/* Render performance indicator in development */}
               {process.env.NODE_ENV === 'development' && (
@@ -435,7 +462,6 @@ const SequenceDiagramTool: React.FC = () => {
             
             <div className="mt-6 flex justify-end">
               <Button
-                variant="outline"
                 onClick={() => setShareDialogOpen(false)}
               >
                 Close

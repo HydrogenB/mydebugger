@@ -35,6 +35,7 @@ const TemplateLoader: React.FC<TemplateLoaderProps> = ({ onSelect }) => {
         // For now, we'll import our static templates
         const basicTemplate = await import('../assets/templates/basic.txt');
         const asyncCallTemplate = await import('../assets/templates/async-call.txt');
+        const allFeaturesTemplate = await import('../assets/templates/all-features.txt');
         
         // Build template list
         const templateList: Template[] = [
@@ -50,7 +51,12 @@ const TemplateLoader: React.FC<TemplateLoaderProps> = ({ onSelect }) => {
             description: 'API call flow with asynchronous processing',
             content: asyncCallTemplate.default,
           },
-          // Add more templates here
+          {
+            id: 'all-features',
+            name: 'Syntax Reference',
+            description: 'Comprehensive example showing all sequencediagram.org syntax',
+            content: allFeaturesTemplate.default,
+          }
         ];
         
         setTemplates(templateList);

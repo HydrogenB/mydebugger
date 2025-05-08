@@ -1,0 +1,90 @@
+title Complete SequenceDiagram.org Syntax Demo
+
+// Participants with different styles
+participant User
+actor Admin
+participant "Service\nSide" as Service
+participant "Database" as DB
+participant "Third\nParty" as TP
+
+// Basic message arrows
+User->Service: Basic solid arrow
+Admin-->Service: Dashed arrow
+Service->>DB: Open arrow
+Service-->>TP: Dashed open arrow
+DB<-Service: Reverse solid arrow
+TP<--Service: Reverse dashed arrow
+DB<<-Service: Reverse open arrow
+TP<<--Service: Reverse dashed open arrow
+
+// Activation and deactivation
+User->Service: Request
+activate Service
+Service->DB: Query
+activate DB
+DB-->Service: Result
+deactivate DB
+Service-->User: Response
+deactivate Service
+
+// Notes
+note over User: This is a note over one participant
+note over Service,DB: This spans multiple participants
+note left of Service: Left note
+note right of DB: Right note
+
+// Groups
+alt Successful case
+  User->Service: Valid request
+  Service-->User: Success response
+else Error case
+  User->Service: Invalid request
+  Service-->User: Error response
+end
+
+// Other group types
+loop Every 1s
+  Service->Service: Health check
+end
+
+opt Optional step
+  Admin->Service: Configure settings
+end
+
+par Parallel operations
+  Service->DB: Write data
+  Service->TP: Send notification
+end
+
+critical Critical section
+  DB->DB: Transaction
+end
+
+break Early exit
+  Service-->User: Server error
+end
+
+group Custom group label
+  User->Admin: Contact support
+end
+
+// Dividers
+== Section Divider ==
+
+// Lifeline control
+create Temp
+User->Temp: Create temporary object
+Temp-->User: Acknowledge
+destroy Temp
+
+// Self messages
+User->User: Think about action
+Admin->Admin: Process information
+
+// Advanced message styling 
+User->+Service: Shorthand activate target
+Service->-User: Shorthand deactivate target
+
+// Create with immediate message
+User->*Temp: Create and use
+Temp->xTemp: Self-destruct (destroy)

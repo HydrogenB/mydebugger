@@ -74,3 +74,6 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
     </Component>
   );
 };
+
+// Add default export
+export default ResponsiveContainer;
