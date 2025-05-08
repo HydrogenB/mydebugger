@@ -16,6 +16,10 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       output: {
+        // Ensure asset filenames include content hash to avoid caching issues
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
           vendor: ['react-helmet'],

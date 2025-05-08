@@ -1,6 +1,20 @@
 {
   "rewrites": [
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/(api/.*)", "destination": "/api/$1" },
+    { "source": "/(.*)\\.(.+)", "destination": "/$1.$2" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "buildCommand": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build"
+  "buildCommand": "node ./node_modules/typescript/bin/tsc --noEmit && node ./node_modules/vite/bin/vite.js build",
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
 }
