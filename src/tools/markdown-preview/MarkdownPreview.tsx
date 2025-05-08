@@ -141,12 +141,41 @@ const MarkdownPreview: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Render markdown initially and when it changes
+  useEffect(() => {
+    const renderMarkdown = async () => {
+      try {
+        // Define options using the correct type from marked
+        const options = {
+          gfm: true, // GitHub Flavored Markdown
+          breaks: true, // Convert line breaks to <br>
+          mangle: false // Don't mangle email addresses
+        };
+        
+        // Use marked correctly with await since it may return a Promise
+        const renderedHtml = await Promise.resolve(marked.parse(markdown, options));
+        // Sanitize the HTML output
+        const sanitizedHtml = DOMPurify.sanitize(renderedHtml);
+        setHtml(sanitizedHtml);
+        setError(null);
+      } catch (error) {
+        console.error('Error rendering markdown:', error);
+        setError('Failed to render markdown. Please check your syntax.');
+      }
+    };
+
+    renderMarkdown();
+  }, [markdown]);
+  
   // Initialize Monaco editor
   useEffect(() => {
-    if (editorContainerRef.current) {
+    let cleanup: (() => void) | undefined;
+    
+    const initEditor = async () => {
+      if (!editorContainerRef.current) return;
+      
       setIsLoading(true);
       
-      // Configure Monaco editor
       try {
         // Set theme based on app dark mode
         monaco.editor.defineTheme('mydebugger-dark', {
@@ -165,6 +194,7 @@ const MarkdownPreview: React.FC = () => {
           }
         });
 
+        // Create the editor instance
         editorInstance.current = monaco.editor.create(editorContainerRef.current, {
           value: markdown,
           language: 'markdown',
@@ -183,16 +213,16 @@ const MarkdownPreview: React.FC = () => {
           }
         });
 
-        // Add keyboard shortcuts after creating the editor
+        // Add keyboard shortcuts
         editorInstance.current.addAction({
           id: 'save-markdown',
           label: 'Save Markdown',
           keybindings: [
             monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS
           ],
-          run: (editor: monaco.editor.ICodeEditor) => {
+          run: () => {
             handleExport();
-            // Return void instead of null
+            return undefined;
           }
         });
 
@@ -202,9 +232,9 @@ const MarkdownPreview: React.FC = () => {
           keybindings: [
             monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyP
           ],
-          run: (editor: monaco.editor.ICodeEditor) => {
+          run: () => {
             toggleScrollSync();
-            // Return void instead of null
+            return undefined;
           }
         });
 
@@ -218,8 +248,8 @@ const MarkdownPreview: React.FC = () => {
           }
         });
 
-        // Handle scroll synchronization
-        editorInstance.current.onDidScrollChange((e) => {
+        // Handle scroll synchronization from editor to preview
+        const scrollHandler = editorInstance.current.onDidScrollChange((e) => {
           if (!scrollSync || !previewRef.current || !editorInstance.current) return;
 
           const scrollTop = e.scrollTop;
@@ -253,9 +283,14 @@ const MarkdownPreview: React.FC = () => {
           previewRef.current.addEventListener('scroll', handlePreviewScroll);
         }
         
-        return () => {
+        cleanup = () => {
+          scrollHandler.dispose();
           if (previewRef.current) {
             previewRef.current.removeEventListener('scroll', handlePreviewScroll);
+          }
+          if (editorInstance.current) {
+            editorInstance.current.dispose();
+            editorInstance.current = null;
           }
         };
       } catch (err) {
@@ -264,49 +299,14 @@ const MarkdownPreview: React.FC = () => {
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
+    initEditor();
+    
     return () => {
-      if (editorInstance.current) {
-        editorInstance.current.dispose();
-      }
+      if (cleanup) cleanup();
     };
   }, [isDark]);
-
-  // Update editor theme when dark mode changes
-  useEffect(() => {
-    if (editorInstance.current) {
-      editorInstance.current.updateOptions({
-        theme: isDark ? 'mydebugger-dark' : 'vs',
-      });
-    }
-  }, [isDark]);
-
-  // Update preview when markdown changes
-  useEffect(() => {
-    const renderMarkdown = async () => {
-      try {
-        // Define options using the correct type from marked
-        const options = {
-          gfm: true, // GitHub Flavored Markdown
-          breaks: true, // Convert line breaks to <br>
-          mangle: false // Don't mangle email addresses
-        };
-        
-        // Use marked correctly with await since it may return a Promise
-        const renderedHtml = await Promise.resolve(marked.parse(markdown, options));
-        // Sanitize the HTML output
-        const sanitizedHtml = DOMPurify.sanitize(renderedHtml);
-        setHtml(sanitizedHtml);
-        setError(null);
-      } catch (error) {
-        console.error('Error rendering markdown:', error);
-        setError('Failed to render markdown. Please check your syntax.');
-      }
-    };
-
-    renderMarkdown();
-  }, [markdown]);
 
   // Reset copied state after 2 seconds
   useEffect(() => {
@@ -318,14 +318,17 @@ const MarkdownPreview: React.FC = () => {
 
   // Setup resizable divider
   useEffect(() => {
-    if (!dividerRef.current || !containerRef.current || !editorContainerRef.current) return;
+    if (!dividerRef.current || !containerRef.current || !editorContainerRef.current || !previewRef.current) return;
 
     let isDragging = false;
     let lastLeftRatio = 0.5;
     const divider = dividerRef.current;
     const container = containerRef.current;
+    const editorContainer = editorContainerRef.current;
+    const previewContainer = previewRef.current;
     
-    const handleMouseDown = () => {
+    const handleMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
       isDragging = true;
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
@@ -345,10 +348,8 @@ const MarkdownPreview: React.FC = () => {
       const leftWidth = Math.max(minWidth, Math.min(offsetX, maxWidth));
       
       // Set the widths of the editor and preview panes
-      if (editorContainerRef.current && previewRef.current) {
-        editorContainerRef.current.style.width = `${leftWidth}px`;
-        previewRef.current.style.width = `${totalWidth - leftWidth - dividerWidth}px`;
-      }
+      editorContainer.style.width = `${leftWidth}px`;
+      previewContainer.style.width = `${totalWidth - leftWidth - dividerWidth}px`;
       
       lastLeftRatio = leftWidth / (totalWidth - dividerWidth);
       
@@ -375,10 +376,8 @@ const MarkdownPreview: React.FC = () => {
       const newLeft = availableWidth * lastLeftRatio;
       const newRight = availableWidth * (1 - lastLeftRatio);
       
-      if (editorContainerRef.current && previewRef.current) {
-        editorContainerRef.current.style.width = `${newLeft}px`;
-        previewRef.current.style.width = `${newRight}px`;
-      }
+      editorContainer.style.width = `${newLeft}px`;
+      previewContainer.style.width = `${newRight}px`;
       
       // Update editor layout
       if (editorInstance.current) {
