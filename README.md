@@ -15,9 +15,11 @@ MyDebugger is a comprehensive web application built with React, TypeScript, and 
 
 ## 🧩 Project Structure
 
+The project follows a well-organized structure for better maintainability and scalability:
+
 ```
 mydebugger/
-├── api/                   # API endpoints for server-side functionality
+├── api/                   # API endpoints for serverless functions
 │   ├── clickjacking-analysis.js
 │   ├── device-trace.js
 │   ├── dns-lookup.js
@@ -26,9 +28,10 @@ mydebugger/
 │   └── link-trace.js
 ├── public/                # Static assets
 │   ├── _redirects         # Netlify/Vercel redirect rules
-│   ├── debug.html         # Debug page for deployment troubleshooting
-│   └── favicon.svg
-├── src/
+│   ├── debug.html         # Debug page for troubleshooting
+│   ├── favicon.svg        # Site favicon
+│   └── assets/            # Static asset files
+├── src/                   # Source code
 │   ├── App.tsx            # Main application with routing
 │   ├── main.tsx           # Application entry point
 │   ├── index.css          # Global styles
@@ -36,38 +39,54 @@ mydebugger/
 │   │   └── ThemeContext.tsx
 │   ├── design-system/     # Design system architecture
 │   │   ├── index.ts       # Main export file for design system
+│   │   ├── components/    # UI components by category
+│   │   │   ├── display/   # Display components (Badge, InfoBox, etc.)
+│   │   │   ├── feedback/  # Feedback components (Alert, Toast, etc.)
+│   │   │   ├── inputs/    # Input components (Button, Form, etc.)
+│   │   │   ├── layout/    # Layout components (Card, Grid, etc.)
+│   │   │   ├── navigation/ # Navigation components (TabGroup, etc.)
+│   │   │   ├── overlays/  # Overlay components (Modal, Tooltip, etc.)
+│   │   │   └── typography/ # Typography components (Text, Heading, etc.)
 │   │   ├── foundations/   # Design tokens and base styles
 │   │   │   ├── colors.ts  # Color tokens
 │   │   │   ├── typography.ts # Typography definitions
 │   │   │   ├── spacing.ts # Spacing scales
 │   │   │   └── animations.ts # Animation definitions
-│   │   ├── components/    # UI components organized by type
-│   │   │   ├── feedback/  # Alerts, toasts, progress indicators
-│   │   │   ├── inputs/    # Form controls and inputs
-│   │   │   ├── layout/    # Layout components
-│   │   │   ├── navigation/ # Navigation components
-│   │   │   ├── overlays/  # Modals, drawers, tooltips
-│   │   │   ├── typography/ # Text components
-│   │   │   └── display/   # Cards, badges, etc.
 │   │   ├── icons/         # Icon system
 │   │   └── context/       # Design system contexts
-│   ├── layout/            # Layout components
+│   ├── layout/            # App layout components
 │   │   ├── Header.tsx     # App header with navigation
 │   │   └── Footer.tsx     # App footer with links
 │   ├── pages/             # Main pages
 │   │   ├── Home.tsx       # Landing page with tool listings
 │   │   └── NotFound.tsx   # 404 page
-│   └── tools/             # Tool modules
-│       ├── index.ts       # Tool registry (central configuration)
-│       ├── RelatedTools.tsx # Related tools component
-│       ├── clickjacking/  # Clickjacking testing tools
-│       └── ... (other tool directories)
+│   ├── test-utils/        # Test utilities
+│   │   ├── mockThemeContext.tsx
+│   │   └── test-utils.tsx
+│   ├── tools/             # Tool modules
+│   │   ├── index.ts       # Tool registry (central configuration)
+│   │   ├── RelatedTools.tsx # Related tools component
+│   │   ├── clickjacking/  # Clickjacking testing tools
+│   │   ├── dns/           # DNS lookup tools
+│   │   ├── headers/       # HTTP headers analysis tools
+│   │   ├── jwt/           # JWT toolkit (comprehensive suite)
+│   │   ├── linktracer/    # Link and device tracing tools
+│   │   ├── markdown-preview/ # Markdown preview tool
+│   │   ├── qrcode/        # QR code generation tools
+│   │   ├── regex/         # Regular expression testing tools
+│   │   ├── sequence-diagram/ # Sequence diagram creation tool
+│   │   └── url/           # URL encoding/decoding tools
+│   └── types/             # TypeScript type definitions
+├── __mocks__/             # Jest mock files
+│   ├── fileMock.js        # Mock for file imports
+│   └── styleMock.js       # Mock for style imports
 ├── index.html             # HTML entry point
 ├── package.json           # Project dependencies and scripts
 ├── vite.config.ts         # Vite configuration
 ├── tailwind.config.js     # Tailwind CSS configuration
-├── vercel.json            # Vercel-specific configuration
-└── ... (other configuration files)
+├── tsconfig.json          # TypeScript configuration
+├── jest.config.js         # Jest test configuration
+└── vercel.json            # Vercel deployment configuration
 ```
 
 ## 🎨 Design System
@@ -189,6 +208,7 @@ The components can be viewed and tested in the Components Demo section of the ap
 | URL Encoder | Encode or decode URL components | `tools/url/` |
 | QR Code Generator | Generate QR codes | `tools/qrcode/` |
 | Regular Expression Tester | Test and debug regular expressions | `tools/regex/` |
+| Sequence Diagram | Create and edit sequence diagrams with live preview | `tools/sequence-diagram/` |
 | DNS Lookup | Query DNS records | `tools/dns/` |
 | HTTP Headers Analyzer | Analyze HTTP headers | `tools/headers/` |
 | Clickjacking Validator | Test for clickjacking vulnerabilities | `tools/clickjacking/` |
@@ -205,6 +225,21 @@ The JWT toolkit is a comprehensive tool with multiple features organized into a 
 - **Builder**: Create and sign new JWT tokens
 - **JWKS**: JWKS tool and public key discovery
 - **Benchmark**: Algorithm performance testing
+
+### Sequence Diagram Tool
+
+The Sequence Diagram tool allows you to create and edit sequence diagrams with an interactive editor and live preview:
+
+- **Split-Pane Interface**: Edit diagram code on the left and see the rendered diagram on the right
+- **Real-Time Preview**: Instantly see changes as you type
+- **Format Detection**: Automatically detects and renders sequencediagram.org syntax
+- **Template Library**: Choose from pre-built templates to kickstart your diagrams
+- **Export Options**: Export diagrams as SVG or other formats
+- **Presentation Mode**: Full-screen presentation view for your diagrams
+- **Share Functionality**: Generate shareable links for collaboration
+- **Dark Mode Support**: Seamlessly works with the application's theme system
+
+The tool supports standard sequencediagram.org syntax including participants, messages, notes, activation/deactivation, and more complex features like alternative paths and loops.
 
 ## 🧪 Testing
 

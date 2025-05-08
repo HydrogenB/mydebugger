@@ -371,8 +371,8 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
       const diagramWidth = diagram.scrollWidth;
       
       if (diagramWidth > containerWidth) {
-        const newScale = containerWidth / diagramWidth * 0.95; // 5% padding
-        setScale(Math.max(0.5, newScale)); // Limit minimum scale to 50%
+        const newScale = (containerWidth / diagramWidth) * 0.9; // 10% padding
+        setScale(Math.max(0.4, newScale)); // Limit minimum scale to 40%
       } else {
         setScale(1);
       }
@@ -420,11 +420,14 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
       
       {/* Main diagram container */}
       <div 
-        className="diagram-container p-4 min-h-full flex items-center justify-center"
+        className={`diagram-container p-4 min-h-full 
+          ${shrinkToFit ? 'flex items-center justify-center' : 'w-full'}`}
         style={{
           transform: shrinkToFit && scale !== 1 ? `scale(${scale})` : 'none',
-          transformOrigin: 'top center',
+          transformOrigin: 'center top',
           transition: 'transform 0.2s ease-out',
+          width: shrinkToFit && scale !== 1 ? `${100/scale}%` : '100%',
+          height: shrinkToFit && scale !== 1 ? `${100/scale}%` : '100%',
         }}
       >
         {error ? (
