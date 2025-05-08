@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-export type TextSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl';
+export type TextSize = 'xs' | 'sm' | 'base' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | '8xl' | '9xl';
 export type TextWeight = 'thin' | 'extralight' | 'light' | 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold' | 'black';
 export type TextAlign = 'left' | 'center' | 'right' | 'justify';
 export type TextTransform = 'uppercase' | 'lowercase' | 'capitalize' | 'normal';
@@ -14,7 +14,8 @@ export type TextColor =
   | 'info'
   | 'muted'
   | 'white'
-  | 'black';
+  | 'black'
+  | 'error';
 
 export interface ResponsiveTextSize {
   base?: TextSize;
@@ -53,6 +54,42 @@ export interface TextProps {
   adaptiveLeading?: boolean;
   /** Custom CSS class */
   className?: string;
+  /** Alias for 'as' property - Semantic variant */
+  variant?: 'p' | 'span' | 'div' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label';
+  /** Alias for color="danger" */
+  error?: boolean;
+  /** Explicit line height */
+  lineHeight?: 'none' | 'tight' | 'snug' | 'normal' | 'relaxed' | 'loose';
+  /** Margin - shorthand for all margins */
+  m?: number | string;
+  /** Margin top */
+  mt?: number | string;
+  /** Margin bottom */
+  mb?: number | string;
+  /** Margin left */
+  ml?: number | string;
+  /** Margin right */
+  mr?: number | string;
+  /** Margin left & right */
+  mx?: number | string;
+  /** Margin top & bottom */
+  my?: number | string;
+  /** Padding - shorthand for all paddings */
+  p?: number | string;
+  /** Padding top */
+  pt?: number | string;
+  /** Padding bottom */
+  pb?: number | string;
+  /** Padding left */
+  pl?: number | string;
+  /** Padding right */
+  pr?: number | string;
+  /** Padding left & right */
+  px?: number | string;
+  /** Padding top & bottom */
+  py?: number | string;
+  /** Inline style object */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -74,11 +111,36 @@ export const Text: React.FC<TextProps> = ({
   lineThrough = false,
   adaptiveLeading = true,
   className = '',
+  variant,
+  error = false,
+  lineHeight,
+  m,
+  mt,
+  mb,
+  ml,
+  mr,
+  mx,
+  my,
+  p,
+  pt,
+  pb,
+  pl,
+  pr,
+  px,
+  py,
+  style,
 }) => {
+  // Use variant as a fallback for Component if provided
+  const ElementType = variant || Component;
+  
+  // Use error prop to override color if true
+  const effectiveColor = error ? 'danger' : color;
+  
   // Size classes
   const sizeClasses = {
     xs: 'text-xs',
     sm: 'text-sm',
+    base: 'text-base',
     md: 'text-base',
     lg: 'text-lg',
     xl: 'text-xl',
@@ -131,15 +193,16 @@ export const Text: React.FC<TextProps> = ({
   // Color classes
   const colorClasses = {
     default: 'text-gray-800 dark:text-gray-200',
-    primary: 'text-blue-600 dark:text-blue-400',
-    secondary: 'text-gray-600 dark:text-gray-400',
+    primary: 'text-primary-600 dark:text-primary-400',
+    secondary: 'text-secondary-600 dark:text-secondary-400',
     success: 'text-green-600 dark:text-green-400',
     danger: 'text-red-600 dark:text-red-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
-    info: 'text-cyan-600 dark:text-cyan-400',
+    info: 'text-blue-600 dark:text-blue-400',
     muted: 'text-gray-500 dark:text-gray-500',
     white: 'text-white',
     black: 'text-black',
+    error: 'text-red-600 dark:text-red-400', // Added error property with same styling as danger
   };
 
   // Text transform classes
@@ -170,9 +233,12 @@ export const Text: React.FC<TextProps> = ({
 
   const lineClampClass = lineClamp ? `line-clamp-${lineClamp}` : '';
 
-  // Adaptive leading (line-height)
+  // Line height classes (override adaptive leading if specified)
+  const lineHeightClass = lineHeight ? `leading-${lineHeight}` : '';
+
+  // Adaptive leading (line-height) - only if no explicit lineHeight provided
   const getAdaptiveLeadingClass = () => {
-    if (!adaptiveLeading) return '';
+    if (lineHeightClass || !adaptiveLeading) return '';
 
     const textSize = typeof size === 'string' ? size : size.base || 'md';
     
@@ -186,24 +252,50 @@ export const Text: React.FC<TextProps> = ({
     }
   };
 
+  // Generate spacing classes
+  const getSpacingClasses = () => {
+    const spacingClasses = [];
+    
+    // Margin classes
+    if (m !== undefined) spacingClasses.push(`m-${m}`);
+    if (mt !== undefined) spacingClasses.push(`mt-${mt}`);
+    if (mb !== undefined) spacingClasses.push(`mb-${mb}`);
+    if (ml !== undefined) spacingClasses.push(`ml-${ml}`);
+    if (mr !== undefined) spacingClasses.push(`mr-${mr}`);
+    if (mx !== undefined) spacingClasses.push(`mx-${mx}`);
+    if (my !== undefined) spacingClasses.push(`my-${my}`);
+    
+    // Padding classes
+    if (p !== undefined) spacingClasses.push(`p-${p}`);
+    if (pt !== undefined) spacingClasses.push(`pt-${pt}`);
+    if (pb !== undefined) spacingClasses.push(`pb-${pb}`);
+    if (pl !== undefined) spacingClasses.push(`pl-${pl}`);
+    if (pr !== undefined) spacingClasses.push(`pr-${pr}`);
+    if (px !== undefined) spacingClasses.push(`px-${px}`);
+    if (py !== undefined) spacingClasses.push(`py-${py}`);
+    
+    return spacingClasses.join(' ');
+  };
+
   // Combine all classes
   const textClasses = [
     getResponsiveSizeClasses(),
     weightClasses[weight],
     alignClasses,
-    colorClasses[color],
+    colorClasses[effectiveColor],
     transformClasses,
     styleClasses,
     getTruncateClass(),
     lineClampClass,
-    getAdaptiveLeadingClass(),
+    lineHeightClass || getAdaptiveLeadingClass(),
+    getSpacingClasses(),
     className
   ].filter(Boolean).join(' ');
 
   return (
-    <Component className={textClasses}>
+    <ElementType className={textClasses} style={style}>
       {children}
-    </Component>
+    </ElementType>
   );
 };
 

@@ -161,7 +161,7 @@ describe('UrlEncoder Component', () => {
     fireEvent.change(input, { target: { value: '%invalid20text' } });
     
     // Check for error message in output
-    const output = screen.getByLabelText(/Output/i);
+    const output = screen.getByLabelText(/Output/i) as HTMLInputElement;
     expect(output.value).toMatch(/Error:/);
   });
 });

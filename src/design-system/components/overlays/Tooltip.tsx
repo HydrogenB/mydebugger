@@ -17,6 +17,10 @@ export interface TooltipProps {
   maxWidth?: string;
   /** Delay before showing tooltip (ms) */
   delay?: number;
+  /** Delay before showing tooltip (ms) - alias for 'delay' */
+  showDelay?: number;
+  /** Delay before hiding tooltip (ms) */
+  hideDelay?: number;
   /** Whether the tooltip is disabled */
   disabled?: boolean;
   /** Whether to show the arrow */
@@ -29,6 +33,8 @@ export interface TooltipProps {
   enableOnTouch?: boolean;
   /** Whether to allow HTML content */
   allowHtml?: boolean;
+  /** Controlled visibility state */
+  isOpen?: boolean;
 }
 
 /**
@@ -91,28 +97,49 @@ export const Tooltip: React.FC<TooltipProps> = ({
   size = 'md',
   maxWidth = 'max-w-xs',
   delay = 0,
+  showDelay,
+  hideDelay,
   disabled = false,
   showArrow = true,
   className = '',
   id,
   enableOnTouch = false,
   allowHtml = false,
+  isOpen,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
+  const [isVisible, setIsVisible] = useState(isOpen || false);
+  const [shouldRender, setShouldRender] = useState(isOpen || false);
+  const showTimeoutRef = useRef<number | null>(null);
+  const hideTimeoutRef = useRef<number | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   
+  // Use showDelay if provided, otherwise fall back to delay
+  const effectiveShowDelay = showDelay !== undefined ? showDelay : delay;
+  
+  // Effect to handle controlled visibility via isOpen prop
+  useEffect(() => {
+    if (isOpen !== undefined) {
+      setIsVisible(isOpen);
+      setShouldRender(isOpen);
+    }
+  }, [isOpen]);
+  
   // Show tooltip
   const showTooltip = () => {
-    if (disabled) return;
+    if (disabled || isOpen !== undefined) return;
+    
+    // Clear any pending hide timeout
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
     
     setShouldRender(true);
-    if (delay > 0) {
-      timeoutRef.current = window.setTimeout(() => {
+    if (effectiveShowDelay > 0) {
+      showTimeoutRef.current = window.setTimeout(() => {
         setIsVisible(true);
-      }, delay);
+      }, effectiveShowDelay);
     } else {
       setIsVisible(true);
     }
@@ -120,23 +147,38 @@ export const Tooltip: React.FC<TooltipProps> = ({
   
   // Hide tooltip
   const hideTooltip = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setIsVisible(false);
+    if (isOpen !== undefined) return; // Don't hide if controlled externally
     
-    // Small delay before unmounting to allow for exit animations
-    setTimeout(() => {
-      setShouldRender(false);
-    }, durations.normal);
+    // Clear any pending show timeout
+    if (showTimeoutRef.current) {
+      clearTimeout(showTimeoutRef.current);
+      showTimeoutRef.current = null;
+    }
+    
+    const performHide = () => {
+      setIsVisible(false);
+      
+      // Small delay before unmounting to allow for exit animations
+      setTimeout(() => {
+        setShouldRender(false);
+      }, durations.normal);
+    };
+    
+    if (hideDelay && hideDelay > 0) {
+      hideTimeoutRef.current = window.setTimeout(performHide, hideDelay);
+    } else {
+      performHide();
+    }
   };
 
   // Ensure we clean up any timeouts when component unmounts
   useEffect(() => {
     return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (showTimeoutRef.current) {
+        clearTimeout(showTimeoutRef.current);
+      }
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
       }
     };
   }, []);

@@ -4,7 +4,11 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "dompurify": "^3.2.5",
+    "github-markdown-css": "^5.8.1",
     "lz-string": "^1.5.0",
+    "marked": "^15.0.11",
+    "monaco-editor": "^0.52.2",
     "node-fetch": "^3.3.0",
     "qrcode": "^1.5.3",
     "react": "^18.2.0",

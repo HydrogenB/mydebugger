@@ -3,7 +3,7 @@ import { ThemeContext, ThemeContextType } from '../context/ThemeContext';
 
 interface MockThemeProviderProps {
   children: React.ReactNode;
-  initialTheme?: 'light' | 'dark';
+  initialTheme?: 'light' | 'dark' | 'system';
 }
 
 /**
@@ -14,19 +14,29 @@ export const MockThemeProvider: React.FC<MockThemeProviderProps> = ({
   children, 
   initialTheme = 'light' 
 }) => {
-  const [theme, setTheme] = React.useState<'light' | 'dark'>(initialTheme);
+  const [theme, setTheme] = React.useState(initialTheme);
+  const [isDarkMode, setIsDarkMode] = React.useState(initialTheme === 'dark');
   const [toggleCount, setToggleCount] = React.useState(0);
 
-  const toggleTheme = React.useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    setToggleCount(prev => prev + 1);
-  }, []);
+  // Handle theme changes
+  React.useEffect(() => {
+    if (theme === 'dark') {
+      setIsDarkMode(true);
+    } else if (theme === 'light') {
+      setIsDarkMode(false);
+    } else if (theme === 'system') {
+      // For testing, assume system preference is light
+      setIsDarkMode(false);
+    }
+  }, [theme]);
 
   const contextValue: ThemeContextType = {
     theme,
-    toggleTheme,
-    // For testing purposes, expose the toggle count
-    __testingProps: { toggleCount }
+    isDarkMode,
+    setTheme: (newTheme) => {
+      setTheme(newTheme);
+      setToggleCount(prev => prev + 1);
+    }
   };
 
   return (

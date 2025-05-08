@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | 'full';
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
 export interface ModalProps {
   /** Whether the modal is currently open */
@@ -18,6 +18,8 @@ export interface ModalProps {
   size?: ModalSize;
   /** Whether the modal can be closed by clicking outside */
   closeOnClickOutside?: boolean;
+  /** Alias for closeOnClickOutside for backwards compatibility */
+  closeOnBackdropClick?: boolean;
   /** Whether the modal can be closed by pressing Escape */
   closeOnEsc?: boolean;
   /** Whether to render a close button in the header */
@@ -44,10 +46,16 @@ export interface ModalProps {
 
 // Define types for the subcomponents
 type ModalHeaderProps = {
+  /** Title for the modal header */
   title?: React.ReactNode;
+  /** Subtitle or description to display below the title */
   subtitle?: React.ReactNode;
+  /** Handler for close button click */
   onClose?: () => void;
+  /** Additional CSS classes to apply */
   className?: string;
+  /** Direct child content (used when title is not specified) */
+  children?: React.ReactNode;
 };
 
 type ModalFooterProps = {
@@ -129,6 +137,7 @@ export const Modal: ModalComponent = ({
   children,
   size = 'md',
   closeOnClickOutside = true,
+  closeOnBackdropClick,
   closeOnEsc = true,
   showCloseButton = true,
   footer,
@@ -143,6 +152,9 @@ export const Modal: ModalComponent = ({
 }) => {
   const [mounted, setMounted] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Use closeOnBackdropClick if provided, otherwise fall back to closeOnClickOutside
+  const shouldCloseOnClickOutside = closeOnBackdropClick !== undefined ? closeOnBackdropClick : closeOnClickOutside;
   
   // Mount the modal in the DOM only on the client side
   useEffect(() => {
@@ -161,7 +173,7 @@ export const Modal: ModalComponent = ({
   
   // Handle click outside the modal
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (closeOnClickOutside && e.target === e.currentTarget) {
+    if (shouldCloseOnClickOutside && e.target === e.currentTarget) {
       onClose();
     }
   };
@@ -200,6 +212,7 @@ export const Modal: ModalComponent = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
     full: 'max-w-full min-h-screen w-full m-0',
   };
   
@@ -343,6 +356,7 @@ Modal.Header = function ModalHeader({
   subtitle,
   onClose,
   className = '',
+  children,
 }: ModalHeaderProps) {
   return (
     <div className={`px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center ${className}`}>
@@ -356,6 +370,11 @@ Modal.Header = function ModalHeader({
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {subtitle}
           </p>
+        )}
+        {!title && children && (
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            {children}
+          </h3>
         )}
       </div>
       

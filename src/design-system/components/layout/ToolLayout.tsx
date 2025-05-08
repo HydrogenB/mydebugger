@@ -22,6 +22,10 @@ export interface ToolLayoutProps {
   showDescription?: boolean;
   /** Whether to show related tools */
   showRelatedTools?: boolean;
+  /** Optional title override */
+  title?: string;
+  /** Optional description override */
+  description?: string;
 }
 
 /**
@@ -39,11 +43,18 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
   children,
   showHeader = true,
   showDescription = true,
-  showRelatedTools = true
+  showRelatedTools = true,
+  title: titleProp,
+  description: descriptionProp
 }) => {
-  const { title, description, metadata, id } = tool;
-  const pageTitle = `${title} | MyDebugger`;
-  const pageDescription = description;
+  const { title: toolTitle, description: toolDescription, metadata, id } = tool;
+  
+  // Use provided props if available, otherwise use values from tool
+  const finalTitle = titleProp || toolTitle;
+  const finalDescription = descriptionProp || toolDescription;
+  
+  const pageTitle = `${finalTitle} | MyDebugger`;
+  const pageDescription = finalDescription;
 
   return (
     <>
@@ -68,7 +79,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
               <tool.icon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
             </div>
             <div className="flex items-center flex-wrap">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mr-2">{title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mr-2">{finalTitle}</h1>
               {tool.isBeta && (
                 <span className="ml-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded">
                   BETA
@@ -85,7 +96,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
         
         {showDescription && (
           <div className="mb-8">
-            <p className="text-gray-600 dark:text-gray-300">{description}</p>
+            <p className="text-gray-600 dark:text-gray-300">{finalDescription}</p>
           </div>
         )}
         
@@ -109,7 +120,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
                 rel="noopener noreferrer"
                 className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium inline-flex items-center"
               >
-                Read more about {title}
+                Read more about {finalTitle}
                 <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>

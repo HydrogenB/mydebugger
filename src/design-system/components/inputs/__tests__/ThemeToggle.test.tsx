@@ -5,7 +5,21 @@ import { ThemeProvider } from '../../../context/ThemeContext';
 
 // Mock the Button component to simplify testing
 jest.mock('../Button', () => ({
-  Button: ({ children, onClick, icon, 'aria-label': ariaLabel, className, size }) => (
+  Button: ({ 
+    children, 
+    onClick, 
+    icon, 
+    'aria-label': ariaLabel, 
+    className, 
+    size 
+  }: { 
+    children: React.ReactNode;
+    onClick: () => void;
+    icon?: string;
+    'aria-label'?: string;
+    className?: string;
+    size?: string;
+  }) => (
     <button 
       onClick={onClick} 
       data-testid="theme-toggle-button" 

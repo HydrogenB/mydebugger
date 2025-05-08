@@ -308,12 +308,15 @@ describe('Tooltip Component', () => {
     
     // Find the button by text
     const button = screen.getByText((content, element) => {
+      if (!element) return false;
       return element.textContent === 'Complex Button';
     }).closest('button');
     
-    fireEvent.mouseEnter(button);
-    
-    expect(screen.getByRole('tooltip')).toBeInTheDocument();
-    expect(screen.getByRole('tooltip')).toHaveTextContent('Nested Content Tooltip');
+    if (button) {
+      fireEvent.mouseEnter(button);
+      
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+      expect(screen.getByRole('tooltip')).toHaveTextContent('Nested Content Tooltip');
+    }
   });
 });

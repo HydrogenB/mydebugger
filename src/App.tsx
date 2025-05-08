@@ -21,9 +21,15 @@ const App: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 
                 {/* Special handling for JWT tool with nested routes */}
-                <Route path="/jwt/*" element={<React.Suspense fallback={<LoadingSpinner />}>
-                  {toolRegistry.find(tool => tool.id === 'jwt-toolkit')?.component}
-                </React.Suspense>} />
+                <Route path="/jwt/*" element={
+                  <React.Suspense fallback={<LoadingSpinner />}>
+                    {toolRegistry.find(tool => tool.id === 'jwt-toolkit')?.component && 
+                      React.createElement(
+                        toolRegistry.find(tool => tool.id === 'jwt-toolkit')!.component as React.ComponentType
+                      )
+                    }
+                  </React.Suspense>
+                } />
                 
                 {/* Dynamic routes for all other tools */}
                 {toolRegistry

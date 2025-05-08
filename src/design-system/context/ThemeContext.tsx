@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 type ThemeType = 'light' | 'dark' | 'system';
 type ColorScheme = 'blue' | 'purple' | 'green' | 'amber' | 'red' | 'gray';
 
-interface ThemeContextType {
+export interface ThemeContextType {
   theme: ThemeType;
   isDark: boolean;
   colorScheme: ColorScheme;

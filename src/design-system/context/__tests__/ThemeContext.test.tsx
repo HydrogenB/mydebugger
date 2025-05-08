@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ThemeContext, ThemeProvider } from '../ThemeContext';
+import ThemeContext, { ThemeProvider, ThemeContextType } from '../ThemeContext';
 
 describe('ThemeContext', () => {
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('ThemeContext', () => {
 
   // Simple test component to display theme context values
   const TestComponent = () => {
-    const { theme, isDark, colorScheme, toggleTheme, setTheme, setColorScheme } = React.useContext(ThemeContext);
+    const { theme, isDark, colorScheme, toggleTheme, setTheme, setColorScheme } = React.useContext(ThemeContext)!;
     
     return (
       <div>
