@@ -54,12 +54,8 @@ export const BenchResult: React.FC<BenchResultProps> = ({ onRun }) => {
       // Run benchmarks sequentially
       for (const algo of algorithms) {
         try {
-          const opsPerSecond = await cryptoWorker.bench(
-            algo.name as any,
-            testHeader,
-            testPayload,
-            algo.category === 'sign' ? 'sign' : 'verify'
-          );
+          // Fix: Pass only the algorithm name to the bench function
+          const opsPerSecond = await cryptoWorker.bench(algo.name as any);
           
           benchResults.push({
             algorithm: algo.name,

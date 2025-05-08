@@ -160,29 +160,41 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const cryptoWorker = await import('../workers/cryptoWorker');
       const decoded = await cryptoWorker.decode(token);
       
-      dispatch({ type: 'SET_TOKEN', payload: token });
-      dispatch({ type: 'SET_DECODED', payload: decoded });
-      dispatch({ type: 'SET_ERROR', payload: null });
-      
-      // Reset verification status when token changes
-      dispatch({ type: 'SET_VERIFIED', payload: null });
-      
-      // Add to history
-      const label = decoded.payload.sub || decoded.payload.name || 
-        `Token ${new Date().toLocaleDateString()}`;
-      
-      dispatch({
-        type: 'ADD_HISTORY_ITEM',
-        payload: {
-          id: Math.random().toString(36).substring(2, 9),
-          token,
-          timestamp: Date.now(),
-          label
-        }
-      });
-      
-      // Analyze token for security issues
-      analyzeToken(token);
+      // Convert DecodedJwt to JwtParts
+      if (decoded.header && decoded.payload && decoded.signature) {
+        const jwtParts: JwtParts = {
+          header: decoded.header,
+          payload: decoded.payload,
+          signature: decoded.signature,
+          raw: decoded.raw
+        };
+        
+        dispatch({ type: 'SET_TOKEN', payload: token });
+        dispatch({ type: 'SET_DECODED', payload: jwtParts });
+        dispatch({ type: 'SET_ERROR', payload: null });
+        
+        // Reset verification status when token changes
+        dispatch({ type: 'SET_VERIFIED', payload: null });
+        
+        // Add to history with null checks for payload
+        const label = decoded.payload?.sub || decoded.payload?.name || 
+          `Token ${new Date().toLocaleDateString()}`;
+        
+        dispatch({
+          type: 'ADD_HISTORY_ITEM',
+          payload: {
+            id: Math.random().toString(36).substring(2, 9),
+            token,
+            timestamp: Date.now(),
+            label
+          }
+        });
+        
+        // Analyze token for security issues
+        analyzeToken(token);
+      } else {
+        throw new Error('Failed to decode JWT: Invalid token structure');
+      }
     } catch (err) {
       dispatch({ 
         type: 'SET_ERROR', 
@@ -428,7 +440,9 @@ export const JwtContextProvider: React.FC<{ children: ReactNode }> = ({ children
       return Promise.resolve();
     },
     verifySignature: (algorithm, key) => {
-      return verifySignature(jwtToken, key);
+      // Call verifySignature but ignore the boolean return value
+      // as the JwtContextType expects Promise<void> not Promise<boolean>
+      return verifySignature(jwtToken, key).then(() => {});
     },
     analyzeToken: () => {
       // Implementation not needed for build to pass
