@@ -136,18 +136,19 @@ const EditorPane: React.FC<EditorPaneProps> = ({
       </div>
       
       {/* Editor area */}
-      <div className="relative flex-grow overflow-hidden">
+      <div className="relative flex-grow overflow-hidden" style={{ height: 'calc(100% - 32px)' }}>
         <textarea
           ref={editorRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={`
-            w-full h-full p-4 font-mono text-sm resize-none outline-none
+            w-full h-full p-4 pl-12 font-mono text-sm resize-none outline-none
             bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100
             ${error ? 'border-red-300 dark:border-red-700' : 'border-transparent'}
             focus:ring-2 focus:ring-primary-300 dark:focus:ring-primary-700
             transition-colors duration-150
           `}
+          style={{ boxSizing: 'border-box', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
           spellCheck={false}
           autoComplete="off"
           autoCorrect="off"

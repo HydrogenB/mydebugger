@@ -158,16 +158,15 @@ const SplitPane: React.FC<SplitPaneProps> = ({
     <div 
       ref={containerRef}
       className={`split-pane relative ${direction} h-full w-full overflow-hidden ${className}`}
-      style={{ minHeight: '500px' }}
+      style={{ minHeight: '500px', display: 'flex', flexDirection: 'row' }}
     >
       {/* Left/Top pane */}
       <div
-        className="split-pane-left absolute overflow-auto"
+        className="split-pane-left overflow-auto"
         style={{
-          left: 0,
-          top: 0,
-          [direction === 'horizontal' ? 'width' : 'height']: `${split}%`,
-          [direction === 'horizontal' ? 'height' : 'width']: '100%'
+          flex: `0 0 ${split}%`,
+          height: '100%',
+          position: 'relative'
         }}
         aria-label={direction === 'horizontal' ? 'Left panel' : 'Top panel'}
       >
@@ -177,14 +176,12 @@ const SplitPane: React.FC<SplitPaneProps> = ({
       {/* Divider */}
       <div
         ref={dividerRef}
-        className={`split-pane-divider absolute z-10 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 
-                  ${direction === 'horizontal' ? 'cursor-col-resize w-1 h-full' : 'cursor-row-resize h-1 w-full'}`}
+        className={`split-pane-divider z-10 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 
+                  ${direction === 'horizontal' ? 'cursor-col-resize' : 'cursor-row-resize'}`}
         style={{
-          [direction === 'horizontal' ? 'left' : 'top']: `calc(${split}% - 2px)`,
-          [direction === 'horizontal' ? 'width' : 'height']: '4px',
-          [direction === 'horizontal' ? 'top' : 'left']: 0,
-          [direction === 'horizontal' ? 'height' : 'width']: '100%',
-          transform: direction === 'horizontal' ? 'translateX(-50%)' : 'translateY(-50%)'
+          width: direction === 'horizontal' ? '6px' : 'auto',
+          height: direction === 'horizontal' ? 'auto' : '6px',
+          flexShrink: 0
         }}
         onMouseDown={() => setIsDragging(true)}
         onKeyDown={handleDividerKeyDown}
@@ -200,11 +197,11 @@ const SplitPane: React.FC<SplitPaneProps> = ({
       
       {/* Right/Bottom pane */}
       <div
-        className="split-pane-right absolute overflow-auto"
+        className="split-pane-right overflow-auto"
         style={{
-          [direction === 'horizontal' ? 'left' : 'top']: `${split}%`,
-          [direction === 'horizontal' ? 'right' : 'bottom']: 0,
-          [direction === 'horizontal' ? 'height' : 'width']: '100%',
+          flex: `1 1 ${100 - split}%`,
+          height: '100%',
+          position: 'relative'
         }}
         aria-label={direction === 'horizontal' ? 'Right panel' : 'Bottom panel'}
       >

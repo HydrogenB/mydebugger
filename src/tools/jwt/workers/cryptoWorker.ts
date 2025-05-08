@@ -336,7 +336,7 @@ const keyToArrayBuffer = (key: string, isBase64: boolean = false): ArrayBuffer =
       for (let i = 0; i < binaryStr.length; i++) {
         bytes[i] = binaryStr.charCodeAt(i);
       }
-      return bytes.buffer;
+      return bytes.buffer as ArrayBuffer;
     } catch (e) {
       console.error('PEM parsing failed:', e);
       throw new Error('Invalid PEM format key');
@@ -351,7 +351,7 @@ const keyToArrayBuffer = (key: string, isBase64: boolean = false): ArrayBuffer =
       for (let i = 0; i < binaryStr.length; i++) {
         bytes[i] = binaryStr.charCodeAt(i);
       }
-      return bytes.buffer;
+      return bytes.buffer as ArrayBuffer;
     } catch (e) {
       console.error('Base64 parsing failed:', e);
       throw new Error('Invalid base64 encoded key');
@@ -359,7 +359,7 @@ const keyToArrayBuffer = (key: string, isBase64: boolean = false): ArrayBuffer =
   } else {
     // Handle plain text key
     const encoder = new TextEncoder();
-    return encoder.encode(key).buffer;
+    return encoder.encode(key).buffer as ArrayBuffer;
   }
 };
 
