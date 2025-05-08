@@ -45,7 +45,9 @@ export type IconName =
   | 'bug'
   | 'link'
   | 'document'
-  | 'tool'; // Added for tool icon
+  | 'tool'
+  | 'github'  // Added for GitHub icon
+  | 'flowchart'; // Added for sequence diagram icon
 
 const icons: Record<IconName, string> = {
   // UI icons
@@ -91,7 +93,9 @@ const icons: Record<IconName, string> = {
   'bug': '🐞',
   'link': '🔗',
   'document': '📄',
-  'tool': '🔧' // Added for tool icon
+  'tool': '🔧', // Added for tool icon
+  'github': '💻', // Added for GitHub icon
+  'flowchart': '📊' // Added for flowchart/sequence diagram icon
 };
 
 /**
