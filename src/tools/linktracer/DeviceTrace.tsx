@@ -9,6 +9,9 @@ interface Hop {
   status: number;
   latencyMs: number;
   error?: string;
+  type?: string;
+  nextUrl?: string;
+  method?: string;
 }
 
 interface ScenarioResult {
@@ -16,9 +19,13 @@ interface ScenarioResult {
   name: string;
   hops: Hop[];
   totalTimeMs: number;
-  finalUrl: string;
+  finalUrl?: string;
+  final_url?: string;
   warnings: string[];
-  isValidOutcome: boolean;
+  isValidOutcome?: boolean;
+  status?: string;
+  deep_link?: string | null;
+  is_store_url?: boolean;
 }
 
 interface DeviceTraceResult {
@@ -66,6 +73,9 @@ const DeviceTrace: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [exportFeedback, setExportFeedback] = useState<string | null>(null);
   
+  // Enhanced mode with Puppeteer
+  const [enhancedMode, setEnhancedMode] = useState<boolean>(true);
+  
   // Persistent storage for app identifiers and URL history
   const [iosAppId, setIosAppId] = useLocalStorage<string>('probe:lastIosAppId', '');
   const [androidPackage, setAndroidPackage] = useLocalStorage<string>('probe:lastAndroidPkg', '');
@@ -98,6 +108,14 @@ const DeviceTrace: React.FC = () => {
     };
   }, []);
   
+  // State for selected result to view hop details
+  const [selectedResultIndex, setSelectedResultIndex] = useState<number | null>(null);
+  
+  // Handle row click to show hop details
+  const handleResultRowClick = (index: number) => {
+    setSelectedResultIndex(prevIndex => prevIndex === index ? null : index);
+  };
+
   // Handle trace submission
   const handleTrace = async () => {
     if (!url) {
@@ -114,20 +132,39 @@ const DeviceTrace: React.FC = () => {
     setTraceResults(null);
 
     try {
-      // Call the device trace API
-      const response = await fetch('/api/device-trace', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url,
-          maxHops: 20,
-          iosAppId, // Include iOS App ID if provided
-          androidPackage, // Include Android Package name if provided
-          deepLinkScheme // Include deep link scheme if provided
-        }),
-      });
+      let response;
+      
+      if (enhancedMode) {
+        // Call the enhanced Puppeteer-based probe API
+        response = await fetch('/api/puppeteer-probe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url,
+            emulate: ['ios_app', 'ios_noapp', 'android_app', 'android_noapp', 'desktop'],
+            iosAppId,
+            androidPackage,
+            deepLinkScheme
+          }),
+        });
+      } else {
+        // Call the legacy device trace API
+        response = await fetch('/api/device-trace', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url,
+            maxHops: 20,
+            iosAppId,
+            androidPackage,
+            deepLinkScheme
+          }),
+        });
+      }
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -135,6 +172,32 @@ const DeviceTrace: React.FC = () => {
       }
       
       const data = await response.json();
+      
+      // Transform data if necessary for consistency between APIs
+      if (enhancedMode) {
+        // Normalize the structure to match the expected format in the UI
+        data.results = data.results.map((result: ScenarioResult) => {
+          // Make sure we have finalUrl for consistency with old API
+          if (result.final_url && !result.finalUrl) {
+            result.finalUrl = result.final_url;
+          }
+          
+          // Transform the hops to match the existing format
+          result.hops = result.hops.map((hop: any) => {
+            return {
+              n: hop.n,
+              url: hop.url,
+              status: hop.status || 200, // Default status for JS redirects
+              latencyMs: hop.latencyMs || 0,
+              type: hop.type,
+              nextUrl: hop.nextUrl
+            };
+          });
+          
+          return result;
+        });
+      }
+      
       setTraceResults(data);
     } catch (err) {
       setError(`Error tracing dynamic link: ${err instanceof Error ? err.message : 'Unknown error'}`);
@@ -197,7 +260,7 @@ const DeviceTrace: React.FC = () => {
     // Add each result row - Remove Outcome value
     traceResults.results.forEach(result => {
       const finalHop = result.hops[result.hops.length - 1] || { status: 'N/A' };
-      csv += `"${result.name}","${result.finalUrl}",${finalHop.status},${result.hops.length},${result.totalTimeMs}\n`;
+      csv += `"${result.name}","${result.finalUrl || result.final_url}",${finalHop.status},${result.hops.length},${result.totalTimeMs}\n`;
     });
     
     // Copy to clipboard
@@ -246,9 +309,65 @@ const DeviceTrace: React.FC = () => {
       case 'REQUEST_FAILED': return 'Request failed';
       case 'MISSING_LOCATION_HEADER': return 'Missing redirect location';
       case 'INVALID_REDIRECT_URL': return 'Invalid redirect URL';
+      case 'NAVIGATION_ERROR': return 'Navigation error';
+      case 'PAGE_JS_ERROR': return 'JavaScript error on page';
       default: return warning;
     }
   };
+
+  // Get label for status of puppeteer-based detection
+  const getStatusLabel = (status?: string): string => {
+    switch (status) {
+      case 'deeplink_detected': return 'App Deep Link';
+      case 'intent_scheme_detected': return 'Android Intent Scheme';
+      case 'store_url_detected': return 'App Store URL';
+      case 'no_redirect_detected': return 'No Redirect Detected';
+      case 'error': return 'Error';
+      default: return status || 'Unknown';
+    }
+  };
+
+  // Get color class for status
+  const getStatusColorClass = (status?: string): string => {
+    switch (status) {
+      case 'deeplink_detected':
+      case 'intent_scheme_detected':
+        return 'bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-200';
+      case 'store_url_detected':
+        return 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-200';
+      case 'no_redirect_detected':
+        return 'bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200';
+      case 'error':
+        return 'bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200';
+      default:
+        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200';
+    }
+  };
+
+  // Handle enhanced mode toggle
+  const handleEnhancedModeToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const isEnhanced = e.target.checked;
+    setEnhancedMode(isEnhanced);
+    
+    // Store preference in localStorage
+    try {
+      localStorage.setItem('probe:enhancedMode', JSON.stringify(isEnhanced));
+    } catch (e) {
+      console.error('Failed to save enhanced mode preference:', e);
+    }
+  };
+
+  // Load enhanced mode preference from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem('probe:enhancedMode');
+      if (savedMode !== null) {
+        setEnhancedMode(JSON.parse(savedMode));
+      }
+    } catch (e) {
+      console.error('Failed to load enhanced mode preference:', e);
+    }
+  }, []);
 
   // SEO metadata
   const pageTitle = "Dynamic-Link Behavior Probe | MyDebugger";
@@ -333,6 +452,20 @@ const DeviceTrace: React.FC = () => {
                 >
                   Probe Link
                 </Button>
+              </div>
+              
+              {/* Enhanced Mode Toggle */}
+              <div className="mt-2 flex items-center">
+                <input
+                  id="enhanced-mode"
+                  type="checkbox"
+                  checked={enhancedMode}
+                  onChange={handleEnhancedModeToggle}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-700 rounded"
+                />
+                <label htmlFor="enhanced-mode" className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                  Enable Enhanced Mode (detects JavaScript redirects and deep links)
+                </label>
               </div>
               
               {/* Additional fields for app identifiers */}
@@ -432,29 +565,44 @@ const DeviceTrace: React.FC = () => {
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {traceResults.results.map((result, index) => {
                           const finalHop = result.hops[result.hops.length - 1] || { status: 'N/A' };
+                          
+                          // Determine what to display in the status cell based on API mode
+                          const statusDisplay = enhancedMode && result.status ? (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusColorClass(result.status)}`}>
+                              {getStatusLabel(result.status)}
+                            </span>
+                          ) : (
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                              (finalHop.status >= 200 && finalHop.status < 300) 
+                                ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                                : (finalHop.status >= 300 && finalHop.status < 400)
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                  : (finalHop.status >= 400 && finalHop.status < 500)
+                                    ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
+                                    : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                            }`}>
+                              {finalHop.status}
+                            </span>
+                          );
+                          
                           return (
                             <tr 
                               key={result.scenario} 
-                              className={index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}
+                              className={`${index % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'} hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
+                              onClick={() => handleResultRowClick(index)}
                             >
                               <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {result.name}
                               </td>
                               <td className="px-3 py-4 text-sm text-gray-700 dark:text-gray-300 font-mono break-all max-w-xs">
-                                {result.finalUrl}
+                                {enhancedMode && result.deep_link ? (
+                                  <span className="text-green-600 dark:text-green-400">{result.deep_link}</span>
+                                ) : (
+                                  result.finalUrl || result.final_url
+                                )}
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-sm">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                  (finalHop.status >= 200 && finalHop.status < 300) 
-                                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
-                                    : (finalHop.status >= 300 && finalHop.status < 400)
-                                      ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                                      : (finalHop.status >= 400 && finalHop.status < 500)
-                                        ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200'
-                                        : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                                }`}>
-                                  {finalHop.status}
-                                </span>
+                                {statusDisplay}
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
                                 {result.hops.length}
@@ -469,6 +617,83 @@ const DeviceTrace: React.FC = () => {
                     </table>
                   </div>
                 </div>
+                
+                {/* Hop details panel */}
+                {selectedResultIndex !== null && (
+                  <div className="mt-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                    <div className="bg-gray-50 dark:bg-gray-700 px-4 py-2 flex justify-between items-center">
+                      <h3 className="font-medium text-gray-900 dark:text-white">
+                        {traceResults.results[selectedResultIndex].name} - Hop Details
+                      </h3>
+                      <button 
+                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                        onClick={() => setSelectedResultIndex(null)}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="p-4 overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead>
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Hop</th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">URL</th>
+                            {enhancedMode && <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>}
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {traceResults.results[selectedResultIndex].hops.map((hop, i) => (
+                            <tr key={i} className={i % 2 === 0 ? 'bg-white dark:bg-gray-900' : 'bg-gray-50 dark:bg-gray-800'}>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                {hop.n}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-700 dark:text-gray-300 font-mono break-all">
+                                {hop.url}
+                                {hop.nextUrl && (
+                                  <div className="mt-1">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">→ </span>
+                                    <span className="text-xs text-green-600 dark:text-green-400 font-mono">{hop.nextUrl}</span>
+                                  </div>
+                                )}
+                              </td>
+                              {enhancedMode && (
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                  {hop.type === 'http_redirect' ? 'HTTP' : 
+                                   hop.type === 'js_redirect' ? 'JavaScript' : 
+                                   hop.type === 'meta_refresh' ? 'Meta Refresh' : 
+                                   hop.type === 'app_scheme' ? 'App Scheme' : 
+                                   hop.type === 'intent_scheme' ? 'Intent Scheme' : 
+                                   'Unknown'}
+                                   {hop.method && <div className="text-xs text-gray-500">{hop.method}</div>}
+                                </td>
+                              )}
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                {hop.status || '-'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      
+                      {/* Warnings */}
+                      {traceResults.results[selectedResultIndex].warnings.length > 0 && (
+                        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                          <h4 className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Warnings</h4>
+                          <ul className="mt-2 list-disc pl-5 space-y-1">
+                            {traceResults.results[selectedResultIndex].warnings.map((warning, i) => (
+                              <li key={i} className="text-xs text-yellow-700 dark:text-yellow-400">
+                                {formatWarning(warning)}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Export Options */}
                 <div className="flex flex-wrap justify-between items-center mt-6 bg-gray-50 dark:bg-gray-800 p-4 rounded-md border border-gray-200 dark:border-gray-700">
@@ -501,16 +726,6 @@ const DeviceTrace: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-
-                {/* Export Feedback */}
-                {exportFeedback && (
-                  <div className="mt-2 flex items-center justify-center p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md text-green-700 dark:text-green-400 text-sm">
-                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    {exportFeedback}
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -544,6 +759,17 @@ const DeviceTrace: React.FC = () => {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Redirects to a marketing or landing page</p>
               </div>
             </div>
+            
+            {enhancedMode && (
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md mt-4">
+                <h3 className="font-medium text-gray-900 dark:text-white mb-1">Enhanced Mode (Puppeteer)</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Enhanced mode utilizes Puppeteer to detect JavaScript-based redirects that regular HTTP inspection misses. 
+                  This is particularly useful for modern dynamic links from services like Appsflyer, Firebase, and Branch.io 
+                  which use client-side JavaScript to determine the appropriate redirection.
+                </p>
+              </div>
+            )}
           </div>
         </Card>
       </div>
