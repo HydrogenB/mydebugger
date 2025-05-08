@@ -256,6 +256,10 @@ const SequenceDiagramTool: React.FC = () => {
   const handlePerformanceUpdate = useCallback((time: number) => {
     setRenderTime(time);
   }, []);
+
+  // Fullscreen mode style classes
+  const fullscreenHeaderClass = "bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 py-1 px-3 flex items-center gap-2 shadow-sm fixed top-0 left-0 right-0 z-10";
+  const fullscreenButtonClass = "p-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded";
   
   return (
     <ToolLayout tool={tool}>
@@ -370,25 +374,110 @@ const SequenceDiagramTool: React.FC = () => {
         {/* Main content */}
         <div className="flex-grow overflow-hidden">
           {presentationMode ? (
-            <div className="h-full relative">
-              <PreviewPane
-                result={result}
-                participantOverlay={false}
-                presentationMode={true}
-                shrinkToFit={shrinkToFit}
-                onPerformanceUpdate={handlePerformanceUpdate}
+            <div className="h-full relative pt-10">
+              <div className={fullscreenHeaderClass}>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={togglePresentationMode}
+                    className={fullscreenButtonClass}
+                    aria-label="Exit presentation mode"
+                    title="Exit fullscreen (Ctrl+M)"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </Button>
+                  <div className="font-medium text-sm text-gray-700 dark:text-gray-200 max-w-[200px] truncate">
+                    {diagramName}
+                  </div>
+                </div>
+                
+                <div className="ml-auto flex items-center gap-2">
+                  <div className="flex space-x-1">
+                    <button
+                      className={fullscreenButtonClass}
+                      onClick={undo}
+                      disabled={!canUndo}
+                      aria-label="Undo"
+                      title="Undo (Ctrl+Z)"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                    </button>
+                    <button
+                      className={fullscreenButtonClass}
+                      onClick={redo}
+                      disabled={!canRedo}
+                      aria-label="Redo"
+                      title="Redo (Ctrl+Shift+Z)"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div className="h-4 border-r border-gray-300 dark:border-gray-600 mx-1"></div>
+                  
+                  <label className="flex items-center cursor-pointer" title="Participant Overlay">
+                    <input
+                      type="checkbox"
+                      checked={participantOverlay}
+                      onChange={(e) => setParticipantOverlay(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-8 h-4 bg-gray-300 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600"></div>
+                    <span className="ml-1 text-xs text-gray-700 dark:text-gray-300">Overlay</span>
+                  </label>
+                  
+                  <label className="flex items-center cursor-pointer" title="Shrink to Fit">
+                    <input
+                      type="checkbox"
+                      checked={shrinkToFit}
+                      onChange={(e) => setShrinkToFit(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="relative w-8 h-4 bg-gray-300 peer-checked:bg-blue-600 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600"></div>
+                    <span className="ml-1 text-xs text-gray-700 dark:text-gray-300">Fit</span>
+                  </label>
+                  
+                  <div className="h-4 border-r border-gray-300 dark:border-gray-600 mx-1"></div>
+                  
+                  <button
+                    className={fullscreenButtonClass}
+                    onClick={() => setExportDialogOpen(true)}
+                    disabled={!result?.svg}
+                    title="Export diagram"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <SplitPane
+                left={
+                  <EditorPane
+                    value={code}
+                    onChange={setCode}
+                    error={error}
+                    format={result?.format}
+                  />
+                }
+                right={
+                  <PreviewPane
+                    result={result}
+                    participantOverlay={participantOverlay}
+                    presentationMode={true}
+                    shrinkToFit={shrinkToFit}
+                    onPerformanceUpdate={handlePerformanceUpdate}
+                  />
+                }
+                initialSplit={50}
+                storageKey="sequence-diagram-split-fullscreen"
               />
-              
-              {/* Exit presentation mode button */}
-              <button
-                onClick={togglePresentationMode}
-                className="absolute top-4 right-4 bg-black/20 hover:bg-black/30 text-white p-2 rounded-full backdrop-blur-sm"
-                aria-label="Exit presentation mode"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
           ) : (
             <SplitPane
