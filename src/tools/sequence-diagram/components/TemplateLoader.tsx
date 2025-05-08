@@ -15,64 +15,146 @@ interface TemplateLoaderProps {
   onSelect: (template: Template) => void;
 }
 
+// Define template content directly in the component to avoid import issues
+const templates: Template[] = [
+  {
+    id: 'basic',
+    name: 'Basic Sequence Diagram',
+    description: 'Simple diagram with basic syntax elements',
+    content: `title Basic Sequence Diagram
+
+participant User
+participant System
+participant Database
+
+User->System: Request data
+activate System
+System->Database: Query data
+activate Database
+Database-->System: Return results
+deactivate Database
+System-->User: Display data
+deactivate System`,
+  },
+  {
+    id: 'async-call',
+    name: 'Asynchronous API Call',
+    description: 'API call flow with asynchronous processing',
+    content: `title Asynchronous API Call Flow
+
+participant Client
+participant API
+participant Queue
+participant Worker
+participant Database
+
+Client->API: POST /data
+activate API
+API->Database: Validate request
+activate Database
+Database-->API: Valid
+deactivate Database
+API->Queue: Enqueue job
+activate Queue
+Queue-->API: Job ID
+deactivate Queue
+API-->Client: 202 Accepted (Job ID)
+deactivate API
+
+note over Queue: Async processing
+
+Queue->Worker: Process job
+activate Worker
+Worker->Database: Update data
+activate Database
+Database-->Worker: Success
+deactivate Database
+Worker-->Queue: Complete
+deactivate Worker`,
+  },
+  {
+    id: 'all-features',
+    name: 'Syntax Reference',
+    description: 'Comprehensive example showing all sequencediagram.org syntax',
+    content: `title Sequence Diagram Syntax Reference
+
+participant User as U
+participant "Web Browser" as Browser
+actor "Authentication Service" as Auth
+participant "API Server" as API
+participant "Database" as DB
+
+note over U, DB: User authentication flow with all syntax elements
+
+U->Browser: Enter credentials
+activate Browser
+
+Browser->Auth: POST /login
+activate Auth
+
+alt Valid credentials
+  Auth->API: Validate user
+  activate API
+  
+  API->DB: Query user
+  activate DB
+  DB-->API: Return user data
+  deactivate DB
+  
+  API-->Auth: User valid
+  deactivate API
+  
+  Auth-->Browser: 200 OK + JWT
+  
+else Invalid credentials
+  Auth-->Browser: 401 Unauthorized
+end
+
+Browser-->U: Display result
+deactivate Browser
+
+loop Every hour
+  Browser->Auth: Refresh token
+  Auth-->Browser: New token
+end
+
+opt User requests profile
+  U->Browser: View profile
+  activate Browser
+  
+  Browser->API: GET /profile
+  activate API
+  
+  API->DB: Get profile data
+  activate DB
+  
+  par Additional data
+    API->Auth: Get permissions
+    Auth-->API: Permission data
+  and
+    DB-->API: User profile
+  end
+  
+  deactivate DB
+  
+  API-->Browser: Profile data
+  deactivate API
+  
+  Browser-->U: Display profile
+  deactivate Browser
+end
+
+note right of DB: This shows all syntax elements:\n- Participants & actors\n- Activation/deactivation\n- Alt/else conditions\n- Loops and opt blocks\n- Notes\n- Parallel execution`,
+  }
+];
+
 /**
  * Component for selecting and loading predefined sequence diagram templates
  */
 const TemplateLoader: React.FC<TemplateLoaderProps> = ({ onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Load available templates
-  useEffect(() => {
-    const loadTemplates = async () => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        // In a real app, this could be fetched from an API
-        // For now, we'll import our static templates
-        const basicTemplate = await import('../assets/templates/basic.txt');
-        const asyncCallTemplate = await import('../assets/templates/async-call.txt');
-        const allFeaturesTemplate = await import('../assets/templates/all-features.txt');
-        
-        // Build template list
-        const templateList: Template[] = [
-          {
-            id: 'basic',
-            name: 'Basic Sequence Diagram',
-            description: 'Simple diagram with basic syntax elements',
-            content: basicTemplate.default,
-          },
-          {
-            id: 'async-call',
-            name: 'Asynchronous API Call',
-            description: 'API call flow with asynchronous processing',
-            content: asyncCallTemplate.default,
-          },
-          {
-            id: 'all-features',
-            name: 'Syntax Reference',
-            description: 'Comprehensive example showing all sequencediagram.org syntax',
-            content: allFeaturesTemplate.default,
-          }
-        ];
-        
-        setTemplates(templateList);
-      } catch (error) {
-        console.error('Failed to load templates:', error);
-        setError('Failed to load templates. Please try again.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    // Only load templates when the dropdown is opened
-    if (isOpen && templates.length === 0) {
-      loadTemplates();
-    }
-  }, [isOpen, templates.length]);
   
   // Handle template selection
   const handleSelect = (template: Template) => {

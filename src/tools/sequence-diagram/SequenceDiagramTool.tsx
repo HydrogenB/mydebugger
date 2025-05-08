@@ -11,7 +11,7 @@ import { useUndoStack } from './hooks/useUndoStack';
 import { useShortcut } from './hooks/useShortcut';
 import { getLastDiagram, saveDiagram } from './services/storage.service';
 
-// Import template as a string constant
+// Import template as a string constant - using inline template to avoid import issues
 const basicTemplate = `title Basic Sequence Diagram
 
 participant User
@@ -263,7 +263,7 @@ const SequenceDiagramTool: React.FC = () => {
   
   return (
     <ToolLayout tool={tool}>
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col" style={{ minHeight: '80vh' }}>
         {/* Toolbar */}
         {!presentationMode && (
           <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2 flex flex-wrap items-center gap-2">
@@ -372,7 +372,7 @@ const SequenceDiagramTool: React.FC = () => {
         )}
         
         {/* Main content */}
-        <div className="flex-grow overflow-hidden">
+        <div className="flex-grow overflow-hidden" style={{ height: 'calc(80vh - 60px)' }}>
           {presentationMode ? (
             <div className="h-full relative pt-10">
               <div className={fullscreenHeaderClass}>

@@ -158,6 +158,7 @@ const SplitPane: React.FC<SplitPaneProps> = ({
     <div 
       ref={containerRef}
       className={`split-pane relative ${direction} h-full w-full overflow-hidden ${className}`}
+      style={{ minHeight: '500px' }}
     >
       {/* Left/Top pane */}
       <div

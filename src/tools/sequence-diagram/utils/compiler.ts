@@ -19,6 +19,10 @@ export interface CompileResult {
  * Detects the diagram format based on syntax pattern
  */
 export function detectFormat(code: string): DiagramFormat {
+  if (!code || typeof code !== 'string') {
+    return 'unknown';
+  }
+  
   const trimmedCode = code.trim();
   
   // Check for PlantUML syntax
@@ -32,6 +36,12 @@ export function detectFormat(code: string): DiagramFormat {
   if (trimmedCode.match(/participant|actor|note|title/) ||
       trimmedCode.match(/->|-->|<<--|<-/)) {
     return 'sequencediagram';
+  }
+  
+  // Check for mermaid sequence diagram
+  if (trimmedCode.startsWith('sequenceDiagram') ||
+      trimmedCode.includes('-->') && trimmedCode.includes('sequenceDiagram')) {
+    return 'mermaid';
   }
   
   return 'unknown';
