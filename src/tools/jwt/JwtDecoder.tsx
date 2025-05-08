@@ -6,6 +6,7 @@ import { Alert } from '../../design-system/components/feedback/Alert';
 import { Badge } from '../../design-system/components/display';
 import { Tooltip } from '../../design-system/components/overlays';
 import { useJwt } from './context/JwtContext';
+import { Text } from '../../design-system/components/typography';
 
 const JwtDecoder: React.FC = () => {
   // Use the enhanced context instead of local state
@@ -18,6 +19,7 @@ const JwtDecoder: React.FC = () => {
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'json' | 'table'>('json');  // Setting default tab to JSON
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('');
+  const [showIterationTooltip, setShowIterationTooltip] = useState<boolean>(false);
   
   // Update local state from context state
   useEffect(() => {
@@ -49,6 +51,19 @@ const JwtDecoder: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [copied]);
+
+  // Show iteration tooltip when token is successfully decoded
+  useEffect(() => {
+    if (decoded?.header && decoded?.payload) {
+      // Show tooltip with a slight delay for better UX
+      const timer = setTimeout(() => {
+        setShowIterationTooltip(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowIterationTooltip(false);
+    }
+  }, [decoded]);
   
   const handleCopyContent = (content: string, section: string) => {
     navigator.clipboard.writeText(content);
@@ -60,6 +75,63 @@ const JwtDecoder: React.FC = () => {
     setJwtToken('');
     setSecret('');
     setSelectedAlgorithm('');
+  };
+
+  // Get next iteration suggestions based on current token state
+  const getIterationSuggestions = (): JSX.Element => {
+    const suggestions: JSX.Element[] = [];
+
+    // If token is decoded but not verified
+    if (decoded?.header && !isVerified) {
+      suggestions.push(
+        <li key="verify">Try to verify the token signature with a secret or public key</li>
+      );
+    }
+
+    // If token uses an algorithm that might be vulnerable
+    if (decoded?.header?.alg === 'none' || decoded?.header?.alg === 'HS256') {
+      suggestions.push(
+        <li key="alg">Test for algorithm confusion attacks by changing the algorithm</li>
+      );
+    }
+
+    // If token contains an expiration claim
+    if (decoded?.payload?.exp) {
+      const expTime = decoded.payload.exp as number;
+      if (isExpired(expTime)) {
+        suggestions.push(
+          <li key="exp">Generate a new token with a future expiration time</li>
+        );
+      } else {
+        suggestions.push(
+          <li key="exp-test">Test token rejection by using an expired token</li>
+        );
+      }
+    }
+
+    // If token doesn't have certain security claims
+    if (!decoded?.payload?.jti) {
+      suggestions.push(
+        <li key="jti">Add a JWT ID (jti) claim for better security</li>
+      );
+    }
+
+    // If no specific suggestions, provide general ones
+    if (suggestions.length === 0) {
+      suggestions.push(
+        <li key="general-1">Modify the payload to test how the application handles different claims</li>,
+        <li key="general-2">Test token with different signature algorithms</li>
+      );
+    }
+
+    return (
+      <div className="text-sm">
+        <Text weight="bold" className="mb-1">Next steps to try:</Text>
+        <ul className="list-disc pl-5 space-y-1">
+          {suggestions}
+        </ul>
+      </div>
+    );
   };
 
   const handleGenerateExample = () => {
@@ -226,6 +298,21 @@ const JwtDecoder: React.FC = () => {
                   autoFocus
                   spellCheck="false"
                 />
+                
+                {/* Continue to iterate tooltip */}
+                {showIterationTooltip && decoded && (
+                  <div className="mt-4 flex justify-end">
+                    <Tooltip
+                      content={getIterationSuggestions()}
+                      position="bottom"
+                      size="lg"
+                    >
+                      <Badge variant="warning" className="cursor-help flex items-center">
+                        <span>👉 Continue to iterate?</span>
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                )}
                 
                 {error && (
                   <Alert type="error" className="mt-4">{error}</Alert>
@@ -425,6 +512,20 @@ const JwtDecoder: React.FC = () => {
                       )}
                     </div>
                     
+                    {/* Continue to iterate tooltip */}
+                    {showIterationTooltip && (
+                      <div className="relative ml-4">
+                        <Button 
+                          variant="outline-info" 
+                          onClick={() => setShowIterationTooltip(false)}
+                          size="sm"
+                          className="animate-pulse"
+                        >
+                          Next steps
+                        </Button>
+                      </div>
+                    )}
+                    
                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2 flex items-center">
                         <span className={getTokenPartColor('signature')}>SIGNATURE</span>
@@ -565,7 +666,7 @@ const JwtDecoder: React.FC = () => {
                                   color={
                                     issue.severity === 'high' ? "danger" :
                                     issue.severity === 'medium' ? "warning" :
-                                    issue.severity === 'low' ? "yellow" : "info"
+                                    issue.severity === 'low' ? "info" : "info"
                                   }
                                   size="sm"
                                 >
@@ -580,6 +681,20 @@ const JwtDecoder: React.FC = () => {
                         </div>
                       </div>
                     )}
+
+                    {/* Continue to iterate tooltip */}
+                    {showIterationTooltip && (
+                      <div className="relative ml-4">
+                        <Button 
+                          variant="outline-info" 
+                          onClick={() => setShowIterationTooltip(false)}
+                          size="sm"
+                          className="animate-pulse"
+                        >
+                          Next steps
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -592,6 +707,32 @@ const JwtDecoder: React.FC = () => {
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-lg font-semibold">About JWT</h2>
             </div>
+            <div className="p-4 text-sm">
+              <p className="text-gray-700 dark:text-gray-300 mb-3">
+                JSON Web Tokens (JWTs) are an open, industry standard RFC 7519 method for representing claims securely between two parties.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md">
+                  <h3 className={`font-medium mb-1 ${getTokenPartColor('header')}`}>Header</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Contains metadata about the token's type and the signing algorithm.</p>
+                </div>
+                <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-md">
+                  <h3 className={`font-medium mb-1 ${getTokenPartColor('payload')}`}>Payload</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Contains the token claims - statements about the user and additional metadata.</p>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
+                  <h3 className={`font-medium mb-1 ${getTokenPartColor('signature')}`}>Signature</h3>
+                  <p className="text-gray-600 dark:text-gray-400">Used to verify that the token wasn't changed along the way and came from an authentic source.</p>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mt-3">
+                <a 
+                  href="https://jwt.io/introduction" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center"
+                >
+                  Learn more about JWT
             <div className="p-4 text-sm">
               <p className="text-gray-700 dark:text-gray-300 mb-3">
                 JSON Web Tokens (JWTs) are an open, industry standard RFC 7519 method for representing claims securely between two parties.

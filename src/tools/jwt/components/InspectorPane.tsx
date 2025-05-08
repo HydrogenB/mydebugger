@@ -263,7 +263,7 @@ export const InspectorPane: React.FC = () => {
               {highIssues.map((issue) => (
                 <Alert 
                   key={issue.id}
-                  type="danger"
+                  type="error"
                   className="mb-2"
                 >
                   <div className="flex items-start">
@@ -653,7 +653,7 @@ export const InspectorPane: React.FC = () => {
                   </li>
                   <li className="flex">
                     <span className="text-red-600 dark:text-red-400 mr-2">✗</span>
-                    <span>Avoid very long-lived tokens (> 24 hours) for sensitive operations</span>
+                    <span>Avoid very long-lived tokens (&gt; 24 hours) for sensitive operations</span>
                   </li>
                 </ul>
               </div>

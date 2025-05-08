@@ -39,7 +39,7 @@ export const SecurityScoreGauge: React.FC<SecurityScoreGaugeProps> = ({ score })
   return (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-1">
-        <Text variant="bodySmall" className="font-semibold">
+        <Text size="sm" className="font-semibold">
           Security Score
         </Text>
         <div className={`px-2 py-1 rounded-md ${badgeColor}`}>
@@ -53,7 +53,7 @@ export const SecurityScoreGauge: React.FC<SecurityScoreGaugeProps> = ({ score })
         ></div>
       </div>
       <div className="mt-2">
-        <Text variant="caption" className="text-gray-500">
+        <Text size="xs" className="text-gray-500">
           {score >= 80 ? 
             "This token follows security best practices." : 
             score >= 60 ? 

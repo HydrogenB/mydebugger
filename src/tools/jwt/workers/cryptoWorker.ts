@@ -232,11 +232,11 @@ export const decodeSafely = async (token: string): Promise<DecodedJwt> => {
       header = JSON.parse(headerJson);
       
       // Check required fields
-      if (!header.alg) {
+      if (header && !header.alg) {
         warnings.push('Token header is missing the "alg" field');
       }
       
-      if (!header.typ && warnings.indexOf('Token header is missing the "typ" field') === -1) {
+      if (header && !header.typ && warnings.indexOf('Token header is missing the "typ" field') === -1) {
         warnings.push('Token header is missing the "typ" field');
       }
     } catch (e) {
