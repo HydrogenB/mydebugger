@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '../../design-system/components/layout';
+import { SOCIAL_ICONS, CONTACT_ICONS } from './utils/iconMappings';
 
 interface Link {
   id: string;
@@ -102,7 +103,7 @@ const NameCardView: React.FC<NameCardViewProps> = ({ nameCard }) => {
         <div className="space-y-2">
           {email && (
             <div className="flex items-center">
-              <span className="mr-2">📧</span>
+              <img src={CONTACT_ICONS.email} alt="Email" className="w-5 h-5 mr-2" />
               <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                 {email}
               </a>
@@ -111,7 +112,7 @@ const NameCardView: React.FC<NameCardViewProps> = ({ nameCard }) => {
           
           {phoneNumber && (
             <div className="flex items-center">
-              <span className="mr-2">📱</span>
+              <img src={CONTACT_ICONS.phone} alt="Phone" className="w-5 h-5 mr-2" />
               <a href={`tel:${phoneNumber}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                 {phoneNumber}
               </a>
@@ -120,10 +121,17 @@ const NameCardView: React.FC<NameCardViewProps> = ({ nameCard }) => {
           
           {website && (
             <div className="flex items-center">
-              <span className="mr-2">🌐</span>
+              <img src={CONTACT_ICONS.website} alt="Website" className="w-5 h-5 mr-2" />
               <a href={website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
                 {website.replace(/^https?:\/\//, '')}
               </a>
+            </div>
+          )}
+          
+          {location && (
+            <div className="flex items-center">
+              <img src={CONTACT_ICONS.location} alt="Location" className="w-5 h-5 mr-2" />
+              <span>{location}</span>
             </div>
           )}
         </div>
@@ -139,8 +147,13 @@ const NameCardView: React.FC<NameCardViewProps> = ({ nameCard }) => {
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 rounded-md text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition"
               >
+                <img 
+                  src={SOCIAL_ICONS[link.platform.toLowerCase()] || SOCIAL_ICONS.default} 
+                  alt={link.platform} 
+                  className="w-4 h-4 mr-2" 
+                />
                 {link.platform}
               </a>
             ))}
