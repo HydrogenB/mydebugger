@@ -1,9 +1,8 @@
 // Serverless-friendly version of deep link probe API endpoint for Vercel
 // Uses built-in fetch API instead of node-fetch for compatibility with serverless environments
 
-const { URL } = require('url');
+import { URL } from 'url';
 // Node 18+ has a global fetch – no import needed
-// const fetch = require('node-fetch');
 
 // Device simulation configurations - simplified version from deviceProfiles.js
 const DEVICE_SCENARIOS = {
@@ -263,17 +262,17 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
       scenario: scenarioId,
       name: config.name,
       status: "error",
+      error: scenarioError.message || 'Unknown error in scenario execution', // Ensure error message is included
       hops,
       totalTimeMs: 0,
       warnings: ['SCENARIO_ERROR'],
-      error: scenarioError.message || 'Unknown error in scenario execution',
-      isValidOutcome: false
+      isValidOutcome: false // Ensure isValidOutcome is false
     };
   }
 }
 
 // Main handler function
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -420,11 +419,11 @@ module.exports = async function handler(req, res) {
             scenario: id,
             name: config.name,
             status: "error",
-            error: scenarioError.message || "Unknown scenario error",
+            error: scenarioError.message || "Unknown scenario error", // Ensure error message is included
             hops: [],
             totalTimeMs: 0,
             warnings: ['SCENARIO_ERROR'],
-            isValidOutcome: false
+            isValidOutcome: false // Ensure isValidOutcome is false
           };
         }
       });

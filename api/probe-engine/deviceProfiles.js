@@ -77,4 +77,4 @@ const deviceProfiles = {
   }
 };
 
-module.exports = deviceProfiles;
+export default deviceProfiles;

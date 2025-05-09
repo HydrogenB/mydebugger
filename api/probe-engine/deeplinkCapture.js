@@ -1,8 +1,6 @@
-// Deep link detection and capture module for Puppeteer
-// Monitors and captures client-side redirections, including JavaScript redirects and meta refreshes
-
-const puppeteer = require('puppeteer');
-const { URL } = require('url');
+// Puppeteer-based deep link behavior detection
+// This module traces dynamic links through various platforms/devices
+import puppeteer from 'puppeteer';
 
 /**
  * Extract browser fallback URL from an intent:// URI
@@ -31,23 +29,21 @@ function extractIntentFallbackUrl(intentUrl) {
  * @returns {Object} Probe results including found redirects and deep links
  */
 async function probeUrl(url, scenarioId, profile, options = {}) {
-  // Override the app scheme if provided in options
-  if (options.appScheme && profile.appScheme) {
+  // Customize appScheme if provided in options
+  if (options.appScheme) {
     profile.appScheme = options.appScheme;
   }
-
-  // Start timing
-  const startTime = process.hrtime();
   
-  // Launch browser
+  // Launch browser with appropriate settings - for Vercel/AWS lambda compatibility
   const browser = await puppeteer.launch({
-    headless: "new", // Use new headless mode
+    headless: true,
     args: [
-      '--disable-extensions',
-      '--disable-default-apps',
-      '--no-sandbox', // Required in some environments
-      '--disable-setuid-sandbox'
-    ]
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu'
+    ],
   });
   
   try {
@@ -86,17 +82,30 @@ async function probeUrl(url, scenarioId, profile, options = {}) {
       // Only process if it's a main frame navigation
       if (response.request().isNavigationRequest() && response.request().frame() === page.mainFrame()) {
         if ([301, 302, 303, 307, 308].includes(status)) {
-          const location = response.headers()['location'];
-          if (location) {
+          const locationHeader = response.headers()['location'];
+          if (locationHeader) {
             try {
-              const fullRedirectUrl = new URL(location, responseUrl).toString();
+              const fullRedirectUrl = new URL(locationHeader, responseUrl).href;
               hops.push({
                 n: hopCounter++,
-                url: responseUrl,
+                url: currentUrl,
+                status: status,
                 type: "http_redirect",
-                status,
-                nextUrl: fullRedirectUrl
+                nextUrl: fullRedirectUrl,
+                latencyMs: 0
               });
+              
+              // Check if this is an app store URL or deep link
+              if (profile.expectedPattern && profile.expectedPattern.test(fullRedirectUrl)) {
+                if (fullRedirectUrl.includes('apps.apple.com')) {
+                  redirectStatus = "store_url_detected";
+                  isFinalUrlStoreUrl = true;
+                } else if (fullRedirectUrl.includes('play.google.com')) {
+                  redirectStatus = "store_url_detected";
+                  isFinalUrlStoreUrl = true;
+                }
+              }
+              
               currentUrl = fullRedirectUrl;
             } catch (e) {
               warnings.push(`INVALID_REDIRECT_URL@hop${hopCounter-1}`);
@@ -112,59 +121,55 @@ async function probeUrl(url, scenarioId, profile, options = {}) {
     page.on('request', (request) => {
       const url = request.url();
       const isAppSchemeUrl = profile.appScheme && url.startsWith(profile.appScheme);
-      const isIntentUrl = profile.intentScheme && url.startsWith('intent://');
+      const isIntentScheme = url.startsWith('intent://');
       
-      if (isAppSchemeUrl) {
-        // Found native app deep link
+      if (isAppSchemeUrl || isIntentScheme) {
         deepLinkFound = url;
-        redirectStatus = "deeplink_detected";
-        hops.push({
-          n: hopCounter++,
-          url: currentUrl,
-          type: "app_scheme",
-          nextUrl: url
-        });
-      } else if (isIntentUrl) {
-        // Found Android intent:// URL
-        deepLinkFound = url;
-        redirectStatus = "intent_scheme_detected";
-        
-        // Extract fallback URL if present
-        const fallbackUrl = extractIntentFallbackUrl(url);
+        redirectStatus = isIntentScheme ? 'intent_scheme_detected' : 'deeplink_detected';
         
         hops.push({
           n: hopCounter++,
           url: currentUrl,
-          type: "intent_scheme",
+          type: isIntentScheme ? 'intent_scheme' : 'app_scheme',
           nextUrl: url,
-          fallbackUrl
+          latencyMs: 0
         });
       }
     });
-
-    // Listen for client-side redirections via window.location changes
+    
+    // Inject JS to intercept dynamic redirects
     await page.evaluateOnNewDocument(() => {
-      // Store original methods
+      // Save original methods we're going to override
       const originalAssign = window.location.assign;
       const originalReplace = window.location.replace;
       const originalOpen = window.open;
       
-      // Create custom event for redirection
+      // Custom function to report redirects
+      window.reportLocationChange = (detail) => {};
+      
+      // Helper to notify about redirects
       const notifyRedirect = (url, method) => {
-        window.dispatchEvent(new CustomEvent('locationchange', { 
-          detail: { url, method }
-        }));
+        try {
+          window.reportLocationChange({ url, method });
+        } catch (e) {
+          console.error('Failed to report location change:', e);
+        }
       };
       
       // Override location.href setter
+      const originalLocationDescriptor = Object.getOwnPropertyDescriptor(window, 'location');
       const originalHrefDescriptor = Object.getOwnPropertyDescriptor(window.location, 'href');
-      Object.defineProperty(window.location, 'href', {
-        set(value) {
-          notifyRedirect(value, 'location.href');
-          return originalHrefDescriptor.set.call(this, value);
-        },
-        get: originalHrefDescriptor.get
-      });
+      
+      if (originalHrefDescriptor && originalHrefDescriptor.set) {
+        Object.defineProperty(window.location, 'href', {
+          set(value) {
+            notifyRedirect(value, 'location.href');
+            return originalHrefDescriptor.set.call(this, value);
+          },
+          get: originalHrefDescriptor.get,
+          configurable: true
+        });
+      }
       
       // Override location.assign
       window.location.assign = function(url) {
@@ -219,23 +224,17 @@ async function probeUrl(url, scenarioId, profile, options = {}) {
         url: currentUrl,
         type: "js_redirect",
         method,
-        nextUrl: url
+        nextUrl: url,
+        latencyMs: 0
       });
       
       currentUrl = url;
     });
     
-    // Add handler in the page
+    // Detect and handle meta refreshes
     await page.evaluateOnNewDocument(() => {
-      window.addEventListener('locationchange', (e) => {
-        window.reportLocationChange(e.detail);
-      });
-    });
-    
-    // Monitor for meta refresh redirects
-    await page.evaluateOnNewDocument(() => {
-      // Function to check meta refresh tags
-      const checkMetaRefresh = () => {
+      // Function to check for meta refresh redirects
+      window.checkMetaRefresh = () => {
         const metaTags = document.querySelectorAll('meta[http-equiv="refresh"]');
         metaTags.forEach(tag => {
           const content = tag.getAttribute('content');
@@ -332,7 +331,7 @@ async function probeUrl(url, scenarioId, profile, options = {}) {
       scenario: scenarioId,
       name: profile.name,
       status: "error",
-      error: error.message,
+      error: error.message, // Ensure error message is present
       hops: [],
       latencyMs: 0,
       warnings: ["PROBE_ERROR"]
@@ -340,4 +339,4 @@ async function probeUrl(url, scenarioId, profile, options = {}) {
   }
 }
 
-module.exports = { probeUrl };
+export { probeUrl };

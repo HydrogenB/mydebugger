@@ -32,6 +32,12 @@ const DEVICE_SCENARIOS = {
     headers: {},
     expectedPattern: /^https:\/\/play\.google\.com\//
   },
+  and_playstore_noapp: {
+    name: 'Android + Play Store (No App)',
+    userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',
+    headers: {},
+    expectedPattern: /^https:\/\/play\.google\.com\//
+  },
   desktop: {
     name: 'Desktop',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -49,8 +55,18 @@ const ipRequestCounts = new Map();
  * Creates device scenarios with appropriate parameters based on provided app details
  */
 function createDeviceScenarios(iosAppId, androidPackage, deepLinkScheme) {
-  // Create a copy of the base scenarios
-  const scenarios = JSON.parse(JSON.stringify(DEVICE_SCENARIOS));
+  // Create a deep copy excluding RegExp objects
+  const scenarios = {};
+  
+  // Copy scenarios manually to handle RegExp objects properly
+  for (const [key, value] of Object.entries(DEVICE_SCENARIOS)) {
+    scenarios[key] = { ...value };
+    
+    // Keep the original RegExp objects intact for default cases
+    if (value.expectedPattern instanceof RegExp) {
+      scenarios[key].expectedPattern = new RegExp(value.expectedPattern);
+    }
+  }
   
   // Update with custom app scheme if provided
   if (deepLinkScheme) {
@@ -182,6 +198,16 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
             break;
           }
           
+          // Handle special URL schemes that node-fetch doesn't support
+          if (nextUrl.startsWith('itms-appss://') || 
+              nextUrl.startsWith('market://') || 
+              nextUrl.startsWith('intent://')) {
+            // Add these as hops but stop following them since we can't fetch them
+            hops[hops.length - 1].nextUrl = nextUrl;
+            warnings.push('UNSUPPORTED_URL_SCHEME');
+            break;
+          }
+          
           // Check for protocol downgrade (HTTPS to HTTP)
           if (currentUrl.startsWith('https://') && nextUrl.startsWith('http://')) {
             warnings.push('PROTOCOL_DOWNGRADE');
@@ -226,16 +252,42 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
     let isValidOutcome = false;
     let redirectStatus = 'no_redirect_detected';
     
-    // Check for URL patterns
-    if (config.expectedPattern && config.expectedPattern.test(finalUrl)) {
-      isValidOutcome = true;
-      
-      if (finalUrl.includes('apps.apple.com')) {
-        redirectStatus = 'ios_store_url';
-      } else if (finalUrl.includes('play.google.com')) {
-        redirectStatus = 'android_store_url';
-      } else if (config.appScheme && finalUrl.startsWith(config.appScheme)) {
-        redirectStatus = 'deeplink';
+    // Check for URL patterns - verify config.expectedPattern is a regex
+    if (config.expectedPattern && config.expectedPattern instanceof RegExp) {
+      if (config.expectedPattern.test(finalUrl)) {
+        isValidOutcome = true;
+        
+        if (finalUrl.includes('apps.apple.com')) {
+          redirectStatus = 'ios_store_url';
+        } else if (finalUrl.includes('play.google.com')) {
+          redirectStatus = 'android_store_url';
+        } else if (config.appScheme && finalUrl.startsWith(config.appScheme)) {
+          redirectStatus = 'deeplink';
+        }
+      }
+    }
+    
+    // Look for deeplinks in redirect chains - some URLs might return special schemes we can't follow
+    for (const hop of hops) {
+      if (hop.nextUrl) {
+        if (hop.nextUrl.startsWith('itms-appss://') || 
+            hop.nextUrl.startsWith('itms-apps://')) {
+          redirectStatus = 'ios_store_url';
+          isValidOutcome = true;
+          break;
+        } else if (hop.nextUrl.startsWith('market://')) {
+          redirectStatus = 'android_store_url';
+          isValidOutcome = true;
+          break;
+        } else if (config.appScheme && hop.nextUrl.startsWith(config.appScheme)) {
+          redirectStatus = 'deeplink';
+          isValidOutcome = true;
+          break;
+        } else if (hop.nextUrl.startsWith('intent://')) {
+          redirectStatus = 'intent_scheme';
+          isValidOutcome = true;
+          break;
+        }
       }
     }
     
@@ -284,11 +336,11 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
       scenario: scenarioId,
       name: config.name || scenarioId,
       status: 'error',
-      error: scenarioError.message || 'Unknown error in scenario execution',
+      error: scenarioError.message || 'Unknown error in scenario execution', // Ensure error message is included
       hops,
       totalTimeMs: 0,
       warnings: ['SCENARIO_ERROR'],
-      isValidOutcome: false
+      isValidOutcome: false // Ensure isValidOutcome is false
     };
   }
 }
@@ -394,11 +446,11 @@ export default async function handler(req, res) {
                 scenario: id,
                 name: config.name || id,
                 status: "error",
-                error: scenarioError.message || "Unknown scenario error",
+                error: scenarioError.message || "Unknown scenario error", // Ensure error message is included
                 hops: [],
                 totalTimeMs: 0,
                 warnings: ['SCENARIO_ERROR'],
-                isValidOutcome: false
+                isValidOutcome: false // Ensure isValidOutcome is false
               };
             }
           })
