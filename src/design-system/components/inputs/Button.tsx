@@ -25,7 +25,8 @@ export type ButtonVariant =
   | 'text-success' 
   | 'text-danger'
   | 'text-warning'
-  | 'text-info';
+  | 'text-info'
+  | 'outline';
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type ButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
@@ -55,6 +56,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   elevated?: boolean;
   /** Whether the button is active (pressed/selected) */
   active?: boolean;
+  /** Add href support for button links */
+  href?: string;
 }
 
 /**
@@ -122,6 +125,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     className = '',
     disabled,
     type = 'button',
+    href,
     ...rest
   }, ref) => {
     // Base classes
@@ -292,6 +296,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const processedIcon = processIcon(icon);
     const processedRightIcon = processIcon(rightIcon);
 
+    // If href is provided, render an anchor tag that looks like a button
+    if (href) {
+      return (
+        <a
+          href={href}
+          className={buttonClasses}
+          {...rest}
+        >
+          {children}
+        </a>
+      );
+    }
+
+    // Otherwise render a regular button
     return (
       <button 
         ref={ref}

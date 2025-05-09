@@ -697,6 +697,86 @@ export const signToken = async (
 };
 
 /**
+ * Generates a key pair for asymmetric algorithms
+ * @param algorithm Algorithm to use for key generation (RS256, ES256, etc)
+ * @param keySize Key size in bits (for RSA)
+ * @returns Promise with generated public and private keys
+ */
+export const generateKeyPair = async (algorithm, keySize = 2048) => {
+  if (!algorithm) {
+    throw new Error('Algorithm is required');
+  }
+  
+  try {
+    if (algorithm.startsWith('RS')) {
+      // For RSA algorithms
+      const { publicKey, privateKey } = await window.crypto.subtle.generateKey(
+        {
+          name: 'RSASSA-PKCS1-v1_5',
+          modulusLength: keySize,
+          publicExponent: new Uint8Array([1, 0, 1]),
+          hash: { name: algorithm.replace('RS', 'SHA-') },
+        },
+        true,
+        ['sign', 'verify']
+      )
+      .then(async keyPair => {
+        // Export the keys in PEM format
+        const publicKeyBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+        const privateKeyBuffer = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+        
+        // Convert to base64 and format as PEM
+        const publicKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(publicKeyBuffer)));
+        const privateKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(privateKeyBuffer)));
+        
+        return {
+          publicKey: `-----BEGIN PUBLIC KEY-----\n${publicKeyBase64}\n-----END PUBLIC KEY-----`,
+          privateKey: `-----BEGIN PRIVATE KEY-----\n${privateKeyBase64}\n-----END PRIVATE KEY-----`
+        };
+      });
+      
+      return { publicKey, privateKey };
+    } 
+    else if (algorithm.startsWith('ES')) {
+      // For ECDSA algorithms
+      let namedCurve = 'P-256'; // Default for ES256
+      
+      if (algorithm === 'ES384') namedCurve = 'P-384';
+      if (algorithm === 'ES512') namedCurve = 'P-521'; // Note: P-521, not P-512
+      
+      const { publicKey, privateKey } = await window.crypto.subtle.generateKey(
+        {
+          name: 'ECDSA',
+          namedCurve,
+        },
+        true,
+        ['sign', 'verify']
+      )
+      .then(async keyPair => {
+        // Export the keys in PEM format
+        const publicKeyBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
+        const privateKeyBuffer = await window.crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+        
+        // Convert to base64 and format as PEM
+        const publicKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(publicKeyBuffer)));
+        const privateKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(privateKeyBuffer)));
+        
+        return {
+          publicKey: `-----BEGIN PUBLIC KEY-----\n${publicKeyBase64}\n-----END PUBLIC KEY-----`,
+          privateKey: `-----BEGIN PRIVATE KEY-----\n${privateKeyBase64}\n-----END PRIVATE KEY-----`
+        };
+      });
+      
+      return { publicKey, privateKey };
+    }
+    throw new Error(`Unsupported algorithm for key generation: ${algorithm}`);
+  } catch (error) {
+    console.error('Error generating key pair:', error);
+    throw error;
+  }
+};
+
+/**
  * Analyze a token for security issues
  */
 export const analyzeToken = async (token: string): Promise<SecurityIssue[]> => {

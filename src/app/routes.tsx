@@ -1,8 +1,11 @@
-import React, { Suspense } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+// Import LoadingSpinner from correct path
+import { LoadingSpinner } from '../shared/design-system/components/feedback';
+// Import from the pages directory
+import NotFound from '../pages/NotFound';
+import Home from '../pages/Home';
 import { featureRegistry } from '@features/index';
-import { LoadingSpinner } from '@shared/design-system';
-import { NotFound, Home } from '@pages';
 
 /**
  * Application routes configuration

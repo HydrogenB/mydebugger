@@ -314,9 +314,14 @@ const toolRegistry: Tool[] = [
 
 export default toolRegistry;
 
+// Export a function to get all tools
+export const getTools = () => {
+  return toolRegistry;
+};
+
 // Helper functions to work with the tool registry
 export const getToolByRoute = (route: string): Tool | undefined => {
-  return toolRegistry.find(tool => tool.route === route);
+  return getTools().find(tool => tool.route === route);
 };
 
 export const getToolById = (id: string): Tool | undefined => {

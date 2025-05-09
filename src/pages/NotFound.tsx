@@ -1,28 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../design-system/components/inputs';
-import { Card } from '../design-system/components/layout';
-import { getIcon } from '../design-system/icons';
+import { Button } from '../shared/design-system/components/inputs';
 
 const NotFound: React.FC = () => {
   return (
-    <div className="container mx-auto px-4 py-16 flex justify-center">
-      <Card isElevated className="max-w-md text-center p-8">
-        <div className="text-6xl font-bold text-gray-400 mb-4">{getIcon('error')}</div>
-        <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
-        <h2 className="text-2xl font-semibold text-gray-700 mb-6">Page Not Found</h2>
-        <p className="text-gray-600 mb-8">
-          Sorry, the page you are looking for might have been removed or doesn't exist.
-        </p>
-        <Link to="/">
-          <Button 
-            variant="primary"
-            icon="home"
-          >
-            Back to Home
-          </Button>
-        </Link>
-      </Card>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <h1 className="text-4xl font-bold mb-2">404</h1>
+      <h2 className="text-2xl mb-4">Page Not Found</h2>
+      <p className="text-gray-600 dark:text-gray-300 mb-6 text-center">
+        The page you are looking for doesn't exist or has been moved.
+      </p>
+      <Button 
+        variant="primary"
+        href="/"
+      >
+        Return Home
+      </Button>
     </div>
   );
 };
