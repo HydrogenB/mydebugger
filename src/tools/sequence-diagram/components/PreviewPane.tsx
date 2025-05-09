@@ -2,34 +2,42 @@ import React, { useRef, useEffect, useState } from 'react';
 import { CompileResult } from '../utils/compiler';
 // Import local TypeScript stub implementation
 import Diagram from '../utils/sequence-diagrams-stub';
-// Still keep mermaid as a fallback option for now
-import mermaid from 'mermaid';
 
-// Initialize mermaid with configuration (as fallback)
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'default',
-  sequence: {
-    showSequenceNumbers: false,
-    actorMargin: 80,
-    messageMargin: 40,
-    diagramMarginX: 50,
-    diagramMarginY: 10,
-    boxMargin: 10,
-    noteMargin: 10,
-    mirrorActors: false,
-    bottomMarginAdj: 1,
-    useMaxWidth: true
-  },
-  themeVariables: {
-    primaryColor: '#326CE5',
-    lineColor: '#666',
-    textColor: '#333'
+// Lazily load mermaid only when needed
+const loadMermaid = async () => {
+  try {
+    const mermaidModule = await import('mermaid');
+    const mermaid = mermaidModule.default;
+    
+    // Initialize mermaid with configuration (as fallback)
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      sequence: {
+        showSequenceNumbers: false,
+        actorMargin: 80,
+        messageMargin: 40,
+        diagramMarginX: 50,
+        diagramMarginY: 10,
+        boxMargin: 10,
+        noteMargin: 10,
+        mirrorActors: false,
+        bottomMarginAdj: 1,
+        useMaxWidth: true
+      },
+      themeVariables: {
+        primaryColor: '#326CE5',
+        lineColor: '#666',
+        textColor: '#333'
+      }
+    });
+    
+    return mermaid;
+  } catch (error) {
+    console.error('Failed to load mermaid:', error);
+    return null;
   }
-});
-
-// No longer needed since we're using js-sequence-diagrams directly
-// const convertToMermaid = (code: string): string => { ... }
+};
 
 interface PreviewPaneProps {
   /**
@@ -134,13 +142,19 @@ const PreviewPane: React.FC<PreviewPaneProps> = ({
           const renderStart = performance.now();
           
           try {
-            const { svg } = await mermaid.render('diagram-container', result.html);
-            setRenderedDiagram(svg);
-            setError(null);
-            
-            const renderEnd = performance.now();
-            if (onPerformanceUpdate) {
-              onPerformanceUpdate(renderEnd - renderStart);
+            const mermaid = await loadMermaid();
+            if (mermaid) {
+              const { svg } = await mermaid.render('diagram-container', result.html);
+              setRenderedDiagram(svg);
+              setError(null);
+              
+              const renderEnd = performance.now();
+              if (onPerformanceUpdate) {
+                onPerformanceUpdate(renderEnd - renderStart);
+              }
+            } else {
+              setError('Failed to load mermaid');
+              setRenderedDiagram(null);
             }
           } catch (renderError) {
             console.error('Mermaid rendering error:', renderError);

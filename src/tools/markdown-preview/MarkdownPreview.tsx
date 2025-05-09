@@ -11,30 +11,11 @@ import { Alert } from '../../design-system/components/feedback';
 import { Card } from '../../design-system/components/layout';
 import 'github-markdown-css/github-markdown-light.css';
 import 'prismjs/themes/prism-tomorrow.css';
-// Import additional Prism language support
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-csharp';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-ruby';
-import 'prismjs/components/prism-rust';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-php';
 import './MarkdownPreview.css';
 import { useTheme } from '../../design-system/context/ThemeContext';
 
-// Define a default markdown template for first-time users
+// Import only core Prism - we'll load languages dynamically
+const STORAGE_KEY = 'markdownPreview';
 const DEFAULT_MARKDOWN = `# Markdown Live Preview
 
 ## Getting Started with Markdown
@@ -50,70 +31,114 @@ Markdown is a lightweight markup language that you can use to add formatting ele
 ### Heading 3
 #### Heading 4
 ##### Heading 5
-###### Heading 6
 
 ### Emphasis
 
-*Italic text* or _also italic_
+*This text will be italic*
+_This will also be italic_
 
-**Bold text** or __also bold__
+**This text will be bold**
+__This will also be bold__
 
-***Bold and italic*** or ___also bold and italic___
+_You **can** combine them_
 
 ### Lists
 
 #### Unordered List
+
 * Item 1
 * Item 2
-  * Subitem 2.1
-  * Subitem 2.2
-* Item 3
+  * Item 2a
+  * Item 2b
 
 #### Ordered List
-1. First item
-2. Second item
-3. Third item
-   1. Subitem 3.1
-   2. Subitem 3.2
+
+1. Item 1
+2. Item 2
+3. Item 3
+   1. Item 3a
+   2. Item 3b
 
 ### Links
 
-[Visit MyDebugger](https://mydebugger.vercel.app)
+[GitHub](http://github.com)
 
 ### Images
 
-![Alt text](https://via.placeholder.com/150 "Image Title")
+![GitHub Logo](https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png)
 
 ### Code
 
-Inline \`code\` in a sentence
-
 \`\`\`javascript
-// Code block with syntax highlighting
-function greet(name) {
-  console.log(\`Hello, \${name}!\`);
+function factorial(n) {
+  if (n === 0 || n === 1) {
+    return 1;
+  }
+  return n * factorial(n - 1);
 }
-greet('world');
 \`\`\`
-
-### Blockquotes
-
-> This is a blockquote
-> 
-> It can span multiple lines
 
 ### Tables
 
-| Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
-| Cell 1   | Cell 2   | Cell 3   |
-| Cell 4   | Cell 5   | Cell 6   |
+| Header 1 | Header 2 |
+| -------- | -------- |
+| Content 1 | Content 2 |
+| Content 3 | Content 4 |
+
+### Blockquotes
+
+> This is a blockquote.
+> 
+> This is the second paragraph in the blockquote.
 
 ### Horizontal Rule
 
 ---
-
 `;
+
+const commonLanguages = [
+  'javascript', 'typescript', 'jsx', 'tsx', 
+  'css', 'html', 'json', 'python', 'java', 
+  'c', 'cpp', 'csharp', 'go', 'ruby', 'rust', 
+  'bash', 'yaml', 'markdown', 'sql', 'php'
+];
+
+// Helper to dynamically load Prism language components
+const loadPrismLanguage = async (language) => {
+  if (!language || Prism.languages[language]) {
+    return;
+  }
+
+  try {
+    await import(`prismjs/components/prism-${language}.js`);
+  } catch (e) {
+    console.warn(`Failed to load Prism language: ${language}`, e);
+  }
+};
+
+// Helper to detect and load languages in code blocks
+const detectAndLoadLanguages = async (html) => {
+  const container = document.createElement('div');
+  container.innerHTML = html;
+
+  const codeBlocks = container.querySelectorAll('code[class*="language-"]');
+  const languages = [];
+
+  codeBlocks.forEach((block) => {
+    const classes = block.className.split(' ');
+    for (const cls of classes) {
+      if (cls.startsWith('language-')) {
+        const language = cls.replace('language-', '');
+        if (!languages.includes(language)) {
+          languages.push(language);
+        }
+      }
+    }
+  });
+
+  // Load detected languages in parallel
+  await Promise.all(languages.map(language => loadPrismLanguage(language)));
+};
 
 /**
  * Markdown Preview Tool Component
@@ -140,9 +165,6 @@ const MarkdownPreview: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Local storage key for saving markdown content
-  const STORAGE_KEY = 'markdown-preview-content';
-  
   // Load saved content from local storage on component mount
   useEffect(() => {
     try {
@@ -155,14 +177,23 @@ const MarkdownPreview: React.FC = () => {
     }
   }, []);
   
+  // Preload common languages for better UX
+  useEffect(() => {
+    Promise.all(commonLanguages.map(lang => loadPrismLanguage(lang)));
+  }, []);
+
   // Convert markdown to HTML whenever content changes
   useEffect(() => {
     const parseMarkdown = async () => {
       try {
-        const html = await Promise.resolve(marked.parse(markdown, {
+        const html = marked(markdown, {
           gfm: true,
           breaks: true,
-        }));
+        });
+        
+        // Detect and load languages from the HTML
+        await detectAndLoadLanguages(html);
+        
         setHtmlOutput(DOMPurify.sanitize(html));
         
         // Save to local storage

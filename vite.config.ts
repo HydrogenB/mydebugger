@@ -18,6 +18,7 @@ export default defineConfig({
     minify: 'esbuild', 
     sourcemap: true, // Enable sourcemaps to help debug issues
     outDir: 'dist',
+    chunkSizeWarningLimit: 800, // Increased from default 500kb
     rollupOptions: {
       output: {
         // Ensure asset filenames include content hash to avoid caching issues
@@ -25,8 +26,38 @@ export default defineConfig({
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
+          // More granular chunking strategy
           react: ['react', 'react-dom', 'react-router-dom'],
           vendor: ['react-helmet'],
+          
+          // Split markdown-related dependencies
+          marked: ['marked'],
+          prismjs: ['prismjs'],
+          dompurify: ['dompurify'],
+          
+          // Split UI libraries
+          'code-editor': ['@uiw/react-textarea-code-editor'],
+          
+          // Split design system
+          'design-system': [
+            './src/design-system/index.ts',
+            './src/design-system/components/inputs',
+            './src/design-system/components/layout',
+            './src/design-system/components/feedback',
+          ],
+          
+          // JWT related code
+          'jwt-core': [
+            './src/tools/jwt/components/BenchResult.tsx',
+            './src/tools/jwt/context/JwtContext.tsx',
+            './src/tools/jwt/workers/cryptoWorker.ts'
+          ],
+          
+          // For Sequence Diagram Tool
+          'sequence-diagram-core': [
+            './src/tools/sequence-diagram/utils/compiler.ts',
+            './src/tools/sequence-diagram/utils/sequence-diagrams-stub.js'
+          ]
         },
       },
     },
