@@ -77,8 +77,6 @@ const DeviceTrace: React.FC = () => {
   const [enhancedMode, setEnhancedMode] = useState<boolean>(true);
   
   // Persistent storage for app identifiers and URL history
-  const [iosAppId, setIosAppId] = useLocalStorage<string>('probe:lastIosAppId', '');
-  const [androidPackage, setAndroidPackage] = useLocalStorage<string>('probe:lastAndroidPkg', '');
   const [deepLinkScheme, setDeepLinkScheme] = useLocalStorage<string>('probe:lastScheme', '');
   const [lastLink, setLastLink] = useLocalStorage<string>('probe:lastLink', '');
   const [recentLinks, setRecentLinks] = useLocalStorage<string[]>('probe:recentLinks', []);
@@ -134,55 +132,26 @@ const DeviceTrace: React.FC = () => {
     try {
       let response;
       
+      const params = new URLSearchParams({
+        url: url,
+        deepLinkScheme: deepLinkScheme,
+        enhancedMode: String(enhancedMode),
+      });
+
       if (enhancedMode) {
-        // Call the enhanced Puppeteer-based probe API
-        response = await fetch('/api/puppeteer-probe', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url,
-            emulate: ['ios_app', 'ios_noapp', 'android_app', 'android_noapp', 'desktop'],
-            iosAppId,
-            androidPackage,
-            deepLinkScheme
-          }),
-        });
+        // Use the new API endpoint for Puppeteer-based tracing
+        response = await fetch(`/api/puppeteer-probe?${params.toString()}`);
       } else {
-        // Call the legacy device trace API
-        response = await fetch('/api/device-trace', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url,
-            maxHops: 20,
-            iosAppId,
-            androidPackage,
-            deepLinkScheme
-          }),
-        });
+        // Fallback or standard trace if needed (though UI implies enhanced is primary for this tool)
+        // This tool seems designed around enhanced mode, ensure API matches or adjust
+        response = await fetch(`/api/device-trace?${params.toString()}`);
+      }
+
+      if (response.error) {
+        throw new Error(response.error);
       }
       
-      if (!response.ok) {
-        // Check if the response is JSON before trying to parse it
-        const contentType = response.headers.get('content-type');
-        
-        if (contentType && contentType.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `Request failed with status ${response.status}`);
-        } else {
-          // Handle non-JSON error response
-          const errorText = await response.text();
-          throw new Error(`Server error (${response.status}): ${
-            errorText.length > 100 ? errorText.substring(0, 100) + '...' : errorText
-          }`);
-        }
-      }
-      
-      const data = await response.json();
+      const data = response;
       
       // Transform data if necessary for consistency between APIs
       if (enhancedMode) {
@@ -479,34 +448,8 @@ const DeviceTrace: React.FC = () => {
                 </label>
               </div>
               
-              {/* Additional fields for app identifiers */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-                <div>
-                  <label htmlFor="ios-app-id" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    iOS App Store ID (optional)
-                  </label>
-                  <input
-                    id="ios-app-id"
-                    type="text"
-                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
-                    placeholder="id123456789"
-                    value={iosAppId}
-                    onChange={(e) => setIosAppId(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="android-pkg" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
-                    Android Package Name (optional)
-                  </label>
-                  <input
-                    id="android-pkg"
-                    type="text"
-                    className="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50 text-sm"
-                    placeholder="com.example.app"
-                    value={androidPackage}
-                    onChange={(e) => setAndroidPackage(e.target.value)}
-                  />
-                </div>
+              {/* Keep Deep-Link Scheme input, adjust grid if necessary or make it full width */}
+              <div className="mt-2">
                 <div>
                   <label htmlFor="deep-link-scheme" className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
                     Deep-Link Scheme / Prefix (optional)
@@ -606,11 +549,14 @@ const DeviceTrace: React.FC = () => {
                                 {result.name}
                               </td>
                               <td className="px-3 py-4 text-sm text-gray-700 dark:text-gray-300 font-mono break-all max-w-xs">
-                                {enhancedMode && result.deep_link ? (
-                                  <span className="text-green-600 dark:text-green-400">{result.deep_link}</span>
-                                ) : (
-                                  result.finalUrl || result.final_url
-                                )}
+                                {(() => {
+                                  const finalLink = result.finalUrl || result.final_url;
+                                  const isDeeplinkSuccess = enhancedMode && result.deep_link && result.deep_link === finalLink && result.status === 'deeplink';
+                                  if (isDeeplinkSuccess) {
+                                    return <span className="text-green-600 dark:text-green-400">{finalLink}</span>;
+                                  }
+                                  return finalLink;
+                                })()}
                               </td>
                               <td className="px-3 py-4 whitespace-nowrap text-sm">
                                 {statusDisplay}

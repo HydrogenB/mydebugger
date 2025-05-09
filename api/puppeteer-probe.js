@@ -223,8 +223,44 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
           finalUrl.includes('app.link')) {
         
         // Create synthetic deep link based on scheme
-        const deepLink = `${config.appScheme}path?source=dynamic_link`;
-        
+        let generatedDeepLink;
+        try {
+            // finalUrl is the URL of the dynamic link provider, e.g., https://s.true.th/...
+            // It might contain parameters like af_dp or deep_link_value.
+            const finalUrlObject = new URL(finalUrl);
+            const afDp = finalUrlObject.searchParams.get('af_dp');
+            const deepLinkValue = finalUrlObject.searchParams.get('deep_link_value');
+
+            if (afDp) {
+                // af_dp is intended to be the URI scheme for deep linking, e.g., "myapp://path/to/content"
+                // It should be used directly as it's the most specific.
+                generatedDeepLink = afDp;
+            } else if (deepLinkValue) {
+                // deep_link_value is the value passed for deep linking, e.g., "path/to/content"
+                // It needs to be appended to the configured appScheme.
+                // config.appScheme is like "trueapp://"
+                generatedDeepLink = config.appScheme + deepLinkValue;
+            } else {
+                // Fallback if no specific AppsFlyer params are found.
+                // Use hostname and pathname from the finalUrl (dynamic link provider URL)
+                // to create a more specific fallback deep link.
+                let fallbackPathSegment = 'unknown_path'; // Default if hostname is missing
+                if (finalUrlObject.hostname) {
+                    // Construct path segment like: hostname/pathname or hostname/ if pathname is just '/'
+                    fallbackPathSegment = finalUrlObject.hostname + (finalUrlObject.pathname === '/' ? '/' : finalUrlObject.pathname);
+                }
+                generatedDeepLink = config.appScheme + fallbackPathSegment;
+
+                // Add a query parameter to indicate it's a generated fallback
+                // and to distinguish it from explicitly provided deep links.
+                generatedDeepLink += (generatedDeepLink.includes('?') ? '&' : '?') + 'mydebugger_fallback=no_explicit_deeplink_params';
+            }
+        } catch (e) {
+            console.error('Error parsing finalUrl for deep link parameters:', finalUrl, e);
+            generatedDeepLink = config.appScheme + 'path?source=dynamic_link_error_parsing'; // Fallback on error
+        }
+        const deepLink = generatedDeepLink;
+
         return {
           scenario: scenarioId,
           name: config.name,
