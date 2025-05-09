@@ -1,8 +1,9 @@
 // Serverless-friendly version of deep link probe API endpoint for Vercel
-// Uses node-fetch instead of Puppeteer for compatibility with serverless environments
+// Uses built-in fetch API instead of node-fetch for compatibility with serverless environments
 
 const { URL } = require('url');
-const fetch = require('node-fetch');
+// Node 18+ has a global fetch – no import needed
+// const fetch = require('node-fetch');
 
 // Device simulation configurations - simplified version from deviceProfiles.js
 const DEVICE_SCENARIOS = {
@@ -11,7 +12,8 @@ const DEVICE_SCENARIOS = {
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
     headers: { 'X-AF-Force': 'deeplink' },
     expectedPattern: /^trueapp:\/\//,
-    addDeeplinkParam: true
+    addDeeplinkParam: true,
+    appScheme: 'trueapp://' // Default scheme - will be overridden if custom scheme is provided
   },
   ios_noapp: {
     name: 'iOS + No App',
@@ -24,7 +26,8 @@ const DEVICE_SCENARIOS = {
     userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',
     headers: { 'X-AF-Force': 'deeplink' },
     expectedPattern: /(^intent:\/\/)|(^trueapp:\/\/)/,
-    addDeeplinkParam: true
+    addDeeplinkParam: true,
+    appScheme: 'trueapp://' // Default scheme - will be overridden if custom scheme is provided
   },
   android_noapp: {
     name: 'Android + No App',
@@ -78,15 +81,22 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
       
       try {
         // Make the request with manual redirect handling
-        res = await fetch(currentUrl, {
-          method: 'HEAD', // Start with HEAD for efficiency
-          redirect: 'manual', // Don't auto-follow redirects
-          headers: {
-            'user-agent': config.userAgent,
-            ...config.headers
-          },
-          timeout: 7000 // 7 second timeout per hop
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 7000);
+        
+        try {
+          res = await fetch(currentUrl, {
+            method: 'HEAD', // Start with HEAD for efficiency
+            redirect: 'manual', // Don't auto-follow redirects
+            headers: {
+              'user-agent': config.userAgent,
+              ...config.headers
+            },
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
         
         status = res.status;
         
@@ -98,15 +108,22 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
         if (status === 405 || status === 404 || status === 0) {
           try {
             const getStart = process.hrtime();
-            res = await fetch(currentUrl, {
-              method: 'GET',
-              redirect: 'manual',
-              headers: {
-                'user-agent': config.userAgent,
-                ...config.headers
-              },
-              timeout: 7000
-            });
+            const getController = new AbortController();
+            const getTimeout = setTimeout(() => getController.abort(), 7000);
+            
+            try {
+              res = await fetch(currentUrl, {
+                method: 'GET',
+                redirect: 'manual',
+                headers: {
+                  'user-agent': config.userAgent,
+                  ...config.headers
+                },
+                signal: getController.signal
+              });
+            } finally {
+              clearTimeout(getTimeout);
+            }
             
             status = res.status;
             
@@ -192,7 +209,7 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
         redirectStatus = "store_url_detected";
       } else if (finalUrl.includes('play.google.com')) {
         redirectStatus = "store_url_detected";
-      } else if (finalUrl.startsWith(config.appScheme)) {
+      } else if (config.appScheme && finalUrl.startsWith(config.appScheme)) {
         redirectStatus = "deeplink_detected";
       }
     }
@@ -207,7 +224,7 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops = 20) {
           finalUrl.includes('app.link')) {
         
         // Create synthetic deep link based on scheme
-        const deepLink = `${config.appScheme || 'trueapp://'}path?source=dynamic_link`;
+        const deepLink = `${config.appScheme}path?source=dynamic_link`;
         
         return {
           scenario: scenarioId,
@@ -349,13 +366,21 @@ module.exports = async function handler(req, res) {
     
     // Update with custom app scheme if provided
     if (deepLinkScheme) {
+      // Make sure the scheme ends with "://"
+      const normalizedScheme = deepLinkScheme.endsWith('://') 
+        ? deepLinkScheme 
+        : `${deepLinkScheme}://`;
+        
+      // Escape special regex characters to be safe
+      const escapedScheme = normalizedScheme.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
       if (deviceScenarios.ios_app) {
-        deviceScenarios.ios_app.appScheme = deepLinkScheme;
-        deviceScenarios.ios_app.expectedPattern = new RegExp(`^${deepLinkScheme}`);
+        deviceScenarios.ios_app.appScheme = normalizedScheme;
+        deviceScenarios.ios_app.expectedPattern = new RegExp(`^${escapedScheme}`);
       }
       if (deviceScenarios.android_app) {
-        deviceScenarios.android_app.appScheme = deepLinkScheme;
-        deviceScenarios.android_app.expectedPattern = new RegExp(`(^intent:\/\/)|(^${deepLinkScheme})`);
+        deviceScenarios.android_app.appScheme = normalizedScheme;
+        deviceScenarios.android_app.expectedPattern = new RegExp(`(^intent:\/\/)|(^${escapedScheme})`);
       }
     }
     
@@ -428,7 +453,7 @@ module.exports = async function handler(req, res) {
       });
     }
   } catch (outerError) {
-    // Catch-all for any unexpected errors
+    // Catch-all for any unexpected errors to ensure we always return valid JSON
     console.error('Serverless function error:', outerError);
     return res.status(500).json({ 
       error: `Server error: ${outerError.message || 'Unknown error'}` 

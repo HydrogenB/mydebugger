@@ -9,7 +9,8 @@ const DEVICE_SCENARIOS = {
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
     headers: { 'X-AF-Force': 'deeplink' },
     expectedPattern: /^trueapp:\/\//,
-    addDeeplinkParam: true
+    addDeeplinkParam: true,
+    appScheme: 'trueapp://' // Default scheme - will be overridden if custom scheme is provided
   },
   ios_noapp: {
     name: 'iOS + No App',
@@ -22,7 +23,8 @@ const DEVICE_SCENARIOS = {
     userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36',
     headers: { 'X-AF-Force': 'deeplink' },
     expectedPattern: /(^intent:\/\/)|(^trueapp:\/\/)/,
-    addDeeplinkParam: true
+    addDeeplinkParam: true,
+    appScheme: 'trueapp://' // Default scheme - will be overridden if custom scheme is provided
   },
   and_noapp: {
     name: 'Android + No App',
@@ -47,23 +49,33 @@ const ipRequestCounts = new Map();
  * Creates device scenarios with appropriate parameters based on provided app details
  */
 function createDeviceScenarios(iosAppId, androidPackage, deepLinkScheme) {
-  // Create a deep copy of the scenarios
+  // Create a copy of the base scenarios
   const scenarios = JSON.parse(JSON.stringify(DEVICE_SCENARIOS));
   
-  // Update with custom app details if provided
+  // Update with custom app scheme if provided
   if (deepLinkScheme) {
+    // Make sure the scheme ends with "://"
+    const normalizedScheme = deepLinkScheme.endsWith('://') 
+      ? deepLinkScheme 
+      : `${deepLinkScheme}://`;
+    
+    // Escape special regex characters to be safe
+    const escapedScheme = normalizedScheme.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // Update iOS app scenario
     if (scenarios.ios_app) {
-      scenarios.ios_app.appScheme = deepLinkScheme;
-      scenarios.ios_app.expectedPattern = new RegExp(`^${deepLinkScheme}`);
+      scenarios.ios_app.appScheme = normalizedScheme;
+      scenarios.ios_app.expectedPattern = new RegExp(`^${escapedScheme}`);
     }
     
+    // Update Android app scenario
     if (scenarios.and_app) {
-      scenarios.and_app.appScheme = deepLinkScheme;
-      scenarios.and_app.expectedPattern = new RegExp(`(^intent:\/\/)|(^${deepLinkScheme})`);
+      scenarios.and_app.appScheme = normalizedScheme;
+      scenarios.and_app.expectedPattern = new RegExp(`(^intent:\/\/)|(^${escapedScheme})`);
     }
   }
   
-  // Update iOS expected pattern with specific app ID
+  // Update iOS App Store URL pattern with specific app ID
   if (iosAppId && scenarios.ios_noapp) {
     scenarios.ios_noapp.expectedPattern = new RegExp(`^https:\/\/apps\.apple\.com\/.*${iosAppId}`);
   }
@@ -222,7 +234,7 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
         redirectStatus = 'ios_store_url';
       } else if (finalUrl.includes('play.google.com')) {
         redirectStatus = 'android_store_url';
-      } else if (finalUrl.startsWith(config.appScheme || 'trueapp://')) {
+      } else if (config.appScheme && finalUrl.startsWith(config.appScheme)) {
         redirectStatus = 'deeplink';
       }
     }
@@ -237,7 +249,7 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
           finalUrl.includes('app.link')) {
         
         // Create synthetic deep link
-        const deepLink = `${config.appScheme || 'trueapp://'}path?source=dynamic_link`;
+        const deepLink = `${config.appScheme}path?source=dynamic_link`;
         
         return {
           scenario: scenarioId,
