@@ -18,27 +18,11 @@
       }
     }
   ],
-  "routes": [
-    {
-      "src": "/api/auth/(.*)",
-      "dest": "/api/auth/$1"
-    },
-    {
-      "src": "^/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "^/assets/(.*)",
-      "dest": "/assets/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))",
-      "dest": "/$1"
-    },
-    {
-      "src": ".*",
-      "dest": "/index.html"
-    }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
     "NEXTAUTH_URL": "https://mydebugger.vercel.app",
