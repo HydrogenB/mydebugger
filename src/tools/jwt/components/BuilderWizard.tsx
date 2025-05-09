@@ -197,6 +197,32 @@ export const BuilderWizard: React.FC = () => {
     navigator.clipboard.writeText(generatedToken);
     setCopied(true);
   };
+
+  const handleGenerateKeyPair = async () => {
+    try {
+      setIsGeneratingKeys(true);
+      
+      // Dynamically import the cryptoWorker module
+      const cryptoWorker = await import('../workers/cryptoWorker');
+      
+      // Generate the key pair
+      const { publicKey, privateKey } = await cryptoWorker.generateKeyPair(
+        signatureConfig.algorithm,
+        signatureConfig.keySize || 2048
+      );
+      
+      setSignatureConfig({
+        ...signatureConfig,
+        publicKey,
+        privateKey
+      });
+    } catch (error) {
+      console.error('Error generating key pair:', error);
+      setKeyError(String(error));
+    } finally {
+      setIsGeneratingKeys(false);
+    }
+  };
   
   // Render header configuration step
   const renderHeaderStep = () => (

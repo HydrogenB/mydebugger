@@ -4,40 +4,32 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/', // Ensures all assets are loaded from the correct base path
+  base: '/', 
   plugins: [react()],
   server: {
     port: 3000,
-    // Add historyApiFallback for local development SPA routing
     historyApiFallback: true,
-    // Ensure proper MIME types for JavaScript modules
-    headers: {
-      'Content-Type': 'application/javascript; charset=utf-8'
-    }
   },
   build: {
     minify: 'esbuild', 
-    sourcemap: true, // Enable sourcemaps to help debug issues
+    sourcemap: true,
     outDir: 'dist',
-    chunkSizeWarningLimit: 800, // Increased from default 500kb
+    chunkSizeWarningLimit: 1000, // Increased limit to reduce warnings
     rollupOptions: {
       output: {
-        // Ensure asset filenames include content hash to avoid caching issues
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
         manualChunks: {
-          // More granular chunking strategy
-          react: ['react', 'react-dom', 'react-router-dom'],
-          vendor: ['react-helmet'],
+          // Split vendor code
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['react-helmet'],
           
-          // Use current directory structure
-          jwt: ['./src/tools/jwt'],
-          urlEncoder: ['./src/tools/url'],
-          sequenceDiagram: ['./src/tools/sequence-diagram'],
-          
-          // Core modules
-          designSystem: ['./src/design-system']
+          // Split tools by category for better loading performance
+          'jwt': ['./src/tools/jwt/components/JwtToolkit.tsx'],
+          'qrcode': ['./src/tools/qrcode/QRCodeGenerator.tsx'],
+          'markdown': ['./src/tools/markdown-preview/MarkdownPreview.tsx'],
+          'sequence': ['./src/tools/sequence-diagram/SequenceDiagramTool.tsx'],
         }
       }
     }
@@ -49,9 +41,15 @@ export default defineConfig({
       '@design-system': path.resolve(__dirname, './src/design-system'),
       '@layout': path.resolve(__dirname, './src/layout'),
       '@pages': path.resolve(__dirname, './src/pages'),
+      '@components': path.resolve(__dirname, './src/components'),
       '@services': path.resolve(__dirname, './src/services'),
       '@types': path.resolve(__dirname, './src/types'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+      '@features': path.resolve(__dirname, './src/features'),
       '@api': path.resolve(__dirname, './api')
     }
+  },
+  optimizeDeps: {
+    exclude: ['@prisma/client']
   }
 })

@@ -5,6 +5,9 @@ import { getAllCategories, categories } from '../tools';
 import { ThemeToggle } from '../design-system/components/inputs';
 import { useTheme } from '../design-system/context/ThemeContext';
 import { getIcon } from '../design-system/icons';
+import { useAuth } from '../features/auth/AuthContext';
+import GoogleLoginButton from '../features/auth/GoogleLoginButton';
+import UserProfile from '../features/auth/UserProfile';
 
 const Header: React.FC = () => {
   const allCategories = getAllCategories();
@@ -12,6 +15,8 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -35,9 +40,9 @@ const Header: React.FC = () => {
   };
   
   return (
-    <header className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md transition-colors duration-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-2">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
           <Link to="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-lg hover:text-primary-700 dark:hover:text-primary-300 transition">
             <span className="text-xl">{getIcon('code')}</span>
             <span>MyDebugger</span>
@@ -92,6 +97,31 @@ const Header: React.FC = () => {
                 <span>{getIcon('menu')}</span>
               )}
             </button>
+          </div>
+          
+          {/* User Authentication */}
+          <div className="flex items-center">
+            {isLoading ? (
+              <div className="w-8 h-8 animate-pulse bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+            ) : isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center focus:outline-none"
+                >
+                  <span className="sr-only">Open user menu</span>
+                  {/* User avatar or icon */}
+                </button>
+                
+                {showUserMenu && (
+                  <div className="absolute right-0 w-48 mt-2 py-2 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10">
+                    <UserProfile />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <GoogleLoginButton />
+            )}
           </div>
         </div>
         
