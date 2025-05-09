@@ -8,10 +8,47 @@ import toolRegistry from './tools';
 import { ThemeProvider } from './design-system/context/ThemeContext';
 import { LoadingSpinner } from './design-system/components/feedback';
 
+// Add global styling for tags
+const tagStyles = `
+  .tag-beta, .tag-new {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  
+  .tag-beta {
+    background-color: #FEF3C7;
+    color: #92400E;
+  }
+  
+  .dark .tag-beta {
+    background-color: rgba(146, 64, 14, 0.3);
+    color: #FBBF24;
+  }
+  
+  .tag-new {
+    background-color: #D1FAE5;
+    color: #065F46;
+  }
+  
+  .dark .tag-new {
+    background-color: rgba(6, 95, 70, 0.3);
+    color: #6EE7B7;
+  }
+`;
+
 const App: React.FC = () => {
   return (
     <ThemeProvider>
       <BrowserRouter basename="/">
+        {/* Add global tag styling */}
+        <style>{tagStyles}</style>
+        
         <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
           <Header />
           

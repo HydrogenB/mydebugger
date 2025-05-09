@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getAllCategories, categories } from '../tools';
 // Import components from design system instead of legacy components
 import { ThemeToggle } from '../design-system/components/inputs';
@@ -11,6 +11,7 @@ const Header: React.FC = () => {
   const { isDark } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -28,12 +29,17 @@ const Header: React.FC = () => {
     return false;
   };
   
+  // Handle category selection
+  const handleCategoryClick = (category: string) => {
+    navigate(`/?category=${encodeURIComponent(category)}`);
+  };
+  
   return (
     <header className="bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-md transition-colors duration-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-3">
-          <Link to="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-xl hover:text-primary-700 dark:hover:text-primary-300 transition">
-            <span className="text-2xl">{getIcon('code')}</span>
+        <div className="flex justify-between items-center py-2">
+          <Link to="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-lg hover:text-primary-700 dark:hover:text-primary-300 transition">
+            <span className="text-xl">{getIcon('code')}</span>
             <span>MyDebugger</span>
           </Link>
           
@@ -41,24 +47,23 @@ const Header: React.FC = () => {
             {allCategories.map((category) => {
               const CategoryIcon = categories[category].icon;
               // Fix the category path to use the category name for proper filtering
-              const categoryPath = `/?category=${encodeURIComponent(category)}`;
               const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                 ? "text-primary-600 dark:text-primary-400" 
                 : "text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400";
               
               return (
-                <Link 
+                <button 
                   key={category}
-                  to={categoryPath}
-                  className={`flex items-center space-x-1 ${activeClass} transition`}
+                  onClick={() => handleCategoryClick(category)}
+                  className={`flex items-center space-x-1 ${activeClass} transition focus:outline-none`}
                   aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
                 >
                   <CategoryIcon className="w-4 h-4" />
                   <span>{category}</span>
-                </Link>
+                </button>
               );
             })}
-            <div className="h-6 border-l border-gray-300 dark:border-gray-600"></div>
+            <div className="h-5 border-l border-gray-300 dark:border-gray-600"></div>
             <Link 
               to="/"
               className={`flex items-center space-x-1 ${
@@ -77,7 +82,7 @@ const Header: React.FC = () => {
             <ThemeToggle />
             <button 
               onClick={toggleMobileMenu}
-              className="p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
+              className="p-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -92,26 +97,24 @@ const Header: React.FC = () => {
         
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
-            <div className="flex flex-col space-y-3">
+          <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
+            <div className="flex flex-col space-y-2">
               {allCategories.map((category) => {
                 const CategoryIcon = categories[category].icon;
-                // Fix the category path to use the category name for proper filtering
-                const categoryPath = `/?category=${encodeURIComponent(category)}`;
                 const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                   ? "bg-gray-100 dark:bg-gray-700 text-primary-600 dark:text-primary-400" 
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
                 
                 return (
-                  <Link 
+                  <button 
                     key={category}
-                    to={categoryPath}
-                    className={`flex items-center space-x-2 px-2 py-2 rounded-md ${activeClass} transition`}
+                    onClick={() => handleCategoryClick(category)}
+                    className={`flex items-center space-x-2 px-2 py-2 rounded-md ${activeClass} transition w-full text-left`}
                     aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
                   >
                     <CategoryIcon className="w-5 h-5" />
                     <span>{category}</span>
-                  </Link>
+                  </button>
                 );
               })}
               <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>

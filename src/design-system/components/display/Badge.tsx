@@ -40,6 +40,10 @@ export interface BadgeProps {
   onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
   /** Optional icon to display (emoji name from icon system) */
   icon?: string;
+  /** Text alignment within the badge */
+  textAlign?: 'left' | 'center' | 'right';
+  /** Override element rendering */
+  as?: React.ElementType;
 }
 
 /**
@@ -87,6 +91,8 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
   onClick,
   icon,
+  textAlign = 'center',
+  as: Component = 'span',
   ...rest
 }) => {
   // Don't render if invisible
@@ -141,6 +147,13 @@ export const Badge: React.FC<BadgeProps> = ({
     ? 'animate-pulse' 
     : '';
 
+  // Improve text rendering
+  const textAlignClasses = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right'
+  };
+
   // Combine all classes
   const badgeClasses = [
     dot ? 'flex' : 'inline-flex items-center justify-center',
@@ -149,12 +162,15 @@ export const Badge: React.FC<BadgeProps> = ({
     positionClasses,
     shapeClasses,
     animationClasses,
+    textAlignClasses[textAlign], // Add text alignment
+    'whitespace-nowrap', // Ensure proper text wrapping
+    'leading-none', // Improve vertical alignment
     onClick ? 'cursor-pointer' : '',
     className
   ].filter(Boolean).join(' ');
 
   return (
-    <span 
+    <Component 
       className={badgeClasses}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -162,7 +178,7 @@ export const Badge: React.FC<BadgeProps> = ({
       {...rest}
     >
       {!dot && content}
-    </span>
+    </Component>
   );
 };
 

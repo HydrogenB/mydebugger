@@ -15,6 +15,7 @@ import {
 import { Card } from '../design-system/components/layout';
 import { Button } from '../design-system/components/inputs';
 import { Badge } from '../design-system/components/display';
+import { Tag } from '../design-system/components/display';
 import { getIcon } from '../design-system/icons';
 
 // Responsive container component (we can create this in the layout category if needed)
@@ -239,28 +240,28 @@ const ToolCard: React.FC<ToolCardProps> = ({ tool }) => {
       >
         <div className="flex flex-col h-full">
           <div className="flex items-start mb-4">
-            <div className="p-2 rounded-lg bg-blue-50 mr-4">
-              <Icon className="h-6 w-6 text-blue-500" />
+            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 mr-4">
+              <Icon className="h-6 w-6 text-blue-500 dark:text-blue-400" />
             </div>
             <div className="flex-1">
-              <div className="flex items-center">
-                <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+              <div className="flex items-center flex-wrap">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{title}</h3>
                 {isNew && (
-                  <Badge variant="success" size="sm" className="ml-2">NEW</Badge>
+                  <Tag variant="success" size="xs" className="ml-2">NEW</Tag>
                 )}
                 {isBeta && (
-                  <Badge variant="warning" size="sm" className="ml-2">BETA</Badge>
+                  <Tag variant="warning" size="xs" className="ml-2">BETA</Tag>
                 )}
               </div>
             </div>
           </div>
-          <p className="text-gray-600 flex-grow">{description}</p>
+          <p className="text-gray-600 dark:text-gray-300 flex-grow">{description}</p>
           
           <div className="mt-6 flex justify-between items-center">
-            <span className="text-xs font-medium text-gray-500 uppercase">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
               {tool.category}
             </span>
-            <span className="text-blue-600 font-medium text-sm flex items-center">
+            <span className="text-blue-600 dark:text-blue-400 font-medium text-sm flex items-center">
               Try now
               {getIcon('arrow-right')}
             </span>

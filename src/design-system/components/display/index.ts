@@ -4,6 +4,4 @@
 export { Badge, BadgeContainer } from './Badge';
 export { default as ResponsiveImage } from './ResponsiveImage';
 export { default as InfoBox } from './InfoBox';
-// export { Avatar } from './Avatar';
-// export { Tag } from './Tag';
-// export { DataTable } from './DataTable';
+export { default as Tag } from './Tag';

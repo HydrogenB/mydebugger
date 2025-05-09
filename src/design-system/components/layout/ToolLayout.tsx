@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Tool } from '../../../tools/index';
 import { ResponsiveContainer } from './ResponsiveContainer';
 import { LoadingSpinner } from '../feedback';
+import { Tag } from '../display/Tag';
 
 // Import RelatedTools component dynamically
 const RelatedTools = lazy(() => 
@@ -81,14 +82,10 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
             <div className="flex items-center flex-wrap">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mr-2">{finalTitle}</h1>
               {tool.isBeta && (
-                <span className="ml-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded">
-                  BETA
-                </span>
+                <Tag variant="warning" size="sm" className="ml-1">BETA</Tag>
               )}
               {tool.isNew && (
-                <span className="ml-1 px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium rounded">
-                  NEW
-                </span>
+                <Tag variant="success" size="sm" className="ml-1">NEW</Tag>
               )}
             </div>
           </div>

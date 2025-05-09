@@ -31,13 +31,13 @@ export default defineConfig({
           react: ['react', 'react-dom', 'react-router-dom'],
           vendor: ['react-helmet'],
           
-          // Split by feature rather than technology
-          jwt: ['./src/features/jwt'],
-          urlEncoder: ['./src/features/url-encoder'],
-          sequenceDiagram: ['./src/features/sequence-diagram'],
+          // Use current directory structure
+          jwt: ['./src/tools/jwt'],
+          urlEncoder: ['./src/tools/url'],
+          sequenceDiagram: ['./src/tools/sequence-diagram'],
           
-          // Shared modules
-          designSystem: ['./src/shared/design-system']
+          // Core modules
+          designSystem: ['./src/design-system']
         }
       }
     }
@@ -45,15 +45,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@app': path.resolve(__dirname, './src/app'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@shared': path.resolve(__dirname, './src/shared'),
-      '@core': path.resolve(__dirname, './src/core'),
+      '@tools': path.resolve(__dirname, './src/tools'),
+      '@design-system': path.resolve(__dirname, './src/design-system'),
+      '@layout': path.resolve(__dirname, './src/layout'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@services': path.resolve(__dirname, './src/services'),
       '@types': path.resolve(__dirname, './src/types'),
-      '@api': path.resolve(__dirname, './api'),
-      '@config': path.resolve(__dirname, './config'),
-      '@tests': path.resolve(__dirname, './tests')
+      '@api': path.resolve(__dirname, './api')
     }
   }
 })
