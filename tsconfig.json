@@ -15,7 +15,20 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@features/*": ["src/features/*"],
+      "@shared/*": ["src/shared/*"],
+      "@core/*": ["src/core/*"],
+      "@pages/*": ["src/pages/*"],
+      "@services/*": ["src/services/*"],
+      "@types/*": ["src/types/*"],
+      "@api/*": ["api/*"],
+      "@config/*": ["config/*"],
+      "@tests/*": ["tests/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
