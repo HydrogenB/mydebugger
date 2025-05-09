@@ -135,23 +135,34 @@ const DeviceTrace: React.FC = () => {
       const params = new URLSearchParams({
         url: url,
         deepLinkScheme: deepLinkScheme,
-        enhancedMode: String(enhancedMode),
+        // enhancedMode: String(enhancedMode), // Not needed in body for puppeteer-probe
       });
 
       if (enhancedMode) {
         // Use the new API endpoint for Puppeteer-based tracing
-        response = await fetch(`/api/puppeteer-probe?${params.toString()}`);
+        response = await fetch(`/api/puppeteer-probe`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: url,
+            deepLinkScheme: deepLinkScheme,
+            // iosAppId, androidPackage can be added if needed by puppeteer-probe for non-default scenarios
+          }),
+        });
       } else {
         // Fallback or standard trace if needed (though UI implies enhanced is primary for this tool)
         // This tool seems designed around enhanced mode, ensure API matches or adjust
-        response = await fetch(`/api/device-trace?${params.toString()}`);
+        response = await fetch(`/api/device-trace?${params.toString()}`); // This should also be POST if it's not already
       }
 
-      if (response.error) {
-        throw new Error(response.error);
+      if (!response.ok) { // Check if response is ok
+        const errorData = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` })); // Try to parse JSON, provide fallback error
+        throw new Error(errorData.error || `Request failed with status ${response.status}`);
       }
       
-      const data = response;
+      const data = await response.json(); // Parse JSON response
       
       // Transform data if necessary for consistency between APIs
       if (enhancedMode) {
