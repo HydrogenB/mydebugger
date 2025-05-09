@@ -121,6 +121,15 @@ const DeviceTrace: React.FC = () => {
       return;
     }
 
+    // Validate URL format
+    try {
+      // Simple validation - full validation happens on the server
+      new URL(url.startsWith('http') ? url : `https://${url}`);
+    } catch (e) {
+      setError('Please enter a valid URL');
+      return;
+    }
+
     // Update persistent storage
     updateRecentLinks(url);
     setLastLink(url);
@@ -128,69 +137,79 @@ const DeviceTrace: React.FC = () => {
     setLoading(true);
     setError(null);
     setTraceResults(null);
+    setSelectedResultIndex(null);
 
     try {
       let response;
       
       const params = new URLSearchParams({
         url: url,
-        deepLinkScheme: deepLinkScheme,
-        // enhancedMode: String(enhancedMode), // Not needed in body for puppeteer-probe
+        deepLinkScheme: deepLinkScheme || '',
       });
 
-      if (enhancedMode) {
-        // Use the new API endpoint for Puppeteer-based tracing
-        response = await fetch(`/api/puppeteer-probe`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: url,
-            deepLinkScheme: deepLinkScheme,
-            // iosAppId, androidPackage can be added if needed by puppeteer-probe for non-default scenarios
-          }),
-        });
-      } else {
-        // Fallback or standard trace if needed (though UI implies enhanced is primary for this tool)
-        // This tool seems designed around enhanced mode, ensure API matches or adjust
-        response = await fetch(`/api/device-trace?${params.toString()}`); // This should also be POST if it's not already
+      const requestTimeoutMs = 60000; // 60 seconds timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+
+      try {
+        if (enhancedMode) {
+          // Use the new API endpoint for Puppeteer-based tracing
+          response = await fetch(`/api/puppeteer-probe`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              url: url,
+              deepLinkScheme: deepLinkScheme,
+            }),
+            signal: controller.signal,
+          });
+        } else {
+          response = await fetch(`/api/device-trace`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              url: url,
+              deepLinkScheme: deepLinkScheme,
+            }),
+            signal: controller.signal,
+          });
+        }
+        
+        clearTimeout(timeoutId);
+        
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          throw new Error('Request timed out. The server took too long to respond.');
+        }
+        
+        throw fetchError;
       }
 
-      if (!response.ok) { // Check if response is ok
-        const errorData = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` })); // Try to parse JSON, provide fallback error
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: `Request failed with status ${response.status}` }));
         throw new Error(errorData.error || `Request failed with status ${response.status}`);
       }
+
+      const data = await response.json();
+      setTraceResults(data);
       
-      const data = await response.json(); // Parse JSON response
-      
-      // Transform data if necessary for consistency between APIs
-      if (enhancedMode) {
-        // Normalize the structure to match the expected format in the UI
-        data.results = data.results.map((result: ScenarioResult) => {
-          // Make sure we have finalUrl for consistency with old API
-          if (result.final_url && !result.finalUrl) {
-            result.finalUrl = result.final_url;
-          }
-          
-          // Transform the hops to match the existing format
-          result.hops = result.hops.map((hop: any) => {
-            return {
-              n: hop.n,
-              url: hop.url,
-              status: hop.status || 200, // Default status for JS redirects
-              latencyMs: hop.latencyMs || 0,
-              type: hop.type,
-              nextUrl: hop.nextUrl
-            };
-          });
-          
-          return result;
-        });
+      // Auto-select the first result with issues for user convenience
+      if (data.results && data.results.length > 0) {
+        const firstProblemIndex = data.results.findIndex(r => 
+          r.warnings?.length > 0 || r.status === 'error' || !r.isValidOutcome
+        );
+        
+        setSelectedResultIndex(firstProblemIndex >= 0 ? firstProblemIndex : 0);
       }
       
-      setTraceResults(data);
     } catch (err) {
+      console.error('Error tracing link:', err);
       setError(`Error tracing dynamic link: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);

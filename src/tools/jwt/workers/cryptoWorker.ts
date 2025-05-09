@@ -462,39 +462,44 @@ const tryMultipleKeyFormats = async (
 };
 
 /**
- * Verify a JWT token signature with enhanced error handling
+ * Verify a JWT token signature
  */
-export const verifyToken = async (
-  token: string, 
-  key: string,
-  algorithm?: string
-): Promise<boolean> => {
+export const verifyToken = async (token: string, key: string): Promise<boolean> => {
   try {
-    // Normalize the token
-    const { token: normalizedToken } = normalizeToken(token);
-    token = normalizedToken;
-    
+    // Handle empty token
+    if (!token || token.trim() === '') {
+      throw new Error('Token is empty');
+    }
+
+    // Handle malformed tokens (not 3 parts)
     const parts = token.split('.');
     if (parts.length !== 3) {
-      throw new Error('Invalid JWT format');
+      throw new Error('Invalid token format (should have 3 parts)');
     }
 
     const [headerBase64, payloadBase64, signatureBase64] = parts;
-    const signedData = `${headerBase64}.${payloadBase64}`;
-    
-    // Decode the header to get the algorithm if not provided
-    let alg = algorithm;
-    if (!alg) {
-      try {
-        const headerJson = base64UrlDecode(headerBase64);
-        const header = JSON.parse(headerJson);
-        alg = header.alg;
-      } catch (e) {
-        throw new Error('Failed to parse JWT header');
-      }
+
+    // Handle empty signature
+    if (!signatureBase64 || signatureBase64.trim() === '') {
+      return false; // Consider unsigned tokens as invalid
     }
 
-    // Handle 'none' algorithm
+    // Attempt to parse header JSON
+    let header;
+    try {
+      header = tryParseJson(headerBase64);
+    } catch (e) {
+      throw new Error('Invalid token header (not valid base64 or JSON)');
+    }
+
+    // Handle missing algorithm
+    if (!header || !header.alg) {
+      throw new Error('Token header missing algorithm (alg)');
+    }
+
+    const alg = header.alg;
+    
+    // Handle 'none' algorithm securely
     if (alg === 'none') {
       return false; // Always consider 'none' algorithm as invalid for security reasons
     }
@@ -559,13 +564,13 @@ export const verifyToken = async (
       key,
       alg,
       cryptoAlg,
-      signedData,
+      `${headerBase64}.${payloadBase64}`,
       signature,
       isHmac
     );
   } catch (error) {
-    console.error('JWT verification error:', error);
-    return false;
+    console.error('Token verification error:', error);
+    throw error;
   }
 };
 

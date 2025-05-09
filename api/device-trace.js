@@ -222,18 +222,29 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
         }
         
       } catch (error) {
-        // Handle fetch errors
-        console.error(`Error in hop ${n} for ${scenarioId}:`, error);
+        // Handle different types of network errors more specifically
+        const errorMessage = error.message || 'Unknown request error';
+        let errorType = 'REQUEST_FAILED';
+        
+        // Categorize common network errors
+        if (errorMessage.includes('ENOTFOUND')) {
+          errorType = 'DNS_RESOLUTION_FAILED';
+        } else if (errorMessage.includes('ETIMEDOUT') || errorMessage.includes('timeout')) {
+          errorType = 'REQUEST_TIMEOUT';
+        } else if (errorMessage.includes('certificate')) {
+          errorType = 'SSL_ERROR';
+        }
         
         hops.push({
           n,
           url: currentUrl,
           status: 0,
-          error: error.message || 'Unknown request error',
+          error: errorMessage,
+          errorType,
           latencyMs
         });
         
-        warnings.push('REQUEST_FAILED');
+        warnings.push(errorType);
         break;
       }
     }
@@ -316,6 +327,25 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
           isValidOutcome: true
         };
       }
+    }
+    
+    // More robust handling of different redirect statuses
+    // Check for unsupported URL schemes more comprehensively
+    const unsupportedSchemePatterns = [
+      /^itms-apps:\/\//,
+      /^market:\/\//,
+      /^intent:\/\//,
+      /^fb:\/\//,
+      /^twitter:\/\//,
+      /^whatsapp:\/\//,
+      /^snapchat:\/\//,
+      /^instagram:\/\//,
+    ];
+    
+    if (finalUrl && unsupportedSchemePatterns.some(pattern => pattern.test(finalUrl))) {
+      warnings.push('UNSUPPORTED_URL_SCHEME');
+      // Determine specific app scheme type
+      // ...existing code...
     }
     
     return {

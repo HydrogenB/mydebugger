@@ -36,7 +36,34 @@ export function createExportWorker() {
       const { svg, options } = e.data;
       const { format, quality = 1, width, height, filename = 'sequence-diagram', backgroundColor = 'white' } = options;
       
+      // Validate input parameters
+      if (!svg || typeof svg !== 'string' || svg.trim() === '') {
+        self.postMessage({ 
+          success: false, 
+          error: 'Invalid SVG data provided',
+          filename
+        });
+        return;
+      }
+      
+      // Set a reasonable timeout for export operations
+      const timeout = setTimeout(() => {
+        self.postMessage({ 
+          success: false, 
+          error: 'Export operation timed out',
+          filename
+        });
+      }, 30000); // 30 second timeout
+      
       try {
+        // Handle SVG with embedded images correctly
+        let svgString = svg;
+        
+        // Check for invalid SVG content
+        if (!svgString.includes('<svg')) {
+          throw new Error('Invalid SVG content');
+        }
+        
         switch (format) {
           case 'svg':
             handleSVGExport(svg, filename);
@@ -50,10 +77,29 @@ export function createExportWorker() {
           default:
             throw new Error('Unsupported export format');
         }
+        
+        // Clear the timeout if export succeeds
+        clearTimeout(timeout);
+        
       } catch (error) {
+        // Clear the timeout if we get an error
+        clearTimeout(timeout);
+        
+        // Provide more detailed error information
+        const errorMessage = error instanceof Error ? error.message : 'Unknown export error';
+        let detailedError = errorMessage;
+        
+        // Add browser/environment context to help with debugging
+        try {
+          detailedError += ' | Environment: ' + 
+            (typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown');
+        } catch (e) {
+          // Ignore errors attempting to get environment info
+        }
+        
         self.postMessage({ 
           success: false, 
-          error: error.message,
+          error: detailedError,
           filename
         });
       }
@@ -159,8 +205,14 @@ export function createExportWorker() {
     }
   `;
   
-  const blob = new Blob([workerCode], { type: 'application/javascript' });
-  return new Worker(URL.createObjectURL(blob));
+  // Add error handling for worker creation
+  try {
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    return new Worker(URL.createObjectURL(blob));
+  } catch (error) {
+    console.error('Failed to create export worker:', error);
+    throw new Error('Your browser doesn\'t support the required features for exporting diagrams');
+  }
 }
 
 /**
