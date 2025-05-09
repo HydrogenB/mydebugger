@@ -21,7 +21,7 @@
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
+    { "source": "/:file(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/:file" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
