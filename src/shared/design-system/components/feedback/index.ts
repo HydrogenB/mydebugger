@@ -1,3 +1,3 @@
 export * from './LoadingSpinner';
-export * from './Alert'; // Assuming Alert already exists
+export * from '@design-system/components/feedback/Alert'; // Adjusted path
 // ...existing code... (other exports)

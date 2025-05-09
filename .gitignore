@@ -32,3 +32,22 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Logs
+logs
+*.log
+pnpm-debug.log*
+lerna-debug.log*
+
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+
+# Vercel
+.vercel
+
+# Environment variables
+.env

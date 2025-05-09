@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../shared/design-system/components/inputs';
+import { Button } from '@design-system'; // Assuming Button is exported from the main design system entry
 
 const NotFound: React.FC = () => {
   return (

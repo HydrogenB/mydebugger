@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
+import { useParams } from 'react-router-dom'; // Assuming react-router-dom is used for routing
 import { Helmet } from 'react-helmet';
 import { ResponsiveContainer } from '../design-system/components/layout';
 import NameCardView from '../features/namecard/NameCardView';
@@ -7,8 +8,10 @@ import { Button } from '../design-system/components/inputs';
 import { useAuth } from '../features/auth/AuthContext';
 
 const NameCardPage: React.FC = () => {
-  const router = useRouter();
-  const { username } = router.query;
+  // const router = useRouter();
+  // const { username } = router.query;
+  const { username } = useParams<{ username: string }>(); // Using react-router-dom
+
   const { user, isAuthenticated } = useAuth();
   const [nameCard, setNameCard] = useState<any>(null);
   const [loading, setLoading] = useState(true);

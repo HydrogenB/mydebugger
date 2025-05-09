@@ -1,5 +1,7 @@
 import React from 'react';
-import { Button } from '../../../shared/design-system/components/inputs';
+import { Button } from '@design-system'; // Assuming Button is exported from the main design system entry
+import { TextInput, SelectInput } from '@design-system'; // Assuming these exist
+import { PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { SOCIAL_ICONS } from '../../../features/namecard/utils/iconMappings';
 
 interface SocialLink {

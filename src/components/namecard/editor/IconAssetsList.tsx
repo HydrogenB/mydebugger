@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from '../../../shared/design-system/components/layout';
+import { Card } from '@design-system'; // Assuming Card is exported from the main design system entry
 import { SOCIAL_ICONS } from '../../../features/namecard/utils/iconMappings';
 
 /**

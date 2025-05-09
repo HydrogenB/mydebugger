@@ -42,6 +42,9 @@ export const BuilderWizard: React.FC = () => {
   
   // Signature configuration
   const [privateKey, setPrivateKey] = useState<string>('your-256-bit-secret');
+  const [signatureConfig, setSignatureConfig] = useState<{ algorithm: AlgorithmType; keySize?: number; publicKey?: string; privateKey?: string }>({ algorithm: 'HS256' });
+  const [isGeneratingKeys, setIsGeneratingKeys] = useState<boolean>(false);
+  const [keyError, setKeyError] = useState<string | null>(null);
   
   // Result
   const [generatedToken, setGeneratedToken] = useState<string>('');
@@ -201,12 +204,13 @@ export const BuilderWizard: React.FC = () => {
   const handleGenerateKeyPair = async () => {
     try {
       setIsGeneratingKeys(true);
+      setKeyError(null); // Clear previous errors
       
       // Dynamically import the cryptoWorker module
-      const cryptoWorker = await import('../workers/cryptoWorker');
+      // const cryptoWorker = await import('../workers/cryptoWorker'); // Already imported statically
       
       // Generate the key pair
-      const { publicKey, privateKey } = await cryptoWorker.generateKeyPair(
+      const { publicKey, privateKey: newPrivateKey } = await cryptoWorker.generateKeyPair( // Renamed to avoid conflict
         signatureConfig.algorithm,
         signatureConfig.keySize || 2048
       );
@@ -214,11 +218,12 @@ export const BuilderWizard: React.FC = () => {
       setSignatureConfig({
         ...signatureConfig,
         publicKey,
-        privateKey
+        privateKey: newPrivateKey, // Use the new private key
       });
-    } catch (error) {
+      setPrivateKey(newPrivateKey); // Also update the main privateKey state if it's used for signing directly
+    } catch (error: any) {
       console.error('Error generating key pair:', error);
-      setKeyError(String(error));
+      setKeyError(String(error.message || error));
     } finally {
       setIsGeneratingKeys(false);
     }

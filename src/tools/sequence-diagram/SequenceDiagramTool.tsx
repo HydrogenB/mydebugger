@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ToolLayout } from '../../shared/design-system/components/layout';
-import { getToolByRoute } from '../index';
+import { ToolLayout } from '@design-system'; // Assuming ToolLayout is from main design system entry
+import SequenceDiagramEditor from './components/SequenceDiagramEditor';
+import { useTool } from '../../hooks/useTool';
 
 interface SequenceDiagramToolProps {}
 

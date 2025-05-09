@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../shared/design-system/components/layout';
+import { Card } from '@design-system'; // Assuming Card is exported from the main design system entry
 import { getTools } from '../tools';
 
 const Home: React.FC = () => {

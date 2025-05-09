@@ -1,3 +1,5 @@
+import { useState, useEffect, useCallback } from 'react'; // Added useCallback as it's good practice for setRef
+
 /**
  * Custom hook to track element dimensions
  * Safely handles ResizeObserver errors

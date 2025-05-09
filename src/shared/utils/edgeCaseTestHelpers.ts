@@ -60,3 +60,14 @@ export const commonEdgeCases = {
   objects: [{}, null, { a: null }, { toString: () => 'malicious' }],
   urls: ['https://example.com', 'http://localhost', '', 'invalid', 'file:///etc/passwd', 'javascript:alert(1)']
 };
+
+// Test cases for various data types
+export const typeTestCases = {
+  strings: ['', 'hello', ' ', '123', JSON.stringify({ a: 1 })],
+  numbers: [0, 1, -1, 1.5, NaN, Infinity, -Infinity],
+  booleans: [true, false],
+  arrays: [[], [1, 2], ['a', 'b'], [null], [undefined], [{}]],
+  objects: [{}, null, { a: null } as any, { toString: () => 'malicious' }], // Cast {a: null} to any
+  nullOrUndefined: [null, undefined],
+  functions: [() => {}, function() {}, jest.fn()],
+};

@@ -72,11 +72,11 @@ export const InspectorPane: React.FC = () => {
   };
   
   // Security Score Visualization Component
-  interface SecurityScoreGaugeProps {
+  interface SecurityScoreDisplayProps { // Renamed from SecurityScoreGaugeProps
     score: number;
   }
 
-  const SecurityScoreGauge: React.FC<SecurityScoreGaugeProps> = ({ score }) => {
+  const SecurityScoreDisplay: React.FC<SecurityScoreDisplayProps> = ({ score }) => { // Updated to use SecurityScoreDisplayProps
     const scoreText = getSecurityScoreText(score);
     const colorClass = getSecurityScoreColor(score);
     

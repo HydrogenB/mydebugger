@@ -2,6 +2,7 @@
 // This file will export all feedback components
 
 export * from './Alert';
-export { default as LoadingSpinner } from './LoadingSpinner';
+export * from './LoadingSpinner';
+export * from './Spinner'; // Add the spinner export
 export { default as Skeleton } from './Skeleton';
 export { default as ToastProvider, useToast, toast } from './Toast';

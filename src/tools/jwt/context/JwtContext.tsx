@@ -241,7 +241,49 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const isValid = await cryptoWorker.verify(
         state.token,
         key,
-        algorithm || (state.decoded?.header?.alg || 'HS256')
+        (algorithm || state.decoded?.header?.alg || 'HS256'), // Simplified the complex OR for now
+      );
+      
+      dispatch({ type: 'SET_VERIFICATION_KEY', payload: key });
+      dispatch({ type: 'SET_VERIFIED', payload: isValid });
+      
+      // If verification failed, check if algorithm mismatch
+      if (!isValid && state.decoded && algorithm && state.decoded.header.alg !== algorithm) {
+        dispatch({ 
+          type: 'SET_ERROR', 
+          payload: `Algorithm mismatch: Token uses ${state.decoded.header.alg} but ${algorithm} was specified for verification`
+        });
+      } else if (!isValid) {
+        dispatch({ type: 'SET_ERROR', payload: 'Signature verification failed' });
+      } else {
+        dispatch({ type: 'SET_ERROR', payload: null });
+      }
+    } catch (err) {
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: err instanceof Error ? err.message : 'Failed to verify signature'
+      });
+      dispatch({ type: 'SET_VERIFIED', payload: false });
+    }
+  };
+
+  // Find the verify method and correct the parameter issue
+  const verify = async (key: string, algorithm?: string) => {
+    try {
+      if (!state.decoded || !state.token) {
+        throw new Error('No token to verify');
+      }
+  
+      // Import crypto worker if not already imported
+      const cryptoWorker = await import('../workers/cryptoWorker');
+      
+      const alg = algorithm || state.decoded?.header?.alg || 'HS256';
+      
+      // Pass the correct number of arguments
+      const isValid = await cryptoWorker.verify(
+        state.token,
+        key,
+        alg
       );
       
       dispatch({ type: 'SET_VERIFICATION_KEY', payload: key });

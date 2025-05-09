@@ -31,33 +31,27 @@ export type ButtonVariant =
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 export type ButtonRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** The content of the button */
-  children: ReactNode;
-  /** The visual style variant of the button */
-  variant?: ButtonVariant;
-  /** The size of the button */
-  size?: ButtonSize;
-  /** Border radius of the button */
-  radius?: ButtonRadius;
-  /** Whether the button should take the full width of its container */
-  fullWidth?: boolean;
-  /** Element displayed to the left of children or icon name from emoji icon system */
-  icon?: ReactNode | string;
-  /** Element displayed to the right of children or icon name from emoji icon system */
-  rightIcon?: ReactNode | string;
-  /** Position of the icon when only one icon is provided */
-  iconPosition?: 'left' | 'right';
-  /** Whether the button is in a loading state */
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info' | 'light' | 'dark' | 'ghost' | 'outline-primary' | 'outline-secondary';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  isFullWidth?: boolean;
   isLoading?: boolean;
-  /** Text to display when button is loading */
-  loadingText?: string;
-  /** Whether the button is elevated with a shadow */
-  elevated?: boolean;
-  /** Whether the button is active (pressed/selected) */
+  isDisabled?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
   active?: boolean;
-  /** Add href support for button links */
   href?: string;
+  target?: string; 
+  rel?: string;
+  content?: React.ReactNode;
+  className?: string;
+  children?: React.ReactNode;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  [key: string]: any; // Allow other HTML attributes
 }
 
 /**
@@ -126,6 +120,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     disabled,
     type = 'button',
     href,
+    target,
+    rel,
+    content,
     ...rest
   }, ref) => {
     // Base classes
@@ -297,14 +294,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const processedRightIcon = processIcon(rightIcon);
 
     // If href is provided, render an anchor tag that looks like a button
-    if (href) {
+    if (href && !disabled) {
       return (
         <a
           href={href}
+          target={target || "_blank"}
+          rel={rel || "noopener noreferrer"}
+          ref={ref as React.Ref<HTMLAnchorElement>}
           className={buttonClasses}
-          {...rest}
+          {...(rest as any)} // Cast rest to any for anchor tag
         >
-          {children}
+          {processedIcon && <span className="icon-left">{processedIcon}</span>}
+          {children || content}
+          {processedRightIcon && <span className="icon-right">{processedRightIcon}</span>}
         </a>
       );
     }

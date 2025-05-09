@@ -10,14 +10,23 @@ import { compileSequenceDiagram, CompileResult } from '../utils/compiler';
  * - Auto-detection of syntax format
  * - Error handling
  */
-export function useLiveUpdate(initialCode: string, debounceMs = 60) {
+
+interface UseLiveUpdateOptions {
+  outputId: string;
+  theme: string;
+}
+
+export const useLiveUpdate = (initialCode: string, options: UseLiveUpdateOptions) => {
+  const { outputId, theme } = options;
   const [code, setCode] = useState<string>(initialCode);
   const [result, setResult] = useState<CompileResult | null>(null);
   const [isCompiling, setIsCompiling] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+  const [renderedSvg, setRenderedSvg] = useState<string>('');
+  const [exportData, setExportData] = useState<{ svg: string; code: string }>({ svg: '', code: '' });
   const debounceTimer = useRef<number | null>(null);
   const lastCodeRef = useRef<string>(initialCode);
+  const debouncedCode = useDebounce(code, 500);
   
   // Track performance metrics
   const [compileTime, setCompileTime] = useState<number>(0);
@@ -80,15 +89,31 @@ export function useLiveUpdate(initialCode: string, debounceMs = 60) {
         });
       }
       
-      setResult(compiledResult);
-      setError(compiledResult.error || null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      if (compiledResult && typeof compiledResult === 'object') { // Basic check for object
+        const { diagram, error: compileError, format } = compiledResult as any; // Cast to any for property access
+
+        if (diagram && typeof diagram.drawSVG === 'function') {
+          diagram.drawSVG(outputId, {
+            theme: theme === 'dark' ? 'dark' : 'simple',
+            scale: 1,
+          });
+          setRenderedSvg(document.getElementById(outputId)?.innerHTML || '');
+          setExportData({
+            svg: document.getElementById(outputId)?.innerHTML || '',
+            code: debouncedCode,
+            'syntax': format // Access format safely
+          });
+        }
+        setError(compileError || null); // Access error safely
+      }
+      setResult(compiledResult as CompileResult | null); // Cast compiledResult
+    } catch (e: any) {
+      setError(e.message || 'An unexpected error occurred during compilation.');
       setResult(null);
     } finally {
       setIsCompiling(false);
     }
-  }, []);
+  }, [outputId, theme]);
   
   // Handle code updates with debouncing
   const updateCode = useCallback((newCode: string) => {
@@ -120,6 +145,37 @@ export function useLiveUpdate(initialCode: string, debounceMs = 60) {
     compile(lastCodeRef.current);
   }, [compile]);
   
+  useEffect(() => {
+    if (!debouncedCode) return;
+    
+    const renderDiagram = async () => {
+      try {
+        const compiledResult = await compileSequenceDiagram(debouncedCode);
+        
+        if (compiledResult && typeof compiledResult === 'object' && 'format' in compiledResult) {
+          // Now TypeScript knows compiledResult has a format property
+          setExportData({
+            'syntax': compiledResult.format,
+            svg: document.getElementById(outputId)?.innerHTML || '',
+            code: debouncedCode,
+          });
+          
+          // Use the outputId and theme from props
+          compiledResult.diagram.drawSVG(outputId, {
+            theme: theme === 'dark' ? 'dark' : 'simple',
+            scale: 1,
+          });
+          
+          setRenderedSvg(document.getElementById(outputId)?.innerHTML || '');
+        }
+      } catch (err) {
+        setError(err.message || 'An unexpected error occurred during rendering.');
+      }
+    };
+    
+    renderDiagram();
+  }, [debouncedCode, outputId, theme]);
+  
   return {
     code,
     setCode: updateCode,
@@ -127,6 +183,8 @@ export function useLiveUpdate(initialCode: string, debounceMs = 60) {
     error,
     isCompiling,
     compileTime,
-    forceUpdate
+    forceUpdate,
+    renderedSvg,
+    exportData
   };
-}
+};

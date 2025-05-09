@@ -1,38 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { getToolByRoute } from '../index';
-import { ToolLayout, Card, Button, LoadingSpinner } from '../../design-system';
-
-interface Hop {
-  n: number;
-  url: string;
-  status: number;
-  latencyMs: number;
-  error?: string;
-  type?: string;
-  nextUrl?: string;
-  method?: string;
-}
-
-interface ScenarioResult {
-  scenario: string;
-  name: string;
-  hops: Hop[];
-  totalTimeMs: number;
-  finalUrl?: string;
-  final_url?: string;
-  warnings: string[];
-  isValidOutcome?: boolean;
-  status?: string;
-  deep_link?: string | null;
-  is_store_url?: boolean;
-}
-
-interface DeviceTraceResult {
-  url: string;
-  overallTimeMs: number;
-  results: ScenarioResult[];
-}
+import { ToolLayout } from '../../design-system/components/layout';
+import { Card, Button, LoadingSpinner } from '../../design-system';
+import { Hop, ScenarioResult, DeviceTraceResult } from './types';
 
 // Custom hook for persistent storage
 function useLocalStorage<T>(key: string, initialValue: T): [T, React.Dispatch<React.SetStateAction<T>>] {
@@ -181,7 +152,7 @@ const DeviceTrace: React.FC = () => {
         
         clearTimeout(timeoutId);
         
-      } catch (fetchError) {
+      } catch (fetchError: any) { // Typed fetchError
         clearTimeout(timeoutId);
         
         if (fetchError.name === 'AbortError') {
@@ -201,7 +172,7 @@ const DeviceTrace: React.FC = () => {
       
       // Auto-select the first result with issues for user convenience
       if (data.results && data.results.length > 0) {
-        const firstProblemIndex = data.results.findIndex(r => 
+        const firstProblemIndex = data.results.findIndex((r: ScenarioResult) => // Updated type here
           r.warnings?.length > 0 || r.status === 'error' || !r.isValidOutcome
         );
         

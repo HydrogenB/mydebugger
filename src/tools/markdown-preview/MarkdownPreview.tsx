@@ -104,39 +104,34 @@ const commonLanguages = [
 ];
 
 // Helper to dynamically load Prism language components
-const loadPrismLanguage = async (language) => {
-  if (!language || Prism.languages[language]) {
+const loadPrismLanguage = async (language: any) => { // Typed language
+  if (!language || language === 'none' || Prism.languages[language]) {
     return;
   }
-
   try {
-    await import(`prismjs/components/prism-${language}.js`);
+    // @ts-ignore
+    await import(`prismjs/components/prism-${language}`);
+    Prism.highlightAll(); // Re-highlight after loading new language
   } catch (e) {
     console.warn(`Failed to load Prism language: ${language}`, e);
   }
 };
 
 // Helper to detect and load languages in code blocks
-const detectAndLoadLanguages = async (html) => {
-  const container = document.createElement('div');
-  container.innerHTML = html;
+const detectAndLoadLanguages = async (html: any) => { // Typed html
+  if (typeof html !== 'string') return;
 
-  const codeBlocks = container.querySelectorAll('code[class*="language-"]');
-  const languages = [];
-
-  codeBlocks.forEach((block) => {
-    const classes = block.className.split(' ');
-    for (const cls of classes) {
-      if (cls.startsWith('language-')) {
-        const language = cls.replace('language-', '');
-        if (!languages.includes(language)) {
-          languages.push(language);
-        }
+  const codeBlockRegex = /<pre><code class="language-(\w+)">/g;
+  let match;
+  const languages: string[] = []; // Typed languages
+  while ((match = codeBlockRegex.exec(html)) !== null) {
+    const language = match[1];
+    if (language && !Prism.languages[language]) {
+      if (!languages.includes(language)) {
+        languages.push(language);
       }
     }
-  });
-
-  // Load detected languages in parallel
+  }
   await Promise.all(languages.map(language => loadPrismLanguage(language)));
 };
 
@@ -194,7 +189,7 @@ const MarkdownPreview: React.FC = () => {
         // Detect and load languages from the HTML
         await detectAndLoadLanguages(html);
         
-        setHtmlOutput(DOMPurify.sanitize(html));
+        setHtmlOutput(DOMPurify.sanitize(html as string)); // Cast html to string
         
         // Save to local storage
         try {

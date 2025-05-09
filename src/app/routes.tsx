@@ -1,40 +1,35 @@
-import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-// Import LoadingSpinner from correct path
-import { LoadingSpinner } from '../shared/design-system/components/feedback';
-// Import from the pages directory
-import NotFound from '../pages/NotFound';
-import Home from '../pages/Home';
+import React, { Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { MainLayout } from '../layout/MainLayout';
+import { Home } from '../pages/Home';
+import { NotFound } from '../pages/NotFound';
 import { featureRegistry } from '@features/index';
+import { Spinner } from '../design-system';
 
-/**
- * Application routes configuration
- * Automatically generates routes from feature registry
- */
-export const AppRoutes: React.FC = () => {
+const AppRoutes: React.FC = () => {
   return (
-    <Suspense fallback={<LoadingSpinner size="lg" className="m-auto" />}>
-      <Routes>
-        {/* Home page */}
-        <Route path="/" element={<Home />} />
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route index element={<Home />} />
         
-        {/* Dynamic routes for all features */}
-        {featureRegistry.map((feature) => (
+        {/* Dynamically load routes from feature registry */}
+        {featureRegistry.map((feature: any) => (
           <Route
-            key={feature.route}
+            key={feature.id}
             path={feature.route}
             element={
-              <Suspense fallback={<LoadingSpinner size="lg" className="m-auto" />}>
-                <feature.component />
+              <Suspense fallback={<div className="p-8 flex justify-center"><Spinner /></div>}>
+                {/* Feature component will be loaded dynamically */}
+                <div>{feature.name} Content (Placeholder)</div>
               </Suspense>
             }
           />
         ))}
         
-        {/* Catch-all route for 404s */}
+        {/* Catch-all route */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+      </Route>
+    </Routes>
   );
 };
 

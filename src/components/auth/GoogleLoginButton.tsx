@@ -1,4 +1,5 @@
-import { signIn } from 'next-auth/react';
+// import { signIn } from 'next-auth/react';
+import React from 'react';
 import { Button } from '../../design-system/components/inputs';
 
 interface GoogleLoginButtonProps {
@@ -8,12 +9,17 @@ interface GoogleLoginButtonProps {
   redirectTo?: string;
 }
 
-export default function GoogleLoginButton({ className = '', variant = 'primary', fullWidth = false, redirectTo }: GoogleLoginButtonProps) {
+const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ className = '', variant = 'primary', fullWidth = false, redirectTo }) => {
+  const handleGoogleSignIn = () => {
+    // signIn('google', { callbackUrl: redirectTo || '/dashboard' });
+    console.warn("Google Sign-In attempted but next-auth is not configured for Vite.");
+  };
+
   return (
     <Button
       className={`flex items-center justify-center gap-2 ${fullWidth ? 'w-full' : ''} ${className}`}
       variant={variant}
-      onClick={() => signIn('google', { callbackUrl: redirectTo || '/dashboard' })}
+      onClick={handleGoogleSignIn}
     >
       <svg width="20" height="20" viewBox="0 0 24 24">
         <path
@@ -37,3 +43,5 @@ export default function GoogleLoginButton({ className = '', variant = 'primary',
     </Button>
   );
 }
+
+export default GoogleLoginButton;

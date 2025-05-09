@@ -1,27 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { getToolByRoute } from '../index';
-import { ToolLayout, Card, Button, LoadingSpinner } from '../../design-system';
-
-interface Hop {
-  n: number;
-  url: string;
-  status: number;
-  method: string;
-  latencyMs: number;
-  error?: string;
-}
-
-interface TraceResult {
-  hops: Hop[];
-  totalTimeMs: number;
-  warnings: string[];
-}
-
-interface UserAgentOption {
-  label: string;
-  value: string;
-}
+import { ToolLayout } from '../../design-system/components/layout';
+import { Card, Button, LoadingSpinner } from '../../design-system';
+import { Hop, TraceResult, UserAgentOption } from './types';
 
 const LinkTracer: React.FC = () => {
   const tool = getToolByRoute('/link-tracer');

@@ -1,34 +1,63 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useSession, signIn, signOut } from 'next-auth/react';
+
+// Define User type
+interface User {
+  id: string;
+  name?: string;
+  email?: string;
+  image?: string;
+}
 
 interface AuthContextType {
-  user: any;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { data: session, status } = useSession();
-  const isLoading = status === 'loading';
-  const isAuthenticated = !!session;
+  const session: any = null; // Placeholder
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const login = async () => {
-    await signIn('google');
+  // Define status type properly
+  type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+  const [status, setStatus] = useState<AuthStatus>('loading');
+
+  useEffect(() => {
+    if (status === 'loading') {
+      setIsLoading(true);
+    } else if (status === 'authenticated' && session?.user) {
+      setUser({
+        id: session.user.id || '', // Ensure id is handled if not present
+        name: session.user.name || null,
+        email: session.user.email || null,
+        image: session.user.image || null,
+      });
+      setIsLoading(false);
+    } else {
+      setUser(null);
+      setIsLoading(false);
+    }
+  }, [session, status]);
+
+  const login = async (provider: 'google' | 'credentials', options?: any) => {
+    console.warn(`Login attempted with ${provider} but next-auth is not configured.`);
   };
 
   const logout = async () => {
-    await signOut();
+    console.warn("Logout attempted but next-auth is not configured.");
+    setUser(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user: session?.user,
-        isAuthenticated,
+        user,
+        isAuthenticated: status === 'authenticated',
         isLoading,
         login,
         logout
