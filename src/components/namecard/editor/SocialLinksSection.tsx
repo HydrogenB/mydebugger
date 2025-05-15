@@ -1,8 +1,61 @@
 import React from 'react';
 import { Button } from '@design-system'; // Assuming Button is exported from the main design system entry
-import { TextInput, SelectInput } from '@design-system'; // Assuming these exist
-import { PlusCircleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { TextInput } from '@design-system';
 import { SOCIAL_ICONS } from '../../../features/namecard/utils/iconMappings';
+
+// Simple icon components to replace heroicons
+const PlusCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+  </svg>
+);
+
+// Define option type for select input
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+// Replace the missing SelectInput with a basic select element
+const SelectInput = ({ 
+  id, 
+  name, 
+  value, 
+  onChange, 
+  options, 
+  placeholder, 
+  error 
+}: {
+  id: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  placeholder?: string;
+  error?: string;
+}) => (
+  <div>
+    <select
+      id={id}
+      name={name}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+    >
+      {placeholder && <option value="">{placeholder}</option>}
+      {options.map((option: SelectOption) => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+    {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+  </div>
+);
 
 interface SocialLink {
   platform: string;

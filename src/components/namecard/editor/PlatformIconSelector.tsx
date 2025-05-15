@@ -31,9 +31,8 @@ export default function PlatformIconSelector({
               : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
             }
           `}
-        >
-          <img 
-            src={iconPath} 
+        >          <img 
+            src={iconPath as string} 
             alt={platform} 
             className="w-8 h-8 mb-1" 
           />

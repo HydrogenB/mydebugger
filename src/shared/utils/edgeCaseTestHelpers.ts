@@ -67,7 +67,15 @@ export const typeTestCases = {
   numbers: [0, 1, -1, 1.5, NaN, Infinity, -Infinity],
   booleans: [true, false],
   arrays: [[], [1, 2], ['a', 'b'], [null], [undefined], [{}]],
-  objects: [{}, null, { a: null } as any, { toString: () => 'malicious' }], // Cast {a: null} to any
+  objects: [{}, null, { a: null } as { a: null }, { toString: () => 'malicious' }], // Cast {a: null} to any
   nullOrUndefined: [null, undefined],
   functions: [() => {}, function() {}, jest.fn()],
+};
+
+export const edgeCaseValues = {
+  strings: ['', ' ', null, undefined, '0', 'undefined', 'null', '\n', '\t', '🔥', '<script>alert(1)</script>'],
+  numbers: [0, -0, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
+  arrays: [[], [null], [undefined], [{}, {}, {}], Array(1000).fill(1)],
+  objects: [{}, null, { a: null } as { a: null }, { toString: () => 'malicious' }],
+  urls: ['https://example.com', 'http://localhost', '', 'invalid', 'file:///etc/passwd', 'javascript:alert(1)']
 };

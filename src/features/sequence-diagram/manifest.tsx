@@ -1,3 +1,4 @@
+import React from 'react';
 import { lazy } from 'react';
 import { Tool, ToolCategory } from '../../tools'; // Corrected path for ToolCategory
 import { ChartBarIcon } from '@heroicons/react/24/outline'; // Placeholder Icon

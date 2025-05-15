@@ -1,19 +1,31 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from './design-system/context/ThemeContext';
-import { HelmetProvider } from 'react-helmet-async';
-import AppRoutes from './app/routes';
+import { BrowserRouter as Router } from 'react-router-dom';
+// Comment out the HelmetProvider since we're not using it
+// import { HelmetProvider } from 'react-helmet-async';
+import './App.css';
 
-const App: React.FC = () => {
+import { ThemeProvider } from './design-system/context/ThemeContext';
+import Header from './layout/Header';
+import { AppRoutes } from './app/routes';
+import Footer from './layout/Footer';
+
+function App() {
   return (
-    <BrowserRouter>
-      <HelmetProvider>
-        <ThemeProvider>
-          <AppRoutes />
-        </ThemeProvider>
-      </HelmetProvider>
-    </BrowserRouter>
+    // Remove HelmetProvider
+    // <HelmetProvider>
+    <ThemeProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow">
+            <AppRoutes />
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </ThemeProvider>
+    // </HelmetProvider>
   );
-};
+}
 
 export default App;

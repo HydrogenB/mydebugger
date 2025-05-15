@@ -1,33 +1,40 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
+// Replace react-helmet with regular document.title
+// import { Helmet } from 'react-helmet';
 import { Card } from '../../design-system/components/layout';
-import GoogleLoginButton from '../../features/auth/GoogleLoginButton';
+import { Button } from '../../design-system/components/inputs';
 import { ResponsiveContainer } from '../../design-system/components/layout';
 
 const SignInPage: React.FC = () => {
+  // Set title directly
+  React.useEffect(() => {
+    document.title = 'Sign In | MyDebugger';
+  }, []);
+  
   return (
     <>
+      {/* Remove Helmet component
       <Helmet>
         <title>Sign In | MyDebugger</title>
         <meta name="description" content="Sign in to MyDebugger to access your account" />
-      </Helmet>
+      </Helmet> */}
       
-      <ResponsiveContainer maxWidth="md" padding="lg">
-        <div className="flex flex-col items-center justify-center min-h-[70vh]">
-          <Card isElevated className="w-full max-w-md p-6">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold mb-2">Sign In</h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                Sign in to access your virtual name card and other features
-              </p>
-            </div>
-            
-            <div className="space-y-4">
-              <GoogleLoginButton className="w-full" />
-            </div>
-          </Card>
-        </div>
-      </ResponsiveContainer>
+      <div className="container mx-auto px-4 py-12">
+        <Card isElevated className="max-w-md mx-auto p-6">
+          <h1 className="text-2xl font-bold mb-4 text-center">Sign In</h1>
+          <p className="text-center mb-6">
+            Authentication features have been disabled in this version.
+          </p>
+          <div className="text-center">
+            <Button
+              href="/"
+              variant="primary"
+            >
+              Return to Home
+            </Button>
+          </div>
+        </Card>
+      </div>
     </>
   );
 };

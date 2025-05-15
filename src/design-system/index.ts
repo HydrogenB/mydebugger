@@ -9,6 +9,14 @@ export * from './foundations/animations';
 // Export all icons
 export * from './icons';
 
+// Export context providers and hooks
+export { 
+  ThemeProvider, 
+  useTheme,
+  ToastProvider, 
+  useToast
+} from './context';
+
 // Export components by category
 export * from './components/inputs';
 export * from './components/layout';

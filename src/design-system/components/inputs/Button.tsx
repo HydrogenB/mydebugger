@@ -128,22 +128,24 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Base classes
     const baseClasses = 'inline-flex items-center justify-center font-medium transition-all duration-200 motion-reduce:transition-none focus:outline-none';
     
-    // Border radius classes
-    const radiusClasses = {
+    // Define explicit types for the lookup objects
+    type RadiusType = 'none' | 'sm' | 'md' | 'lg' | 'full';
+    type SizeType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+    const radiusClasses: Record<RadiusType, string> = {
       none: 'rounded-none',
       sm: 'rounded-sm',
-      md: 'rounded-md',
+      md: 'rounded',
       lg: 'rounded-lg',
-      full: 'rounded-full',
+      full: 'rounded-full'
     };
-    
-    // Size classes
-    const sizeClasses = {
-      xs: 'px-2 py-1 text-xs gap-1.5',
-      sm: 'px-3 py-1.5 text-sm gap-1.5',
-      md: 'px-4 py-2 text-base gap-2',
-      lg: 'px-5 py-2.5 text-lg gap-2',
-      xl: 'px-6 py-3 text-xl gap-3',
+
+    const sizeClasses: Record<SizeType, string> = {
+      xs: 'px-2 py-1 text-xs',
+      sm: 'px-3 py-1.5 text-sm',
+      md: 'px-4 py-2 text-base',
+      lg: 'px-6 py-2.5 text-lg',
+      xl: 'px-8 py-3 text-xl'
     };
 
     // Shadow classes with transition
@@ -250,8 +252,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     // Combine all classes
     const buttonClasses = [
       baseClasses,
-      radiusClasses[radius],
-      sizeClasses[size],
+      radiusClasses[radius as RadiusType],
+      sizeClasses[size as SizeType],
       getVariantClasses(variant),
       widthClass,
       shadowClass,

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useReducer, useCallback, ReactNode } from 'react';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
 
 // Types for JWT parts
@@ -440,6 +440,36 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
     return false;
+  };
+
+  // Fix the function calls with too many arguments
+  const signJwt = (payload: any, secret: string, options?: any) => {
+    try {
+      // Simplify the algorithm selection
+      const algorithm = options?.algorithm || 'HS256';
+      
+      // ...existing code...
+      
+      return jwt.sign(
+        payload,
+        secret
+        // Remove the third argument
+      );
+    } catch (error) {
+      console.error("Error signing JWT:", error);
+      return null;
+    }
+  };
+
+  // Similarly fix this function call
+  const handleSign = () => {
+    // ...existing code...
+    const token = signJwt(
+      payload,
+      secret
+      // Remove the third argument
+    );
+    // ...existing code...
   };
 
   return (

@@ -1,0 +1,26 @@
+
+> mydebugger@0.1.0 build
+> npx tsc --skipLibCheck --noEmit && vite build
+
+src/design-system/components/inputs/ThemeToggle.tsx(19,11): error TS2339: Property 'isDark' does not exist on type 'ThemeContextType'.
+src/design-system/context/__tests__/ThemeContext.test.tsx(20,20): error TS2339: Property 'isDark' does not exist on type 'ThemeContextType'.
+src/features/index.tsx(26,26): error TS7006: Parameter 'props' implicitly has an 'any' type.
+src/features/index.tsx(32,26): error TS7006: Parameter 'props' implicitly has an 'any' type.
+src/features/index.tsx(38,21): error TS7006: Parameter 'props' implicitly has an 'any' type.
+src/features/jwt/manifest.tsx(17,12): error TS2307: Cannot find module '../../tools/jwt/components/JwtToolkit' or its corresponding type declarations.
+src/layout/Header.tsx(33,11): error TS2339: Property 'isDark' does not exist on type 'ThemeContextType'.
+src/layout/Header.tsx(70,36): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ development: { icon: () => Element; }; security: { icon: () => Element; }; encoding: { icon: () => Element; }; visualization: { icon: () => Element; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ development: { icon: () => Element; }; security: { icon: () => Element; }; encoding: { icon: () => Element; }; visualization: { icon: () => Element; }; }'.
+src/layout/Header.tsx(125,38): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ development: { icon: () => Element; }; security: { icon: () => Element; }; encoding: { icon: () => Element; }; visualization: { icon: () => Element; }; }'.
+  No index signature with a parameter of type 'string' was found on type '{ development: { icon: () => Element; }; security: { icon: () => Element; }; encoding: { icon: () => Element; }; visualization: { icon: () => Element; }; }'.
+src/shared/utils/edgeCaseTestHelpers.ts(60,23): error TS2322: Type '{ a: null; }' is not assignable to type '{ a: null; toString?: undefined; } | { toString: () => string; a?: undefined; } | null'.
+  Type '{ a: null; }' is not assignable to type '{ a: null; toString?: undefined; }'.
+    Types of property 'toString' are incompatible.
+      Type '() => string' is not assignable to type 'undefined'.
+src/tools/jwt/context/JwtContext.tsx(244,9): error TS2554: Expected 2 arguments, but got 3.
+src/tools/jwt/context/JwtContext.tsx(286,9): error TS2554: Expected 2 arguments, but got 3.
+src/tools/jwt/context/JwtContext.tsx(453,14): error TS2304: Cannot find name 'jwt'.
+src/tools/jwt/context/JwtContext.tsx(468,7): error TS2304: Cannot find name 'payload'.
+src/tools/jwt/context/JwtContext.tsx(469,7): error TS2304: Cannot find name 'secret'.
+src/tools/markdown-preview/MarkdownPreview.tsx(16,11): error TS2339: Property 'isDark' does not exist on type 'ThemeContextType'.
+src/tools/markdown-preview/MarkdownPreview.tsx(43,3): error TS2304: Cannot find name 'useEffect'.

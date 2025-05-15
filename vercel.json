@@ -25,8 +25,7 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
-    "NEXTAUTH_URL": "https://mydebugger.vercel.app",
-    "NEXTAUTH_SECRET": "3e12419e9a2fb6148ccd4397be64ff24"
+    // Removed NEXTAUTH_URL and NEXTAUTH_SECRET
   },
   "headers": [
     {

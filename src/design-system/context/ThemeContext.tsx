@@ -3,16 +3,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 type ThemeType = 'light' | 'dark' | 'system';
 type ColorScheme = 'blue' | 'purple' | 'green' | 'amber' | 'red' | 'gray';
 
+// Keep this interface compatible with the one in ../context/ThemeContext.tsx
 export interface ThemeContextType {
   theme: ThemeType;
-  isDark: boolean;
+  isDarkMode: boolean; // Renamed from isDark for compatibility
   colorScheme: ColorScheme;
   setTheme: (theme: ThemeType) => void;
   setColorScheme: (colorScheme: ColorScheme) => void;
   toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 interface ThemeProviderProps {
   children: ReactNode;
@@ -37,20 +38,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     const savedColorScheme = localStorage.getItem(`${storageKey}-color`);
     return (savedColorScheme as ColorScheme) || defaultColorScheme;
   });
-  
-  // Determine if dark mode is active
-  const [isDark, setIsDark] = useState<boolean>(() => {
+    // Determine if dark mode is active
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     if (theme === 'dark') return true;
     if (theme === 'light') return false;
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
-
   // Apply theme to document
   useEffect(() => {
     const root = window.document.documentElement;
     
     // Update root element class
-    if (isDark) {
+    if (isDarkMode) {
       root.classList.add('dark');
       root.classList.remove('light');
     } else {
@@ -60,8 +59,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     
     // Apply color scheme
     root.setAttribute('data-color-scheme', colorScheme);
-  }, [isDark, colorScheme]);
-
+  }, [isDarkMode, colorScheme]);
   // Listen for system preference changes
   useEffect(() => {
     if (theme !== 'system') return;
@@ -69,22 +67,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = () => {
-      setIsDark(mediaQuery.matches);
+      setIsDarkMode(mediaQuery.matches);
     };
     
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
-
   // Theme setter function
   const setTheme = (newTheme: ThemeType) => {
     localStorage.setItem(`${storageKey}-mode`, newTheme);
     setThemeState(newTheme);
     
     if (newTheme === 'system') {
-      setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
+      setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
     } else {
-      setIsDark(newTheme === 'dark');
+      setIsDarkMode(newTheme === 'dark');
     }
   };
 
@@ -93,21 +90,19 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     localStorage.setItem(`${storageKey}-color`, newColorScheme);
     setColorSchemeState(newColorScheme);
   };
-
   // Toggle between light and dark modes
   const toggleTheme = () => {
-    if (isDark) {
+    if (isDarkMode) {
       setTheme('light');
     } else {
       setTheme('dark');
     }
   };
-
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        isDark,
+        isDarkMode,
         colorScheme,
         setTheme,
         setColorScheme,

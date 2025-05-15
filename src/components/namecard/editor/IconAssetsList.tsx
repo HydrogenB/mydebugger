@@ -12,7 +12,7 @@ export default function IconAssetsList() {
       <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-6 gap-4">
         {Object.entries(SOCIAL_ICONS).map(([name, path]) => (
           <div key={name} className="flex flex-col items-center p-2 border rounded-md">
-            <img src={path} alt={name} className="w-8 h-8 mb-2" />
+            <img src={path as string} alt={name} className="w-8 h-8 mb-2" />
             <span className="text-xs text-gray-600 dark:text-gray-400 capitalize">{name}</span>
           </div>
         ))}
