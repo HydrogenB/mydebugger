@@ -1,4 +1,4 @@
-// Simple build script for Vercel
+// Simple build script for Vercel (ESM)
 import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
