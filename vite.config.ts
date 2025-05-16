@@ -4,11 +4,9 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/', 
-  plugins: [react()],
+  base: '/',   plugins: [react()],
   server: {
     port: 3000,
-    historyApiFallback: true,
   },
   build: {
     minify: 'esbuild', 
@@ -19,17 +17,17 @@ export default defineConfig({
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',
-        manualChunks: {
+        assetFileNames: 'assets/[name]-[hash].[ext]',        manualChunks: {
           // Split vendor code
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
           
           // Split tools by category for better loading performance
-          'jwt': ['./src/tools/jwt/components/JwtToolkit.tsx'],
+          'jwt': ['./src/tools/jwt/JwtToolkit.tsx'],
           'qrcode': ['./src/tools/qrcode/QRCodeGenerator.tsx'],
           'markdown': ['./src/tools/markdown-preview/MarkdownPreview.tsx'],
           'sequence': ['./src/tools/sequence-diagram/SequenceDiagramTool.tsx'],
+          'base64-image': ['./src/tools/base64-image/Base64ImageDebugger.tsx'],
         }
       }
     }
