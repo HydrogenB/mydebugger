@@ -3,8 +3,8 @@
   "public": true,
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "framework": "vite",
+  "installCommand": "npm install --legacy-peer-deps",
+  "framework": null,
   "builds": [
     {
       "src": "api/**/*.js",
