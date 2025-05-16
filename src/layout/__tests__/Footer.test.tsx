@@ -56,7 +56,7 @@ describe('Footer Component', () => {
     // Check external GitHub link
     const githubLink = screen.getByText('GitHub');
     expect(githubLink).toBeInTheDocument();
-    expect(githubLink.closest('a')).toHaveAttribute('href', 'https://github.com/jiradeto/mydebugger');
+    expect(githubLink.closest('a')).toHaveAttribute('href', 'https://github.com/HydrogenB/mydebugger');
     expect(githubLink.closest('a')).toHaveAttribute('target', '_blank');
     expect(githubLink.closest('a')).toHaveAttribute('rel', 'noopener noreferrer');
     
@@ -85,7 +85,7 @@ describe('Footer Component', () => {
     
     const githubRepoLink = screen.getByLabelText('GitHub Repository');
     expect(githubRepoLink).toBeInTheDocument();
-    expect(githubRepoLink).toHaveAttribute('href', 'https://github.com/jiradeto/mydebugger');
+    expect(githubRepoLink).toHaveAttribute('href', 'https://github.com/HydrogenB/mydebugger');
     expect(githubRepoLink).toHaveAttribute('target', '_blank');
     expect(githubRepoLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
