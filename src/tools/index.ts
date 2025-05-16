@@ -52,8 +52,7 @@ import {
   TestingIcon, 
   UtilitiesIcon, 
   ConversionIcon,
-  FormattersIcon,
-  JwtIcon,
+  FormattersIcon,  JwtIcon,
   UrlIcon, 
   HeadersIcon,
   RegexIcon,
@@ -61,7 +60,8 @@ import {
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon,
-  SequenceDiagramIcon
+  SequenceDiagramIcon,
+  Base64ImageIcon
 } from '../design-system/icons/tool-icons';
 
 // Category definitions with icons for consistent UI
@@ -288,8 +288,7 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: false
     }
-  },
-  // Add Sequence Diagram Tool
+  },  // Add Sequence Diagram Tool
   {
     id: 'sequence-diagram',
     route: '/sequence-diagram',
@@ -308,6 +307,25 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       fullWidth: true,
       showExamples: false
+    }
+  },
+  // Add Base64 Image Debugger Tool
+  {
+    id: 'base64-image',
+    route: '/base64-image',
+    title: 'Base64 Image Debugger',
+    description: 'Debug and visualize base64-encoded images with detailed information.',
+    longDescription: 'Tool to visualize base64-encoded images and display detailed information about them including format, dimensions, file size and more.',
+    icon: Base64ImageIcon,
+    component: lazy(() => import('./base64-image/Base64ImageDebugger')),
+    category: 'Utilities',
+    isNew: true,
+    metadata: {
+      keywords: ['base64', 'image', 'encoder', 'decoder', 'preview', 'debug', 'visualize', 'png', 'jpg', 'jpeg', 'gif', 'svg'],
+      relatedTools: ['url-encoder'],
+    },
+    uiOptions: {
+      showExamples: true
     }
   },
 ];
