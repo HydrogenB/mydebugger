@@ -24,9 +24,7 @@
     { "source": "/:file(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/:file" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "env": {
-    // Removed NEXTAUTH_URL and NEXTAUTH_SECRET
-  },
+  "env": {},
   "headers": [
     {
       "source": "/(assets|_next|static)/(.*)\\.js",
