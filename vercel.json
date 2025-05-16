@@ -1,23 +1,11 @@
 {
   "version": 2,
   "public": true,
-  "buildCommand": "npm run build",
+  "framework": "vite",
+  "installCommand": "npm install --production=false",
+  "buildCommand": "npm run build:vercel",
   "devCommand": "npm run dev",
-  "installCommand": "npm install --legacy-peer-deps",
-  "framework": null,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
