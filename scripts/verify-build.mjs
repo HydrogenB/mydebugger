@@ -6,13 +6,12 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import chalk from 'chalk';
 
-// Handle chalk not being available
+// Colored output disabled to avoid external dependencies
 const log = {
-  green: (text) => chalk?.green?.(text) || text,
-  red: (text) => chalk?.red?.(text) || text,
-  yellow: (text) => chalk?.yellow?.(text) || text
+  green: (text) => text,
+  red: (text) => text,
+  yellow: (text) => text,
 };
 
 console.log('Verifying build configuration...');
