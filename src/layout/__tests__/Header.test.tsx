@@ -20,7 +20,7 @@ jest.mock('../../design-system/icons', () => ({
 }));
 
 jest.mock('../../design-system/context/ThemeContext', () => ({
-  useTheme: jest.fn(() => ({ isDark: false, toggleTheme: jest.fn() }))
+  useTheme: jest.fn(() => ({ isDarkMode: false, toggleTheme: jest.fn() }))
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -151,7 +151,7 @@ describe('Header Component', () => {
 
   it('handles dark theme correctly', () => {
     // Mock theme as dark
-    (useTheme as jest.Mock).mockReturnValue({ isDark: true, toggleTheme: jest.fn() });
+    (useTheme as jest.Mock).mockReturnValue({ isDarkMode: true, toggleTheme: jest.fn() });
     
     render(<Header />);
     

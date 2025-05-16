@@ -1,0 +1,58 @@
+/* Basic styles for App component */
+/* You can customize these styles as needed */
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* Base64 Image Debugger Styles */
+.image-preview-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 0.5rem;
+}
+
+.image-preview-container img {
+  max-width: 100%;
+  max-height: 400px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.image-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.image-info-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.image-info-table tr:last-child td {
+  border-bottom: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  .image-info-table td {
+    border-bottom-color: #444;
+  }
+  
+  .image-preview-container {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}

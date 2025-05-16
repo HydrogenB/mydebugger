@@ -58,7 +58,7 @@ describe('ThemeContext', () => {
     );
       // Default theme should be dark based on the mock window.matchMedia
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('true');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true');
     expect(screen.getByTestId('colorScheme')).toHaveTextContent('purple');
   });
 
@@ -73,20 +73,20 @@ describe('ThemeContext', () => {
     );
       // Initial theme is 'dark' based on our mock
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('true');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true');
     
     fireEvent.click(screen.getByTestId('toggle-theme'));
     
     // After toggle, theme should be 'light'
     expect(screen.getByTestId('theme')).toHaveTextContent('light');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('false');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('false');
     expect(setItemSpy).toHaveBeenCalledWith('theme', 'light');
     
     fireEvent.click(screen.getByTestId('toggle-theme'));
     
     // After second toggle, theme should be 'dark' again
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('true');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true');
     expect(setItemSpy).toHaveBeenCalledWith('theme', 'dark');
   });
 
@@ -103,18 +103,18 @@ describe('ThemeContext', () => {
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
       fireEvent.click(screen.getByTestId('set-light'));
     expect(screen.getByTestId('theme')).toHaveTextContent('light');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('false');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('false');
     expect(setItemSpy).toHaveBeenCalledWith('theme', 'light');
     
     fireEvent.click(screen.getByTestId('set-dark'));
     expect(screen.getByTestId('theme')).toHaveTextContent('dark');
-    expect(screen.getByTestId('isDark')).toHaveTextContent('true');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true');
     expect(setItemSpy).toHaveBeenCalledWith('theme', 'dark');
     
     fireEvent.click(screen.getByTestId('set-system'));
     expect(screen.getByTestId('theme')).toHaveTextContent('system');
     // Since our mock window.matchMedia returns dark preference, isDarkMode should be true
-    expect(screen.getByTestId('isDark')).toHaveTextContent('true');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true');
     expect(setItemSpy).toHaveBeenCalledWith('theme', 'system');
   });
 
@@ -183,7 +183,7 @@ describe('ThemeContext', () => {
     
     // Set theme to 'system'
     fireEvent.click(screen.getByTestId('set-system'));
-    expect(screen.getByTestId('theme')).toHaveTextContent('system');    expect(screen.getByTestId('isDark')).toHaveTextContent('true'); // System is dark
+    expect(screen.getByTestId('theme')).toHaveTextContent('system');    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('true'); // System is dark
 
     // Simulate system theme change to light
     Object.defineProperty(window, 'matchMedia', {
@@ -204,6 +204,6 @@ describe('ThemeContext', () => {
     fireEvent.click(screen.getByTestId('set-system'));
     
     // isDarkMode should now be false since system prefers light mode
-    expect(screen.getByTestId('isDark')).toHaveTextContent('false');
+    expect(screen.getByTestId('isDarkMode')).toHaveTextContent('false');
   });
 });
