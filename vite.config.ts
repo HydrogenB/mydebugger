@@ -22,12 +22,11 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
           
-          // Split tools by category for better loading performance
-          'jwt': ['./src/tools/jwt/JwtToolkit.tsx'],
-          'qrcode': ['./src/tools/qrcode/QRCodeGenerator.tsx'],
-          'markdown': ['./src/tools/markdown-preview/MarkdownPreview.tsx'],
-          'sequence': ['./src/tools/sequence-diagram/SequenceDiagramTool.tsx'],
-          'base64-image': ['./src/tools/base64-image/Base64ImageDebugger.tsx'],
+          // Split tools by category for better loading performance          'jwt': ['./src/tools/jwt/index.ts'],
+          'qrcode': ['./src/tools/qrcode/index.ts'],
+          'markdown': ['./src/tools/markdown-preview/index.ts'],
+          'sequence': ['./src/tools/sequence-diagram/index.ts'],
+          'base64-image': ['./src/tools/base64-image/index.ts'],
         }
       }
     }
