@@ -3,7 +3,7 @@
   "public": true,
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "installCommand": "npm install --omit=dev=false",
   "framework": "vite",
   "builds": [
     {
