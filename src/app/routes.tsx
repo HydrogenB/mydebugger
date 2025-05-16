@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import TermsOfService from '../pages/TermsOfService';
 import Base64ImagePage from '../pages/Base64ImagePage';
+import toolRegistry from '../tools';
 
 // NotFound component
 const NotFound = () => (
@@ -33,8 +34,15 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/privacy-policy" element={<MainLayout><PrivacyPolicy /></MainLayout>} />
-      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />
-      <Route path="/base64-image" element={<MainLayout><Base64ImagePage /></MainLayout>} />
+      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />      {/* Dynamic routes for all tools */}
+      {toolRegistry.map((tool) => (
+        <Route 
+          key={tool.id} 
+          path={`${tool.route}/*`} 
+          element={<tool.component />} 
+        />
+      ))}
+      
       <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />
     </Routes>
   );

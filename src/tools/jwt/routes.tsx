@@ -26,7 +26,7 @@ export const JwtRoutes: React.FC = () => (
       <Route path="/jwks" element={<JwksProbe />} />
       <Route path="/benchmark" element={<BenchResult />} />
       {/* Redirect any other routes to the main JWT decoder */}
-      <Route path="*" element={<Navigate to="/jwt" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   </JwtProvider>
 );
