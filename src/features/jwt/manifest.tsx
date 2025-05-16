@@ -12,9 +12,8 @@ const jwtTool: Tool = {
   description: 'Decode, verify, and build JSON Web Tokens.',
   icon: JwtIcon,
   category: 'Security' as ToolCategory, // Cast if ToolCategory is a string literal union
-  route: '/jwt',
-  component: lazy(() =>
-    import('../../tools/jwt/components/JwtToolkit').catch(() => ({
+  route: '/jwt',  component: lazy(() =>
+    import('../../tools/jwt/JwtToolkit').catch(() => ({
       default: () => (<div>JWT Toolkit Component Not Found</div>),
     }))
   ),

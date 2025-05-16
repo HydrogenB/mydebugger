@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
@@ -9,11 +9,10 @@ import 'github-markdown-css/github-markdown-light.css';
 import './MarkdownPreview.css';
 import { useTheme } from '../../design-system/context/ThemeContext';
 
-const MarkdownPreview: React.FC = () => {
-  const [markdown, setMarkdown] = useState<string>('# Hello World\n\nThis is a **markdown** preview.');
+const MarkdownPreview: React.FC = () => {  const [markdown, setMarkdown] = useState<string>('# Hello World\n\nThis is a **markdown** preview.');
   const [tab, setTab] = useState<string>('editor');
   const tool = getToolByRoute('/markdown-preview');
-  const { isDark } = useTheme();
+  const { isDarkMode } = useTheme();
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 

@@ -15,11 +15,10 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   className = '',
   size = 'md',
   showLabel = false,
-}) => {
-  const { isDark, toggleTheme } = useTheme();
+}) => {  const { isDarkMode, toggleTheme } = useTheme();
   
-  const icon = isDark ? 'sun' : 'moon';
-  const label = isDark ? 'Light mode' : 'Dark mode';
+  const icon = isDarkMode ? 'sun' : 'moon';
+  const label = isDarkMode ? 'Light mode' : 'Dark mode';
 
   return (
     <Button

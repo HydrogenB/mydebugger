@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useReducer, useCallback, ReactNode } from 'react';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import * as jsonwebtoken from 'jsonwebtoken';
 
 // Types for JWT parts
 export interface JwtParts {
@@ -238,10 +239,10 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       
       // The cryptoWorker now has enhanced key format detection
       // so we can directly pass the key as is
-      const isValid = await cryptoWorker.verify(
+      // Let cryptoWorker handle algorithm detection
+const isValid = await cryptoWorker.verify(
         state.token,
-        key,
-        (algorithm || state.decoded?.header?.alg || 'HS256'), // Simplified the complex OR for now
+        key
       );
       
       dispatch({ type: 'SET_VERIFICATION_KEY', payload: key });
@@ -278,12 +279,10 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const cryptoWorker = await import('../workers/cryptoWorker');
       
       const alg = algorithm || state.decoded?.header?.alg || 'HS256';
-      
-      // Pass the correct number of arguments
+        // Updated to use correct parameter count
       const isValid = await cryptoWorker.verify(
         state.token,
-        key,
-        alg
+        key
       );
       
       dispatch({ type: 'SET_VERIFICATION_KEY', payload: key });
@@ -441,19 +440,17 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     return false;
   };
-
   // Fix the function calls with too many arguments
-  const signJwt = (payload: any, secret: string, options?: any) => {
+  const signJwt = (tokenPayload: any, secretKey: string, options?: any) => {
     try {
       // Simplify the algorithm selection
       const algorithm = options?.algorithm || 'HS256';
       
-      // ...existing code...
-      
-      return jwt.sign(
-        payload,
-        secret
-        // Remove the third argument
+      // Use the imported jsonwebtoken library
+      return jsonwebtoken.sign(
+        tokenPayload,
+        secretKey,
+        { algorithm }
       );
     } catch (error) {
       console.error("Error signing JWT:", error);
@@ -461,15 +458,28 @@ export const JwtProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   };
 
-  // Similarly fix this function call
-  const handleSign = () => {
-    // ...existing code...
-    const token = signJwt(
-      payload,
-      secret
-      // Remove the third argument
-    );
-    // ...existing code...
+  // Updated function to use proper variables
+  const handleSign = (tokenPayload: any, secretKey: string, options?: any) => {
+    if (!tokenPayload || !secretKey) {
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: 'Payload and secret are required to sign a token' 
+      });
+      return;
+    }
+    
+    try {
+      const token = signJwt(tokenPayload, secretKey, options);
+      if (token) {
+        dispatch({ type: 'SET_TOKEN', payload: token });
+        decodeToken(token);
+      }
+    } catch (error) {
+      dispatch({ 
+        type: 'SET_ERROR', 
+        payload: error instanceof Error ? error.message : 'Failed to sign token'
+      });
+    }
   };
 
   return (

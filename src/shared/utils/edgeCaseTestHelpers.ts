@@ -53,11 +53,10 @@ export function testFunctionWithEdgeCases<T, R>(
 /**
  * Common edge cases for various types
  */
-export const commonEdgeCases = {
-  strings: ['', ' ', null, undefined, '0', 'undefined', 'null', '\n', '\t', '🔥', '<script>alert(1)</script>'],
-  numbers: [0, -0, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-  arrays: [[], [null], [undefined], [{}, {}, {}], Array(1000).fill(1)],
-  objects: [{}, null, { a: null }, { toString: () => 'malicious' }],
+export const commonEdgeCases = {  strings: ['', ' ', null, undefined, '0', 'undefined', 'null', '\n', '\t', '🔥', '<script>alert(1)</script>'] as (string | null | undefined)[],
+  numbers: [0, -0, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER] as number[],
+  arrays: [[], [null], [undefined], [{}, {}, {}], Array(1000).fill(1)] as any[][],
+  objects: [{}, null, { a: null } as { a: null; toString?: undefined }, { toString: () => 'malicious' } as { toString: () => string; a?: undefined }] as ({ a: null; toString?: undefined } | { toString: () => string; a?: undefined } | null)[],
   urls: ['https://example.com', 'http://localhost', '', 'invalid', 'file:///etc/passwd', 'javascript:alert(1)']
 };
 

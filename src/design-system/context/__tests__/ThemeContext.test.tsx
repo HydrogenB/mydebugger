@@ -1,4 +1,4 @@
-import React from 'react';
+import React from     const { theme, isDarkMode, colorScheme, toggleTheme, setTheme, setColorScheme } = React.useContext(ThemeContext)!;react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ThemeContext, { ThemeProvider, ThemeContextType } from '../ThemeContext';
 
@@ -14,15 +14,14 @@ describe('ThemeContext', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
-
   // Simple test component to display theme context values
   const TestComponent = () => {
-    const { theme, isDark, colorScheme, toggleTheme, setTheme, setColorScheme } = React.useContext(ThemeContext)!;
+    const { theme, isDarkMode, colorScheme, toggleTheme, setTheme, setColorScheme } = React.useContext(ThemeContext)!;
     
     return (
       <div>
         <div data-testid="theme">{theme}</div>
-        <div data-testid="isDark">{isDark.toString()}</div>
+        <div data-testid="isDark">{isDarkMode.toString()}</div>
         <div data-testid="colorScheme">{colorScheme}</div>
         
         <button data-testid="toggle-theme" onClick={toggleTheme}>

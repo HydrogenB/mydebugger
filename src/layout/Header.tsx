@@ -9,7 +9,9 @@ import { useTheme } from '../design-system/context/ThemeContext';
 // import { getIcon } from '../design-system/icons';
 
 // Dummy data to replace the missing imports
-const categories = {
+const categories: Record<string, { icon: () => JSX.Element }> & {
+  [key: string]: { icon: () => JSX.Element }
+} = {
   development: { icon: () => <span>💻</span> },
   security: { icon: () => <span>🔒</span> },
   encoding: { icon: () => <span>🔣</span> },
@@ -30,7 +32,7 @@ const getIconHelper = (name: string) => {
 const Header: React.FC = () => {
   // Replace getAllCategories() with static data
   const allCategories = ['development', 'security', 'encoding', 'visualization'];
-  const { isDark } = useTheme();
+  const { isDarkMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,9 +67,9 @@ const Header: React.FC = () => {
             <span>MyDebugger</span>
           </Link>
           
-          <div className="hidden md:flex md:items-center space-x-6">
-            {allCategories.map((category) => {
-              const CategoryIcon = categories[category]?.icon || (() => <span>📁</span>);
+          <div className="hidden md:flex md:items-center space-x-6">            {allCategories.map((category) => {
+              // Type assertion for category as a known key
+              const CategoryIcon = categories[category as keyof typeof categories]?.icon || (() => <span>📁</span>);
               // Fix the category path to use the category name for proper filtering
               const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                 ? "text-primary-600 dark:text-primary-400" 
@@ -79,8 +81,7 @@ const Header: React.FC = () => {
                   onClick={() => handleCategoryClick(category)}
                   className={`flex items-center space-x-1 ${activeClass} transition focus:outline-none`}
                   aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
-                >
-                  <CategoryIcon className="w-4 h-4" />
+                >                  <span className="w-4 h-4"><CategoryIcon /></span>
                   <span>{category}</span>
                 </button>
               );
@@ -120,9 +121,9 @@ const Header: React.FC = () => {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
-            <div className="flex flex-col space-y-2">
-              {allCategories.map((category) => {
-                const CategoryIcon = categories[category]?.icon || (() => <span>📁</span>);
+            <div className="flex flex-col space-y-2">              {allCategories.map((category) => {
+                // Type assertion for category as a known key
+                const CategoryIcon = categories[category as keyof typeof categories]?.icon || (() => <span>📁</span>);
                 const activeClass = location.search.includes(`category=${encodeURIComponent(category)}`)
                   ? "bg-gray-100 dark:bg-gray-700 text-primary-600 dark:text-primary-400" 
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700";
@@ -133,8 +134,7 @@ const Header: React.FC = () => {
                     onClick={() => handleCategoryClick(category)}
                     className={`flex items-center space-x-2 px-2 py-2 rounded-md ${activeClass} transition w-full text-left`}
                     aria-current={location.search.includes(`category=${encodeURIComponent(category)}`) ? 'page' : undefined}
-                  >
-                    <CategoryIcon className="w-5 h-5" />
+                  >                    <span className="w-5 h-5"><CategoryIcon /></span>
                     <span>{category}</span>
                   </button>
                 );
