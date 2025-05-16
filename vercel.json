@@ -27,7 +27,7 @@
   "env": {},
   "headers": [
     {
-      "source": "/(assets|_next|static)/(.*)\\.js",
+      "source": "/(assets|_next|static)/(.*)\\.(js)",
       "headers": [
         {
           "key": "Content-Type",
@@ -40,7 +40,7 @@
       ]
     },
     {
-      "source": "/assets/(.*)\\.js",
+      "source": "/assets/(.*)\\.(js)",
       "headers": [
         {
           "key": "Content-Type",
