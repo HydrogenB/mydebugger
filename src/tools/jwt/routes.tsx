@@ -1,5 +1,4 @@
 import React from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
 import JwtDecoder from './JwtDecoder';
 import { BuilderWizard } from './components/BuilderWizard';
 import { InspectorPane } from './components/InspectorPane';
@@ -8,27 +7,12 @@ import { BenchResult } from './components/BenchResult';
 import { JwtProvider } from './context/JwtContext';
 
 /**
- * JWT Toolkit Routes Component
+ * Note: This file is no longer used for routing.
+ * JWT routing is now handled directly in JwtToolkit.tsx
+ * using TabGroup/TabPanel components for simplicity and consistency
+ * with other tools in the application.
  * 
- * Defines the routes for the JWT toolkit:
- * - /jwt (default) - The main decoder interface
- * - /jwt/build - JWT Builder for creating tokens
- * - /jwt/inspect - Detailed token inspection and verification
- * - /jwt/jwks - JWKS analysis tool
- * - /jwt/benchmark - Performance benchmarking for algorithms
+ * This file is kept for reference only and could be safely deleted.
  */
-export const JwtRoutes: React.FC = () => (
-  <JwtProvider>
-    <Routes>
-      <Route path="/" element={<JwtDecoder />} />
-      <Route path="/build" element={<BuilderWizard />} />
-      <Route path="/inspect" element={<InspectorPane />} />
-      <Route path="/jwks" element={<JwksProbe />} />
-      <Route path="/benchmark" element={<BenchResult />} />
-      {/* Redirect any other routes to the main JWT decoder */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  </JwtProvider>
-);
 
-export default JwtRoutes;
+export { JwtDecoder, BuilderWizard, InspectorPane, JwksProbe, BenchResult, JwtProvider };

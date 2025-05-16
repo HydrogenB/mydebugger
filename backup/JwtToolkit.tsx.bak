@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { lazy, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
-import { TabGroup, Tab, TabPanel } from '../../design-system/components/navigation';
+import { ToolLayout, Card } from '../../design-system';
+import { TabGroup, Tab } from '../../design-system/components/navigation/TabGroup';
 import JwtDecoder from './JwtDecoder';
 import { BuilderWizard } from './components/BuilderWizard';
 import { InspectorPane } from './components/InspectorPane';
@@ -16,10 +15,12 @@ import { JwtProvider } from './context/JwtContext';
  * 
  * Comprehensive suite of JWT tools including decoder, inspector, builder, and more
  */
+
 const JwtToolkit: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('/');
-  const jwtTool = getToolByRoute('/jwt');
-  
+  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname.split('/jwt')[1] || '/';
+
   const tabItems = [
     { id: '/', label: 'Decoder', title: 'Decode & Verify JWT Tokens' },
     { id: '/inspect', label: 'Inspector', title: 'Deep Inspection & Security Analysis' },
@@ -29,7 +30,7 @@ const JwtToolkit: React.FC = () => {
   ];
 
   const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
+    navigate(`/jwt${tabId}`);
   };
   
   // SEO metadata
@@ -51,17 +52,18 @@ const JwtToolkit: React.FC = () => {
         <link rel="canonical" href="https://mydebugger.vercel.app/jwt" />
       </Helmet>
       
-      <ToolLayout tool={jwtTool!}>
+      <ToolLayout tool={jwtTool}>
         <Card className="p-0 overflow-visible">
           <div className="border-b border-gray-200 dark:border-gray-700">
             <TabGroup 
-              activeTab={activeTab}
+              activeTab={path}
               onChange={handleTabChange}
             >
               {tabItems.map(tab => (
                 <Tab 
                   key={tab.id}
                   id={tab.id}
+                  isActive={path === tab.id}
                 >
                   {tab.label}
                 </Tab>
@@ -69,29 +71,9 @@ const JwtToolkit: React.FC = () => {
             </TabGroup>
           </div>
           
-          <JwtProvider>
-            <div className="p-5">
-              <TabPanel id="/" active={activeTab === '/'}>
-                <JwtDecoder />
-              </TabPanel>
-              
-              <TabPanel id="/inspect" active={activeTab === '/inspect'}>
-                <InspectorPane />
-              </TabPanel>
-              
-              <TabPanel id="/build" active={activeTab === '/build'}>
-                <BuilderWizard />
-              </TabPanel>
-              
-              <TabPanel id="/jwks" active={activeTab === '/jwks'}>
-                <JwksProbe />
-              </TabPanel>
-              
-              <TabPanel id="/benchmark" active={activeTab === '/benchmark'}>
-                <BenchResult />
-              </TabPanel>
-            </div>
-          </JwtProvider>
+          <div className="p-5">
+            <JwtRoutes />
+          </div>
         </Card>
       </ToolLayout>
     </>

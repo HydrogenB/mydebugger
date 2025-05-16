@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
+import { ToolLayout, Card } from '../../design-system';
 import { TabGroup, Tab, TabPanel } from '../../design-system/components/navigation';
 import JwtDecoder from './JwtDecoder';
 import { BuilderWizard } from './components/BuilderWizard';
@@ -17,20 +16,8 @@ import { JwtProvider } from './context/JwtContext';
  * Comprehensive suite of JWT tools including decoder, inspector, builder, and more
  */
 const JwtToolkit: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('/');
-  const jwtTool = getToolByRoute('/jwt');
-  
-  const tabItems = [
-    { id: '/', label: 'Decoder', title: 'Decode & Verify JWT Tokens' },
-    { id: '/inspect', label: 'Inspector', title: 'Deep Inspection & Security Analysis' },
-    { id: '/build', label: 'Builder', title: 'Create & Sign JWT Tokens' },
-    { id: '/jwks', label: 'JWKS', title: 'JWKS Tool & Public Key Discovery' },
-    { id: '/benchmark', label: 'Performance', title: 'Algorithm Performance Benchmarks' },
-  ];
-
-  const handleTabChange = (tabId: string) => {
-    setActiveTab(tabId);
-  };
+  const [activeTab, setActiveTab] = useState<string>('decoder');
+  const tool = getToolByRoute('/jwt');
   
   // SEO metadata
   const pageTitle = "JWT Toolkit | MyDebugger";
@@ -51,48 +38,45 @@ const JwtToolkit: React.FC = () => {
         <link rel="canonical" href="https://mydebugger.vercel.app/jwt" />
       </Helmet>
       
-      <ToolLayout tool={jwtTool!}>
-        <Card className="p-0 overflow-visible">
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <TabGroup 
-              activeTab={activeTab}
-              onChange={handleTabChange}
-            >
-              {tabItems.map(tab => (
-                <Tab 
-                  key={tab.id}
-                  id={tab.id}
-                >
-                  {tab.label}
-                </Tab>
-              ))}
-            </TabGroup>
-          </div>
-          
-          <JwtProvider>
+      <ToolLayout tool={tool!}>
+        <JwtProvider>
+          <Card className="p-0 overflow-visible">
+            <div className="border-b border-gray-200 dark:border-gray-700">
+              <TabGroup 
+                activeTab={activeTab}
+                onChange={setActiveTab}
+              >
+                <Tab id="decoder" label="Decoder" />
+                <Tab id="inspector" label="Inspector" />
+                <Tab id="builder" label="Builder" />
+                <Tab id="jwks" label="JWKS" />
+                <Tab id="benchmark" label="Performance" />
+              </TabGroup>
+            </div>
+            
             <div className="p-5">
-              <TabPanel id="/" active={activeTab === '/'}>
+              <TabPanel id="decoder">
                 <JwtDecoder />
               </TabPanel>
               
-              <TabPanel id="/inspect" active={activeTab === '/inspect'}>
+              <TabPanel id="inspector">
                 <InspectorPane />
               </TabPanel>
               
-              <TabPanel id="/build" active={activeTab === '/build'}>
+              <TabPanel id="builder">
                 <BuilderWizard />
               </TabPanel>
               
-              <TabPanel id="/jwks" active={activeTab === '/jwks'}>
+              <TabPanel id="jwks">
                 <JwksProbe />
               </TabPanel>
               
-              <TabPanel id="/benchmark" active={activeTab === '/benchmark'}>
+              <TabPanel id="benchmark">
                 <BenchResult />
               </TabPanel>
             </div>
-          </JwtProvider>
-        </Card>
+          </Card>
+        </JwtProvider>
       </ToolLayout>
     </>
   );

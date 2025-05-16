@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import Home from '../pages/Home';
@@ -6,6 +6,7 @@ import PrivacyPolicy from '../pages/PrivacyPolicy';
 import TermsOfService from '../pages/TermsOfService';
 import Base64ImagePage from '../pages/Base64ImagePage';
 import toolRegistry from '../tools';
+import { LoadingSpinner } from '../design-system/components/feedback';
 
 // NotFound component
 const NotFound = () => (
@@ -34,12 +35,19 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/privacy-policy" element={<MainLayout><PrivacyPolicy /></MainLayout>} />
-      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />      {/* Dynamic routes for all tools */}
-      {toolRegistry.map((tool) => (
+      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />      {/* Dynamic routes for all tools */}      {toolRegistry.map((tool) => (
         <Route 
           key={tool.id} 
           path={`${tool.route}/*`} 
-          element={<tool.component />} 
+          element={
+            <Suspense fallback={
+              <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+                <LoadingSpinner size="lg" />
+              </div>
+            }>
+              <tool.component />
+            </Suspense>
+          } 
         />
       ))}
       
