@@ -17,11 +17,10 @@
         "distDir": "dist"
       }
     }
-  ],
-  "rewrites": [
+  ],  "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/:file(.*\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/:file" },
+    { "source": "/:file(.+\\.(js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/:file" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {},
