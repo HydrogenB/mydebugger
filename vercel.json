@@ -1,7 +1,7 @@
 {
   "version": 2,
   "public": true,
-  "framework": "vite",
+  "framework": null,
   "installCommand": "npm install --production=false",
   "buildCommand": "npm run build:vercel",
   "devCommand": "npm run dev",

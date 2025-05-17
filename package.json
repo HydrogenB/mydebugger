@@ -58,7 +58,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:vercel": "node vercel-build.js",
-    "vite-build": "vite build",
+    "vite-build": "node ./node_modules/vite/bin/vite.js build",
     "verify-build": "node scripts/verify-build.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
