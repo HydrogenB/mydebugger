@@ -8,7 +8,8 @@ import {
   TabPanel,
   Badge
 } from '../../../design-system';
-import * as cryptoWorker from '../workers/cryptoWorker';
+// Use dynamic import for cryptoWorker for consistency
+// This will be imported when needed using the async pattern
 
 type AlgorithmType = 'HS256' | 'HS384' | 'HS512' | 'RS256' | 'RS384' | 'RS512' | 'ES256' | 'ES384' | 'ES512' | 'none';
 
@@ -103,6 +104,9 @@ export const BuilderWizard: React.FC = () => {
         }
       }
       
+      // Dynamically import cryptoWorker
+      const cryptoWorker = await import('../workers/cryptoWorker');
+      
       // Generate a preview token with a dummy signature (not cryptographically valid)
       const headerBase64 = cryptoWorker.base64UrlEncode(JSON.stringify(header));
       const payloadBase64 = cryptoWorker.base64UrlEncode(JSON.stringify(payload));
@@ -152,8 +156,16 @@ export const BuilderWizard: React.FC = () => {
     setSignError(null);
     
     try {
+      // Dynamically import cryptoWorker
+      const cryptoWorker = await import('../workers/cryptoWorker');
+      
       // Prepare header as JwtHeader type with required alg property
-      const header: cryptoWorker.JwtHeader = { 
+      const header: { 
+        alg: string; 
+        typ?: string; 
+        kid?: string;
+        [key: string]: any;
+      } = { 
         alg: algorithm, 
         typ: type 
       };
@@ -207,10 +219,10 @@ export const BuilderWizard: React.FC = () => {
       setKeyError(null); // Clear previous errors
       
       // Dynamically import the cryptoWorker module
-      // const cryptoWorker = await import('../workers/cryptoWorker'); // Already imported statically
+      const cryptoWorker = await import('../workers/cryptoWorker');
       
       // Generate the key pair
-      const { publicKey, privateKey: newPrivateKey } = await cryptoWorker.generateKeyPair( // Renamed to avoid conflict
+      const { publicKey, privateKey: newPrivateKey } = await cryptoWorker.generateKeyPair(
         signatureConfig.algorithm,
         signatureConfig.keySize || 2048
       );

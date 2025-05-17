@@ -1,4 +1,0 @@
-  clean-main  [m e6ae66d SECURITY: Replace OAuth credentials with placeholders
-  main        [m b50a4f4 [[34morigin/main[m: ahead 2, behind 6] reset
-* [32mnew-main    [m 3a422db [[34morigin/main[m: ahead 19] fix: update comment in vercel-build.js to specify ESM usage
-  temp-default[m b50a4f4 reset
