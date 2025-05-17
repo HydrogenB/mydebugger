@@ -12,9 +12,9 @@ try {
     fs.mkdirSync('./dist', { recursive: true });
   }
   
-  // Run the build
+  // Run the build using npm run to avoid direct executable permissions issues
   console.log('Running build command...');
-  execSync('npx vite build', { stdio: 'inherit' });
+  execSync('npm run vite-build', { stdio: 'inherit' });
   
   console.log('Build completed successfully');
 } catch (error) {

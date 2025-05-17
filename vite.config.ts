@@ -8,7 +8,7 @@ export default defineConfig({
   base: '/',   
   plugins: [react({
     // Add this option to properly handle inline CSS
-    include: ["**/*.tsx", "**/*.jsx"],
+    include: ["**/*.tsx", "**/*.jsx", "**/*.html"],
   })],
   server: {
     port: 3000,
