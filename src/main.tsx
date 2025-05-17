@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+// Import root styles
+import './root-styles.css';
 // Import the enhanced dark mode styles
 import './design-system/styles/darkMode.css';
 // Import enhanced component styles

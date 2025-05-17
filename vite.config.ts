@@ -1,19 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/',   plugins: [react()],
+  base: '/',   
+  plugins: [react({
+    // Add this option to properly handle inline CSS
+    include: ["**/*.tsx", "**/*.jsx"],
+  })],
   server: {
     port: 3000,
-  },
-  build: {
+  },  build: {
     minify: 'esbuild', 
     sourcemap: true,
     outDir: 'dist',
     chunkSizeWarningLimit: 1000, // Increased limit to reduce warnings
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',

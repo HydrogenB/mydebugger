@@ -71,10 +71,8 @@ mydebugger/
 │   │   ├── headers/       # HTTP headers analysis tools
 │   │   ├── jwt/           # JWT toolkit (comprehensive suite)
 │   │   ├── linktracer/    # Link and device tracing tools
-│   │   ├── markdown-preview/ # Markdown preview tool
 │   │   ├── qrcode/        # QR code generation tools
 │   │   ├── regex/         # Regular expression testing tools
-│   │   ├── sequence-diagram/ # Sequence diagram creation tool
 │   │   └── url/           # URL encoding/decoding tools
 │   └── types/             # TypeScript type definitions
 ├── __mocks__/             # Jest mock files
@@ -208,7 +206,6 @@ The components can be viewed and tested in the Components Demo section of the ap
 | URL Encoder | Encode or decode URL components | `tools/url/` |
 | QR Code Generator | Generate QR codes | `tools/qrcode/` |
 | Regular Expression Tester | Test and debug regular expressions | `tools/regex/` |
-| Sequence Diagram | Create and edit sequence diagrams with live preview | `tools/sequence-diagram/` |
 | DNS Lookup | Query DNS records | `tools/dns/` |
 | HTTP Headers Analyzer | Analyze HTTP headers | `tools/headers/` |
 | Clickjacking Validator | Test for clickjacking vulnerabilities | `tools/clickjacking/` |
@@ -226,22 +223,7 @@ The JWT toolkit is a comprehensive tool with multiple features organized into a 
 - **JWKS**: JWKS tool and public key discovery
 - **Benchmark**: Algorithm performance testing
 
-### Sequence Diagram Tool
-
-The Sequence Diagram tool allows you to create and edit sequence diagrams with an interactive editor and live preview:
-
-- **Split-Pane Interface**: Edit diagram code on the left and see the rendered diagram on the right
-- **Real-Time Preview**: Instantly see changes as you type
-- **Format Detection**: Automatically detects and renders sequencediagram.org syntax
-- **Template Library**: Choose from pre-built templates to kickstart your diagrams
-- **Export Options**: Export diagrams as SVG or other formats
-- **Presentation Mode**: Full-screen presentation view for your diagrams
-- **Share Functionality**: Generate shareable links for collaboration
-- **Dark Mode Support**: Seamlessly works with the application's theme system
-
-The tool supports standard sequencediagram.org syntax including participants, messages, notes, activation/deactivation, and more complex features like alternative paths and loops.
-
-## 🧪 Testing
+## ## 🧪 Testing
 
 The project uses Jest and React Testing Library for unit and component testing. Tests are organized alongside the components they test.
 
@@ -642,3 +624,4 @@ By understanding these details, you should be able to efficiently work with this
 ## 📝 License
 
 MIT
+
