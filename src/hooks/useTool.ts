@@ -1,31 +1,16 @@
 import { useEffect, useState } from 'react';
+import { Tool, getToolByRoute as _getToolByRoute } from '../tools';
 
-// Define a basic Tool type
-interface Tool {
-  id: string;
-  title: string;
-  route: string;
-  description: string;
-  icon: React.ComponentType;
-  component: React.ComponentType;
-  // Add other properties as needed
-}
-
-// Mock function to get tools data
-export const getToolByRoute = (route: string): Tool | undefined => {
-  // This would be replaced with your actual tool lookup logic  const tools: Tool[] = [
-    // Add your tools here
-    // ... tools
-  ];
-  
-  return tools.find(tool => tool.route === route);
-};
-
+/**
+ * Custom hook to get a tool by its route
+ * @param route The route of the tool
+ * @returns The tool data or undefined if not found
+ */
 export const useTool = (route: string) => {
   const [tool, setTool] = useState<Tool | undefined>(undefined);
   
   useEffect(() => {
-    const toolData = getToolByRoute(route);
+    const toolData = _getToolByRoute(route);
     setTool(toolData);
   }, [route]);
   

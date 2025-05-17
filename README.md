@@ -1,10 +1,10 @@
 # MyDebugger
 
-A developer-focused toolkit for debugging, API testing, security analysis, encoding, decoding, and UI component demonstration.
+A professional developer-focused toolkit for debugging, API testing, security analysis, encoding, decoding, and UI component demonstration.
 
 ## 📋 Project Overview
 
-MyDebugger is a comprehensive web application built with React, TypeScript, and Vite that provides a collection of utility tools for developers. The application follows a modular architecture with a component-based approach, making it easy to extend with new tools and features.
+MyDebugger is a comprehensive web application built with React, TypeScript, and Vite that provides a collection of utility tools for developers. The application follows a clean, modular architecture with a component-based approach, making it easy to extend with new tools and features.
 
 ### Core Purpose
 

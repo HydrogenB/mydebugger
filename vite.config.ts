@@ -1,10 +1,16 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { resolve } from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { resolve } from 'path';
 
-// https://vitejs.dev/config/
-export default defineConfig({
+// Import the configuration from the config/vite directory
+import viteConfig from './config/vite';
+
+// Export the Vite configuration
+export default viteConfig;
+
+// Kept as reference
+const originalConfig = defineConfig({
   base: '/',   
   plugins: [react({
     // Add this option to properly handle inline CSS
@@ -12,7 +18,8 @@ export default defineConfig({
   })],
   server: {
     port: 3000,
-  },  build: {
+  },
+  build: {
     minify: 'esbuild', 
     sourcemap: true,
     outDir: 'dist',
@@ -21,14 +28,15 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
-      output: {
-        entryFileNames: 'assets/[name]-[hash].js',
+      output: {        entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]',        manualChunks: {
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks: {
           // Split vendor code
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
-            // Split tools by category for better loading performance          'jwt': ['./src/tools/jwt/index.ts'],
+          // Split tools by category for better loading performance
+          'jwt': ['./src/tools/jwt/index.ts'],
           'qrcode': ['./src/tools/qrcode/index.ts'],
           'base64-image': ['./src/tools/base64-image/index.ts'],
         }

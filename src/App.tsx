@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 // import { HelmetProvider } from 'react-helmet-async';
 import './App.css';
 
-import { ThemeProvider } from './design-system/context/ThemeContext';
+import { ThemeProvider } from './app/providers/ThemeProvider';
 import Header from './layout/Header';
 import { AppRoutes } from './app/routes';
 import Footer from './layout/Footer';

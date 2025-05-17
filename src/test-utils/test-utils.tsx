@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { ThemeProvider } from '../context/ThemeContext';
+import { ThemeProvider } from '../app/providers/ThemeProvider';
 
 // Custom render function that includes providers needed for tests
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
