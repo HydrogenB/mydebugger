@@ -701,11 +701,10 @@ const Home: React.FC = () => {
                   <span className="h-3 w-3 bg-green-500 rounded-full"></span>
                 </div>
                 <div className="font-mono text-sm text-gray-700 dark:text-gray-300 whitespace-pre">
-                  <div>$ npm install</div>
-                  <div>$ npm run dev</div>
-                  <div className="text-primary-600 dark:text-primary-400 mt-2">
-                    > ready in 1.2s
-                  </div>
+                  <div>$ npm install</div>                    <div>$ npm run dev</div>
+                    <div className="text-primary-600 dark:text-primary-400 mt-2">
+                      {"> ready in 1.2s"}
+                    </div>
                 </div>
               </div>
             </div>
