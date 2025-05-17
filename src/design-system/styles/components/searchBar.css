@@ -1,0 +1,56 @@
+/* Enhanced search bar styles */
+.search-bar {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+}
+
+.search-bar input {
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--foreground);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.search-bar input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  outline: none;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+/* Dark mode specific enhancements */
+.dark .search-bar input {
+  background-color: #0f172a; /* Darker than normal inputs */
+  border-color: #334155;
+}
+
+.dark .search-bar input:focus {
+  background-color: #1e293b; /* Slightly lighter when focused */
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.dark .search-bar input::placeholder {
+  color: #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-bar {
+    max-width: 100%;
+  }
+}

@@ -1,28 +1,30 @@
 // Design system color tokens
 export const colors = {
   primary: {
-    50: '#e6f1fe',
-    100: '#cce3fd',
-    200: '#99c7fb',
-    300: '#66aaf9',
-    400: '#338ef7',
-    500: '#0072f5', // Primary color
-    600: '#005bc4',
-    700: '#004493',
-    800: '#002e62',
-    900: '#001731',
+    50: '#eef2ff',
+    100: '#e0e7ff',
+    200: '#c7d2fe',
+    300: '#a5b4fc',
+    400: '#818cf8',
+    500: '#6366f1', // Primary color (aligned with tailwind config)
+    600: '#4f46e5',
+    700: '#4338ca',
+    800: '#3730a3',
+    900: '#312e81',
+    950: '#1e1b4b',
   },
   secondary: {
-    50: '#edf2ff',
-    100: '#dbe6ff',
-    200: '#b7ccff',
-    300: '#93b2ff',
-    400: '#6f99ff',
-    500: '#4b7fff', // Secondary color
-    600: '#3c66cc',
-    700: '#2d4c99',
-    800: '#1e3366',
-    900: '#0f1933',
+    50: '#f9fafb',
+    100: '#f3f4f6',
+    200: '#e5e7eb',
+    300: '#d1d5db',
+    400: '#9ca3af',
+    500: '#6b7280', // Secondary color (aligned with tailwind config)
+    600: '#4b5563',
+    700: '#374151',
+    800: '#1f2937',
+    900: '#111827',
+    950: '#030712',
   },
   success: {
     50: '#e6f8e6',

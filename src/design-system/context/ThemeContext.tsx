@@ -43,23 +43,44 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     if (theme === 'dark') return true;
     if (theme === 'light') return false;
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-  // Apply theme to document
+  });  // Apply theme to document with enhanced handling
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     const root = window.document.documentElement;
     
-    // Update root element class
+    // Update root element class with a smoother transition
     if (isDarkMode) {
       root.classList.add('dark');
-      root.classList.remove('light');
+      
+      // Small delay to allow for CSS transitions
+      setTimeout(() => {
+        root.classList.remove('light');
+      }, 10);
     } else {
       root.classList.add('light');
-      root.classList.remove('dark');
+      
+      // Small delay to allow for CSS transitions
+      setTimeout(() => {
+        root.classList.remove('dark');
+      }, 10);
     }
     
-    // Apply color scheme
+    // Apply color scheme and store data attributes for enhanced styling
     root.setAttribute('data-color-scheme', colorScheme);
-  }, [isDarkMode, colorScheme]);
+    root.setAttribute('data-theme', theme);
+    
+    // Store current theme and color scheme in localStorage with more robust error handling
+    try {
+      localStorage.setItem(`${storageKey}-mode`, theme);
+      localStorage.setItem(`${storageKey}-color`, colorScheme);
+    } catch (error) {
+      console.warn('Failed to save theme preferences to localStorage:', error);
+    }
+    
+    // Apply smooth transition to body
+    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+  }, [isDarkMode, colorScheme, theme, storageKey]);
   // Listen for system preference changes
   useEffect(() => {
     if (theme !== 'system') return;

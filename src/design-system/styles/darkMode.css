@@ -1,0 +1,221 @@
+/* Dark mode enhancements */
+
+/* Improved dark mode background and text colors */
+.dark body {
+  background-color: #0d1117; /* GitHub-style dark background */
+  color: #f8fafc;
+}
+
+.dark .bg-white {
+  background-color: #1e293b !important; /* Deeper blue-gray */
+}
+
+.dark .bg-gray-50 {
+  background-color: #0f172a !important; /* Darker shade */
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b !important; /* Consistent with cards */
+}
+
+.dark .bg-gray-200 {
+  background-color: #334155 !important; /* Deeper shade for better contrast */
+}
+
+/* Better contrast for text in dark mode */
+.dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-gray-800 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f9fafb !important;
+}
+
+/* Better border colors in dark mode */
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+  border-color: #334155 !important; /* Darker border color */
+}
+
+/* Navigation improvements for dark mode */
+.dark nav,
+.dark header,
+.dark .nav-container {
+  background-color: #0f172a !important; /* Darker than content area */
+  border-bottom-color: #1e293b !important; /* Subtle border */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important; /* Subtle shadow for depth */
+}
+
+.dark .nav-link {
+  color: #cbd5e1 !important; /* Default link color */
+}
+
+.dark .nav-link:hover {
+  color: #f8fafc !important; /* Brighter on hover */
+}
+
+.dark .nav-link.active {
+  color: #3b82f6 !important; /* Blue for active links */
+  border-color: #3b82f6 !important; /* Blue border for active links */
+}
+
+/* Improved shadows for dark mode */
+.dark .shadow-sm,
+.dark .shadow,
+.dark .shadow-md,
+.dark .shadow-lg {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.36) !important;
+}
+
+/* Form elements in dark mode */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b; /* Darker inputs */
+  border-color: #475569; /* More defined borders */
+  color: #f8fafc; /* Brighter text */
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle inset shadow for depth */
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #3b82f6; /* Blue highlight on focus */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* Glow effect on focus */
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #94a3b8; /* Slightly brighter placeholder text */
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a; /* Darker track */
+  border-radius: 6px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569; /* Slightly brighter thumb */
+  border-radius: 6px;
+  border: 3px solid #0f172a; /* Creates padding effect */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* Even brighter on hover */
+}
+
+.dark ::-webkit-scrollbar-corner {
+  background: #0f172a;
+}
+
+/* Cards with better contrast in dark mode */
+.dark .card,
+.dark [class*="card-"] {
+  background-color: #1e293b; /* Slightly bluer dark background */
+  border-color: #334155; /* Darker border */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Improved contrast for primary colors in dark mode */
+.dark .text-primary-600 {
+  color: #60a5fa !important; /* Brighter blue */
+}
+
+.dark .bg-primary-50 {
+  background-color: rgba(59, 130, 246, 0.05) !important; /* Very subtle blue */
+}
+
+.dark .bg-primary-100 {
+  background-color: rgba(59, 130, 246, 0.1) !important; /* Subtle blue */
+}
+
+/* Code blocks with better visibility */
+.dark pre,
+.dark code {
+  background-color: #0d1117 !important; /* GitHub-style code background */
+  border-color: #30363d !important; /* GitHub-style border */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !important; /* Inset shadow */
+  color: #e6edf3 !important; /* Bright code text */
+}
+
+/* Button hover states in dark mode */
+.dark .btn:hover,
+.dark .button:hover,
+.dark button:not([disabled]):hover {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  filter: brightness(1.1); /* Subtle brightness increase on hover */
+  transition: all 0.2s ease-in-out; /* Smooth transition */
+}
+
+/* Button active states */
+.dark .btn:active,
+.dark .button:active,
+.dark button:not([disabled]):active {
+  transform: translateY(1px); /* Subtle press effect */
+  filter: brightness(0.95); /* Slightly dim when pressed */
+}
+
+/* Focus and active states for dark mode */
+.dark *:focus-visible {
+  outline-color: #3b82f6 !important; /* Bright blue outline */
+  outline-offset: 2px !important; /* Space between element and outline */
+}
+
+/* Tool cards (based on screenshot) */
+.dark .tool-card {
+  background-color: #1e293b !important; /* Darker card background */
+  border-color: #334155 !important; /* Darker border */
+  transition: all 0.2s ease-in-out !important;
+}
+
+.dark .tool-card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dark .tool-card-header {
+  border-bottom-color: #334155 !important;
+}
+
+/* Tool icons */
+.dark .tool-icon {
+  background-color: #0d1117 !important; /* Darker icon background */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  color: #60a5fa !important; /* Bright blue icon */
+}
+
+/* Tool badges/tags */
+.dark .tool-badge {
+  background-color: #334155 !important; /* Badge background */
+  color: #f8fafc !important; /* Badge text */
+}
+
+.dark .tool-badge.popular,
+.dark .tool-badge.new {
+  background-color: #1d4ed8 !important; /* Blue badge for special states */
+  color: white !important;
+}
+
+.dark .tool-badge.beta {
+  background-color: #7c3aed !important; /* Purple for beta */
+  color: white !important;
+}

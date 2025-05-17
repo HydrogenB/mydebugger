@@ -1,0 +1,109 @@
+/* Tool card styling */
+.tool-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.2s ease-out;
+  height: 100%;
+}
+
+.tool-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.tool-card-header {
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tool-icon-container {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  background-color: var(--accent);
+}
+
+.tool-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--foreground);
+}
+
+.tool-category {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.tool-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--muted);
+  color: var(--muted-foreground);
+  margin-left: auto;
+  text-transform: uppercase;
+}
+
+.tool-badge.new {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.tool-badge.popular {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.tool-badge.beta {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.tool-card-body {
+  padding: 1rem;
+  flex-grow: 1;
+}
+
+.tool-description {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Dark mode specific styling - complementing darkMode.css */
+.dark .tool-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .tool-icon-container {
+  background-color: rgba(59, 130, 246, 0.1); /* Light blue background */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tool-cards-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
