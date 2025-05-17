@@ -60,7 +60,6 @@ import {
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon,
-  SequenceDiagramIcon,
   Base64ImageIcon
 } from '../design-system/icons/tool-icons';
 
@@ -269,44 +268,6 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: true
-    }
-  },
-  {
-    id: 'markdown-preview',
-    route: '/markdown-preview',
-    title: 'Markdown Live Preview',
-    description: 'Edit Markdown with real-time preview and GitHub styling support.',
-    icon: FormattersIcon,
-    component: lazy(() => import('./markdown-preview/MarkdownPreview')),
-    category: 'Formatters',
-    isNew: true,
-    metadata: {
-      keywords: ['markdown', 'preview', 'editor', 'live', 'real-time', 'github', 'formatting', 'documentation', 'readme'],
-      learnMoreUrl: 'https://daringfireball.net/projects/markdown/',
-      relatedTools: ['regex-tester', 'url-encoder'],
-    },
-    uiOptions: {
-      showExamples: false
-    }
-  },  // Add Sequence Diagram Tool
-  {
-    id: 'sequence-diagram',
-    route: '/sequence-diagram',
-    title: 'Sequence Diagram',
-    description: 'Create and edit interactive sequence diagrams with multiple export formats.',
-    longDescription: 'Visual sequence diagram editor with real-time preview, multiple export formats (SVG, PNG, PDF), and support for different diagram syntaxes.',
-    icon: SequenceDiagramIcon,
-    component: lazy(() => import('./sequence-diagram/SequenceDiagramTool')),
-    category: 'Utilities',
-    isNew: true,
-    metadata: {
-      keywords: ['diagram', 'sequence diagram', 'flow', 'visualization', 'UML', 'mermaid', 'plantuml', 'visual', 'architecture'],
-      learnMoreUrl: 'https://en.wikipedia.org/wiki/Sequence_diagram',
-      relatedTools: ['regex-tester'],
-    },
-    uiOptions: {
-      fullWidth: true,
-      showExamples: false
     }
   },
   // Add Base64 Image Debugger Tool
