@@ -1,25 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
-import Card from '../../design-system/components/layout/Card';
-import Button from '../../design-system/components/inputs/Button';
-import { Alert } from '../../design-system/components/feedback/Alert';
-import { Badge } from '../../design-system/components/display';
-import { Tooltip } from '../../design-system/components/overlays';
+import React from 'react';
+import { Card } from '../../design-system/components/layout';
 import { useJwt } from './context/JwtContext';
-import { Text } from '../../design-system/components/typography';
+import { useJwtToken } from './hooks/useJwtToken';
+import { TokenInput } from './components/TokenInput';
+import { TokenDisplay } from './components/TokenDisplay';
+import { VerificationPanel } from './components/VerificationPanel';
+import { SecuritySummary } from './components/SecuritySummary';
 
-const JwtDecoder: React.FC = () => {
-  // Use the enhanced context instead of local state
-  const { state, decodeToken, verifySignature, analyzeToken } = useJwt();
-  const { token, decoded, error, isVerified, verificationKey, securityIssues, parsingWarnings } = state;
+/**
+ * JWT Decoder Component
+ * Main component for decoding, displaying and verifying JWT tokens
+ */
+const JwtDecoder: React.FC = () => {  // Use the context for state management and operations
+  const { state, decodeToken, verifySignature, clearState } = useJwt();
+  const { token, decoded, error, isVerified, verificationKey, securityIssues } = state;
   
-  const [jwtToken, setJwtToken] = useState<string>('');
-  const [secret, setSecret] = useState<string>('');
-  const [copied, setCopied] = useState<boolean>(false);
-  const [copiedSection, setCopiedSection] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'json' | 'table'>('json');  // Setting default tab to JSON
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('');
-  const [showIterationTooltip, setShowIterationTooltip] = useState<boolean>(false);
+  // Calculate security score based on issues
+  const calculateSecurityScore = (): number => {
+    if (!decoded || !securityIssues?.length) return 100;
+    
+    // Start with perfect score and deduct based on issues
+    let score = 100;
+    
+    securityIssues.forEach(issue => {
+      switch (issue.severity) {
+        case 'high':
+          score -= 25;
+          break;
+        case 'medium':
+          score -= 10;
+          break;
+        case 'low':
+          score -= 5;
+          break;
+        case 'info':
+          score -= 0;
+          break;
+      }
+    });
+    
+    // Ensure score is between 0 and 100
+    return Math.max(0, Math.min(100, score));
+  };
+  
+  const securityScore = calculateSecurityScore();
   
   // Update local state from context state
   useEffect(() => {

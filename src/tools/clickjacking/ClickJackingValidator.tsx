@@ -1,34 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
-import { LoadingSpinner } from '../../design-system/components/feedback';
+import { useClickjackingValidator } from './hooks';
+import { UrlForm, ResultDisplay } from './components';
 
-interface ValidationResult {
-  url: string;
-  headers: {
-    'x-frame-options'?: string;
-    'content-security-policy'?: string;
-    'frame-ancestors'?: string;
-  };
-  canBeFramed: boolean;
-  frameLoaded: boolean;
-  statusCode?: number;
-  statusText?: string;
-  message?: string;
-  timestamp: Date;
-}
-
+/**
+ * Clickjacking Vulnerability Detector
+ * Tests websites for clickjacking vulnerabilities by checking headers and frame loading
+ */
 const ClickJackingValidator: React.FC = () => {
   const tool = getToolByRoute('/clickjacking');
-  const [url, setUrl] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<ValidationResult | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
+  
+  // Use our custom hook for all validation functionality
+  const {
+    url,
+    setUrl,
+    loading,
+    result,
+    error,
+    history,
+    iframeRef,
+    iframeLoaded,
+    handleUrlSubmit,
+    handleIframeLoad,
+    handleIframeError,
+    clearResults,
+    clearHistoryEntries
+  } = useClickjackingValidator();
   const [iframeError, setIframeError] = useState<boolean>(false);
   
   // SEO metadata

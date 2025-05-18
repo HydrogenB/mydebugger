@@ -9,7 +9,15 @@ export default defineConfig({
   plugins: [react({
     // Add this option to properly handle inline CSS
     include: ["**/*.tsx", "**/*.jsx", "**/*.html"],
-  })],
+  })],  optimizeDeps: {
+    esbuildOptions: {
+      // Node.js global to browser globalThis
+      define: {
+        global: 'globalThis',
+      },
+    },
+    exclude: ['@prisma/client']
+  },
   server: {
     port: 3000,
   },
@@ -31,9 +39,9 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
           // Split tools by category for better loading performance
-          'jwt': ['../../src/tools/jwt/index.ts'],
-          'qrcode': ['../../src/tools/qrcode/index.ts'],
-          'base64-image': ['../../src/tools/base64-image/index.ts'],
+          'jwt': [resolve(__dirname, '../../src/tools/jwt/index.ts')],
+          'qrcode': [resolve(__dirname, '../../src/tools/qrcode/index.ts')],
+          'base64-image': [resolve(__dirname, '../../src/tools/base64-image/index.ts')],
         }
       }
     }
@@ -50,10 +58,9 @@ export default defineConfig({
       '@types': path.resolve(__dirname, '../../src/types'),
       '@shared': path.resolve(__dirname, '../../src/shared'),
       '@features': path.resolve(__dirname, '../../src/features'),
+      // Handle Node.js modules not available in the browser
+      'crypto': path.resolve(__dirname, '../../src/polyfills/crypto.js'),
       '@api': path.resolve(__dirname, '../../api')
     }
-  },
-  optimizeDeps: {
-    exclude: ['@prisma/client']
   }
 })

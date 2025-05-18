@@ -26,6 +26,16 @@ export interface TraceResult {
 }
 
 /**
+ * Device profile for tracing with different user agents
+ */
+export interface DeviceProfile {
+  id: string;
+  name: string;
+  type: string;
+  userAgent: string;
+}
+
+/**
  * User agent configuration option
  */
 export interface UserAgentOption {

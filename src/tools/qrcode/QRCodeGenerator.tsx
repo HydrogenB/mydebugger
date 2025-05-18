@@ -1,54 +1,133 @@
-// @ts-nocheck
-
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet';
-import QRCode from 'qrcode';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useQRCodeGenerator } from './hooks';
+import { QRCodeGeneratorProps } from './types';
+import {
+  QRCodeInput,
+  QRCodeDisplay,
+  QRCodeSettings,
+  QRCodeList,
+  SaveQRCodeModal,
+  LargeQRCodeModal,
+  ToastMessage
+} from './components';
 
-// Interface definitions for saved QR codes
-interface SavedQRCode {
-  id: string;
-  url: string;
-  nickname: string;
-  createdAt: number;
-  qrCodeUrl: string;
-  settings: {
-    size: number;
-    errorCorrection: string;
-    darkColor: string;
-    lightColor: string;
-  };
-}
+/**
+ * QR Code Generator Tool
+ * Creates QR codes from URLs or text with customization options
+ */
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
+  // Using our custom hook for all QR code functionality
+  const {
+    // State
+    input,
+    encodedLink,
+    settings,
+    qrCodeUrl,
+    toastMessage,
+    showCosmeticOptions,
+    savedQRCodes,
+    showSaveModal,
+    nickname,
+    showLargeQRModal,
+    
+    // Actions
+    setInput,
+    updateSettings,
+    toggleCosmeticOptions,
+    generateQRCode,
+    saveQRCode,
+    deleteQRCode,
+    setShowSaveModal,
+    setNickname,
+    setShowLargeQRModal,
+    showToast
+  } = useQRCodeGenerator(initialLink);
 
-const DeepLinkQRGenerator: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const searchParams = new URLSearchParams(location.search);
-  const initialLink = searchParams.get('link') || '';
-  
-  const [input, setInput] = useState<string>(initialLink);
-  const [encodedLink, setEncodedLink] = useState<string>('');
-  const [size, setSize] = useState<number>(256);
-  const [errorCorrection, setErrorCorrection] = useState<string>('M');
-  const [darkColor, setDarkColor] = useState<string>('#000000');
-  const [lightColor, setLightColor] = useState<string>('#FFFFFF');
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string>('');
-  const [showCosmeticOptions, setShowCosmeticOptions] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  
-  // Collection related state
-  const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
-  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
-  const [nickname, setNickname] = useState<string>('');
-  
-  // Large QR code modal state
-  const [showLargeQRModal, setShowLargeQRModal] = useState<boolean>(false);
-  
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const timeoutRef = useRef<number | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <Helmet>
+        <title>QR Code Generator - MyDebugger</title>
+        <meta name="description" content="Generate QR codes for URLs or text with customization options" />
+      </Helmet>
+
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          QR Code Generator
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Generate QR codes for URLs or any text. Customize size, colors, and error correction level.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          {/* Input component */}
+          <QRCodeInput
+            value={input}
+            onChange={setInput}
+            onGenerate={generateQRCode}
+            onToggleOptions={toggleCosmeticOptions}
+            showOptions={showCosmeticOptions}
+          />
+
+          {/* QR Code Settings */}
+          {showCosmeticOptions && (
+            <QRCodeSettings
+              settings={settings}
+              onUpdateSettings={updateSettings}
+            />
+          )}
+
+          {/* QR Code Display */}
+          {qrCodeUrl && (
+            <QRCodeDisplay
+              qrCodeUrl={qrCodeUrl}
+              encodedLink={encodedLink}
+              onShowLarge={() => setShowLargeQRModal(true)}
+              onSave={() => setShowSaveModal(true)}
+            />
+          )}
+        </div>
+
+        <div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 mb-6">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+              Saved QR Codes
+            </h2>
+            <QRCodeList
+              savedCodes={savedQRCodes}
+              onDelete={deleteQRCode}
+              onSelect={(code) => {
+                setInput(code.url);
+                updateSettings(code.settings);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Modals & Toast */}
+      <SaveQRCodeModal
+        isOpen={showSaveModal}
+        nickname={nickname}
+        onNicknameChange={setNickname}
+        onSave={saveQRCode}
+        onClose={() => setShowSaveModal(false)}
+      />
+
+      <LargeQRCodeModal
+        isOpen={showLargeQRModal}
+        qrCodeUrl={qrCodeUrl}
+        onClose={() => setShowLargeQRModal(false)}
+      />
+
+      <ToastMessage
+        message={toastMessage}
+        isVisible={Boolean(toastMessage)}
+      />
+    </div>
+  );
   
   // Check if device is mobile and load saved QR codes
   useEffect(() => {
@@ -898,4 +977,4 @@ const DeepLinkQRGenerator: React.FC = () => {
   );
 };
 
-export default DeepLinkQRGenerator;
+export default QRCodeGenerator;

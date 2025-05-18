@@ -47,12 +47,15 @@ mydebugger/
 │   │
 │   ├── shared/            # Shared utilities and constants
 │   │
-│   ├── tools/             # Developer tools implementations
-│   │   ├── index.ts       # Tools registry
-│   │   └── [tool-name]/   # Individual tool modules
-│   │       ├── index.ts   # Tool entry point
-│   │       ├── components/# Tool-specific components
-│   │       └── utils/     # Tool-specific utilities
+│   ├── tools/                # Developer tools implementations
+│   │   ├── index.ts          # Tools registry
+│   │   └── [tool-name]/      # Individual tool modules
+│   │       ├── index.ts      # Tool entry point
+│   │       ├── [ToolName].tsx # Main tool component
+│   │       ├── types.ts      # Type definitions
+│   │       ├── components/   # Tool-specific components
+│   │       ├── hooks/        # Tool-specific hooks
+│   │       └── utils/        # Tool-specific utilities
 │   │
 │   ├── types/             # TypeScript type definitions
 │   │
