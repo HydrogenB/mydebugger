@@ -30,3 +30,27 @@ This project is built with Next.js and follows these conventions:
 ## Deployment
 
 This project is deployed to Vercel and configured for stateless deployments.
+
+### Build Configuration
+
+- `next.config.js`: Contains Next.js configuration settings
+  - ESLint and TypeScript errors are ignored during builds
+  - Images are configured for static optimization
+  - Source maps are disabled in production for better performance
+
+### Vercel Deployment
+
+- `vercel.json`: Contains Vercel-specific configuration
+  - Specifies the Next.js framework
+  - Sets custom installation and build commands
+  - Configures the output directory for static exports
+  - Defines routing rules and API handlers
+
+### Build Scripts
+
+- `npm run build:vercel`: Runs the enhanced Vercel build script
+- `vercel-next-build.js`: Custom build script with:
+  - Cross-platform compatibility (Windows/Unix)
+  - Multiple build attempt strategies
+  - Error handling and fallback mechanisms
+  - Environment variable configuration

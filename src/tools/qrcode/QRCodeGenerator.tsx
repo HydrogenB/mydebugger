@@ -1,7 +1,7 @@
-import React, { useRef, useCallback, useState, useEffect } from 'react';
+import React, { useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
 import { useQRCodeGenerator } from './hooks';
-import { QRCodeGeneratorProps, SavedQRCode } from './types';
+import { QRCodeGeneratorProps } from './types';
 import {
   QRCodeInput,
   QRCodeDisplay,
@@ -50,7 +50,11 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
     showToast
   } = useQRCodeGenerator(initialLink);
 
-  // Helper functions for UI interactions
+  // SECTION: Clipboard and sharing functions
+  
+  /**
+   * Generic clipboard copy function with error handling
+   */
   const handleCopyToClipboard = useCallback((text: string, message: string) => {
     try {
       navigator.clipboard.writeText(text);
@@ -61,16 +65,25 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
     }
   }, [showToast]);
 
+  /**
+   * Copy URL-encoded version of link to clipboard
+   */
   const handleCopyEncodedLink = useCallback(() => {
     if (!encodedLink) return;
     handleCopyToClipboard(encodedLink, "Encoded link copied!");
   }, [encodedLink, handleCopyToClipboard]);
   
+  /**
+   * Copy raw link to clipboard
+   */
   const handleCopyRawLink = useCallback(() => {
     if (!input) return;
     handleCopyToClipboard(input, "Link copied!");
   }, [input, handleCopyToClipboard]);
   
+  /**
+   * Copy QR code as image to clipboard with fallback to download
+   */
   const handleCopyQRAsImage = useCallback(async () => {
     if (!qrCodeUrl || !input) return;
     
@@ -97,6 +110,11 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
     }
   }, [qrCodeUrl, input, showToast]);
   
+  // SECTION: QR code download and export 
+  
+  /**
+   * Download QR code as PNG with enhanced formatting
+   */
   const handleDownloadQR = useCallback(() => {
     if (!qrCodeUrl || !input) return;
     
@@ -150,7 +168,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
     };
   }, [qrCodeUrl, input, settings, showToast]);
   
-  const handleRunLink = () => {
+  /**
+   * Open the generated link in a new browser tab
+   */
+  const handleRunLink = useCallback(() => {
     if (!input || isMobile) return;
     
     setIsRunningLink(true);
@@ -163,9 +184,12 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
       }
       setTimeout(() => setIsRunningLink(false), 1000);
     }, 10);
-  };
-
-  const handleSharePageWithLink = () => {
+  }, [input, isMobile, setIsRunningLink, showToast]);
+  
+  /**
+   * Create and copy shareable link with QR code parameter
+   */
+  const handleSharePageWithLink = useCallback(() => {
     if (!input) return;
     
     try {
@@ -186,8 +210,10 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
       console.error("Error creating shareable link:", error);
       showToast("Error creating shareable link");
     }
-  };
+  }, [input, showToast]);
 
+  // SECTION: Component rendering
+  
   return (
     <div className="max-w-4xl mx-auto p-4">
       <Helmet>

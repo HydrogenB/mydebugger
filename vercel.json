@@ -1,9 +1,12 @@
-{  "version": 2,
+{
+  "version": 2,
   "public": true,
   "framework": "nextjs",
   "installCommand": "npm install --production=false --prefer-offline --no-audit",
   "buildCommand": "npm run build:vercel",
-  "devCommand": "npm run dev","rewrites": [
+  "devCommand": "npm run dev",
+  "outputDirectory": "out",
+  "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "env": {},

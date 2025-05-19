@@ -5,13 +5,13 @@ import { ToolLayout } from '../../design-system/components/layout';
 import { Card } from '../../design-system/components/layout';
 import { Button } from '../../design-system/components/inputs';
 import { useRegexTester } from './hooks';
+import { highlightMatches } from './utils';
 import { 
   RegexPatternInput,
   TestInput,
   MatchesDisplay,
   ExamplesAndPatterns
 } from './components';
-import { highlightMatches } from './utils';
 
 /**
  * Regular Expression Tester Tool
@@ -32,16 +32,19 @@ const RegexTester: React.FC = () => {
     commonPatterns,
     regexExamples,
     setPattern,
-    setInput,
-    setFlags,
+    setInput,    setFlags,
     toggleFlag,
-    getHighlightedHtml,
     loadExample,
     useCommonPattern,
     resetAll,
     setShowDebugInfo,
     runTest
   } = useRegexTester();
+
+  // Generate highlighted HTML for visualizing matches in the input
+  const getHighlightedHtml = () => {
+    return highlightMatches(input, result.matches);
+  };
 
   return (
     <>
