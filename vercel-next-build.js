@@ -3,6 +3,13 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Force install required dependencies
+const REQUIRED_DEPS = [
+  'tailwindcss@3.3.3',
+  '@tailwindcss/forms@0.5.7',
+  '@tailwindcss/typography@0.5.10'
+];
+
 console.log('Starting enhanced Next.js Vercel build process...');
 console.log(`Node version: ${process.version}`);
 console.log(`Platform: ${process.platform}`);
