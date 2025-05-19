@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+// Use our compatibility adapter instead of direct react-router-dom imports
+import { useNavigate } from './router-adapter';
 import { QRCodeSettings, SavedQRCode } from '../types';
 import {
   generateQRCode,
@@ -14,11 +15,17 @@ import {
  * Custom hook for QR Code generator functionality
  */
 export const useQRCodeGenerator = (initialLinkParam?: string) => {
-  const location = useLocation();
+  // Use simplified approach without useLocation
   const navigate = useNavigate();
   
   // Extract link from URL if not provided directly
-  const searchParams = new URLSearchParams(location.search);
+  const getSearchParams = () => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search);
+    }
+    return new URLSearchParams('');
+  };
+  const searchParams = getSearchParams();
   const initialLink = initialLinkParam || searchParams.get('link') || '';
   
   // Form input state

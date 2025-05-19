@@ -6,6 +6,16 @@
   "buildCommand": "npm run build:vercel",
   "devCommand": "npm run dev",
   "outputDirectory": "out",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next",
+      "config": { 
+        "outputDirectory": "out",
+        "nodeVersion": "18.x"
+      }
+    }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],

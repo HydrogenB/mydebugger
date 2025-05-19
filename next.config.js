@@ -31,7 +31,7 @@ const nextConfig = {
   
   // Configure export options
   experimental: {
-    outputFileTracingRoot: "c:\\Jirad-python\\mydebugger",
+    outputFileTracingRoot: process.cwd(),
   },
   
   // Handle source maps for production

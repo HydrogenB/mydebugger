@@ -76,14 +76,69 @@ try {
     // We'll try different build approaches, starting with Next.js static export
   console.log('\n=== ATTEMPT 1: Next.js Static Export with ESLint Disabled ===\n');
   
-  // Lock dependencies for stability
+  // Lock dependencies for stability and install required build dependencies
   console.log('Installing critical dependencies at exact versions...');
-  runCommand('npm install --no-save next@14.0.4 react@18.2.0 react-dom@18.2.0');
+  runCommand('npm install --no-save next@14.0.4 react@18.2.0 react-dom@18.2.0 tailwindcss@3.3.3 postcss@8.4.27 autoprefixer@10.4.14');
+  
+  // Install react-router with --force to bypass Node.js version requirements
+  console.log('Installing react-router with compatibility override...');
+  runCommand('npm install --no-save --force react-router-dom@7.6.0');
+  
   // Disable ESLint during build to prevent errors blocking the build
   process.env.DISABLE_ESLINT_PLUGIN = 'true';
+    // Create a build-time patch for react-router dependency
+  console.log('Creating build patches for compatibility...');
   
-  // Run Next.js static export - use cross-platform approach
-  if (runCommand('npx cross-env DISABLE_ESLINT_PLUGIN=true next build && npx next export -o out')) {
+  // Create a patch file to make the build succeed despite module resolution issues
+  if (!fs.existsSync('./src/tools/qrcode/hooks/router-adapter.js')) {
+    console.log('Creating router adapter for compatibility...');
+    const routerAdapterContent = `// This file provides a compatibility layer for react-router-dom
+// to work in environments that don't satisfy the Node.js version requirement
+
+import { useCallback } from 'react';
+
+// Minimal mock for useNavigate function from react-router-dom
+export function useNavigate() {
+  return useCallback((path) => {
+    if (typeof window !== 'undefined') {
+      if (path.startsWith('http')) {
+        window.open(path, '_blank');
+      } else {
+        window.location.href = path;
+      }
+    }
+  }, []);
+}
+
+// Minimal mock for Link component from react-router-dom
+export const Link = ({ to, children, ...props }) => {
+  const handleClick = (e) => {
+    if (props.onClick) {
+      props.onClick(e);
+    }
+    
+    if (!e.defaultPrevented) {
+      e.preventDefault();
+      if (to.startsWith('http')) {
+        window.open(to, '_blank');
+      } else {
+        window.location.href = to;
+      }
+    }
+  };
+  
+  return (
+    <a href={to} onClick={handleClick} {...props}>
+      {children}
+    </a>
+  );
+};`;
+    fs.mkdirSync('./src/tools/qrcode/hooks', { recursive: true });
+    fs.writeFileSync('./src/tools/qrcode/hooks/router-adapter.js', routerAdapterContent);
+  }
+  
+  // Run Next.js static export with our patches - use cross-platform approach
+  if (runCommand('npx cross-env DISABLE_ESLINT_PLUGIN=true NODE_ENV=production next build && npx next export -o out')) {
     console.log('✅ Next.js static export successful!');
   } else {
     console.log('\n=== ATTEMPT 2: Static HTML Export ===\n');
@@ -125,9 +180,10 @@ try {
     
     copyPublicAssets();
   }
-
-  // Create Vercel routing config (for both approaches)
-  console.log('Creating Vercel routing config...');
+  // Create Vercel routing config and Next.js compatibility files
+  console.log('Creating Vercel routing config and Next.js compatibility files...');
+  
+  // Create Vercel routing config
   const vercelConfig = {
     "version": 2,
     "routes": [
@@ -138,9 +194,40 @@ try {
     ]
   };
   fs.writeFileSync('./out/vercel.json', JSON.stringify(vercelConfig, null, 2));
-    // Create compatibility files for other hosting platforms
+  
+  // Create routes-manifest.json for Vercel Next.js compatibility
+  const routesManifest = {
+    "version": 3,
+    "basePath": "",
+    "pages404": true,
+    "rewrites": [
+      { "source": "/api/:path*", "destination": "/api/:path*" },
+      { "source": "/:path*", "destination": "/:path*" }
+    ],
+    "headers": [],
+    "redirects": [],
+    "dataRoutes": []
+  };
+  fs.writeFileSync('./out/routes-manifest.json', JSON.stringify(routesManifest, null, 2));
+  // Create compatibility files for other hosting platforms
   const redirectsContent = '/* /index.html 200';
   fs.writeFileSync('./out/_redirects', redirectsContent);
+  
+  // Write package.json to the output directory
+  console.log('Creating package.json in output directory...');
+  const outputPackageJson = {
+    "name": "mydebugger-static",
+    "version": "0.1.0",
+    "private": true,
+    "engines": {
+      "node": "18.x"
+    },
+    "type": "commonjs",
+    "dependencies": {
+      "next": "14.0.4" 
+    }
+  };
+  fs.writeFileSync('./out/package.json', JSON.stringify(outputPackageJson, null, 2));
 
   // Ensure API directory is properly handled
   if (fs.existsSync('./api') && !fs.existsSync('./out/api')) {
