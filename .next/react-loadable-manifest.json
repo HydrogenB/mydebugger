@@ -26,18 +26,18 @@
   "..\\src\\tools\\index.ts -> ./clickjacking/ClickJackingValidator": {
     "id": 1219,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/806.e522c5e6c0bbf7d7.js"
     ]
   },
   "..\\src\\tools\\index.ts -> ./components-demo/ComponentsDemo": {
     "id": 6583,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/654.2ba87efe5f3791c1.js",
       "static/chunks/145.decb15051a3abe81.js"
     ]
@@ -45,18 +45,18 @@
   "..\\src\\tools\\index.ts -> ./dns/DnsLookup": {
     "id": 6350,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/235.0135e9791fa7f6f0.js"
     ]
   },
   "..\\src\\tools\\index.ts -> ./headers/HeadersAnalyzer": {
     "id": 391,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/391.4a28312f274e0da2.js"
     ]
   },
@@ -64,10 +64,10 @@
     "id": 5889,
     "files": [
       "static/chunks/fec483df.598e37b9d6d186c5.js",
-      "static/chunks/593-0859c761527e2ddb.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
       "static/chunks/777.bf65bf9912a06f1e.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/654.2ba87efe5f3791c1.js",
       "static/chunks/889.8b172704f482b627.js"
     ]
@@ -81,34 +81,33 @@
   "..\\src\\tools\\index.ts -> ./linktracer/LinkTracer": {
     "id": 6969,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/603.4dc6949b565f534b.js"
     ]
   },
   "..\\src\\tools\\index.ts -> ./qrcode/QRCodeGenerator": {
-    "id": 1973,
+    "id": 9922,
     "files": [
-      "static/chunks/d0624c36.5018b5443c4ff836.js",
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/918.f4b943fff5af9bdc.js",
-      "static/chunks/973.e3c2f7a9929c339b.js"
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/754.76a7d3fa4639a0b3.js",
+      "static/chunks/657.f1abb5eda32f07df.js"
     ]
   },
   "..\\src\\tools\\index.ts -> ./regex/RegexTester": {
     "id": 1449,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
-      "static/chunks/623-103fcb9b476da65d.js",
-      "static/chunks/579-2d1007858c03fdf1.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
+      "static/chunks/623-368ce07c23fbdb5c.js",
+      "static/chunks/579-5c6c91e90562703b.js",
       "static/chunks/658.04274c88862d58af.js"
     ]
   },
   "..\\src\\tools\\index.ts -> ./url/UrlEncoder": {
     "id": 2097,
     "files": [
-      "static/chunks/593-0859c761527e2ddb.js",
+      "static/chunks/593-7ed476d2a69cadbd.js",
       "static/chunks/97.ce46065382df2d37.js"
     ]
   },
