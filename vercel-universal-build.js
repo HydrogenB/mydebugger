@@ -107,7 +107,7 @@ function createCompatibilityFiles() {
 async function build() {
   try {
     // Setup output directory structure
-    setupDirectories();
+    // setupDirectories();
     
     // Install critical dependencies
     console.log('Installing critical dependencies...');
@@ -116,42 +116,17 @@ async function build() {
     
     // Run the build process with proper environment settings
     console.log('Running optimized build...');
-    const optimizedBuildCommand = 'npx cross-env NODE_ENV=production DISABLE_ESLINT_PLUGIN=true next build && next export -o out'; // Added npx
+    const optimizedBuildCommand = 'npx cross-env NODE_ENV=production DISABLE_ESLINT_PLUGIN=true next build'; // Modified command for standard Vercel Next.js deployment
     if (runCommand(optimizedBuildCommand)) {
       console.log('Optimized build succeeded.');
     } else {
-      console.log('Standard build failed, falling back to static HTML export...');
-      // Create a minimal HTML file
-      const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MyDebugger - Developer Tools</title>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; line-height: 1.6; }
-    h1 { color: #0070f3; }
-    .btn { padding: 0.5rem 1rem; background: #0070f3; color: white; border-radius: 4px; text-decoration: none; display: inline-block; }
-    .btn:hover { background: #0051a2; }
-  </style>
-</head>
-<body>
-  <h1>MyDebugger Tools</h1>
-  <p>Welcome to MyDebugger - Your developer toolkit for troubleshooting and debugging applications.</p>
-  <div>
-    <a href="/api" class="btn">API</a>
-    <a href="/tool/qrcode" class="btn">QR Code Tool</a>
-    <a href="/tool/regex" class="btn">Regex Tester</a>
-  </div>
-</body>
-</html>`;
-      fs.writeFileSync('./out/index.html', htmlContent);
+      console.error('Standard build failed.');
+      process.exit(1);
     }
     
     // Copy assets and create compatibility files regardless of build method
-    copyAssets();
-    createCompatibilityFiles();
+    // copyAssets();
+    // createCompatibilityFiles();
     
     console.log('✅ Build completed successfully');
     return 0;

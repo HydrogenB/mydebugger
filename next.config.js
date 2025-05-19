@@ -4,6 +4,7 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // output: 'export', // Temporarily commenting out to test Vercel's default Next.js handling
   // Disable server-side features for static export
   images: {
     unoptimized: true,
