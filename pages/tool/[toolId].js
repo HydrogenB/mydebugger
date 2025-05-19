@@ -4,7 +4,7 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import toolRegistry from '../../src/tools';
 import { LoadingSpinner } from '../../src/design-system/components/feedback';
-import NotFound from '../../src/components/NotFound';
+import NotFound from '../../src/pages/NotFound'; // Corrected import path
 
 export default function ToolPage() {
   const router = useRouter();

@@ -1,5 +1,5 @@
 import React from 'react';
-import NotFound from '../src/components/NotFound';
+import NotFound from '../src/pages/NotFound';
 import Head from 'next/head';
 
 export default function Custom404() {
