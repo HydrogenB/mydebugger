@@ -1,5 +1,5 @@
 import React from 'react';
-import { ThemeProvider } from '../src/app/providers/ThemeProvider';
+import { ThemeProvider } from '../src/design-system/context/ThemeContext';
 import '../src/index.css';
 import '../src/root-styles.css';
 import '../src/design-system/styles/darkMode.css';
