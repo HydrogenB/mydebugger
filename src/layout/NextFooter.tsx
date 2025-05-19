@@ -49,10 +49,10 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 pt-12 pb-6 border-t border-gray-200 dark:border-gray-700">
+    <footer className="bg-gradient-to-b from-white to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-700 dark:text-gray-300 pt-10 pb-6 border-t border-gray-200 dark:border-gray-700">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           {/* Column 1 - About */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -179,18 +179,40 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-2">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 dark:text-gray-400">
             <div className="mb-4 md:mb-0">
-              <p>&copy; {currentYear} MyDebugger. All rights reserved.</p>
+              <p>&copy; {currentYear} MyDebugger. All rights reserved. Built with ❤️ by Jirad S.</p>
             </div>
-            <div className="flex items-center space-x-1">
-              <span>Developed by</span>
+            <div className="flex items-center space-x-2">
               <a 
-                href={socialLinks.linkedin}
+                href={socialLinks.linkedin} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition-colors duration-200 flex items-center"
+                aria-label="Jirad S. LinkedIn Profile"
               >
-                <span>Jirad S.</span>
-                <span className="ml-1 text-xs">{FooterIcons.linkedin}</span>
+                {FooterIcons.linkedin}
+                <span className="ml-1.5">LinkedIn</span>
+              </a>
+              <span className="text-gray-400 dark:text-gray-600">|</span>
+              <a 
+                href={socialLinks.github} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 transition-colors duration-200 flex items-center"
+                aria-label="MyDebugger GitHub Repository"
+              >
+                {FooterIcons.github}
+                <span className="ml-1.5">GitHub</span>
+              </a>
+               <span className="text-gray-400 dark:text-gray-600">|</span>
+              <a 
+                href={socialLinks.requestTool} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="font-medium text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors duration-200 flex items-center"
+                aria-label="Request a new tool on GitHub"
+              >
+                {FooterIcons.tool} 
+                <span className="ml-1.5">Request a Tool</span>
               </a>
             </div>
           </div>

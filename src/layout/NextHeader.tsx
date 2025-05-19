@@ -108,7 +108,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 h-14">
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50 h-12">
       <div className="container mx-auto px-4 h-full flex justify-between items-center">
         {/* Logo with animated gradient effect on hover */}
         <Link href="/" legacyBehavior>
