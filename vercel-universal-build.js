@@ -116,11 +116,10 @@ async function build() {
     
     // Run the build process with proper environment settings
     console.log('Running optimized build...');
-    const buildSuccess = runCommand(
-      'cross-env NODE_ENV=production DISABLE_ESLINT_PLUGIN=true next build && next export -o out'
-    );
-    
-    if (!buildSuccess) {
+    const optimizedBuildCommand = 'npx cross-env NODE_ENV=production DISABLE_ESLINT_PLUGIN=true next build && next export -o out'; // Added npx
+    if (runCommand(optimizedBuildCommand)) {
+      console.log('Optimized build succeeded.');
+    } else {
       console.log('Standard build failed, falling back to static HTML export...');
       // Create a minimal HTML file
       const htmlContent = `<!DOCTYPE html>
