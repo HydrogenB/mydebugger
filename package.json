@@ -56,14 +56,13 @@
     "terser": "^5.19.0",
     "ts-jest": "^29.3.2",
     "typescript": "^5.0.2"
-  },
-  "scripts": {
+  },  "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "build:vercel": "node vercel-next-build.js",
-    "build:vercel:fallback": "next build",
-    "build:vercel:static": "next build",
+    "build:vercel": "cross-env DISABLE_ESLINT_PLUGIN=true node vercel-next-build.js",
+    "build:vercel:fallback": "cross-env DISABLE_ESLINT_PLUGIN=true next build",
+    "build:vercel:static": "cross-env DISABLE_ESLINT_PLUGIN=true next build",
     "verify-build": "node scripts/verify-build.mjs",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext ts,tsx,js,jsx --report-unused-disable-directives --max-warnings 0",

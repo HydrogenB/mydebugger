@@ -1,7 +1,7 @@
 // Enhanced build script for Next.js on Vercel - resilient to dependency issues
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 console.log('Starting enhanced Next.js Vercel build process...');
 console.log(`Node version: ${process.version}`);
@@ -149,11 +149,10 @@ try {
     if (!fs.existsSync('./out/api')) {
       fs.mkdirSync('./out/api', { recursive: true });
     }
-    
-    // Create a basic API indicator file
+      // Create a basic API indicator file
     fs.writeFileSync('./out/api/index.js', `
 // This file ensures the API routes are properly detected by Vercel
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   res.status(200).json({
     status: 'ok',
     message: 'API is running',
