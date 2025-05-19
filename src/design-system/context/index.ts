@@ -3,7 +3,7 @@ export {
   ThemeContext,
   ThemeProvider, 
   useTheme 
-} from '../../app/providers/ThemeProvider';
+} from './ThemeContext';
 
 // Placeholder for Toast context (will be implemented later)
 export const ToastProvider = ({ children }: { children: React.ReactNode }) => children;
