@@ -23,8 +23,8 @@ const getIconHelper = (name: string) => {
 };
 
 const Header: React.FC = () => {
-  const allCategories = getAllCategories();
-  const { isDarkMode } = useTheme();
+  const allCategories = getAllCategories(); // Assuming this is still needed for some navigation
+  const { isDarkMode, toggleDarkMode } = useTheme(); // Added toggleDarkMode
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
   
@@ -39,150 +39,61 @@ const Header: React.FC = () => {
 
   // Check if a link is active based on current path
   const isActive = (path: string) => {
-    if (path === '/' && router.pathname === '/') return true;
-    if (path !== '/' && router.pathname.startsWith(path)) return true;
-    return false;
+    return router.pathname === path || (path !== '/' && router.pathname.startsWith(path));
   };
   
-  // Handle category selection
+  // Handle category selection (if used in a dropdown or similar)
   const handleCategoryClick = (category: string) => {
-    router.push(`/?category=${encodeURIComponent(category)}`);
-    setMobileMenuOpen(false);
+    // Example: router.push(`/category/${category.toLowerCase()}`);
+    setMobileMenuOpen(false); // Close menu after selection
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-lg hover:text-primary-700 dark:hover:text-primary-300 transition">
-              <span className="text-xl">{getIconHelper('code')}</span>
-              <span>MyDebugger</span>
-            </Link>
-          </div>
-          
-          <nav className="hidden md:flex items-center space-x-6" aria-label="Main Navigation">
-            <Link 
-              href="/"
-              className={`flex items-center space-x-1 px-3 py-1 rounded-md ${
-                isActive('/') && !router.query.category
-                  ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-              } transition`}
-              aria-current={isActive('/') && !router.query.category ? 'page' : undefined}
-            >
-              <span className="w-4 h-4">{getIconHelper('tool')}</span>
-              <span>All Tools</span>
-            </Link>
-            
-            <div className="h-5 border-l border-gray-300 dark:border-gray-600"></div>
-            
-            {allCategories.slice(0, 4).map((category) => {
-              const categoryInfo = toolCategories[category] || {};
-              const isCurrentCategory = router.query.category === category;
-              
-              return (
-                <button 
-                  key={category}
-                  onClick={() => handleCategoryClick(category)}
-                  className={`flex items-center space-x-1 px-3 py-1 rounded-md ${
-                    isCurrentCategory
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  } transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50`}
-                  aria-current={isCurrentCategory ? 'page' : undefined}
-                >
-                  <span className="capitalize">{category}</span>
-                </button>
-              );
-            })}
-              <a
-              href="https://github.com/HydrogenB/mydebugger"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition"
-              aria-label="GitHub repository"
-            >
-              <span className="sr-only">GitHub</span>
-              <span className="w-5 h-5 block">{getIconHelper('github')}</span>
-            </a>
-            
-            <ThemeToggle />
-          </nav>
-          
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <ThemeToggle />
-            <button 
-              onClick={toggleMobileMenu}
-              className="ml-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-              aria-label="Toggle mobile menu"
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-menu"
-            >
-              <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
-              {mobileMenuOpen ? (
-                <span aria-hidden="true">{getIconHelper('close')}</span>
-              ) : (
-                <span aria-hidden="true">{getIconHelper('menu')}</span>
-              )}
-            </button>
-          </div>
+    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50 py-3 md:py-2"> {/* Thinner padding */}
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link href="/" legacyBehavior>
+          <a className="flex items-center space-x-2 text-xl font-bold text-indigo-600 dark:text-indigo-400">
+            {getIconHelper('code')} 
+            <span>MyDebugger</span>
+          </a>
+        </Link>
+
+        {/* Desktop Navigation - Simplified for a cleaner look, can be expanded */}
+        <nav className="hidden md:flex items-center space-x-4">
+          <Link href="/" legacyBehavior><a className={`px-3 py-1 rounded-md text-sm font-medium ${isActive('/') ? 'text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'}`}>Home</a></Link>
+          {/* Add other primary navigation links here if needed */}
+          {/* Example: <Link href="/all-tools"><a className={...}>All Tools</a></Link> */}
+          <button 
+            onClick={toggleDarkMode} 
+            className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? <span>☀️</span> : <span>🌙</span>} { /* Simple sun/moon icons */}
+          </button>
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center">
+          <button 
+            onClick={toggleDarkMode} 
+            className="p-2 mr-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? <span>☀️</span> : <span>🌙</span>}
+          </button>
+          <button onClick={toggleMobileMenu} className="text-gray-600 dark:text-gray-300 focus:outline-none">
+            {mobileMenuOpen ? getIconHelper('close') : getIconHelper('menu')}
+          </button>
         </div>
       </div>
-      
-      {/* Mobile Menu */}
+
+      {/* Mobile Menu - Simplified */}
       {mobileMenuOpen && (
-        <div id="mobile-menu" className="md:hidden py-3 border-t border-gray-200 dark:border-gray-700 animate-fade-in">
-          <nav className="px-4 space-y-2" aria-label="Mobile Navigation">
-            <Link 
-              href="/"
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md ${
-                isActive('/') && !router.query.category
-                  ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-              } transition w-full`}
-              onClick={() => setMobileMenuOpen(false)}
-              aria-current={isActive('/') && !router.query.category ? 'page' : undefined}
-            >
-              <span className="w-5 h-5">{getIconHelper('tool')}</span>
-              <span>All Tools</span>
-            </Link>
-            
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-            
-            <p className="px-3 text-sm font-medium text-gray-500 dark:text-gray-400">Categories</p>
-            
-            {allCategories.map((category) => {
-              const isCurrentCategory = router.query.category === category;
-              
-              return (
-                <button 
-                  key={category}
-                  onClick={() => handleCategoryClick(category)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md ${
-                    isCurrentCategory
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  } transition w-full text-left focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50`}
-                  aria-current={isCurrentCategory ? 'page' : undefined}
-                >
-                  <span className="capitalize">{category}</span>
-                </button>
-              );
-            })}
-            
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-              <a
-              href="https://github.com/HydrogenB/mydebugger"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition w-full"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <span className="w-5 h-5">{getIconHelper('github')}</span>
-              <span>GitHub</span>
-            </a>
+        <div className="md:hidden bg-white dark:bg-gray-900 shadow-lg py-2">
+          <nav className="flex flex-col space-y-1 px-4">
+            <Link href="/" legacyBehavior><a className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/') ? 'text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-gray-700' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'}`}>Home</a></Link>
+            {/* Add other mobile navigation links here */}
+            {/* Example: <Link href="/all-tools"><a className={...}>All Tools</a></Link> */}
           </nav>
         </div>
       )}

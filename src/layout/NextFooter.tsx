@@ -27,164 +27,51 @@ const getIconHelper = (name: string) => {
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const categories = getAllCategories();
-    // Function to handle LinkedIn navigation
+
+  // Function to handle LinkedIn navigation
   const handleLinkedInNavigation = () => {
-    window.open('https://www.linkedin.com/in/jirads/', '_blank', 'noopener noreferrer');
+    window.open('https://www.linkedin.com/in/jirads/', '_blank', 'noopener,noreferrer');
   };
   
-  // Function to handle GitHub navigation
-  const handleGitHubNavigation = () => {
-    window.open('https://github.com/HydrogenB/mydebugger', '_blank', 'noopener noreferrer');
+  // Function to handle GitHub navigation for tool requests
+  const handleGitHubRequestTool = () => {
+    window.open('https://github.com/HydrogenB/mydebugger/issues/new?assignees=&labels=enhancement,new-tool&template=feature_request.md&title=Tool+Request%3A+', '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <footer className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-inner transition-colors duration-200 mt-auto pt-8 pb-6">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Company info */}
+    <footer className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-8 text-sm">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
-            <div className="flex items-center mb-4">
-              <span className="mr-2 text-lg">{getIconHelper('code')}</span>
-              <span className="text-lg font-bold text-gray-900 dark:text-white">MyDebugger</span>
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              A platform for debugging, encoding, decoding & demonstrating your technical work.
-            </p>
-            <div className="flex space-x-4 mt-4">              <a
-                href="https://github.com/HydrogenB/mydebugger"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition"
-              >
-                {getIconHelper('github')}
-              </a>
-              <button
-                onClick={handleLinkedInNavigation}
-                aria-label="LinkedIn"
-                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition"
-              >
-                {getIconHelper('linkedin')}
-              </button>
-              <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Twitter"
-                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition"
-              >
-                {getIconHelper('twitter')}
-              </a>
-            </div>
+            <h3 className="font-semibold text-lg mb-2 text-gray-800 dark:text-white">MyDebugger</h3>
+            <p>Your go-to suite for developer and debugging tools. Built with precision and a passion for problem-solving.</p>
           </div>
-          
-          {/* Tool Categories */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Categories
-            </h2>
-            <ul className="space-y-2">
-              {categories.map(category => (
-                <li key={category}>
-                  <Link
-                    href={`/?category=${encodeURIComponent(category)}`}
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                  >
-                    {category}
-                  </Link>
-                </li>
-              ))}
+            <h3 className="font-semibold text-lg mb-2 text-gray-800 dark:text-white">Quick Links</h3>
+            <ul>
+              <li><a href="/terms-of-service" className="hover:text-indigo-600 dark:hover:text-indigo-400">Terms of Service</a></li>
+              <li><a href="/privacy-policy" className="hover:text-indigo-600 dark:hover:text-indigo-400">Privacy Policy</a></li>
             </ul>
           </div>
-          
-          {/* Quick Links */}
           <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Resources
-            </h2>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-lg mb-2 text-gray-800 dark:text-white">Connect & Contribute</h3>
+            <ul>
               <li>
-                <a
-                  href="https://github.com/HydrogenB/mydebugger/blob/main/README.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Documentation
-                </a>
+                <button onClick={handleLinkedInNavigation} className="flex items-center hover:text-indigo-600 dark:hover:text-indigo-400">
+                  {getIconHelper('linkedin')} <span className="ml-2">LinkedIn</span>
+                </button>
               </li>
               <li>
-                <a
-                  href="https://github.com/HydrogenB/mydebugger/issues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Support
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/HydrogenB/mydebugger/blob/main/CONTRIBUTING.md"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Contributing
-                </a>
-              </li>
-              <li>
-                <Link
-                  href="/components-demo"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Components
-                </Link>
+                <button onClick={handleGitHubRequestTool} className="flex items-center hover:text-indigo-600 dark:hover:text-indigo-400 mt-1">
+                  {getIconHelper('github')} <span className="ml-2">Request a Tool</span>
+                </button>
               </li>
             </ul>
-          </div>
-          
-          {/* Contact info */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Developer
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-2">              <button 
-                onClick={handleLinkedInNavigation}
-                className="text-primary-600 dark:text-primary-400 hover:underline transition"
-              >
-                Jirad Srirattana-arporn
-              </button>
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Product Owner (built with GenAI assistance)
-            </p>            <a 
-              href="https://github.com/HydrogenB/mydebugger"
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-1 h-4 w-4">
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-              </svg>
-            </a>
           </div>
         </div>
-        
-        {/* Bottom section */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            © {currentYear} MyDebugger. All rights reserved.
-          </p>
-          <div className="mt-4 md:mt-0 flex space-x-6">
-            <Link href="/privacy-policy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300">
-              Privacy Policy
-            </Link>
-            <Link href="/terms-of-service" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300">
-              Terms of Service
-            </Link>
-          </div>
+        <div className="border-t border-gray-300 dark:border-gray-700 pt-6 text-center">
+          <p>&copy; {currentYear} MyDebugger. All rights reserved.</p>
+          <p className="mt-1">Developed by Jirad S. - <button onClick={handleLinkedInNavigation} className="underline hover:text-indigo-600 dark:hover:text-indigo-400">Connect on LinkedIn</button></p>
         </div>
       </div>
     </footer>
