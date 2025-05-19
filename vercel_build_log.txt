@@ -1,0 +1,1491 @@
+Starting Vercel build process...
+Node version: v22.14.0
+Platform: win32
+Working directory: c:\Jirad-python\mydebugger
+Running in Vercel environment: No
+Checking Vite permissions...
+Checking Vite binary permissions...
+Vite binary exists with mode: 100666
+Is executable? No
+Testing vite binary execution...
+vite/4.5.14 win32-x64 node-v22.14.0
+Vite binary can be executed directly
+Running build command...
+
+Trying build approach: Node direct execution of vite.js
+2025-05-18T18:39:46.297Z vite:config bundled config file loaded in 69.10ms
+2025-05-18T18:39:46.347Z vite:config using resolved config: {
+  base: '/',
+  plugins: [
+    'vite:build-metadata',
+    'vite:watch-package-data',
+    'vite:pre-alias',
+    'alias',
+    'vite:react-babel',
+    'vite:react-refresh',
+    'vite:modulepreload-polyfill',
+    'vite:resolve',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'vite:esbuild',
+    'vite:json',
+    'vite:wasm-helper',
+    'vite:worker',
+    'vite:asset',
+    'vite:wasm-fallback',
+    'vite:define',
+    'vite:css-post',
+    'vite:build-html',
+    'vite:worker-import-meta-url',
+    'vite:asset-import-meta-url',
+    'vite:force-systemjs-wrap-complete',
+    'commonjs',
+    'vite:data-uri',
+    'vite:dynamic-import-vars',
+    'vite:import-glob',
+    'vite:build-import-analysis',
+    'vite:esbuild-transpile',
+    'vite:terser',
+    'vite:reporter',
+    'vite:load-fallback'
+  ],
+  optimizeDeps: {
+    disabled: 'build',
+    esbuildOptions: { preserveSymlinks: false, define: [Object], jsx: 'automatic' },
+    exclude: [ '@prisma/client' ],
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      'react/jsx-runtime'
+    ]
+  },
+  server: {
+    preTransformRequests: true,
+    port: 3000,
+    sourcemapIgnoreList: [Function: isInNodeModules],
+    middlewareMode: false,
+    fs: { strict: true, allow: [Array], deny: [Array] }
+  },
+  build: {
+    target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    sourcemap: true,
+    rollupOptions: { input: [Object], output: [Object], onwarn: [Function: onwarn] },
+    minify: 'esbuild',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: null,
+    copyPublicDir: true,
+    manifest: false,
+    lib: false,
+    ssr: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    watch: null,
+    commonjsOptions: { include: [Array], extensions: [Array] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [Array] },
+    modulePreload: { polyfill: true },
+    cssMinify: true
+  },
+  resolve: {
+    mainFields: [ 'module', 'jsnext:main', 'jsnext' ],
+    browserField: true,
+    conditions: [],
+    extensions: [
+      '.mjs',  '.js',
+      '.mts',  '.ts',
+      '.jsx',  '.tsx',
+      '.json'
+    ],
+    dedupe: [ 'react', 'react-dom' ],
+    preserveSymlinks: false,
+    alias: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ]
+  },
+  esbuild: { jsxDev: false, jsx: 'automatic', jsxImportSource: undefined },
+  configFile: 'c:/Jirad-python/mydebugger/vite.config.ts',
+  configFileDependencies: [
+    'c:/Jirad-python/mydebugger/config/vite/index.ts',
+    'c:/Jirad-python/mydebugger/vite.config.ts'
+  ],
+  inlineConfig: {
+    root: undefined,
+    base: undefined,
+    mode: undefined,
+    configFile: undefined,
+    logLevel: undefined,
+    clearScreen: undefined,
+    optimizeDeps: { force: undefined },
+    build: {}
+  },
+  root: 'c:/Jirad-python/mydebugger',
+  rawBase: '/',
+  publicDir: 'c:\\Jirad-python\\mydebugger\\public',
+  cacheDir: 'c:/Jirad-python/mydebugger/node_modules/.vite',
+  command: 'build',
+  mode: 'production',
+  ssr: {
+    format: 'esm',
+    target: 'node',
+    optimizeDeps: { disabled: true, esbuildOptions: [Object] }
+  },
+  isWorker: false,
+  mainConfig: null,
+  isProduction: true,
+  css: undefined,
+  preview: {
+    port: undefined,
+    strictPort: undefined,
+    host: undefined,
+    allowedHosts: undefined,
+    https: undefined,
+    open: undefined,
+    proxy: undefined,
+    cors: undefined,
+    headers: undefined
+  },
+  envDir: 'c:/Jirad-python/mydebugger',
+  env: { BASE_URL: '/', MODE: 'production', DEV: false, PROD: true },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function: info],
+    warn: [Function: warn],
+    warnOnce: [Function: warnOnce],
+    error: [Function: error],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(1) {
+    'fnpd_c:/Jirad-python/mydebugger' => {
+      dir: 'c:\\Jirad-python\\mydebugger',
+      data: [Object],
+      hasSideEffects: [Function: hasSideEffects],
+      webResolvedImports: {},
+      nodeResolvedImports: {},
+      setResolvedCache: [Function: setResolvedCache],
+      getResolvedCache: [Function: getResolvedCache]
+    },
+    set: [Function (anonymous)]
+  },
+  createResolver: [Function: createResolver],
+  worker: {
+    format: 'iife',
+    plugins: [
+      'vite:build-metadata',
+      'vite:watch-package-data',
+      'vite:pre-alias',
+      'alias',
+      'vite:modulepreload-polyfill',
+      'vite:resolve',
+      'vite:html-inline-proxy',
+      'vite:css',
+      'vite:esbuild',
+      'vite:json',
+      'vite:wasm-helper',
+      'vite:worker',
+      'vite:asset',
+      'vite:wasm-fallback',
+      'vite:define',
+      'vite:css-post',
+      'vite:build-html',
+      'vite:worker-import-meta-url',
+      'vite:asset-import-meta-url',
+      'vite:force-systemjs-wrap-complete',
+      'commonjs',
+      'vite:data-uri',
+      'vite:worker-post',
+      'vite:dynamic-import-vars',
+      'vite:import-glob',
+      'vite:build-import-analysis',
+      'vite:esbuild-transpile',
+      'vite:terser',
+      'vite:load-fallback'
+    ],
+    rollupOptions: {},
+    getSortedPlugins: [Function: getSortedPlugins],
+    getSortedPluginHooks: [Function: getSortedPluginHooks]
+  },
+  appType: 'spa',
+  experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+  webSocketToken: 'sWsrcNrE3r-V',
+  additionalAllowedHosts: [],
+  getSortedPlugins: [Function: getSortedPlugins],
+  getSortedPluginHooks: [Function: getSortedPluginHooks]
+}
+[36mvite v4.5.14 [32mbuilding for production...[36m[39m
+2025-05-18T18:39:46.381Z vite:esbuild [33m47.34ms[39m tsconfck init [2mc:/Jirad-python/mydebugger[22m
+transforming...
+2025-05-18T18:39:49.475Z vite:esbuild esbuild error with options used:  {
+  sourcemap: true,
+  sourcefile: 'C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx',
+  target: 'esnext',
+  charset: 'utf8',
+  jsxDev: false,
+  jsx: 'automatic',
+  jsxImportSource: undefined,
+  minify: false,
+  minifyIdentifiers: false,
+  minifySyntax: false,
+  minifyWhitespace: false,
+  treeShaking: false,
+  keepNames: false,
+  loader: 'tsx',
+  tsconfigRaw: {
+    compilerOptions: {
+      useDefineForClassFields: false,
+      experimentalDecorators: true,
+      jsx: undefined
+    }
+  },
+  supported: { 'class-static-blocks': false }
+}
+[32m✓[39m 57 modules transformed.
+[32m✓ built in 3.13s[39m
+[31m[vite:esbuild] Transform failed with 2 errors:
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8: ERROR: The symbol "handleIframeLoad" has already been declared
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:150:8: ERROR: The symbol "handleIframeError" has already been declared[39m
+file: [36mC:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8[39m
+[33m
+[33mThe symbol "handleIframeLoad" has already been declared[33m
+137|  
+138|    // Handle iframe load event
+139|    const handleIframeLoad = () => {
+   |          ^
+140|      setIframeLoaded(true);
+141|      if (results) {
+
+[33mThe symbol "handleIframeError" has already been declared[33m
+148|  
+149|    // Handle iframe error event
+150|    const handleIframeError = () => {
+   |          ^
+151|      setIframeError(true);
+152|      if (results) {
+[39m
+[31merror during build:
+Error: Transform failed with 2 errors:
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8: ERROR: The symbol "handleIframeLoad" has already been declared
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:150:8: ERROR: The symbol "handleIframeError" has already been declared
+    at failureErrorWithLog (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:1649:15)
+    at c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:847:29
+    at responseCallbacks.<computed> (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:703:9)
+    at handleIncomingPacket (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:762:9)
+    at Socket.readFromStdout (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
+Approach failed: Node direct execution of vite.js
+Command failed: node ./node_modules/vite/bin/vite.js build
+
+Trying build approach: NPX execution
+2025-05-18T18:39:50.744Z vite:config bundled config file loaded in 68.51ms
+2025-05-18T18:39:50.788Z vite:config using resolved config: {
+  base: '/',
+  plugins: [
+    'vite:build-metadata',
+    'vite:watch-package-data',
+    'vite:pre-alias',
+    'alias',
+    'vite:react-babel',
+    'vite:react-refresh',
+    'vite:modulepreload-polyfill',
+    'vite:resolve',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'vite:esbuild',
+    'vite:json',
+    'vite:wasm-helper',
+    'vite:worker',
+    'vite:asset',
+    'vite:wasm-fallback',
+    'vite:define',
+    'vite:css-post',
+    'vite:build-html',
+    'vite:worker-import-meta-url',
+    'vite:asset-import-meta-url',
+    'vite:force-systemjs-wrap-complete',
+    'commonjs',
+    'vite:data-uri',
+    'vite:dynamic-import-vars',
+    'vite:import-glob',
+    'vite:build-import-analysis',
+    'vite:esbuild-transpile',
+    'vite:terser',
+    'vite:reporter',
+    'vite:load-fallback'
+  ],
+  optimizeDeps: {
+    disabled: 'build',
+    esbuildOptions: { preserveSymlinks: false, define: [Object], jsx: 'automatic' },
+    exclude: [ '@prisma/client' ],
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      'react/jsx-runtime'
+    ]
+  },
+  server: {
+    preTransformRequests: true,
+    port: 3000,
+    sourcemapIgnoreList: [Function: isInNodeModules],
+    middlewareMode: false,
+    fs: { strict: true, allow: [Array], deny: [Array] }
+  },
+  build: {
+    target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    sourcemap: true,
+    rollupOptions: { input: [Object], output: [Object], onwarn: [Function: onwarn] },
+    minify: 'esbuild',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: null,
+    copyPublicDir: true,
+    manifest: false,
+    lib: false,
+    ssr: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    watch: null,
+    commonjsOptions: { include: [Array], extensions: [Array] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [Array] },
+    modulePreload: { polyfill: true },
+    cssMinify: true
+  },
+  resolve: {
+    mainFields: [ 'module', 'jsnext:main', 'jsnext' ],
+    browserField: true,
+    conditions: [],
+    extensions: [
+      '.mjs',  '.js',
+      '.mts',  '.ts',
+      '.jsx',  '.tsx',
+      '.json'
+    ],
+    dedupe: [ 'react', 'react-dom' ],
+    preserveSymlinks: false,
+    alias: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ]
+  },
+  esbuild: { jsxDev: false, jsx: 'automatic', jsxImportSource: undefined },
+  configFile: 'c:/Jirad-python/mydebugger/vite.config.ts',
+  configFileDependencies: [
+    'c:/Jirad-python/mydebugger/config/vite/index.ts',
+    'c:/Jirad-python/mydebugger/vite.config.ts'
+  ],
+  inlineConfig: {
+    root: undefined,
+    base: undefined,
+    mode: undefined,
+    configFile: undefined,
+    logLevel: undefined,
+    clearScreen: undefined,
+    optimizeDeps: { force: undefined },
+    build: {}
+  },
+  root: 'c:/Jirad-python/mydebugger',
+  rawBase: '/',
+  publicDir: 'c:\\Jirad-python\\mydebugger\\public',
+  cacheDir: 'c:/Jirad-python/mydebugger/node_modules/.vite',
+  command: 'build',
+  mode: 'production',
+  ssr: {
+    format: 'esm',
+    target: 'node',
+    optimizeDeps: { disabled: true, esbuildOptions: [Object] }
+  },
+  isWorker: false,
+  mainConfig: null,
+  isProduction: true,
+  css: undefined,
+  preview: {
+    port: undefined,
+    strictPort: undefined,
+    host: undefined,
+    allowedHosts: undefined,
+    https: undefined,
+    open: undefined,
+    proxy: undefined,
+    cors: undefined,
+    headers: undefined
+  },
+  envDir: 'c:/Jirad-python/mydebugger',
+  env: { BASE_URL: '/', MODE: 'production', DEV: false, PROD: true },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function: info],
+    warn: [Function: warn],
+    warnOnce: [Function: warnOnce],
+    error: [Function: error],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(1) {
+    'fnpd_c:/Jirad-python/mydebugger' => {
+      dir: 'c:\\Jirad-python\\mydebugger',
+      data: [Object],
+      hasSideEffects: [Function: hasSideEffects],
+      webResolvedImports: {},
+      nodeResolvedImports: {},
+      setResolvedCache: [Function: setResolvedCache],
+      getResolvedCache: [Function: getResolvedCache]
+    },
+    set: [Function (anonymous)]
+  },
+  createResolver: [Function: createResolver],
+  worker: {
+    format: 'iife',
+    plugins: [
+      'vite:build-metadata',
+      'vite:watch-package-data',
+      'vite:pre-alias',
+      'alias',
+      'vite:modulepreload-polyfill',
+      'vite:resolve',
+      'vite:html-inline-proxy',
+      'vite:css',
+      'vite:esbuild',
+      'vite:json',
+      'vite:wasm-helper',
+      'vite:worker',
+      'vite:asset',
+      'vite:wasm-fallback',
+      'vite:define',
+      'vite:css-post',
+      'vite:build-html',
+      'vite:worker-import-meta-url',
+      'vite:asset-import-meta-url',
+      'vite:force-systemjs-wrap-complete',
+      'commonjs',
+      'vite:data-uri',
+      'vite:worker-post',
+      'vite:dynamic-import-vars',
+      'vite:import-glob',
+      'vite:build-import-analysis',
+      'vite:esbuild-transpile',
+      'vite:terser',
+      'vite:load-fallback'
+    ],
+    rollupOptions: {},
+    getSortedPlugins: [Function: getSortedPlugins],
+    getSortedPluginHooks: [Function: getSortedPluginHooks]
+  },
+  appType: 'spa',
+  experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+  webSocketToken: 'BdA_ibEDBKWE',
+  additionalAllowedHosts: [],
+  getSortedPlugins: [Function: getSortedPlugins],
+  getSortedPluginHooks: [Function: getSortedPluginHooks]
+}
+[36mvite v4.5.14 [32mbuilding for production...[36m[39m
+2025-05-18T18:39:50.818Z vite:esbuild [33m41.50ms[39m tsconfck init [2mc:/Jirad-python/mydebugger[22m
+transforming...
+2025-05-18T18:39:53.703Z vite:esbuild esbuild error with options used:  {
+  sourcemap: true,
+  sourcefile: 'C:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx',
+  target: 'esnext',
+  charset: 'utf8',
+  jsxDev: false,
+  jsx: 'automatic',
+  jsxImportSource: undefined,
+  minify: false,
+  minifyIdentifiers: false,
+  minifySyntax: false,
+  minifyWhitespace: false,
+  treeShaking: false,
+  keepNames: false,
+  loader: 'tsx',
+  tsconfigRaw: {
+    compilerOptions: {
+      useDefineForClassFields: false,
+      experimentalDecorators: true,
+      jsx: undefined
+    }
+  },
+  supported: { 'class-static-blocks': false }
+}
+2025-05-18T18:39:53.704Z vite:esbuild esbuild error with options used:  {
+  sourcemap: true,
+  sourcefile: 'C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx',
+  target: 'esnext',
+  charset: 'utf8',
+  jsxDev: false,
+  jsx: 'automatic',
+  jsxImportSource: undefined,
+  minify: false,
+  minifyIdentifiers: false,
+  minifySyntax: false,
+  minifyWhitespace: false,
+  treeShaking: false,
+  keepNames: false,
+  loader: 'tsx',
+  tsconfigRaw: {
+    compilerOptions: {
+      useDefineForClassFields: false,
+      experimentalDecorators: true,
+      jsx: undefined
+    }
+  },
+  supported: { 'class-static-blocks': false }
+}
+[32m✓[39m 74 modules transformed.
+[32m✓ built in 2.92s[39m
+[31m[vite:esbuild] Transform failed with 1 error:
+C:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx:243:8: ERROR: The symbol "generateQRCode" has already been declared[39m
+file: [36mC:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx:243:8[39m
+[33m
+[33mThe symbol "generateQRCode" has already been declared[33m
+241|  
+242|    // Generate QR code using the qrcode library
+243|    const generateQRCode = async () => {
+   |          ^
+244|      try {
+245|        const canvas = canvasRef.current;
+[39m
+[31merror during build:
+Error: Transform failed with 1 error:
+C:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx:243:8: ERROR: The symbol "generateQRCode" has already been declared
+    at failureErrorWithLog (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:1649:15)
+    at c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:847:29
+    at responseCallbacks.<computed> (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:703:9)
+    at handleIncomingPacket (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:762:9)
+    at Socket.readFromStdout (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
+Approach failed: NPX execution
+Command failed: npx --no -- vite build
+
+Trying build approach: Global vite installation
+
+changed 13 packages in 2s
+
+5 packages are looking for funding
+  run `npm fund` for details
+2025-05-18T18:39:56.917Z vite:config config file loaded in 206.83ms
+2025-05-18T18:39:56.921Z vite:env loading env files: [
+  'c:/Jirad-python/mydebugger/.env',
+  'c:/Jirad-python/mydebugger/.env.local',
+  'c:/Jirad-python/mydebugger/.env.production',
+  'c:/Jirad-python/mydebugger/.env.production.local'
+]
+2025-05-18T18:39:56.922Z vite:env env files loaded in 0.76ms
+2025-05-18T18:39:56.922Z vite:env using resolved env: {}
+2025-05-18T18:39:56.961Z vite:config using resolved config: {
+  base: '/',
+  plugins: [
+    'vite:build-metadata',
+    'vite:watch-package-data',
+    'alias',
+    'vite:react-babel',
+    'vite:react-refresh',
+    'vite:modulepreload-polyfill',
+    'vite:resolve',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'vite:esbuild',
+    'vite:json',
+    'vite:wasm-helper',
+    'vite:worker',
+    'vite:asset',
+    'vite:wasm-fallback',
+    'vite:define',
+    'vite:css-post',
+    'vite:build-html',
+    'vite:worker-import-meta-url',
+    'vite:asset-import-meta-url',
+    'vite:force-systemjs-wrap-complete',
+    'commonjs',
+    'vite:data-uri',
+    'vite:rollup-options-plugins',
+    'vite:dynamic-import-vars',
+    'vite:import-glob',
+    'vite:build-import-analysis',
+    'vite:esbuild-transpile',
+    'vite:terser',
+    'vite:manifest',
+    'vite:ssr-manifest',
+    'vite:reporter',
+    'vite:load-fallback'
+  ],
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      'react/jsx-runtime'
+    ],
+    exclude: [ '@prisma/client' ],
+    needsInterop: [],
+    extensions: [],
+    disabled: undefined,
+    holdUntilCrawlEnd: true,
+    force: false,
+    noDiscovery: false,
+    esbuildOptions: {
+      preserveSymlinks: false,
+      define: { global: 'globalThis' },
+      jsx: 'automatic'
+    }
+  },
+  server: {
+    port: 3000,
+    strictPort: false,
+    host: undefined,
+    allowedHosts: [],
+    https: undefined,
+    open: false,
+    proxy: undefined,
+    cors: {
+      origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/
+    },
+    headers: {},
+    warmup: { clientFiles: [], ssrFiles: [] },
+    middlewareMode: false,
+    fs: {
+      strict: true,
+      deny: [ '.env', '.env.*', '*.{crt,pem}', '**/.git/**' ],
+      allow: [
+        'c:/Jirad-python/mydebugger',
+        'C:/Users/Jirad-PC/AppData/Roaming/npm/node_modules/vite/dist/client'
+      ]
+    },
+    preTransformRequests: true,
+    perEnvironmentStartEndDuringDev: false,
+    sourcemapIgnoreList: [Function: isInNodeModules$1]
+  },
+  build: {
+    target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    polyfillModulePreload: true,
+    modulePreload: { polyfill: true },
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    sourcemap: true,
+    terserOptions: {},
+    rollupOptions: {
+      input: { main: 'c:\\Jirad-python\\mydebugger\\index.html' },
+      output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash].[ext]',
+        manualChunks: {
+          'react-vendor': [ 'react', 'react-dom', 'react-router-dom' ],
+          'ui-vendor': [ 'react-helmet' ],
+          jwt: [ 'c:\\Jirad-python\\mydebugger\\src\\tools\\jwt\\index.ts' ],
+          qrcode: [
+            'c:\\Jirad-python\\mydebugger\\src\\tools\\qrcode\\index.ts'
+          ],
+          'base64-image': [
+            'c:\\Jirad-python\\mydebugger\\src\\tools\\base64-image\\index.ts'
+          ]
+        }
+      },
+      onwarn: [Function: onwarn]
+    },
+    commonjsOptions: { include: [ /node_modules/ ], extensions: [ '.js', '.cjs' ] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [ /node_modules/ ] },
+    write: true,
+    emptyOutDir: null,
+    copyPublicDir: true,
+    manifest: false,
+    lib: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    watch: null,
+    cssCodeSplit: true,
+    minify: 'esbuild',
+    ssr: false,
+    emitAssets: true,
+    createEnvironment: [Function: createEnvironment],
+    cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    cssMinify: true
+  },
+  resolve: {
+    externalConditions: [ 'node' ],
+    extensions: [
+      '.mjs',  '.js',
+      '.mts',  '.ts',
+      '.jsx',  '.tsx',
+      '.json'
+    ],
+    dedupe: [ 'react', 'react-dom' ],
+    noExternal: [],
+    external: [],
+    preserveSymlinks: false,
+    alias: [
+      {
+        find: '@app',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\app'
+      },
+      {
+        find: '@tools',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\tools'
+      },
+      {
+        find: '@design-system',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\design-system'
+      },
+      {
+        find: '@layout',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\layout'
+      },
+      {
+        find: '@pages',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\pages'
+      },
+      {
+        find: '@components',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\components'
+      },
+      {
+        find: '@services',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\services'
+      },
+      {
+        find: '@types',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\types'
+      },
+      {
+        find: '@shared',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\shared'
+      },
+      {
+        find: '@features',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\features'
+      },
+      {
+        find: 'crypto',
+        replacement: 'c:\\Jirad-python\\mydebugger\\src\\polyfills\\crypto.js'
+      },
+      {
+        find: '@api',
+        replacement: 'c:\\Jirad-python\\mydebugger\\api'
+      },
+      {
+        find: /^\/?@vite\/env/,
+        replacement: '/@fs/C:/Users/Jirad-PC/AppData/Roaming/npm/node_modules/vite/dist/client/env.mjs'
+      },
+      {
+        find: /^\/?@vite\/client/,
+        replacement: '/@fs/C:/Users/Jirad-PC/AppData/Roaming/npm/node_modules/vite/dist/client/client.mjs'
+      }
+    ],
+    mainFields: [ 'browser', 'module', 'jsnext:main', 'jsnext' ],
+    conditions: [ 'module', 'browser', 'development|production' ],
+    builtins: []
+  },
+  esbuild: { jsxDev: false, jsx: 'automatic', jsxImportSource: undefined },
+  environments: {
+    client: {
+      define: undefined,
+      resolve: {
+        externalConditions: [ 'node' ],
+        extensions: [
+          '.mjs',  '.js',
+          '.mts',  '.ts',
+          '.jsx',  '.tsx',
+          '.json'
+        ],
+        dedupe: [ 'react', 'react-dom' ],
+        noExternal: [],
+        external: [],
+        preserveSymlinks: false,
+        alias: [
+          {
+            find: '@app',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\app'
+          },
+          {
+            find: '@tools',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\tools'
+          },
+          {
+            find: '@design-system',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\design-system'
+          },
+          {
+            find: '@layout',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\layout'
+          },
+          {
+            find: '@pages',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\pages'
+          },
+          {
+            find: '@components',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\components'
+          },
+          {
+            find: '@services',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\services'
+          },
+          {
+            find: '@types',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\types'
+          },
+          {
+            find: '@shared',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\shared'
+          },
+          {
+            find: '@features',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\features'
+          },
+          {
+            find: 'crypto',
+            replacement: 'c:\\Jirad-python\\mydebugger\\src\\polyfills\\crypto.js'
+          },
+          {
+            find: '@api',
+            replacement: 'c:\\Jirad-python\\mydebugger\\api'
+          },
+          {
+            find: /^\/?@vite\/env/,
+            replacement: '/@fs/C:/Users/Jirad-PC/AppData/Roaming/npm/node_modules/vite/dist/client/env.mjs'
+          },
+          {
+            find: /^\/?@vite\/client/,
+            replacement: '/@fs/C:/Users/Jirad-PC/AppData/Roaming/npm/node_modules/vite/dist/client/client.mjs'
+          }
+        ],
+        mainFields: [ 'browser', 'module', 'jsnext:main', 'jsnext' ],
+        conditions: [ 'module', 'browser', 'development|production' ],
+        builtins: []
+      },
+      keepProcessEnv: false,
+      consumer: 'client',
+      optimizeDeps: {
+        include: [
+          'react',
+          'react-dom',
+          'react/jsx-dev-runtime',
+          'react/jsx-runtime'
+        ],
+        exclude: [ '@prisma/client' ],
+        needsInterop: [],
+        extensions: [],
+        disabled: undefined,
+        holdUntilCrawlEnd: true,
+        force: false,
+        noDiscovery: false,
+        esbuildOptions: {
+          preserveSymlinks: false,
+          define: { global: 'globalThis' },
+          jsx: 'automatic'
+        }
+      },
+      dev: {
+        warmup: [],
+        sourcemap: { js: true },
+        sourcemapIgnoreList: [Function: isInNodeModules$1],
+        preTransformRequests: true,
+        createEnvironment: [Function: defaultCreateClientDevEnvironment],
+        recoverable: true,
+        moduleRunnerTransform: false
+      },
+      build: {
+        target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+        polyfillModulePreload: true,
+        modulePreload: { polyfill: true },
+        outDir: 'dist',
+        assetsDir: 'assets',
+        assetsInlineLimit: 4096,
+        sourcemap: true,
+        terserOptions: {},
+        rollupOptions: {
+          input: { main: 'c:\\Jirad-python\\mydebugger\\index.html' },
+          output: {
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]',
+            manualChunks: {
+              'react-vendor': [ 'react', 'react-dom', 'react-router-dom' ],
+              'ui-vendor': [ 'react-helmet' ],
+              jwt: [
+                'c:\\Jirad-python\\mydebugger\\src\\tools\\jwt\\index.ts'
+              ],
+              qrcode: [
+                'c:\\Jirad-python\\mydebugger\\src\\tools\\qrcode\\index.ts'
+              ],
+              'base64-image': [
+                'c:\\Jirad-python\\mydebugger\\src\\tools\\base64-image\\index.ts'
+              ]
+            }
+          },
+          onwarn: [Function: onwarn]
+        },
+        commonjsOptions: { include: [ /node_modules/ ], extensions: [ '.js', '.cjs' ] },
+        dynamicImportVarsOptions: { warnOnError: true, exclude: [ /node_modules/ ] },
+        write: true,
+        emptyOutDir: null,
+        copyPublicDir: true,
+        manifest: false,
+        lib: false,
+        ssrManifest: false,
+        ssrEmitAssets: false,
+        reportCompressedSize: true,
+        chunkSizeWarningLimit: 1000,
+        watch: null,
+        cssCodeSplit: true,
+        minify: 'esbuild',
+        ssr: false,
+        emitAssets: true,
+        createEnvironment: [Function: createEnvironment],
+        cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+        cssMinify: true
+      }
+    }
+  },
+  configFile: 'c:/Jirad-python/mydebugger/vite.config.ts',
+  configFileDependencies: [
+    'c:/Jirad-python/mydebugger/config/vite/index.ts',
+    'c:/Jirad-python/mydebugger/vite.config.ts'
+  ],
+  inlineConfig: {
+    root: undefined,
+    base: undefined,
+    mode: undefined,
+    configFile: undefined,
+    configLoader: undefined,
+    logLevel: undefined,
+    clearScreen: undefined,
+    build: {}
+  },
+  root: 'c:/Jirad-python/mydebugger',
+  decodedBase: '/',
+  rawBase: '/',
+  publicDir: 'c:/Jirad-python/mydebugger/public',
+  cacheDir: 'c:/Jirad-python/mydebugger/node_modules/.vite',
+  command: 'build',
+  mode: 'production',
+  isWorker: false,
+  mainConfig: null,
+  bundleChain: [],
+  isProduction: true,
+  css: {
+    transformer: 'postcss',
+    preprocessorMaxWorkers: 0,
+    devSourcemap: false
+  },
+  json: { namedExports: true, stringify: 'auto' },
+  builder: undefined,
+  preview: {
+    port: 4173,
+    strictPort: false,
+    host: undefined,
+    allowedHosts: [],
+    https: undefined,
+    open: false,
+    proxy: undefined,
+    cors: {
+      origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/
+    },
+    headers: {}
+  },
+  envDir: 'c:/Jirad-python/mydebugger',
+  env: { BASE_URL: '/', MODE: 'production', DEV: false, PROD: true },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function: info],
+    warn: [Function: warn],
+    warnOnce: [Function: warnOnce],
+    error: [Function: error],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(1) {
+    'fnpd_c:/Jirad-python/mydebugger' => {
+      dir: 'c:/Jirad-python/mydebugger',
+      data: {
+        name: 'mydebugger',
+        version: '0.1.0',
+        type: 'module',
+        private: true,
+        engines: { node: '18.x' },
+        dependencies: {
+          '@heroicons/react': '^2.2.0',
+          '@uiw/react-textarea-code-editor': '^2.1.9',
+          dompurify: '^3.2.5',
+          jsonwebtoken: '^9.0.2',
+          lodash: '^4.17.21',
+          'lz-string': '^1.5.0',
+          'monaco-editor': '^0.52.2',
+          next: '^14.0.4',
+          'node-fetch': '^3.3.0',
+          'p-queue': '^8.1.0',
+          'prism-themes': '^1.9.0',
+          prismjs: '^1.29.0',
+          puppeteer: '^24.8.2',
+          qrcode: '^1.5.3',
+          react: '^18.2.0',
+          'react-dom': '^18.2.0',
+          'react-helmet': '^6.1.0',
+          'react-helmet-async': '^1.3.0',
+          'react-icons': '^4.10.1',
+          'react-router-dom': '^6.14.0',
+          'react-use': '^17.4.0',
+          tailwindcss: '^3.3.3',
+          chalk: '^5.3.0',
+          '@vitejs/plugin-react': '^4.0.3',
+          vite: '^4.5.2'
+        },
+        devDependencies: {
+          '@tailwindcss/forms': '^0.5.7',
+          '@tailwindcss/typography': '^0.5.10',
+          '@testing-library/jest-dom': '^6.1.5',
+          '@testing-library/react': '^14.1.2',
+          '@types/jest': '^29.5.10',
+          '@types/jsonwebtoken': '^9.0.9',
+          '@types/node': '^18.19.3',
+          '@types/react': '^18.2.15',
+          '@types/react-dom': '^18.2.7',
+          '@types/react-helmet': '^6.1.6',
+          '@typescript-eslint/eslint-plugin': '^6.0.0',
+          '@typescript-eslint/parser': '^6.0.0',
+          autoprefixer: '^10.4.14',
+          eslint: '^8.45.0',
+          'eslint-plugin-react-hooks': '^4.6.0',
+          'eslint-plugin-react-refresh': '^0.4.3',
+          jest: '^29.7.0',
+          'jest-environment-jsdom': '^29.7.0',
+          postcss: '^8.4.27',
+          tailwindcss: '^3.3.3',
+          terser: '^5.19.0',
+          'ts-jest': '^29.3.2',
+          typescript: '^5.0.2',
+          vite: '^4.5.2',
+          vitest: '^0.34.6'
+        },
+        scripts: {
+          dev: 'vite --config config/vite/index.ts',
+          build: 'vite build --config config/vite/index.ts',
+          'build:vercel': 'node vercel-build.js',
+          'vite-build': 'node ./node_modules/vite/bin/vite.js build --config config/vite/index.ts',
+          'verify-build': 'node scripts/verify-build.mjs',
+          'type-check': 'tsc --noEmit',
+          lint: 'eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0',
+          preview: 'vite preview --config config/vite/index.ts',
+          'check-imports': 'node scripts/check-imports.mjs',
+          'check-tools': 'node scripts/check-tools.mjs',
+          'check-all': 'npm run check-imports && npm run check-tools && npm run type-check && npm run lint',
+          test: 'jest',
+          'test:watch': 'jest --watch',
+          'test:coverage': 'jest --coverage'
+        },
+        eslintConfig: { extends: [ 'react-app', 'react-app/jest' ] },
+        browserslist: {
+          production: [ '>0.2%', 'not dead', 'not op_mini all' ],
+          development: [
+            'last 1 chrome version',
+            'last 1 firefox version',
+            'last 1 safari version'
+          ]
+        }
+      },
+      hasSideEffects: [Function: hasSideEffects],
+      setResolvedCache: [Function: setResolvedCache],
+      getResolvedCache: [Function: getResolvedCache]
+    },
+    set: [Function (anonymous)]
+  },
+  worker: { format: 'iife', plugins: '() => plugins', rollupOptions: {} },
+  appType: 'spa',
+  experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+  future: undefined,
+  ssr: {
+    target: 'node',
+    optimizeDeps: { esbuildOptions: { preserveSymlinks: false } },
+    resolve: { conditions: undefined, externalConditions: undefined }
+  },
+  dev: {
+    warmup: [],
+    sourcemap: { js: true },
+    sourcemapIgnoreList: [Function: isInNodeModules$1],
+    preTransformRequests: false,
+    createEnvironment: [Function: defaultCreateDevEnvironment],
+    recoverable: false,
+    moduleRunnerTransform: false
+  },
+  webSocketToken: 'rNsNl262WXIu',
+  getSortedPlugins: [Function: getSortedPlugins],
+  getSortedPluginHooks: [Function: getSortedPluginHooks],
+  createResolver: [Function: createResolver],
+  fsDenyGlob: [Function: arrayMatcher],
+  safeModulePaths: Set(0) {},
+  additionalAllowedHosts: []
+}
+[36mvite v6.3.5 [32mbuilding for production...[36m[39m
+transforming...
+2025-05-18T18:39:59.945Z vite:esbuild esbuild error with options used:  {
+  sourcemap: true,
+  sourcefile: 'C:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx',
+  target: 'esnext',
+  charset: 'utf8',
+  jsxDev: false,
+  jsx: 'automatic',
+  jsxImportSource: undefined,
+  minify: false,
+  minifyIdentifiers: false,
+  minifySyntax: false,
+  minifyWhitespace: false,
+  treeShaking: false,
+  keepNames: false,
+  supported: { 'dynamic-import': true, 'import-meta': true },
+  loader: 'tsx',
+  tsconfigRaw: {
+    compilerOptions: { jsx: undefined, target: 'ES2020', useDefineForClassFields: true }
+  }
+}
+[32m✓[39m 53 modules transformed.
+[31m✗[39m Build failed in 2.95s
+[31merror during build:
+[31m[vite:esbuild] Transform failed with 1 error:
+C:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx:243:8: ERROR: The symbol "generateQRCode" has already been declared[31m
+file: [36mC:/Jirad-python/mydebugger/src/tools/qrcode/QRCodeGenerator.tsx:243:8[31m
+[33m
+[33mThe symbol "generateQRCode" has already been declared[33m
+241|  
+242|    // Generate QR code using the qrcode library
+243|    const generateQRCode = async () => {
+   |          ^
+244|      try {
+245|        const canvas = canvasRef.current;
+[31m
+    at failureErrorWithLog (C:\Users\Jirad-PC\AppData\Roaming\npm\node_modules\vite\node_modules\esbuild\lib\main.js:1463:15)
+    at C:\Users\Jirad-PC\AppData\Roaming\npm\node_modules\vite\node_modules\esbuild\lib\main.js:734:50
+    at responseCallbacks.<computed> (C:\Users\Jirad-PC\AppData\Roaming\npm\node_modules\vite\node_modules\esbuild\lib\main.js:601:9)
+    at handleIncomingPacket (C:\Users\Jirad-PC\AppData\Roaming\npm\node_modules\vite\node_modules\esbuild\lib\main.js:656:12)
+    at Socket.readFromStdout (C:\Users\Jirad-PC\AppData\Roaming\npm\node_modules\vite\node_modules\esbuild\lib\main.js:579:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
+Approach failed: Global vite installation
+Command failed: npm install -g vite && vite build
+
+Trying build approach: npm script execution
+
+> mydebugger@0.1.0 vite-build
+> node ./node_modules/vite/bin/vite.js build --config config/vite/index.ts
+
+2025-05-18T18:40:01.457Z vite:config bundled config file loaded in 57.85ms
+2025-05-18T18:40:01.502Z vite:config using resolved config: {
+  base: '/',
+  plugins: [
+    'vite:build-metadata',
+    'vite:watch-package-data',
+    'vite:pre-alias',
+    'alias',
+    'vite:react-babel',
+    'vite:react-refresh',
+    'vite:modulepreload-polyfill',
+    'vite:resolve',
+    'vite:html-inline-proxy',
+    'vite:css',
+    'vite:esbuild',
+    'vite:json',
+    'vite:wasm-helper',
+    'vite:worker',
+    'vite:asset',
+    'vite:wasm-fallback',
+    'vite:define',
+    'vite:css-post',
+    'vite:build-html',
+    'vite:worker-import-meta-url',
+    'vite:asset-import-meta-url',
+    'vite:force-systemjs-wrap-complete',
+    'commonjs',
+    'vite:data-uri',
+    'vite:dynamic-import-vars',
+    'vite:import-glob',
+    'vite:build-import-analysis',
+    'vite:esbuild-transpile',
+    'vite:terser',
+    'vite:reporter',
+    'vite:load-fallback'
+  ],
+  optimizeDeps: {
+    disabled: 'build',
+    esbuildOptions: { preserveSymlinks: false, define: [Object], jsx: 'automatic' },
+    exclude: [ '@prisma/client' ],
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-dev-runtime',
+      'react/jsx-runtime'
+    ]
+  },
+  server: {
+    preTransformRequests: true,
+    port: 3000,
+    sourcemapIgnoreList: [Function: isInNodeModules],
+    middlewareMode: false,
+    fs: { strict: true, allow: [Array], deny: [Array] }
+  },
+  build: {
+    target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+    outDir: 'dist',
+    assetsDir: 'assets',
+    assetsInlineLimit: 4096,
+    cssCodeSplit: true,
+    sourcemap: true,
+    rollupOptions: { input: [Object], output: [Object], onwarn: [Function: onwarn] },
+    minify: 'esbuild',
+    terserOptions: {},
+    write: true,
+    emptyOutDir: null,
+    copyPublicDir: true,
+    manifest: false,
+    lib: false,
+    ssr: false,
+    ssrManifest: false,
+    ssrEmitAssets: false,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 1000,
+    watch: null,
+    commonjsOptions: { include: [Array], extensions: [Array] },
+    dynamicImportVarsOptions: { warnOnError: true, exclude: [Array] },
+    modulePreload: { polyfill: true },
+    cssMinify: true
+  },
+  resolve: {
+    mainFields: [ 'module', 'jsnext:main', 'jsnext' ],
+    browserField: true,
+    conditions: [],
+    extensions: [
+      '.mjs',  '.js',
+      '.mts',  '.ts',
+      '.jsx',  '.tsx',
+      '.json'
+    ],
+    dedupe: [ 'react', 'react-dom' ],
+    preserveSymlinks: false,
+    alias: [
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object],
+      [Object], [Object]
+    ]
+  },
+  configFile: 'c:/Jirad-python/mydebugger/config/vite/index.ts',
+  esbuild: { jsxDev: false, jsx: 'automatic', jsxImportSource: undefined },
+  configFileDependencies: [ 'c:/Jirad-python/mydebugger/config/vite/index.ts' ],
+  inlineConfig: {
+    root: undefined,
+    base: undefined,
+    mode: undefined,
+    configFile: 'config/vite/index.ts',
+    logLevel: undefined,
+    clearScreen: undefined,
+    optimizeDeps: { force: undefined },
+    build: {}
+  },
+  root: 'c:/Jirad-python/mydebugger',
+  rawBase: '/',
+  publicDir: 'c:\\Jirad-python\\mydebugger\\public',
+  cacheDir: 'c:/Jirad-python/mydebugger/node_modules/.vite',
+  command: 'build',
+  mode: 'production',
+  ssr: {
+    format: 'esm',
+    target: 'node',
+    optimizeDeps: { disabled: true, esbuildOptions: [Object] }
+  },
+  isWorker: false,
+  mainConfig: null,
+  isProduction: true,
+  css: undefined,
+  preview: {
+    port: undefined,
+    strictPort: undefined,
+    host: undefined,
+    allowedHosts: undefined,
+    https: undefined,
+    open: undefined,
+    proxy: undefined,
+    cors: undefined,
+    headers: undefined
+  },
+  envDir: 'c:/Jirad-python/mydebugger',
+  env: { BASE_URL: '/', MODE: 'production', DEV: false, PROD: true },
+  assetsInclude: [Function: assetsInclude],
+  logger: {
+    hasWarned: false,
+    info: [Function: info],
+    warn: [Function: warn],
+    warnOnce: [Function: warnOnce],
+    error: [Function: error],
+    clearScreen: [Function: clearScreen],
+    hasErrorLogged: [Function: hasErrorLogged]
+  },
+  packageCache: Map(1) {
+    'fnpd_c:/Jirad-python/mydebugger' => {
+      dir: 'c:\\Jirad-python\\mydebugger',
+      data: [Object],
+      hasSideEffects: [Function: hasSideEffects],
+      webResolvedImports: {},
+      nodeResolvedImports: {},
+      setResolvedCache: [Function: setResolvedCache],
+      getResolvedCache: [Function: getResolvedCache]
+    },
+    set: [Function (anonymous)]
+  },
+  createResolver: [Function: createResolver],
+  worker: {
+    format: 'iife',
+    plugins: [
+      'vite:build-metadata',
+      'vite:watch-package-data',
+      'vite:pre-alias',
+      'alias',
+      'vite:modulepreload-polyfill',
+      'vite:resolve',
+      'vite:html-inline-proxy',
+      'vite:css',
+      'vite:esbuild',
+      'vite:json',
+      'vite:wasm-helper',
+      'vite:worker',
+      'vite:asset',
+      'vite:wasm-fallback',
+      'vite:define',
+      'vite:css-post',
+      'vite:build-html',
+      'vite:worker-import-meta-url',
+      'vite:asset-import-meta-url',
+      'vite:force-systemjs-wrap-complete',
+      'commonjs',
+      'vite:data-uri',
+      'vite:worker-post',
+      'vite:dynamic-import-vars',
+      'vite:import-glob',
+      'vite:build-import-analysis',
+      'vite:esbuild-transpile',
+      'vite:terser',
+      'vite:load-fallback'
+    ],
+    rollupOptions: {},
+    getSortedPlugins: [Function: getSortedPlugins],
+    getSortedPluginHooks: [Function: getSortedPluginHooks]
+  },
+  appType: 'spa',
+  experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+  webSocketToken: 'KSfluFv5o_Oh',
+  additionalAllowedHosts: [],
+  getSortedPlugins: [Function: getSortedPlugins],
+  getSortedPluginHooks: [Function: getSortedPluginHooks]
+}
+[36mvite v4.5.14 [32mbuilding for production...[36m[39m
+2025-05-18T18:40:01.525Z vite:esbuild [33m35.77ms[39m tsconfck init [2mc:/Jirad-python/mydebugger[22m
+transforming...
+2025-05-18T18:40:04.628Z vite:esbuild esbuild error with options used:  {
+  sourcemap: true,
+  sourcefile: 'C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx',
+  target: 'esnext',
+  charset: 'utf8',
+  jsxDev: false,
+  jsx: 'automatic',
+  jsxImportSource: undefined,
+  minify: false,
+  minifyIdentifiers: false,
+  minifySyntax: false,
+  minifyWhitespace: false,
+  treeShaking: false,
+  keepNames: false,
+  loader: 'tsx',
+  tsconfigRaw: {
+    compilerOptions: {
+      useDefineForClassFields: false,
+      experimentalDecorators: true,
+      jsx: undefined
+    }
+  },
+  supported: { 'class-static-blocks': false }
+}
+[32m✓[39m 57 modules transformed.
+[32m✓ built in 3.13s[39m
+[31m[vite:esbuild] Transform failed with 2 errors:
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8: ERROR: The symbol "handleIframeLoad" has already been declared
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:150:8: ERROR: The symbol "handleIframeError" has already been declared[39m
+file: [36mC:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8[39m
+[33m
+[33mThe symbol "handleIframeLoad" has already been declared[33m
+137|  
+138|    // Handle iframe load event
+139|    const handleIframeLoad = () => {
+   |          ^
+140|      setIframeLoaded(true);
+141|      if (results) {
+
+[33mThe symbol "handleIframeError" has already been declared[33m
+148|  
+149|    // Handle iframe error event
+150|    const handleIframeError = () => {
+   |          ^
+151|      setIframeError(true);
+152|      if (results) {
+[39m
+[31merror during build:
+Error: Transform failed with 2 errors:
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:139:8: ERROR: The symbol "handleIframeLoad" has already been declared
+C:/Jirad-python/mydebugger/src/tools/clickjacking/ClickJackingValidator.tsx:150:8: ERROR: The symbol "handleIframeError" has already been declared
+    at failureErrorWithLog (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:1649:15)
+    at c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:847:29
+    at responseCallbacks.<computed> (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:703:9)
+    at handleIncomingPacket (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:762:9)
+    at Socket.readFromStdout (c:\Jirad-python\mydebugger\node_modules\esbuild\lib\main.js:679:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)[39m
+Approach failed: npm script execution
+Command failed: npm run vite-build
+Build failed: Error: All build approaches failed
+    at file:///c:/Jirad-python/mydebugger/vercel-build.js:75:11
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)

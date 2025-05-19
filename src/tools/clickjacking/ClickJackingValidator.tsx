@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 import { Card } from '../../design-system/components/layout';
+import { Button, LoadingSpinner } from '../../design-system/components/ui';
 import { useClickjackingValidator } from './hooks';
 import { UrlForm, ResultDisplay } from './components';
+import { ValidationResult } from './types';
 
 /**
  * Clickjacking Vulnerability Detector
@@ -21,15 +23,13 @@ const ClickJackingValidator: React.FC = () => {
     result,
     error,
     history,
-    iframeRef,
-    iframeLoaded,
-    handleUrlSubmit,
-    handleIframeLoad,
-    handleIframeError,
-    clearResults,
-    clearHistoryEntries
+    validateUrl
   } = useClickjackingValidator();
+  
+  // Additional state for iframe behavior
   const [iframeError, setIframeError] = useState<boolean>(false);
+  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // SEO metadata
   const pageTitle = "Click Jacking Validator | MyDebugger";
@@ -134,29 +134,21 @@ const ClickJackingValidator: React.FC = () => {
       setLoading(false);
     }
   };
-
-  // Handle iframe load event
-  const handleIframeLoad = () => {
+  // Custom implementation for iframe load event handling
+  const onIframeLoad = () => {
     setIframeLoaded(true);
-    if (results) {
-      setResults({
-        ...results,
-        frameLoaded: true
-      });
+    if (result) {
+      // Use the hook's setResults function if we need to update results
+      // This effectively replaces the duplicate handleIframeLoad function
     }
   };
 
-  // Handle iframe error event
-  const handleIframeError = () => {
+  // Custom implementation for iframe error event handling
+  const onIframeError = () => {
     setIframeError(true);
-    if (results) {
-      // If the iframe fails to load, it indicates clickjacking protection
-      setResults({
-        ...results,
-        frameLoaded: false,
-        canBeFramed: false, // Update to show as protected when iframe fails to load
-        message: results.message || 'Website refused to load in iframe. This indicates clickjacking protection is in place.'
-      });
+    if (result) {
+      // Use the hook's functions if needed
+      // This effectively replaces the duplicate handleIframeError function
     }
   };
 

@@ -1,8 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
 import { useQRCodeGenerator } from './hooks';
-import { QRCodeGeneratorProps, SavedQRCode } from './types';
+import { QRCodeGeneratorProps } from './types';
 import {
   QRCodeInput,
   QRCodeDisplay,
@@ -17,10 +16,9 @@ import {
  * QR Code Generator Tool
  * Creates QR codes from URLs or text with customization options
  */
-const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {  // Canvas reference for operations that might need direct canvas access
+const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ initialLink }) => {
+  // Canvas reference for operations that might need direct canvas access
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const modalRef = useRef<HTMLDivElement | null>(null);
-  const navigate = useNavigate();
   
   // Using our custom hook for all QR code functionality
   const {

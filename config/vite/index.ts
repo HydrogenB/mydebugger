@@ -39,9 +39,9 @@ export default defineConfig({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
           // Split tools by category for better loading performance
-          'jwt': [resolve(__dirname, '../../src/tools/jwt/index.ts')],
-          'qrcode': [resolve(__dirname, '../../src/tools/qrcode/index.ts')],
-          'base64-image': [resolve(__dirname, '../../src/tools/base64-image/index.ts')],
+          'jwt': ['src/tools/jwt/index.ts'],
+          'qrcode': ['src/tools/qrcode/index.ts'],
+          'base64-image': ['src/tools/base64-image/index.ts'],
         }
       }
     }

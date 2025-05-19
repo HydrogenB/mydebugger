@@ -5,6 +5,13 @@ interface QRCodeDisplayProps {
   encodedLink: string;
   onShowLarge: () => void;
   onSave: () => void;
+  onCopyLink?: () => void;
+  onCopyEncodedLink?: () => void;
+  onCopyImage?: () => void;
+  onDownload?: () => void;
+  onOpenLink?: () => void;
+  onShareLink?: () => void;
+  isRunningLink?: boolean;
 }
 
 /**
@@ -14,7 +21,14 @@ const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({
   qrCodeUrl, 
   encodedLink, 
   onShowLarge,
-  onSave 
+  onSave,
+  onCopyLink,
+  onCopyEncodedLink,
+  onCopyImage,
+  onDownload,
+  onOpenLink,
+  onShareLink,
+  isRunningLink
 }) => {
   if (!qrCodeUrl) {
     return null;
