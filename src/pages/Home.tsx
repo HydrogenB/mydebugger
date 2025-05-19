@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import Link from 'next/link';
+import Head from 'next/head';
 import { 
   Card, 
   Grid,
@@ -165,10 +165,9 @@ const Home: React.FC = () => {
       behavior: 'smooth'
     });
   };
-  
-  return (
+    return (
     <>
-      <Helmet>
+      <Head>
         <title>MyDebugger - Web Developer Tools Dashboard</title>
         <meta name="description" content="Collection of essential web developer tools for debugging, encoding, formatting, testing, and more." />
         <meta name="keywords" content="developer tools, web debugging, jwt toolkit, qr code generator, url encoder, regex tester" />
@@ -179,7 +178,7 @@ const Home: React.FC = () => {
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="MyDebugger - Web Developer Tools" />
         <meta name="twitter:description" content="Essential developer toolkit for modern web development" />
-      </Helmet>
+      </Head>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
         {/* Hero Section */}
         <section className="mb-10 relative overflow-hidden">

@@ -1,0 +1,13 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.js",
+  "/": "pages/index.js",
+  "/privacy-policy": "pages/privacy-policy.js",
+  "/tool/[toolId]": "pages/tool/[toolId].js",
+  "/terms-of-service": "pages/terms-of-service.js",
+  "/vcard/analytics": "pages/vcard/analytics.js",
+  "/vcard/editor": "pages/vcard/editor.js",
+  "/[username]": "pages/[username].js"
+}

@@ -1,15 +1,15 @@
 import React from 'react';
-import { QRCodeSettings } from '../types';
+import { QRCodeSettings as QRCodeSettingsType } from '../types';
 
 interface QRCodeSettingsProps {
-  settings: QRCodeSettings;
-  onUpdateSettings: (settings: Partial<QRCodeSettings>) => void;
+  settings: QRCodeSettingsType;
+  onUpdateSettings: (settings: Partial<QRCodeSettingsType>) => void;
 }
 
 /**
  * Component for QR code generation settings
  */
-const QRCodeSettings: React.FC<QRCodeSettingsProps> = ({ settings, onUpdateSettings }) => {
+const QRCodeSettingsPanel: React.FC<QRCodeSettingsProps> = ({ settings, onUpdateSettings }) => {
   const { size, errorCorrection, darkColor, lightColor } = settings;
 
   return (
@@ -120,4 +120,4 @@ const QRCodeSettings: React.FC<QRCodeSettingsProps> = ({ settings, onUpdateSetti
   );
 };
 
-export default QRCodeSettings;
+export default QRCodeSettingsPanel;

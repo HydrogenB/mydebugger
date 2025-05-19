@@ -1,9 +1,9 @@
-// Simple build script for Vercel (ESM)
+// Simple build script for Vercel (ESM) - Next.js optimized
 import { execSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
-console.log('Starting Vercel build process...');
+console.log('Starting Next.js build process for Vercel...');
 console.log(`Node version: ${process.version}`);
 console.log(`Platform: ${process.platform}`);
 console.log(`Working directory: ${process.cwd()}`);
@@ -13,9 +13,9 @@ const isVercelEnv = process.env.VERCEL === '1' || process.env.NOW_BUILDER;
 console.log(`Running in Vercel environment: ${isVercelEnv ? 'Yes' : 'No'}`);
 
 try {
-  // Ensure the build directory exists
-  if (!fs.existsSync('./dist')) {
-    fs.mkdirSync('./dist', { recursive: true });
+  // Create .next directory if it doesn't exist (not usually needed)
+  if (!fs.existsSync('./.next')) {
+    fs.mkdirSync('./.next', { recursive: true });
   }
   
   // Run permission check script if it exists

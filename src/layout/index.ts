@@ -1,5 +1,5 @@
-import Header from './Header';
-import Footer from './Footer';
+import Header from './NextHeader';
+import Footer from './NextFooter';
 import { MainLayout } from './MainLayout';
 
 export {

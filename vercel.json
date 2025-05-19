@@ -1,16 +1,10 @@
-{
-  "version": 2,
+{  "version": 2,
   "public": true,
-  "framework": null,
-  "installCommand": "npm install --production=false",
+  "framework": "nextjs",
+  "installCommand": "npm install --production=false --prefer-offline --no-audit",
   "buildCommand": "npm run build:vercel",
-  "devCommand": "npm run dev",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/(.+\\.(?:js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  "devCommand": "npm run dev","rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "env": {},
   "headers": [

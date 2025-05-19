@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { getRelatedTools, Tool } from './index';
 import { Card } from '../design-system/components/layout';
 
@@ -28,10 +28,9 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({
       <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Related Tools</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {displayedTools.map((tool: Tool) => (
-          <Link 
+        {displayedTools.map((tool: Tool) => (          <Link 
             key={tool.id} 
-            to={tool.route} 
+            href={tool.route} 
             className="no-underline"
           >
             <Card
