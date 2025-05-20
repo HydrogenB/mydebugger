@@ -9,8 +9,8 @@
 
 import { Box, Typography, Container } from '@mui/material';
 import MainLayout from '@/components/layout/MainLayout';
-import ModuleComponent from '../components/ModuleComponent';
-import { useModuleViewModel } from '../viewmodels/useModuleViewModel';
+import ModuleComponent from './components/ModuleComponent'; // Changed path
+import { useModuleViewModel } from './viewmodels/useModuleViewModel'; // Changed path
 
 /**
  * Module page component

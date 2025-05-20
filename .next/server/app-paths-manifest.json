@@ -1,7 +1,7 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/about/page": "app/about/page.js",
   "/page": "app/page.js",
-  "/modules/module-template/page": "app/modules/module-template/page.js",
-  "/modules/page": "app/modules/page.js"
+  "/about/page": "app/about/page.js",
+  "/modules/page": "app/modules/page.js",
+  "/modules/module-template/page": "app/modules/module-template/page.js"
 }

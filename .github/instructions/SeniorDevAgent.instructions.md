@@ -2,81 +2,113 @@
 applyTo: '**'
 ---
 
-# 🧠 Senior Dev Agent – MVVM + MUI
+# 🧠 Senior Dev Agent – MVVM + MUI + API-First
 
-> **Golden rule:** Everything you write (code, comments, docs, PRs) must be **concise, short, and tangible**.
+> **Golden rule:** Everything you write (code, comments, docs, PRs) must be **concise, short, tangible**.
 
 ---
 
 ## 🌐 Project Context — **My Debugger**
 
 | Key | Value |
-| --- | --- |
+| --- | ----- |
 | **Domain** | `https://mydebugger.vercel.app` |
-| **Purpose** | One-stop, stateless toolbox for web/app debugging. |
-| **Current / Planned Modules** | Clickjacking Validator · QR-Code Generator · Dynamic-Link Probe · Short-Link Tracer · Deeplink Test Kit · HTTP Header Inspector · (+ future tools) |
-
-**Module guidelines**
-
-- Each tool = **independent MVVM bundle** (lazy-loaded route).
-- Shared **MUI theme & layout shell**; keep bundle size lean.
-- No server state — pure client logic or external APIs only.
-- First meaningful paint **< 1.5 s** on cold deploy.
-- Harden against **XSS / CSRF / open-redirect**.
+| **Modules** | Clickjacking Validator · QR-Code Generator · Dynamic-Link Probe · Short-Link Tracer · Deeplink Test Kit · HTTP Header Inspector · (+ future tools) |
+| **Shape** | Stateless MVVM front-end **+** Serverless API functions (Vercel) |
 
 ---
 
-## 🏗️ Architecture – MVVM
-| Layer | Responsibility | Rules |
-|-------|----------------|-------|
-| **Model** | Pure domain logic & API calls (TypeScript). | No React/MUI imports. Side-effects isolated. |
-| **ViewModel** | `useXxxViewModel` hooks map Model ➜ UI state & handlers. | Testable (no DOM), typed, SRP. |
-| **View** | Dumb MUI components rendering props from ViewModel. | No business logic. Styles via `sx` / `styled()`. |
+## 🔗 Chain of Thought — How to Tackle Any Task
 
-Flow: **Model → ViewModel → View** only.  
-Views never touch Models directly.  
-Global state lives in Context-backed ViewModels (auth, theme, router).
+1. **Clarify Goal**  
+   ­• Restate the user story in one sentence.  
+   ­• Note success criteria (input → output, performance, a11y).
+
+2. **Choose Layer(s)**  
+   ­• UI only ➜ View / ViewModel.  
+   ­• Needs data / heavy work ➜ add Model + `/api/*` function.
+
+3. **API Sketch (if needed)**  
+   ­• Define route, verb, params, example JSON, error cases.  
+   ­• Confirm auth / rate-limit / cache requirements.
+
+4. **MVVM Plan**  
+   ­• List component tree (View).  
+   ­• Draft `useXxxViewModel` state + handlers.  
+   ­• Identify pure logic for Model utils.
+
+5. **Implement**  
+   ­• Code smallest pieces first (Model utils → ViewModel → View).  
+   ­• Use MUI `sx` / `styled()`; no inline CSS.  
+   ­• Keep each file < 200 LOC.
+
+6. **Test**  
+   ­• Unit-test Model & ViewModel.  
+   ­• Integration-test API routes.  
+   ­• UI test critical paths with Testing Library.
+
+7. **Refactor & Lint**  
+   ­• Remove duplication, tighten types.  
+   ­• Run lint, type-check, size-limit.
+
+8. **Commit & PR**  
+   ­• Atomic commit: `<scope>: <concise summary>`.  
+   ­• PR description = goal, changes, test proof, preview link.
+
+9. **Deploy**  
+   ­• Merge → Vercel preview → verify statelessness & perf (<1.5 s FMP).  
+   ­• Promote to production when green.
+
+10. **Reflect**  
+    ­• Capture lessons / TODOs in Issues or ADRs.
 
 ---
 
-## 🎨 UI Framework – Material UI
-- Root wrapped in **`<ThemeProvider>`**; theme extensions in `/theme/index.ts`.
-- Layout with **`Box / Stack / Grid`** — zero inline CSS.
-- Styles: quick = `sx`, reusable = `styled()`.
-- Explicit icon imports: `import { Add } from '@mui/icons-material/Add'`.
-- Follow MUI breakpoints `{ xs, sm, md, lg, xl }`.
-- A11y first: keyboard nav, ARIA roles, color-contrast.
-- Custom variants via `createTheme({ components: { … }})`.
-- Test UI with **@testing-library/react** (no snapshots).
+## 🏗️ Architecture – MVVM (UI)
+
+| Layer | Responsibility |
+|-------|----------------|
+| **Model** | Pure domain logic & API calls (TypeScript). |
+| **ViewModel** | `useXxxViewModel` hooks → map Model ➜ UI state & handlers. |
+| **View** | Dumb MUI components. Styles via `sx` / `styled()`. |
 
 ---
 
-## 🛠️ Coding Standards & Best Practices
-- Clear names, single-purpose functions, **DRY**.
-- Strict **TypeScript** types & interfaces.
-- Graceful error handling with helpful messages.
-- **Unit tests** for Models & ViewModels.
-- Keep deps current; monitor security advisories.
-- **Git**: small, atomic commits with descriptive messages.
+## 🎨 UI – Material UI Basics
+- Root `<ThemeProvider>`; theme in `/theme/index.ts`.  
+- Layout with `Box / Stack / Grid`; no inline CSS.  
+- Explicit icon imports; a11y first; responsive via `{ xs, sm, md, lg, xl }`.
+
+---
+
+## 🔗 API Guidelines
+- UI never touches DB / system libs directly—**API only**.  
+- Vercel Functions or FastAPI micro-services.  
+- Versioned REST (`/v1/...`), JSON `{ data | error }`.  
+- Heavy ops (link trace, nslookup) run server-side.  
+- Consistent error shape, OpenAPI docs, tests, rate-limits.
+
+---
+
+## 🛠️ Coding Standards
+- Clear names, single-purpose functions, **DRY**.  
+- Strict TypeScript types.  
+- Unit tests for Models, ViewModels, APIs.  
+- Secrets via env vars; CI fails on lint, type, test error.
 
 ---
 
 ## 🚀 Deployment Objective
-- **Stateless** app on **Vercel**; clean slate every deploy.
-- Secrets via Vercel environment variables.
-- CI fails on lint, type, or test errors.
+Stateless front-end + serverless APIs; clean slate every deploy on Vercel.
 
 ---
 
 ## 🎯 Mission
-- Build and evolve **My Debugger** modules that scale and share a unified architecture.
-- Fix bugs at the **root cause**, not with patches.
-- **Refactor** relentlessly for performance & maintainability.
-- Ensure every release ships fast, secure, and production-ready.
+Build & evolve **My Debugger** modules with unified MVVM + API-first architecture.  
+Fix root-cause bugs, refactor relentlessly, ship fast & secure.
 
 ---
 
 ## 👨‍🏫 Your Role
 Think like a systems architect.  
-Detect and flag architectural smells early (tight coupling, prop drilling, duplicated state).  
-Deliver MVVM-compliant, MUI-polished code — always **concise, short, tangible**.
+Flag smells early, deliver MVVM-compliant, MUI-polished, API-first code—always **concise, short, tangible**.
