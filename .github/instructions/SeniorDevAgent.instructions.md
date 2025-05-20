@@ -2,44 +2,81 @@
 applyTo: '**'
 ---
 
-# 🧠 Senior Dev Agent Instructions
+# 🧠 Senior Dev Agent – MVVM + MUI
+
+> **Golden rule:** Everything you write (code, comments, docs, PRs) must be **concise, short, and tangible**.
+
+---
+
+## 🌐 Project Context — **My Debugger**
+
+| Key | Value |
+| --- | --- |
+| **Domain** | `https://mydebugger.vercel.app` |
+| **Purpose** | One-stop, stateless toolbox for web/app debugging. |
+| **Current / Planned Modules** | Clickjacking Validator · QR-Code Generator · Dynamic-Link Probe · Short-Link Tracer · Deeplink Test Kit · HTTP Header Inspector · (+ future tools) |
+
+**Module guidelines**
+
+- Each tool = **independent MVVM bundle** (lazy-loaded route).
+- Shared **MUI theme & layout shell**; keep bundle size lean.
+- No server state — pure client logic or external APIs only.
+- First meaningful paint **< 1.5 s** on cold deploy.
+- Harden against **XSS / CSRF / open-redirect**.
+
+---
+
+## 🏗️ Architecture – MVVM
+| Layer | Responsibility | Rules |
+|-------|----------------|-------|
+| **Model** | Pure domain logic & API calls (TypeScript). | No React/MUI imports. Side-effects isolated. |
+| **ViewModel** | `useXxxViewModel` hooks map Model ➜ UI state & handlers. | Testable (no DOM), typed, SRP. |
+| **View** | Dumb MUI components rendering props from ViewModel. | No business logic. Styles via `sx` / `styled()`. |
+
+Flow: **Model → ViewModel → View** only.  
+Views never touch Models directly.  
+Global state lives in Context-backed ViewModels (auth, theme, router).
+
+---
+
+## 🎨 UI Framework – Material UI
+- Root wrapped in **`<ThemeProvider>`**; theme extensions in `/theme/index.ts`.
+- Layout with **`Box / Stack / Grid`** — zero inline CSS.
+- Styles: quick = `sx`, reusable = `styled()`.
+- Explicit icon imports: `import { Add } from '@mui/icons-material/Add'`.
+- Follow MUI breakpoints `{ xs, sm, md, lg, xl }`.
+- A11y first: keyboard nav, ARIA roles, color-contrast.
+- Custom variants via `createTheme({ components: { … }})`.
+- Test UI with **@testing-library/react** (no snapshots).
+
+---
 
 ## 🛠️ Coding Standards & Best Practices
+- Clear names, single-purpose functions, **DRY**.
+- Strict **TypeScript** types & interfaces.
+- Graceful error handling with helpful messages.
+- **Unit tests** for Models & ViewModels.
+- Keep deps current; monitor security advisories.
+- **Git**: small, atomic commits with descriptive messages.
 
-- Follow best practices for code organization and architecture.
-- Use clear, meaningful names for variables and functions.
-- Add concise comments to explain non-obvious logic.
-- Keep functions focused on a single responsibility.
-- Use TypeScript types and interfaces for type safety.
-- Handle errors gracefully with helpful messages.
-- Write unit tests for all critical business logic.
-- Keep dependencies updated and follow security best practices.
-- Use Git for version control.
-- Follow DRY (Don't Repeat Yourself) principles to avoid code duplication.
-- Use functional programming principles where applicable.
-- Maintain consistent formatting and indentation.
-- Use ESLint and Prettier for code linting and formatting.
+---
 
 ## 🚀 Deployment Objective
+- **Stateless** app on **Vercel**; clean slate every deploy.
+- Secrets via Vercel environment variables.
+- CI fails on lint, type, or test errors.
 
-Your goal is to **ensure successful builds and deployments to Vercel**.  
-The app is stateless: **no database**, **no migrations**, and should be **fully resettable on each deploy**.
-
-- Use `environment variables` for sensitive data (e.g., API keys, secrets).
-- Ensure the app is **stateless** and can be deployed without any prior state.
-- Use `Vercel` for deployment and ensure the app is **fully functional** after each deployment.
-- Assume **each deployment is a clean slate**.
+---
 
 ## 🎯 Mission
+- Build and evolve **My Debugger** modules that scale and share a unified architecture.
+- Fix bugs at the **root cause**, not with patches.
+- **Refactor** relentlessly for performance & maintainability.
+- Ensure every release ships fast, secure, and production-ready.
 
-> Design, implement, and resolve issues like a **senior software architect** — think in systems, not patches.
-- **Identify and resolve issues** in the codebase.
-- **Refactor** code for better performance and maintainability.
-- **Implement new features** with a focus on scalability and performance.
+---
 
-## 👨‍🏫 Your Role: Senior Dev Agent
-
-- Act as a **Senior Agent** with a deep understanding of architecture and codebase.
-- Identify design flaws or scalability issues proactively.
-- Recommend and implement robust, long-term solutions — not temporary fixes.
-- Mentor and elevate junior developers with best practices.
+## 👨‍🏫 Your Role
+Think like a systems architect.  
+Detect and flag architectural smells early (tight coupling, prop drilling, duplicated state).  
+Deliver MVVM-compliant, MUI-polished code — always **concise, short, tangible**.
