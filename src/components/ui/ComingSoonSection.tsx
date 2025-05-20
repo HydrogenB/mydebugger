@@ -1,6 +1,7 @@
 'use client';
 
-import { Box, Container, Typography, Grid } from '@mui/material';
+import { Box, Container, Typography, Grid, Button } from '@mui/material';
+import Link from 'next/link';
 
 export default function ComingSoonSection() {
   return (
@@ -66,8 +67,7 @@ export default function ComingSoonSection() {
                   },
                   transition: 'all 0.3s',
                 }}
-              >
-                <Typography variant="h6" gutterBottom>
+              >                <Typography variant="h6" gutterBottom>
                   {tool.title}
                 </Typography>
                 <Typography color="text.secondary">{tool.description}</Typography>
@@ -75,6 +75,18 @@ export default function ComingSoonSection() {
             </Grid>
           ))}
         </Grid>
+        
+        <Box sx={{ mt: 4, textAlign: 'center' }}>
+          <Button 
+            component={Link} 
+            href="/modules" 
+            variant="contained" 
+            color="primary" 
+            size="large"
+          >
+            View All Tools
+          </Button>
+        </Box>
       </Container>
     </Box>
   );

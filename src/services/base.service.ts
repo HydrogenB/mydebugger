@@ -45,14 +45,13 @@ export class BaseService {
     
     return response.json() as Promise<T>;
   }
-
   /**
    * Make a POST request
    * @param endpoint API endpoint
    * @param data Request body data
    * @returns Promise with the response data
    */
-  protected async post<T>(endpoint: string, data: any): Promise<T> {
+  protected async post<T, D = Record<string, unknown>>(endpoint: string, data: D): Promise<T> {
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
       headers: {

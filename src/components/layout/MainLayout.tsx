@@ -3,6 +3,7 @@
 import { Box } from '@mui/material';
 import NavBar from './NavBar';
 import Footer from './Footer';
+import ErrorBoundary from './ErrorBoundary';
 import { ReactNode } from 'react';
 
 interface MainLayoutProps {
@@ -27,7 +28,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
           px: { xs: 2, md: 4 },
         }}
       >
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </Box>
       <Footer />
     </Box>

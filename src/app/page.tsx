@@ -1,6 +1,6 @@
 'use client';
 
-import { Container, Box } from '@mui/material';
+import { Box } from '@mui/material';
 import HeroSection from '@/components/ui/HeroSection';
 import ComingSoonSection from '@/components/ui/ComingSoonSection';
 import MainLayout from '@/components/layout/MainLayout';

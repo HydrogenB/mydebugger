@@ -10,14 +10,16 @@ MyDebugger is a stateless application that provides a suite of specialized tools
 
 The project follows the MVVM (Model-View-ViewModel) architecture pattern:
 
-- **Model**: Pure domain logic & API calls (TypeScript)
+- **Model**: Pure domain logic & API calls (TypeScript) with no React/MUI dependencies
 - **ViewModel**: Hooks that map Model to UI state & handlers
 - **View**: Material UI components rendering props from ViewModel
 
 ## Tech Stack
 
 - **Frontend**: React with Next.js
-- **UI Framework**: Material UI
+- **UI Framework**: Material UI v7
+- **TypeScript**: For type safety
+- **Testing**: Jest and React Testing Library
 - **Deployment**: Vercel
 - **State Management**: React hooks and context
 

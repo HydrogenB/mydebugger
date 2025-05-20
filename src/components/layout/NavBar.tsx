@@ -62,14 +62,16 @@ export default function NavBar() {
               {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
             </IconButton>
           </Tooltip>
+          <Button color="inherit" component={Link} href="/modules" sx={{ mr: 1 }}>
+            Tools
+          </Button>
           <Button color="inherit" component={Link} href="/about">
             About
           </Button>
         </Toolbar>
       </AppBar>
 
-      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box
+      <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>        <Box
           sx={{ width: 250 }}
           role="presentation"
           onClick={toggleDrawer(false)}
@@ -82,6 +84,14 @@ export default function NavBar() {
                   <HomeIcon />
                 </ListItemIcon>
                 <ListItemText primary="Home" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} href="/modules">
+                <ListItemIcon>
+                  <BugReportIcon />
+                </ListItemIcon>
+                <ListItemText primary="Tools" />
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
