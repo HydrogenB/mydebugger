@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import HeroSection from '@/components/ui/HeroSection';
 import '@testing-library/jest-dom';
 
@@ -40,8 +40,7 @@ describe('HeroSection', () => {
     
     const searchBox = screen.getByPlaceholderText(/Search tools.../i);
     searchBox.focus();
-    searchBox.value = 'jwt';
-    searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+    fireEvent.change(searchBox, { target: { value: 'jwt' } });
     
     expect(mockOnSearchChange).toHaveBeenCalledWith('jwt');
   });
