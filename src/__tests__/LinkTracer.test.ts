@@ -1,16 +1,15 @@
 import { traceLink } from '@/model/linkTracer';
+import { Response } from 'node-fetch';
 
 describe('traceLink', () => {
   it('follows redirect chain', async () => {
     const mockFetch = jest
       .fn()
-      .mockResolvedValueOnce(
-        new Response(null, {
-          status: 301,
-          headers: { location: 'https://example.com/step2' },
-        }),
-      )
-      .mockResolvedValueOnce(new Response(null, { status: 200 }));
+      .mockResolvedValueOnce({
+        status: 301,
+        headers: new Headers({ location: 'https://example.com/step2' }),
+      } as Response)
+      .mockResolvedValueOnce({ status: 200, headers: new Headers() } as Response);
     global.fetch = mockFetch as unknown as typeof fetch;
 
     const steps = await traceLink('https://example.com');
@@ -28,12 +27,10 @@ describe('traceLink', () => {
   it('detects redirect loop', async () => {
     const mockFetch = jest
       .fn()
-      .mockResolvedValue(
-        new Response(null, {
-          status: 301,
-          headers: { location: 'https://example.com' },
-        }),
-      );
+      .mockResolvedValue({
+        status: 301,
+        headers: new Headers({ location: 'https://example.com' }),
+      } as Response);
     global.fetch = mockFetch as unknown as typeof fetch;
 
     const steps = await traceLink('https://example.com', 3);
