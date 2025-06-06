@@ -1,5 +1,9 @@
 'use client';
 
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
 import { useState } from 'react';
 import {
   AppBar,
@@ -19,6 +23,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
+import InfoIcon from '@mui/icons-material/Info';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -61,6 +66,9 @@ export default function NavBar() {
               {mode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
             </IconButton>
           </Tooltip>
+          <Button color="inherit" component={Link} href="/modules" sx={{ mr: 1 }}>
+            Tools
+          </Button>
           <Button color="inherit" component={Link} href="/about">
             About
           </Button>
@@ -91,6 +99,12 @@ export default function NavBar() {
               </ListItemButton>
             </ListItem>
             <ListItem disablePadding>
+              <ListItemButton component={Link} href="/about">
+                <ListItemIcon>
+                  <InfoIcon />
+                </ListItemIcon>
+                <ListItemText primary="About" />
+              </ListItemButton>
             </ListItem>
           </List>
           <Divider />
@@ -98,14 +112,30 @@ export default function NavBar() {
               variant="subtitle2"
               sx={{ px: 2, pt: 2, pb: 1, fontWeight: 'bold' }}
             >
-              Tool Categories
+              Tool Categories (Coming Soon)
             </Typography>
             <ListItem disablePadding>
-                <ListItemText 
-                  primary="More categories coming soon." 
-                  sx={{ px:2, py:1 }} 
-                  primaryTypographyProps={{variant: 'caption', color: 'textSecondary'}}
-                />
+              <ListItemButton disabled>
+                <ListItemIcon>
+                  <BugReportIcon />
+                </ListItemIcon>
+                <ListItemText primary="Encoding" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton disabled>
+                <ListItemIcon>
+                  <BugReportIcon />
+                </ListItemIcon>
+                <ListItemText primary="Security" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>              <ListItemButton disabled>
+                <ListItemIcon>
+                  <BugReportIcon />
+                </ListItemIcon>
+                <ListItemText primary="Testing" />
+              </ListItemButton>
             </ListItem>
           </List>
         </Box>
