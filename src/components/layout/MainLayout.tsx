@@ -1,6 +1,5 @@
 'use client';
 
-import { Box } from '@mui/material';
 import NavBar from './NavBar';
 import Footer from './Footer';
 import ErrorBoundary from './ErrorBoundary';
@@ -12,27 +11,12 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '100vh',
-      }}
-    >
+    <div className="flex min-h-screen flex-col">
       <NavBar />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          py: 4,
-          px: { xs: 2, md: 4 },
-        }}
-      >
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
-      </Box>
+      <main className="flex-grow py-4 px-2 md:px-4">
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </main>
       <Footer />
-    </Box>
+    </div>
   );
 }

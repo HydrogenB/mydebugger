@@ -4,7 +4,6 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import { Box, Container, GridLegacy as Grid, Typography } from "@mui/material";
 import ToolCard from "./ToolCard";
 import { Tool } from "@/models";
 
@@ -14,19 +13,15 @@ interface ToolsSectionProps {
 
 export default function ToolsSection({ tools }: ToolsSectionProps) {
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="lg">
-        <Typography component="h2" variant="h4" align="center" gutterBottom>
-          Available Tools
-        </Typography>
-        <Grid container spacing={4} sx={{ mt: 2 }}>
+    <section id="tools" className="py-6">
+      <div className="mx-auto max-w-6xl px-4">
+        <h2 className="text-center text-2xl font-semibold">Available Tools</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {tools.map((tool) => (
-            <Grid key={tool.id} item xs={12} sm={6} md={4}>
-              <ToolCard tool={tool} />
-            </Grid>
+            <ToolCard key={tool.id} tool={tool} />
           ))}
-        </Grid>
-      </Container>
-    </Box>
+        </div>
+      </div>
+    </section>
   );
 }

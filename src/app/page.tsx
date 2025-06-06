@@ -4,7 +4,6 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import { Box } from '@mui/material';
 import HeroSection from '@/components/ui/HeroSection';
 import ToolsSection from '@/components/ui/ToolsSection';
 import MainLayout from '@/components/layout/MainLayout';
@@ -15,13 +14,13 @@ export default function HomePage() {
 
   return (
     <MainLayout>
-      <Box>
+      <div>
         <HeroSection
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
         <ToolsSection tools={filteredTools} />
-      </Box>
+      </div>
     </MainLayout>
   );
 }

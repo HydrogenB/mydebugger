@@ -1,5 +1,4 @@
 import { traceLink } from '@/model/linkTracer';
-import { Response } from 'node-fetch';
 
 describe('traceLink', () => {
   it('follows redirect chain', async () => {

@@ -5,13 +5,6 @@
  */
 
 import Link from 'next/link';
-import {
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  Typography,
-} from '@mui/material';
 import { Tool } from '@/models';
 
 interface ToolCardProps {
@@ -20,31 +13,19 @@ interface ToolCardProps {
 
 export default function ToolCard({ tool }: ToolCardProps) {
   return (
-    <Card
-      variant="outlined"
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography component="h3" variant="h6" gutterBottom>
-          {tool.name}
-        </Typography>
-        <Typography color="text.secondary">{tool.description}</Typography>
-      </CardContent>
-      <CardActions>
-        <Button
-          component={Link}
+    <div className="flex h-full flex-col rounded-md border border-gray-300 p-4">
+      <div className="flex-grow">
+        <h3 className="mb-2 text-lg font-semibold">{tool.name}</h3>
+        <p className="text-sm text-gray-600">{tool.description}</p>
+      </div>
+      <div className="mt-4">
+        <Link
           href={tool.route}
-          size="small"
-          variant="contained"
-          color="primary"
+          className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700"
         >
           Open
-        </Button>
-      </CardActions>
-    </Card>
+        </Link>
+      </div>
+    </div>
   );
 }
