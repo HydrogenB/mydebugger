@@ -4,16 +4,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import {
-  Box,
-  Typography,
-  TextField,
-  InputAdornment,
-  Container,
-  Paper,
-  Button,
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { ChangeEvent } from 'react';
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -21,72 +12,30 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ searchQuery, onSearchChange }: HeroSectionProps) {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    onSearchChange(e.target.value);
+  };
+
   return (
-    <Box
-      sx={{
-        bgcolor: 'background.paper',
-        pt: 6,
-        pb: 6,
-      }}
-    >
-      <Container maxWidth="lg">
-        <Paper
-          elevation={0}
-          sx={{
-            p: 4,
-            borderRadius: 2,
-            textAlign: 'center',
-            backgroundColor: 'transparent',
-          }}
-        >
-          <Typography
-            component="h1"
-            variant="h2"
-            align="center"
-            color="primary"
-            fontWeight="bold"
-            gutterBottom
-          >
-            MyDebugger
-          </Typography>
-          <Typography
-            variant="h5"
-            align="center"
-            color="text.secondary"
-            sx={{ mb: 4 }}
-          >
-            Your comprehensive toolkit for web and app debugging
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
-              justifyContent: 'center',
-              gap: 2,
-              maxWidth: 600,
-              mx: 'auto',
-            }}
-          >
-            <TextField
-              fullWidth
-              placeholder="Search tools..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              sx={{ flexGrow: 1 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button variant="contained" color="primary" sx={{ px: 4 }}>
-              Search
-            </Button>
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+    <section className="bg-white py-6 dark:bg-gray-800">
+      <div className="mx-auto max-w-6xl px-4 text-center">
+        <h1 className="text-4xl font-bold text-blue-600">MyDebugger</h1>
+        <p className="mb-4 mt-2 text-lg text-gray-600 dark:text-gray-300">
+          Your comprehensive toolkit for web and app debugging
+        </p>
+        <div className="mx-auto flex max-w-xl flex-col gap-2 sm:flex-row">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleChange}
+            placeholder="Search tools..."
+            className="flex-grow rounded border border-gray-300 px-3 py-2 dark:bg-gray-700 dark:text-white"
+          />
+          <button className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+            Search
+          </button>
+        </div>
+      </div>
+    </section>
   );
 }

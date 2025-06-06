@@ -2,15 +2,6 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-} from '@mui/material';
 import { useState } from 'react';
 import useLinkTracer from '@/viewmodel/useLinkTracer';
 
@@ -25,37 +16,42 @@ export default function LinkTracer() {
   };
 
   return (
-    <Box component="section" sx={{ p: 2 }}>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 8 }}>
-        <TextField
-          fullWidth
-          label="Dynamic Link"
+    <section className="p-2">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+        <input
+          type="text"
+          className="flex-grow rounded border border-gray-300 px-2 py-1"
+          placeholder="Dynamic Link"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <TextField
+        <input
           type="number"
-          label="Max Hops"
-          sx={{ width: 120 }}
+          className="w-24 rounded border border-gray-300 px-2 py-1"
           value={hops}
           onChange={(e) => setHops(parseInt(e.target.value, 10))}
-          inputProps={{ min: 1, max: 20 }}
+          min={1}
+          max={20}
         />
-        <Button type="submit" variant="contained" disabled={loading}>Trace</Button>
+        <button
+          type="submit"
+          className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700 disabled:opacity-50"
+          disabled={loading}
+        >
+          Trace
+        </button>
       </form>
-      {error && (
-        <Typography color="error" sx={{ mt: 2 }}>{error}</Typography>
-      )}
-      <List>
+      {error && <p className="mt-2 text-red-600">{error}</p>}
+      <ul className="mt-4 divide-y rounded border">
         {steps.map((step, idx) => (
-          <ListItem key={idx} divider>
-            <ListItemText
-              primary={`${idx + 1}. ${step.url}`}
-              secondary={step.error ? step.error : `Status: ${step.status}`}
-            />
-          </ListItem>
+          <li key={idx} className="px-2 py-1">
+            <div className="font-medium">{`${idx + 1}. ${step.url}`}</div>
+            <div className="text-sm text-gray-600">
+              {step.error ? step.error : `Status: ${step.status}`}
+            </div>
+          </li>
         ))}
-      </List>
-    </Box>
+      </ul>
+    </section>
   );
 }

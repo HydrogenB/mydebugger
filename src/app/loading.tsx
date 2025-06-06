@@ -1,22 +1,10 @@
 'use client';
 
-import { Box, CircularProgress, Typography } from '@mui/material';
-
 export default function Loading() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-      }}
-    >
-      <CircularProgress size={60} thickness={4} />
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        Loading...
-      </Typography>
-    </Box>
+    <div className="flex min-h-[50vh] flex-col items-center justify-center">
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <p className="mt-3 text-lg">Loading...</p>
+    </div>
   );
 }
