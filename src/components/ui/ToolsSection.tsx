@@ -4,7 +4,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import ToolCard from "./ToolCard";
+import { ToolsCard } from "@/view/ui";
 import { Tool } from "@/models";
 
 interface ToolsSectionProps {
@@ -23,7 +23,17 @@ export default function ToolsSection({ tools }: ToolsSectionProps) {
         ) : (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             {tools.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
+              <ToolsCard
+                key={tool.id}
+                icon={tool.icon}
+                title={tool.name}
+                description={tool.description}
+                href={tool.route}
+                tags={[
+                  ...(tool.isNew ? ['New'] : []),
+                  ...(tool.isPopular ? ['Popular'] : []),
+                ]}
+              />
             ))}
           </div>
         )}

@@ -1,9 +1,15 @@
 'use client';
 
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
 import MainLayout from '@/components/layout/MainLayout';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/view/ui';
 
 export default function NotFound() {
+  const router = useRouter();
   return (
     <MainLayout>
       <div className="mx-auto max-w-2xl py-8 text-center">
@@ -15,12 +21,13 @@ export default function NotFound() {
           or is temporarily unavailable.
         </p>
         <div className="flex justify-center gap-2">
-          <Link href="/" className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-            Go to Homepage
-          </Link>
-          <Link href="/modules" className="rounded border border-blue-600 px-4 py-2 text-blue-600 hover:bg-blue-50">
+          <Button onClick={() => router.push('/')}>Go to Homepage</Button>
+          <Button
+            variant="secondary"
+            onClick={() => router.push('/modules')}
+          >
             Browse Tools
-          </Link>
+          </Button>
         </div>
       </div>
     </MainLayout>

@@ -6,6 +6,8 @@ A comprehensive web-based debugging and developer toolkit application.
 
 MyDebugger is a stateless application that provides a suite of specialized tools designed to streamline development workflows. The platform is built to be deployed on Vercel, requiring no database and ensuring each deployment stands as a clean slate.
 
+This project embraces a cohesive design system. See [docs/design-philosophy.md](docs/design-philosophy.md) for guiding principles.
+
 ## Project Structure
 
 The project follows the MVVM (Model-View-ViewModel) architecture pattern:

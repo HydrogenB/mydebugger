@@ -5,6 +5,7 @@
  */
 
 import { ChangeEvent, FormEvent } from "react";
+import { Textbox, Button } from "@/view/ui";
 
 interface HeroSectionProps {
   searchQuery: string;
@@ -36,20 +37,14 @@ export default function HeroSection({
           onSubmit={handleSubmit}
           className="mx-auto flex max-w-xl flex-col gap-3 sm:flex-row"
         >
-          <input
-            type="text"
+          <Textbox
             value={searchQuery}
             onChange={handleChange}
             placeholder="Search tools..."
-            className="flex-grow rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring dark:bg-gray-700 dark:text-white"
             aria-label="search tools"
+            className="flex-grow"
           />
-          <button
-            type="submit"
-            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 focus:outline-none focus:ring"
-          >
-            Search
-          </button>
+          <Button type="submit">Search</Button>
         </form>
       </div>
     </section>
