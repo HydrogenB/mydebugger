@@ -4,6 +4,7 @@
  */
 import { useState } from 'react';
 import useLinkTracer from '@/viewmodel/useLinkTracer';
+import { Textbox, Button } from '@/view/ui';
 
 export default function LinkTracer() {
   const [url, setUrl] = useState('');
@@ -18,28 +19,23 @@ export default function LinkTracer() {
   return (
     <section className="p-2">
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-        <input
-          type="text"
-          className="flex-grow rounded border border-gray-300 px-2 py-1"
-          placeholder="Dynamic Link"
+        <Textbox
           value={url}
           onChange={(e) => setUrl(e.target.value)}
+          placeholder="Dynamic Link"
+          className="flex-grow"
         />
-        <input
+        <Textbox
           type="number"
-          className="w-24 rounded border border-gray-300 px-2 py-1"
           value={hops}
           onChange={(e) => setHops(parseInt(e.target.value, 10))}
           min={1}
           max={20}
+          className="w-24"
         />
-        <button
-          type="submit"
-          className="rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700 disabled:opacity-50"
-          disabled={loading}
-        >
+        <Button type="submit" loading={loading}>
           Trace
-        </button>
+        </Button>
       </form>
       {error && <p className="mt-2 text-red-600">{error}</p>}
       <ul className="mt-4 divide-y rounded border">

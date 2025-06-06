@@ -2,6 +2,7 @@
 
 import { Component, ErrorInfo, ReactNode } from 'react';
 import Link from 'next/link';
+import { Button } from '@/view/ui';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -64,12 +65,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             {this.state.error?.toString() || 'Unknown error'}
           </pre>
           <div className="flex justify-center gap-2">
-            <button
-              className="rounded bg-blue-600 px-3 py-1 text-white"
-              onClick={this.handleReset}
-            >
-              Try Again
-            </button>
+            <Button onClick={this.handleReset}>Try Again</Button>
             <Link href="/" className="rounded border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-50">
               Go to Homepage
             </Link>
