@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import { Box, Container, Grid, Typography } from '@mui/material';
-import ToolCard from './ToolCard';
-import { Tool } from '@/models';
+import { Box, Container, GridLegacy as Grid, Typography } from "@mui/material";
+import ToolCard from "./ToolCard";
+import { Tool } from "@/models";
 
 interface ToolsSectionProps {
   tools: Tool[];
