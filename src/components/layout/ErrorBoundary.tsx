@@ -1,8 +1,7 @@
 'use client';
 
 import { Component, ErrorInfo, ReactNode } from 'react';
-import Link from 'next/link';
-import { Button } from '@/view/ui';
+import { Button, LinkButton } from '@/view/ui';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -66,9 +65,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           </pre>
           <div className="flex justify-center gap-2">
             <Button onClick={this.handleReset}>Try Again</Button>
-            <Link href="/" className="rounded border border-blue-600 px-3 py-1 text-blue-600 hover:bg-blue-50">
+            <LinkButton href="/" variant="secondary">
               Go to Homepage
-            </Link>
+            </LinkButton>
           </div>
         </div>
       );
