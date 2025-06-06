@@ -1,9 +1,17 @@
 'use client';
 
-import NavBar from './NavBar';
-import Footer from './Footer';
-import ErrorBoundary from './ErrorBoundary';
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
 import { ReactNode } from 'react';
+import ErrorBoundary from './ErrorBoundary';
+import { Header, AppFooter, Page } from '@/view/layout';
+
+const links = [
+  { href: '/#tools', label: 'Tools' },
+  { href: '/about', label: 'About' },
+];
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -11,12 +19,11 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <NavBar />
-      <main className="flex-grow py-4 px-2 md:px-4">
-        <ErrorBoundary>{children}</ErrorBoundary>
-      </main>
-      <Footer />
-    </div>
+    <Page
+      header={<Header links={links} />}
+      footer={<AppFooter links={[{ href: '/about', label: 'About' }]} />}
+    >
+      <ErrorBoundary>{children}</ErrorBoundary>
+    </Page>
   );
 }
