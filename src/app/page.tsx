@@ -4,22 +4,24 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-import { Box, Typography, Container } from '@mui/material';
+import { Box } from '@mui/material';
+import HeroSection from '@/components/ui/HeroSection';
+import ToolsSection from '@/components/ui/ToolsSection';
 import MainLayout from '@/components/layout/MainLayout';
+import { useHomeViewModel } from '@/viewmodel';
 
 export default function HomePage() {
+  const { searchQuery, setSearchQuery, filteredTools } = useHomeViewModel();
+
   return (
     <MainLayout>
-      <Container maxWidth="md">
-        <Box sx={{ my: 8, textAlign: 'center' }}>
-          <Typography variant="h3" component="h1" gutterBottom>
-            MyDebugger
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Developer tools coming soon.
-          </Typography>
-        </Box>
-      </Container>
+      <Box>
+        <HeroSection
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+        <ToolsSection tools={filteredTools} />
+      </Box>
     </MainLayout>
   );
 }

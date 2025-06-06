@@ -1,4 +1,8 @@
 /**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
+/**
  * Model representing a tool category
  */
 export interface ToolCategory {
@@ -20,3 +24,17 @@ export interface Tool {
   isNew?: boolean;
   isPopular?: boolean;
 }
+
+/**
+ * List of currently available tools in the application
+ */
+export const availableTools: Tool[] = [
+  {
+    id: 'link-tracer',
+    name: 'Link Tracer',
+    description: 'Trace the complete redirect path of any URL.',
+    categoryId: 'utilities',
+    route: '/tools/link-tracer',
+    isNew: true,
+  },
+];
