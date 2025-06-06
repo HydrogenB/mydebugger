@@ -1,26 +1,25 @@
 'use client';
 
-import { Box } from '@mui/material';
-import HeroSection from '@/components/ui/HeroSection';
-import ComingSoonSection from '@/components/ui/ComingSoonSection';
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
+import { Box, Typography, Container } from '@mui/material';
 import MainLayout from '@/components/layout/MainLayout';
-import { useHomeViewModel } from '@/viewmodels';
 
 export default function HomePage() {
-  const {
-    searchQuery,
-    setSearchQuery,
-  } = useHomeViewModel();
-
   return (
     <MainLayout>
-      <Box>
-        <HeroSection
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-        <ComingSoonSection />
-      </Box>
+      <Container maxWidth="md">
+        <Box sx={{ my: 8, textAlign: 'center' }}>
+          <Typography variant="h3" component="h1" gutterBottom>
+            MyDebugger
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Developer tools coming soon.
+          </Typography>
+        </Box>
+      </Container>
     </MainLayout>
   );
 }
