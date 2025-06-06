@@ -17,20 +17,20 @@ describe('Tool and ToolCategory models', () => {
 
   it('should correctly create a Tool object', () => {
     const tool: Tool = {
-      id: 'jwt-decoder',
-      name: 'JWT Decoder',
-      description: 'Decode and inspect JWT tokens',
-      categoryId: 'security',
-      route: '/modules/jwt-decoder',
+      id: 'link-tracer',
+      name: 'Link Tracer',
+      description: 'Trace redirect chains',
+      categoryId: 'utilities',
+      route: '/tools/link-tracer',
       isNew: true,
       isPopular: true,
     };
 
-    expect(tool.id).toBe('jwt-decoder');
-    expect(tool.name).toBe('JWT Decoder');
-    expect(tool.description).toBe('Decode and inspect JWT tokens');
-    expect(tool.categoryId).toBe('security');
-    expect(tool.route).toBe('/modules/jwt-decoder');
+    expect(tool.id).toBe('link-tracer');
+    expect(tool.name).toBe('Link Tracer');
+    expect(tool.description).toBe('Trace redirect chains');
+    expect(tool.categoryId).toBe('utilities');
+    expect(tool.route).toBe('/tools/link-tracer');
     expect(tool.isNew).toBe(true);
     expect(tool.isPopular).toBe(true);
   });
