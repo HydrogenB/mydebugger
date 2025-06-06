@@ -9,16 +9,18 @@ export default function useLinkTracer() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const trace = async (url: string) => {
+  const trace = async (url: string, maxHops = 10) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/link-tracer?url=${encodeURIComponent(url)}`);
+      const res = await fetch(
+        `/api/link-tracer?url=${encodeURIComponent(url)}&hops=${maxHops}`,
+      );
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
+        throw new Error(data.error || `Request failed with status ${res.status}`);
       }
-      const data: TraceStep[] = await res.json();
-      setSteps(data);
+      setSteps(data as TraceStep[]);
     } catch (err) {
       setError((err as Error).message);
       setSteps([]);
