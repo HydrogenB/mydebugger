@@ -28,7 +28,8 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "types": ["jest"]
   },
   "include": [
     "**/*.ts",
