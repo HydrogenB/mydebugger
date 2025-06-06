@@ -73,17 +73,16 @@ Each tool in the platform should:
 
 Currently, the platform includes the following tools:
 
-1. **JWT Toolkit** - Decode, build, inspect, verify and benchmark JSON Web Tokens
-2. **URL Encoder/Decoder** - Encode or decode URL components
-3. **HTTP Headers Analyzer** - Analyze and understand HTTP request/response headers
-4. **Regex Tester** - Test and debug regular expressions with real-time matching
-5. **DNS Lookup Tool** - Query DNS records for any domain name
-6. **Deep-Link Tester & QR Generator** - Generate QR codes for links and test deep links
-7. **Click Jacking Validator** - Check if websites are vulnerable to click jacking attacks
-8. **Link Tracer** - Trace the complete redirect path of any URL
-9. **Dynamic-Link Probe** - Test how App Flyer/OneLink URLs behave across different device contexts
-10. **Components Demo** - Showcase of various UI components
-11. **Base64 Image Debugger** - Debug and visualize base64-encoded images
+1. **URL Encoder/Decoder** - Encode or decode URL components
+2. **HTTP Headers Analyzer** - Analyze and understand HTTP request/response headers
+3. **Regex Tester** - Test and debug regular expressions with real-time matching
+4. **DNS Lookup Tool** - Query DNS records for any domain name
+5. **Deep-Link Tester & QR Generator** - Generate QR codes for links and test deep links
+6. **Click Jacking Validator** - Check if websites are vulnerable to click jacking attacks
+7. **Link Tracer** - Trace the complete redirect path of any URL
+8. **Dynamic-Link Probe** - Test how App Flyer/OneLink URLs behave across different device contexts
+9. **Components Demo** - Showcase of various UI components
+10. **Base64 Image Debugger** - Debug and visualize base64-encoded images
 
 ## 6. Technical Requirements
 
@@ -139,19 +138,6 @@ Currently, the platform includes the following tools:
 - Categories are visually distinct with appropriate icons
 - Clicking a category filters the tools list accordingly
 - Category selection is reflected in the URL for sharing
-
-### JWT Toolkit
-
-#### US-03: JWT Decoding
-**As a** security engineer,  
-**I want to** decode and inspect JWT tokens,  
-**So that** I can understand their contents and validate their structure.
-
-**Acceptance Criteria:**
-- Ability to paste a JWT token and see its decoded header and payload
-- Validation of token format with clear error messages
-- Display of expiration information and other important claims
-- Support for JWKS validation
 
 ### URL Encoder/Decoder
 
