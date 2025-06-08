@@ -1,4 +1,4 @@
-import Base64ImageDebugger from './Base64ImageDebugger';
+import Base64ImageDebuggerPage from './page';
 
-export { Base64ImageDebugger };
-export default Base64ImageDebugger;
+export { Base64ImageDebuggerPage };
+export default Base64ImageDebuggerPage;

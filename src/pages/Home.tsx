@@ -14,11 +14,8 @@ import {
   TabPanel,
   Tag,
   Badge,
-  Avatar,
   Text,
-  Tooltip,
-  Progress,
-  IconButton
+  Tooltip
 } from '../design-system';
 import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory } from '../tools';
 import './Home.css';

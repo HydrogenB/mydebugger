@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Home from '../pages/Home';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import TermsOfService from '../pages/TermsOfService';
-import Base64ImagePage from '../pages/Base64ImagePage';
 import toolRegistry from '../tools';
 import { LoadingSpinner } from '../design-system/components/feedback';
 

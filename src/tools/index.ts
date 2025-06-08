@@ -287,7 +287,7 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: false
     }
-  // Add Base64 Image Debugger Tool
+  },
   {
     id: 'base64-image',
     route: '/base64-image',
@@ -295,7 +295,7 @@ const toolRegistry: Tool[] = [
     description: 'Debug and visualize base64-encoded images with detailed information.',
     longDescription: 'Tool to visualize base64-encoded images and display detailed information about them including format, dimensions, file size and more.',
     icon: Base64ImageIcon,
-    component: lazy(() => import('./base64-image/Base64ImageDebugger')),
+    component: lazy(() => import('./base64-image/page')),
     category: 'Utilities',
     isNew: true,
     metadata: {

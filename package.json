@@ -5,9 +5,12 @@
   "private": true,
   "engines": {
     "node": "18.x"
-  },  "dependencies": {
+  },
+  "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@uiw/react-textarea-code-editor": "^2.1.9",
+    "@vitejs/plugin-react": "^4.0.3",
+    "chalk": "^5.3.0",
     "dompurify": "^3.2.5",
     "github-markdown-css": "^5.8.1",
     "jsonwebtoken": "^9.0.2",
@@ -32,28 +35,50 @@
     "react-router-dom": "^6.14.0",
     "react-use": "^17.4.0",
     "tailwindcss": "^3.3.3",
-    "chalk": "^5.3.0",
-    "@vitejs/plugin-react": "^4.0.3",
     "vite": "^4.5.2"
-  },  "devDependencies": {
+  },
+  "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^18.19.3",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@types/react-helmet": "^6.1.6",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
     "autoprefixer": "^10.4.14",
+    "eslint": "^8.53.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.1.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "30.0.0-beta.3",
     "postcss": "^8.4.27",
+    "prettier": "^3.0.3",
     "tailwindcss": "^3.3.3",
     "terser": "^5.19.0",
+    "ts-jest": "^29.1.1",
     "typescript": "^5.0.2",
     "vite": "^4.5.2"
-  },  "scripts": {
-    "dev": "vite",    "build": "vite build",
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
     "build:vercel": "node vercel-build.js",
     "preview": "vite preview",
-    "postinstall": "chmod +x ./node_modules/.bin/tsc ./node_modules/.bin/vite ./node_modules/.bin/*"
+    "postinstall": "chmod +x ./node_modules/.bin/tsc ./node_modules/.bin/vite ./node_modules/.bin/*",
+    "lint": "eslint \"./**/*.{ts,tsx,js,jsx}\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --coverage"
   },
   "eslintConfig": {},
   "browserslist": {
