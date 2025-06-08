@@ -17,4 +17,3 @@ vercel.json
 pnpm-lock.yaml
 package-lock.json
 index.html
-src/**
