@@ -1,0 +1,363 @@
+/* Custom styles for Markdown Preview component */
+
+/* Main container styles */
+.markdown-container {
+  display: flex;
+  height: calc(100vh - 230px);
+  min-height: 500px;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(209, 213, 219, 1);
+}
+
+.dark .markdown-container {
+  border-color: rgba(75, 85, 99, 1);
+}
+
+/* Fullscreen mode */
+.fullscreen-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
+  z-index: 50;
+  border-radius: 0;
+  background-color: white;
+}
+
+.dark .fullscreen-mode {
+  background-color: #1f2937;
+}
+
+/* Editor and preview pane styles */
+.editor-pane, .preview-pane {
+  flex: 1;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  transition: width 0.2s ease;
+}
+
+.editor-pane {
+  border-right: 1px solid rgba(209, 213, 219, 1);
+}
+
+.dark .editor-pane {
+  border-color: rgba(75, 85, 99, 1);
+}
+
+/* Enhanced code editor syntax highlighting */
+.editor-pane .w-tc-editor {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.editor-pane .w-tc-editor-text {
+  padding: 15px !important;
+}
+
+/* Syntax highlighting colors for editor */
+.editor-pane .token.comment,
+.editor-pane .token.prolog,
+.editor-pane .token.doctype,
+.editor-pane .token.cdata {
+  color: #8292a2;
+}
+
+.editor-pane .token.punctuation {
+  color: #f8f8f2;
+}
+
+.editor-pane .token.namespace {
+  opacity: .7;
+}
+
+.editor-pane .token.property,
+.editor-pane .token.tag,
+.editor-pane .token.constant,
+.editor-pane .token.symbol,
+.editor-pane .token.deleted {
+  color: #ff79c6;
+}
+
+.editor-pane .token.boolean,
+.editor-pane .token.number {
+  color: #bd93f9;
+}
+
+.editor-pane .token.selector,
+.editor-pane .token.attr-name,
+.editor-pane .token.string,
+.editor-pane .token.char,
+.editor-pane .token.builtin,
+.editor-pane .token.inserted {
+  color: #50fa7b;
+}
+
+.editor-pane .token.operator,
+.editor-pane .token.entity,
+.editor-pane .token.url,
+.editor-pane .language-css .token.string,
+.editor-pane .style .token.string {
+  color: #f8f8f2;
+}
+
+.editor-pane .token.atrule,
+.editor-pane .token.attr-value,
+.editor-pane .token.keyword {
+  color: #8be9fd;
+}
+
+.editor-pane .token.function,
+.editor-pane .token.class-name {
+  color: #ffb86c;
+}
+
+.editor-pane .token.regex,
+.editor-pane .token.important,
+.editor-pane .token.variable {
+  color: #f1fa8c;
+}
+
+.editor-pane .token.important,
+.editor-pane .token.bold {
+  font-weight: bold;
+}
+
+.editor-pane .token.italic {
+  font-style: italic;
+}
+
+/* Line numbers */
+.editor-pane .line-numbers .line-numbers-rows {
+  border-right: 1px solid #6272a4;
+}
+
+/* Divider styles */
+.divider {
+  width: 5px;
+  background-color: rgba(229, 231, 235, 1);
+  cursor: col-resize;
+  transition: background-color 0.15s;
+  z-index: 10;
+  position: relative;
+}
+
+.dark .divider {
+  background-color: rgba(55, 65, 81, 1);
+}
+
+.divider:hover, .divider.active {
+  background-color: rgba(99, 102, 241, 0.7);
+}
+
+/* Editor container styles - enhanced for code highlighting */
+.editor-container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+/* w-tc-editor is the class used by @uiw/react-textarea-code-editor */
+.w-tc-editor {
+  height: 100% !important;
+  min-height: 100% !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
+  background-color: #282a36 !important; /* Dracula theme background */
+}
+
+/* Light mode override */
+body:not(.dark) .w-tc-editor {
+  background-color: #f8f8f2 !important; /* Light theme background */
+}
+
+.w-tc-editor-text {
+  min-height: 100%;
+}
+
+/* GitHub Markdown styles for preview */
+.preview-pane {
+  padding: 1rem 1.5rem;
+  background-color: white;
+}
+
+.dark .preview-pane {
+  background-color: rgba(31, 41, 55, 1);
+  color: rgba(243, 244, 246, 1);
+}
+
+/* Apply GitHub Markdown styles to the preview pane */
+.markdown-body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: break-word;
+}
+
+.dark .markdown-body {
+  color-scheme: dark;
+  --color-prettylights-syntax-comment: #8b949e;
+  --color-prettylights-syntax-constant: #79c0ff;
+  --color-prettylights-syntax-entity: #d2a8ff;
+  --color-prettylights-syntax-storage-modifier-import: #c9d1d9;
+  --color-prettylights-syntax-entity-tag: #7ee787;
+  --color-prettylights-syntax-keyword: #ff7b72;
+  --color-prettylights-syntax-string: #a5d6ff;
+  --color-prettylights-syntax-variable: #ffa657;
+  --color-prettylights-syntax-markup-heading: #1f6feb;
+  --color-prettylights-syntax-markup-deleted: #ffdcd7;
+  --color-prettylights-syntax-markup-inserted: #aff5b4;
+  --color-prettylights-syntax-markup-changed: #ffdfb6;
+  --color-prettylights-syntax-markup-ignored: #c9d1d9;
+  --color-prettylights-syntax-meta-diff-range: #d2a8ff;
+  --color-prettylights-syntax-brackethighlighter-angle: #8b949e;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #484f58;
+  --color-prettylights-syntax-constant-other-reference-link: #a5d6ff;
+  --color-fg-default: #c9d1d9;
+  --color-fg-muted: #8b949e;
+  --color-fg-subtle: #6e7681;
+  --color-canvas-default: #0d1117;
+  --color-canvas-subtle: #161b22;
+  --color-border-default: #30363d;
+  --color-border-muted: #21262d;
+  --color-neutral-muted: rgba(110, 118, 129, 0.4);
+  --color-accent-fg: #58a6ff;
+  --color-accent-emphasis: #1f6feb;
+  --color-attention-subtle: rgba(187, 128, 9, 0.15);
+  --color-danger-fg: #f85149;
+}
+
+/* Specific styles for markdown elements */
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.dark .markdown-body h1 {
+  border-bottom-color: #30363d;
+}
+
+.markdown-body h2 {
+  font-size: 1.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.dark .markdown-body h2 {
+  border-bottom-color: #30363d;
+}
+
+.markdown-body pre {
+  margin: 1em 0;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .markdown-container {
+    flex-direction: column;
+    height: auto;
+    min-height: 700px;
+  }
+  
+  .editor-pane, .preview-pane {
+    width: 100% !important;
+    height: 350px !important;
+  }
+  
+  .divider {
+    width: 100%;
+    height: 5px;
+    cursor: row-resize;
+  }
+
+  .fullscreen-mode .editor-pane, 
+  .fullscreen-mode .preview-pane {
+    height: 50vh !important;
+  }
+}
+
+/* Code block syntax highlighting */
+.preview-pane pre {
+  background-color: rgba(243, 244, 246, 1);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.dark .preview-pane pre {
+  background-color: rgba(17, 24, 39, 1);
+}
+
+.preview-pane code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.875rem;
+}
+
+/* Loading state */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.dark .loading-overlay {
+  background-color: rgba(17, 24, 39, 0.7);
+}
+
+/* Sync scroll indicator */
+.sync-scroll-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sync-scroll-indicator input[type="checkbox"] {
+  accent-color: rgba(99, 102, 241, 1);
+}
+
+/* Print styles for PDF generation */
+@media print {
+  .markdown-toolbar,
+  .divider,
+  .editor-pane {
+    display: none !important;
+  }
+  
+  .preview-pane {
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 2cm !important;
+  }
+  
+  .markdown-body {
+    font-size: 12pt;
+  }
+}

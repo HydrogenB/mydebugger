@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "public": true,
+  "framework": "vite",
+  "installCommand": "npm install --production=false",
+  "buildCommand": "npm run build:vercel",
+  "devCommand": "npm run dev",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/(.+\\.(?:js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {},
+  "headers": [
+    {
+      "source": "/(assets|_next|static)/(.*)\\.(js)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.(js)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

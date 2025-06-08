@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Platform for debugging, encoding, decoding & demonstrating your technical work" />
+    <title>Developer Tool Hub | MyDebugger</title>
+    <!-- Preconnect to domains for performance -->    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      :root {
+        --color-primary-rgb: 79, 70, 229;
+        --color-primary-50: rgb(238, 242, 255);
+        --color-primary-100: rgb(224, 231, 255);
+        --color-primary-200: rgb(199, 210, 254);
+        --color-primary-300: rgb(165, 180, 252);
+        --color-primary-400: rgb(129, 140, 248);
+        --color-primary-500: rgb(99, 102, 241);
+        --color-primary-600: rgb(79, 70, 229);
+        --color-primary-700: rgb(67, 56, 202);
+        --color-primary-800: rgb(55, 48, 163);
+        --color-primary-900: rgb(49, 46, 129);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Set up CSS variables for animation and transition effects
+      document.addEventListener('DOMContentLoaded', function() {
+        const root = document.documentElement;
+        const isDark = root.classList.contains('dark');
+        
+        // Apply staggered animations to tools
+        setTimeout(() => {
+          const toolCards = document.querySelectorAll('.tool-card');
+          toolCards.forEach((card, index) => {
+            setTimeout(() => {
+              card.classList.add('animate');
+            }, index * 50);
+          });
+        }, 500);
+      });
+    </script>
+  </body>
+</html>
