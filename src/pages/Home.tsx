@@ -1,4 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { 
@@ -30,9 +33,9 @@ const Home: React.FC = () => {
   const [isFeaturedExpanded, setIsFeaturedExpanded] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  const allTools = getTools();
-  const categories = getAllCategories();
-  const popularTools = getPopularTools();
+  const allTools = useMemo(() => getTools(), []);
+  const categories = useMemo(() => getAllCategories(), []);
+  const popularTools = useMemo(() => getPopularTools(), []);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toolsContainerRef = useRef<HTMLDivElement>(null);
   
