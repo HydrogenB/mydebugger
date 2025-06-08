@@ -35,3 +35,6 @@ export { Modal } from './components/overlays';
 export { TabGroup, Tab, TabPanel } from './components/navigation';
 export { Text } from './components/typography';
 export { Grid } from './components/layout';
+export { ResponsiveContainer } from './components/layout';
+export { Tag } from './components/display';
+export { Tooltip } from './components/overlays';

@@ -60,13 +60,11 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.0.2",
     "vite": "^4.5.2"
-  },
-  "scripts": {
+  },  "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:vercel": "node vercel-build.js",
     "preview": "vite preview",
-    "postinstall": "chmod +x ./node_modules/.bin/tsc ./node_modules/.bin/vite ./node_modules/.bin/*",
     "lint": "eslint \"./**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest --coverage"
