@@ -209,7 +209,7 @@ const Home: React.FC = () => {
             </div>
             
             {/* Quick Stats */}
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
                 <div className="text-2xl font-bold text-primary-500">{allTools.length}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Total Tools</div>
@@ -402,7 +402,7 @@ const Home: React.FC = () => {
                 View All
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {recentTools.map(tool => (
                 <Link
                   key={`recent-${tool.id}`}
@@ -448,7 +448,7 @@ const Home: React.FC = () => {
           {isLoading ? (
             // Skeleton loading state
             <div className={viewMode === 'grid' ? 
-              "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" : 
+              "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" :
               "space-y-3"
             }>
               {Array.from({ length: 6 }).map((_, i) => (
@@ -474,7 +474,7 @@ const Home: React.FC = () => {
             </div>
           ) : visibleTools.length > 0 ? (
             viewMode === 'grid' ? (
-              <Grid columns={{ base: 1, sm: 2, md: 3 }} gap="md">
+              <Grid columns={{ base: 1, sm: 2, md: 3 }} gap="lg">
                 {visibleTools.map(tool => (
                   <Link
                     key={tool.id}
@@ -596,7 +596,7 @@ const Home: React.FC = () => {
           {/* Categories Navigation */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-5">Browse by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {categories.map(category => (
               <div 
                 key={`cat-${category}`}
@@ -632,7 +632,7 @@ const Home: React.FC = () => {
                 Suggest new features, report bugs, or contribute directly to our GitHub repository.
               </p>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-6">
                 <a
                   href="https://github.com/HydrogenB/mydebugger" 
                   target="_blank"
