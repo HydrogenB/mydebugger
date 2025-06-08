@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Base64ImageDebugger from '../tools/base64-image/Base64ImageDebugger';
+import Base64ImageDebuggerPage from '../tools/base64-image/page';
 
 const Base64ImagePage: React.FC = () => {
   return (
@@ -18,7 +18,7 @@ const Base64ImagePage: React.FC = () => {
       </p>
       
       <div className="mb-8">
-        <Base64ImageDebugger />
+        <Base64ImageDebuggerPage />
       </div>
     </div>
   );
