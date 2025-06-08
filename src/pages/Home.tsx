@@ -36,12 +36,11 @@ const Home: React.FC = () => {
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toolsContainerRef = useRef<HTMLDivElement>(null);
   
-  // Simulate loading and retrieve recent tools from localStorage
+  // Simulate loading (reduced from 800ms to 300ms for better UX)
   useEffect(() => {
-    // Simulate loading state
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 800);
+    }, 300);
     
     // Get recently used tools from localStorage
     try {
@@ -68,43 +67,7 @@ const Home: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Add intersection observer for card animations
-  useEffect(() => {
-    // Clean up previous observer
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
-    // Create new observer
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Add animation class when card is visible
-            entry.target.classList.add('animate');
-            observerRef.current?.unobserve(entry.target);
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.1,
-      }
-    );
-
-    // Add observer to all tool cards
-    setTimeout(() => {
-      const cards = document.querySelectorAll('.tool-card');
-      cards.forEach((card) => {
-        observerRef.current?.observe(card);
-      });
-    }, 100);
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [visibleTools]);
+  // Removed intersection observer animation code for better UX
   
   // Update visible tools when search term or active tab changes
   useEffect(() => {
@@ -188,16 +151,16 @@ const Home: React.FC = () => {
           <div className="relative z-10 py-8 px-4 sm:px-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
             <div className="md:flex md:items-center md:justify-between">
               <div className="md:flex-1">
-                <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 hero-text-animation">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
                   <span className="gradient-text">Developer Tools</span> Dashboard
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mb-8 hero-text-animation" style={{ animationDelay: '0.2s' }}>
+                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mb-8">
                   Access all the tools you need for web development, debugging, security testing, and more.
                   <br className="hidden md:block" />
                   <span className="font-medium">Optimized for productivity and enhanced with AI capabilities.</span>
                 </p>
                 
-                <div className="flex flex-wrap gap-3 mb-8 hero-text-animation" style={{ animationDelay: '0.4s' }}>
+                <div className="flex flex-wrap gap-3 mb-8">
                   <Badge color="primary" size="lg" className="category-badge">100+ Tools</Badge>
                   <Badge color="success" size="lg" className="category-badge">Modern UI</Badge>
                   <Badge color="warning" size="lg" className="category-badge">Dark Mode</Badge>
@@ -206,19 +169,19 @@ const Home: React.FC = () => {
                 </div>
               </div>
               
-              <div className="mt-6 md:mt-0 md:ml-8 flex-shrink-0 hero-text-animation" style={{ animationDelay: '0.6s' }}>
+              <div className="mt-6 md:mt-0 md:ml-8 flex-shrink-0">
                 <div className="p-1 bg-white dark:bg-gray-700 rounded-full shadow-lg">
                   <img 
                     src="/favicon.svg" 
                     alt="MyDebugger Logo" 
-                    className="w-32 h-32 md:w-40 md:h-40 object-cover animate-pulse"
+                    className="w-32 h-32 md:w-40 md:h-40 object-cover"
                   />
                 </div>
               </div>
             </div>
             
             {/* Search Bar */}
-            <div className="relative max-w-2xl mx-auto md:mx-0 mt-8 search-bar-animation">
+            <div className="relative max-w-2xl mx-auto md:mx-0 mt-8">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -246,7 +209,7 @@ const Home: React.FC = () => {
             </div>
             
             {/* Quick Stats */}
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 search-bar-animation" style={{ animationDelay: '0.8s' }}>
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
                 <div className="text-2xl font-bold text-primary-500">{allTools.length}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Total Tools</div>
@@ -370,7 +333,7 @@ const Home: React.FC = () => {
           </div>
           
           {/* Desktop tabs */}
-          <div className="hidden md:block tab-animation">
+          <div className="hidden md:block">
             <TabGroup
               activeTab={activeTab}
               onChange={setActiveTab}
