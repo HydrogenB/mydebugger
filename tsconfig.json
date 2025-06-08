@@ -38,6 +38,6 @@
       "@api/*": ["./api/*"]
     }
   },
-  "include": ["src", "src/types"],
+  "include": ["src", "src/types", "view", "viewmodel", "model"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

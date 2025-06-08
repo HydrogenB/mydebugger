@@ -13,6 +13,9 @@
       "@shared/*": ["src/shared/*"],
       "@features/*": ["src/features/*"],
       "@api/*": ["api/*"]
+      ,"@view/*": ["view/*"],
+      "@viewmodel/*": ["viewmodel/*"],
+      "@model/*": ["model/*"]
     }
   }
 }
