@@ -59,7 +59,6 @@ const dnsLookup = placeholderManifest('dns-lookup', 'DNS Lookup');
 const headerAnalyzer = placeholderManifest('headers-analyzer', 'Headers Analyzer');
 const clickjacking = placeholderManifest('clickjacking-validator', 'Clickjacking Validator');
 const linkTracer = placeholderManifest('link-tracer', 'Link Tracer');
-const markdownPreview = placeholderManifest('markdown-preview', 'Markdown Preview');
 const componentsDemo = placeholderManifest('components-demo', 'Components Demo');
 
 export const features: Tool[] = [
@@ -69,7 +68,6 @@ export const features: Tool[] = [
   headerAnalyzer,
   clickjacking,
   linkTracer,
-  markdownPreview,
   componentsDemo,
   {
     id: 'jwt',
