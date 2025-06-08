@@ -21,7 +21,6 @@ The project follows the MVVM (Model-View-ViewModel) architecture pattern:
 - **Frontend**: React with Next.js
 - **UI Framework**: Material UI v7
 - **TypeScript**: For type safety
-- **Testing**: Jest and React Testing Library
 - **Deployment**: Vercel
 - **State Management**: React hooks and context
 
@@ -57,20 +56,10 @@ The project follows the MVVM (Model-View-ViewModel) architecture pattern:
 - `npm run dev`: Start the development server
 - `npm run build`: Build the production version
 - `npm start`: Start the production server
-- `npm run lint`: Run the linter
 
 ## Deployment
 
 The application is designed to be deployed on Vercel. Each deployment is stateless and represents a clean slate.
-
-## Tool Categories
-
-1. **Encoding** - Transform data between different encoding formats
-2. **Security** - Tools for security testing, token validation, and encryption
-3. **Testing** - Validate and test various network configurations and responses
-4. **Utilities** - General purpose developer utilities
-5. **Conversion** - Convert between different data formats
-6. **Formatters** - Format and prettify code and data
 
 ## License
 
