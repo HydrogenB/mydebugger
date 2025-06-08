@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 
 export type GridColumns = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 'none';
-export type GridGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+export type GridGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 export type GridResponsiveColumns = {
   base?: GridColumns;
   sm?: GridColumns;
@@ -45,7 +45,7 @@ export interface GridProps {
 export const Grid: React.FC<GridProps> = ({
   children,
   columns = { base: 1, md: 3 },
-  gap = 'md',
+  gap = 'lg',
   rowGap,
   justify = 'start',
   align = 'stretch',
@@ -72,6 +72,7 @@ export const Grid: React.FC<GridProps> = ({
     md: '4',
     lg: '6',
     xl: '8',
+    '2xl': '12',
   };
 
   const getGapClass = (gap?: GridGap) => {
