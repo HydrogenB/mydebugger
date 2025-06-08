@@ -271,24 +271,6 @@ const toolRegistry: Tool[] = [
     }
   },
   {
-    id: 'markdown-preview',
-    route: '/markdown-preview',
-    title: 'Markdown Live Preview',
-    description: 'Edit Markdown with real-time preview and GitHub styling support.',
-    icon: FormattersIcon,
-    component: lazy(() => import('./markdown-preview/MarkdownPreview')),
-    category: 'Formatters',
-    isNew: true,
-    metadata: {
-      keywords: ['markdown', 'preview', 'editor', 'live', 'real-time', 'github', 'formatting', 'documentation', 'readme'],
-      learnMoreUrl: 'https://daringfireball.net/projects/markdown/',
-      relatedTools: ['regex-tester', 'url-encoder'],
-    },
-    uiOptions: {
-      showExamples: false
-    }
-  },
-  {
     id: 'base64-image',
     route: '/base64-image',
     title: 'Base64 Image Debugger',
