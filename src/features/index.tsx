@@ -123,13 +123,6 @@ export const featureRegistry: Feature[] = [
     icon: LockClosedIcon,
     description: 'Analyze, validate, and create JWT tokens'
   },
-  {
-    id: 'sequence-diagram',
-    name: 'Sequence Diagrams',
-    route: '/sequence-diagram',
-    icon: DocumentTextIcon,
-    description: 'Create and edit sequence diagrams'
-  }
   // Add more features as needed
 ];
 
