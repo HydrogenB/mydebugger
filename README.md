@@ -28,8 +28,8 @@ The project follows the MVVM (Model-View-ViewModel) architecture pattern:
 
 ### Prerequisites
 
-- Node.js (v18 or higher)
-- npm (v9 or higher)
+- Node.js (v18)
+- [pnpm](https://pnpm.io/) (v8 or higher)
 
 ### Installation
 
@@ -39,23 +39,26 @@ The project follows the MVVM (Model-View-ViewModel) architecture pattern:
    cd mydebugger
    ```
 
-2. Install dependencies:
+2. Install dependencies using pnpm:
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. Run the development server:
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Project Scripts
 
-- `npm run dev`: Start the development server
-- `npm run build`: Build the production version
-- `npm start`: Start the production server
+- `pnpm dev` – start the development server
+- `pnpm build` – create a production build
+- `pnpm preview` – preview the production build locally
+- `pnpm lint` – run ESLint
+- `pnpm typecheck` – run TypeScript in strict mode
+- `pnpm test` – run the unit tests with coverage
 
 ## Deployment
 
