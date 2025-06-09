@@ -288,6 +288,23 @@ const toolRegistry: Tool[] = [
       showExamples: true
     }
   },
+  {
+    id: 'aes-cbc',
+    route: '/aes-cbc',
+    title: 'AES-256 CBC',
+    description: 'Encrypt or decrypt text using AES-256-CBC with a random IV.',
+    icon: SecurityIcon,
+    component: lazy(() => import('./aes-cbc/page')),
+    category: 'Security',
+    isNew: true,
+    metadata: {
+      keywords: ['aes', 'encryption', 'decryption', 'crypto', 'cbc', 'security'],
+      relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
 ];
 
 export default toolRegistry;
