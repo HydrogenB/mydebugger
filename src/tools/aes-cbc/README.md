@@ -1,3 +1,3 @@
-# AES-256 CBC Tool
+# Crypto Lab
 
-This tool allows you to encrypt and decrypt text using AES-256 in CBC mode with a random IV. Provide a key and your text to see the result in real-time.
+This tool lets you experiment with AES (CBC and GCM) as well as RSA-OAEP encryption. Generate keys, toggle algorithms, and see results instantly.

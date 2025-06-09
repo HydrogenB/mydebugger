@@ -1,4 +1,12 @@
-import { aes256CbcEncryptRandomIV, aes256CbcDecryptRandomIV } from '../model/aes';
+import {
+  aes256CbcEncryptRandomIV,
+  aes256CbcDecryptRandomIV,
+  aes256GcmEncryptRandomIV,
+  aes256GcmDecryptRandomIV,
+  generateRsaKeyPair,
+  rsaOaepEncrypt,
+  rsaOaepDecrypt,
+} from '../model/aes';
 // Polyfill TextEncoder/TextDecoder for Jest
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const util = require('util');
@@ -58,4 +66,20 @@ test('base64 helpers use DOM APIs when available', async () => {
   expect(decrypted).toBe(plaintext);
   delete (global as any).atob;
   delete (global as any).btoa;
+});
+
+test('AES-GCM roundtrip', async () => {
+  const key = '0123456789abcdef0123456789abcdef';
+  const text = 'gcm data';
+  const encrypted = await aes256GcmEncryptRandomIV(key, text);
+  const decrypted = await aes256GcmDecryptRandomIV(key, encrypted);
+  expect(decrypted).toBe(text);
+});
+
+test('RSA-OAEP encrypt/decrypt', async () => {
+  const { publicKey, privateKey } = await generateRsaKeyPair();
+  const msg = 'rsa message';
+  const encrypted = await rsaOaepEncrypt(publicKey, msg);
+  const decrypted = await rsaOaepDecrypt(privateKey, encrypted);
+  expect(decrypted).toBe(msg);
 });
