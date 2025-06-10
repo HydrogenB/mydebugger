@@ -41,11 +41,13 @@ const deriveKey = async (
   usages: KeyUsage[],
   algo: 'AES-CBC' | 'AES-GCM' = 'AES-CBC'
 ): Promise<CryptoKey> => {
+
   if (!key) throw new Error('Key must not be empty');
   const enc = new TextEncoder();
   const hash = await sha256(enc.encode(key));
   const keyBytes = hash.slice(0, Math.min(32, key.length));
   return crypto.subtle.importKey('raw', keyBytes, { name: algo }, false, usages);
+
 };
 
 export const aes256CbcEncryptRandomIV = async (

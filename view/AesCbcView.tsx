@@ -12,6 +12,7 @@ interface Props {
   output: string;
   mode: AesMode;
   algorithm: CryptoAlgorithm;
+
   error: string;
   examples: AesExample[];
   exampleIndex: number | null;
@@ -22,6 +23,7 @@ interface Props {
   setExampleIndex: (i: number | null) => void;
   setAlgorithm: (a: CryptoAlgorithm) => void;
   generateKeyPair: () => Promise<void>;
+
   toggleMode: () => void;
   clear: () => void;
 }
@@ -34,6 +36,7 @@ export function AesCbcView({
   output,
   mode,
   algorithm,
+
   error,
   examples,
   exampleIndex,
@@ -44,6 +47,7 @@ export function AesCbcView({
   setExampleIndex,
   setAlgorithm,
   generateKeyPair,
+
   toggleMode,
   clear,
 }: Props) {
@@ -121,6 +125,7 @@ export function AesCbcView({
           </div>
         </>
       )}
+
       <div className="mb-4 flex flex-col gap-2">
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor="input" className="text-gray-700 dark:text-gray-300">
@@ -165,6 +170,7 @@ export function AesCbcView({
         </button>
         <button
           type="button"
+
           className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
           onClick={clear}
         >

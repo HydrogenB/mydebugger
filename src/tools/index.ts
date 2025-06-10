@@ -293,12 +293,14 @@ const toolRegistry: Tool[] = [
     route: '/crypto-lab',
     title: 'Crypto Lab',
     description: 'Play with AES and RSA encryption, generate keys, and test algorithms.',
+
     icon: SecurityIcon,
     component: lazy(() => import('./aes-cbc/page')),
     category: 'Security',
     isNew: true,
     metadata: {
       keywords: ['aes', 'gcm', 'rsa', 'encryption', 'decryption', 'crypto', 'cbc', 'security'],
+
       relatedTools: [],
     },
     uiOptions: {

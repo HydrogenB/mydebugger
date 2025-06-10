@@ -16,6 +16,7 @@ const AesCbcPage: React.FC = () => {
       output={vm.output}
       mode={vm.mode}
       algorithm={vm.algorithm}
+
       error={vm.error}
       examples={vm.examples}
       exampleIndex={vm.exampleIndex}
@@ -26,6 +27,7 @@ const AesCbcPage: React.FC = () => {
       setExampleIndex={vm.setExampleIndex}
       setAlgorithm={vm.setAlgorithm}
       generateKeyPair={vm.generateKeyPair}
+
       toggleMode={vm.toggleMode}
       clear={vm.clear}
     />

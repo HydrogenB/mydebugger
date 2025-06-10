@@ -46,6 +46,7 @@ export const useAesCbc = () => {
   const [publicKey, setPublicKey] = useState('');
   const [privateKey, setPrivateKey] = useState('');
 
+
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
@@ -76,6 +77,7 @@ export const useAesCbc = () => {
             result = await rsaOaepDecrypt(privateKey, input);
           }
         }
+
         if (!cancelled) setOutput(result);
       } catch (e) {
         if (!cancelled) setError((e as Error).message);
@@ -89,6 +91,7 @@ export const useAesCbc = () => {
 
   useEffect(() => {
     if (exampleIndex === null || algorithm !== 'aes-cbc') return;
+
     const ex = examples[exampleIndex];
     setKey(ex.key);
     setError('');
@@ -98,6 +101,7 @@ export const useAesCbc = () => {
       aes256CbcEncryptRandomIV(ex.key, ex.plaintext).then(setInput);
     }
   }, [exampleIndex, mode, algorithm]);
+
 
   const toggleMode = () => {
     setMode(prev => (prev === 'encrypt' ? 'decrypt' : 'encrypt'));
@@ -117,6 +121,7 @@ export const useAesCbc = () => {
     }
   };
 
+
   const clear = () => {
     setInput('');
     setOutput('');
@@ -124,6 +129,7 @@ export const useAesCbc = () => {
     setExampleIndex(null);
     setPublicKey('');
     setPrivateKey('');
+
   };
 
   return {
@@ -135,6 +141,7 @@ export const useAesCbc = () => {
     error,
     publicKey,
     privateKey,
+
     setKey,
     setInput,
     examples,
@@ -145,6 +152,7 @@ export const useAesCbc = () => {
     setPublicKey,
     setPrivateKey,
     generateKeyPair,
+
     clear,
   };
 };

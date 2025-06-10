@@ -7,6 +7,7 @@ import {
   rsaOaepEncrypt,
   rsaOaepDecrypt,
 } from '../model/aes';
+
 // Polyfill TextEncoder/TextDecoder for Jest
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const util = require('util');
@@ -83,3 +84,4 @@ test('RSA-OAEP encrypt/decrypt', async () => {
   const decrypted = await rsaOaepDecrypt(privateKey, encrypted);
   expect(decrypted).toBe(msg);
 });
+
