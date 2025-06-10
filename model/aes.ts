@@ -45,7 +45,7 @@ const deriveKey = async (
   if (!key) throw new Error('Key must not be empty');
   const enc = new TextEncoder();
   const hash = await sha256(enc.encode(key));
-  const keyBytes = hash.slice(0, Math.min(32, key.length));
+  const keyBytes = hash.slice(0, 32);
   return crypto.subtle.importKey('raw', keyBytes, { name: algo }, false, usages);
 
 };
