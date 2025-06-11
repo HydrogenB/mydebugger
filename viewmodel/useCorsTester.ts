@@ -56,17 +56,16 @@ export const useCorsTester = () => {
     }
   };
 
-  const curlCommand = generateCurlCommand(
-    url,
-    method,
-    (() => {
+  const curlCommand = useMemo(() => {
+    const headers = (() => {
       try {
         return JSON.parse(headerJson || '{}');
       } catch {
         return {};
       }
-    })()
-  );
+    })();
+    return generateCurlCommand(url, method, headers);
+  }, [url, method, headerJson]);
 
   return {
     url,
