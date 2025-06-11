@@ -17,6 +17,7 @@ export const useHeaderScanner = () => {
       return;
     }
     setLoading(true);
+    setCopied(false);
     setError('');
     try {
       const res = await analyzeHeaders(url);
