@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return;
   }
   
-  const { url } = req.query;
+  const { url, ua, ref } = req.query;
   
   if (!url) {
     return res.status(400).json({ error: 'URL parameter is required' });
@@ -44,7 +44,8 @@ export default async function handler(req, res) {
         response = await fetch(targetUrl.toString(), {
           method,
           headers: {
-            'User-Agent': 'MyDebugger-ClickjackingValidator/1.0',
+            'User-Agent': ua || 'MyDebugger-ClickjackingValidator/1.0',
+            ...(ref ? { Referer: ref } : {}),
           },
           redirect: 'manual',
           signal: controller.signal,
