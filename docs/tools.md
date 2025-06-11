@@ -41,6 +41,14 @@ import CookieInspectorPage from '../src/tools/cookie-inspector';
 Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
 Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
 
+## Cache Inspector
+
+```tsx
+import CacheInspectorPage from '../src/tools/cache-inspector';
+```
+
+Use the Cache Inspector to analyze caching behaviour for resources loaded in your session. It now shows cache freshness badges (`FRESH`, `STALE`, `EXPIRED`, `NO-CACHE`), lists matching Service Worker cache names, and annotates whether a resource came from the network or memory. Results can be exported to a timestamped JSON file grouped by domain.
+
 ## Cookie Scope
 
 ```tsx

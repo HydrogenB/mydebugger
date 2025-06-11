@@ -62,7 +62,8 @@ import {
   ClickJackingIcon,
   LinkTracerIcon,
   Base64ImageIcon,
-  CookieIcon
+  CookieIcon,
+  CacheIcon
 } from '../design-system/icons/tool-icons';
 
 // Category definitions with icons for consistent UI
@@ -315,6 +316,22 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: false
+    }
+  },
+  {
+    id: 'cache-inspector',
+    route: '/cache-inspector',
+    title: 'Cache Inspector',
+    description: 'Inspect browser caching for loaded resources.',
+    icon: CacheIcon,
+    component: lazy(() => import('./cache-inspector/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cache', 'http', 'service worker', 'resource timing'],
+      relatedTools: ['headers-analyzer'], // Assuming standard related tools
+    },
+    uiOptions: {
+      showExamples: false // Assuming standard UI options
     }
   },
   {
