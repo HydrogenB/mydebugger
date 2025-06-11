@@ -333,6 +333,20 @@ const toolRegistry: Tool[] = [
       showExamples: false
     }
   },
+  {
+    id: 'header-scanner',
+    route: '/header-scanner',
+    title: 'Header Scanner',
+    description: 'Scan security headers and get fix tips.',
+    icon: HeadersIcon,
+    component: lazy(() => import('./header-scanner/page')),
+    category: 'Security',
+    metadata: {
+      keywords: ['security headers', 'csp', 'hsts', 'referrer-policy'],
+      relatedTools: ['headers-analyzer', 'pentest-suite'],
+    },
+    uiOptions: { showExamples: false }
+  },
 ];
 
 export default toolRegistry;
