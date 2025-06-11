@@ -70,9 +70,9 @@ export const useCookieInspector = () => {
     setExpanded((prev) => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const copy = (text: string, label: string) => {
+  const copy = async (text: string, label: string) => {
     try {
-      navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(text);
       setToastMessage(`${label} copied!`);
     } catch {
       setToastMessage('Clipboard access denied');
