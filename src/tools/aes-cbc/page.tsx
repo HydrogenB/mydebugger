@@ -27,6 +27,11 @@ const AesCbcPage: React.FC = () => {
       setExampleIndex={vm.setExampleIndex}
       setAlgorithm={vm.setAlgorithm}
       generateKeyPair={vm.generateKeyPair}
+      saveCurrentKey={vm.saveCurrentKey}
+      selectSavedKey={vm.selectSavedKey}
+      discardSavedKey={vm.discardSavedKey}
+      savedKeys={vm.savedKeys}
+      savedKeyPairs={vm.savedKeyPairs}
 
       toggleMode={vm.toggleMode}
       clear={vm.clear}

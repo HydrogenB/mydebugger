@@ -55,6 +55,7 @@ export default [
       'vercel.json',
       'pnpm-lock.yaml',
       'package-lock.json',
+      'coverage/**',
       'index.html',
       'eslint.config.js',
     ],
