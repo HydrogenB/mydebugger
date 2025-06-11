@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { getAllCategories } from '../tools';
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -22,7 +21,6 @@ const getIconHelper = (name: string) => {
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const categories = getAllCategories();
     // Function to handle LinkedIn navigation
   const handleLinkedInNavigation = () => {
     window.open('https://www.linkedin.com/in/jirads/', '_blank', 'noopener noreferrer');
@@ -36,7 +34,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-inner transition-colors duration-200 mt-auto pt-8 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-x-12 mb-8">
           {/* Company info */}
           <div>
             <div className="flex items-center mb-4">
@@ -65,24 +63,6 @@ const Footer: React.FC = () => {
             </div>
           </div>
           
-          {/* Tool Categories */}
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Categories
-            </h2>
-            <ul className="space-y-2">
-              {categories.map(category => (
-                <li key={category}>
-                  <Link
-                    to={`/?category=${encodeURIComponent(category)}`}
-                    className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                  >
-                    {category}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
           
           {/* Quick Links */}
           <div>
