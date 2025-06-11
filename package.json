@@ -70,7 +70,8 @@
     "preview": "vite preview",
     "lint": "eslint \"./**/*.{ts,tsx,js,jsx}\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "check": "pnpm lint && pnpm typecheck && pnpm test --coverage"
   },
   "eslintConfig": {},
   "browserslist": {

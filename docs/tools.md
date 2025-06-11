@@ -40,3 +40,14 @@ import CookieInspectorPage from '../src/tools/cookie-inspector';
 
 Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
 Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
+
+## Clickjacking Validator
+
+```tsx
+import ClickJackingValidator from '../src/tools/clickjacking';
+```
+
+Check whether a page blocks framing by inspecting `X-Frame-Options` and
+`Content-Security-Policy` headers. The tool attempts to render the site in an
+iframe and shows raw HTTP headers. Results can be copied or exported as JSON for
+security reports.
