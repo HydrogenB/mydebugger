@@ -43,16 +43,16 @@ export const useCacheInspector = () => {
   }, []);
 
   const grouped = useMemo(() => {
-    const g: Record<ResourceType, CacheResult[]> = {
+    const groupedMap: Record<ResourceType, CacheResult[]> = {
       script: [],
       style: [],
       image: [],
       fetch: [],
     };
     results.forEach((r) => {
-      g[r.resourceType].push(r);
+      groupedMap[r.resourceType].push(r);
     });
-    return Object.entries(g)
+    return Object.entries(groupedMap)
       .filter(([, arr]) => arr.length > 0)
       .map(([type, items]) => ({ type: type as ResourceType, items }));
   }, [results]);
