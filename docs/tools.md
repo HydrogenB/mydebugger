@@ -59,3 +59,11 @@ import CorsTesterPage from '../src/tools/cors-tester';
 
 Use the CORS Tester to simulate preflight requests and inspect the `Access-Control-*` headers returned by a server. Enter a target URL, HTTP method and custom headers to see how the server responds and whether your origin is permitted.
 Common CORS mistakes are highlighted with inline tips and a list of browsers that would block the request. You can quickly add preset headers from a dropdown and copy a generated `curl` command to reproduce the request locally.
+
+## Deep Link Chain
+
+```tsx
+import DeepLinkChainPage from '../src/tools/deep-link-chain/page';
+```
+
+Follow and visualize the redirect chain for any URL entirely in the browser. The tool lists each hop with status codes and headers, highlights the final destination and extracts any UTM parameters present. Long chains collapse automatically with an option to expand. If fetch is blocked by CORS the tool attempts a browser-only fallback. The final URL displays an Open Graph preview when accessible. Results can be exported or copied as a Markdown table.
