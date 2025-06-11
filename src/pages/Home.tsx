@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { MdPushPin, MdOutlinePushPin } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import { 
@@ -29,6 +30,8 @@ const Home: React.FC = () => {
   const [recentTools, setRecentTools] = useState<Tool[]>([]);
   const [isFeaturedExpanded, setIsFeaturedExpanded] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [pinnedTools, setPinnedTools] = useState<Tool[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
   
   const allTools = useMemo(() => getTools(), []);
   const categories = useMemo(() => getAllCategories(), []);
@@ -55,6 +58,21 @@ const Home: React.FC = () => {
     }
     
     return () => clearTimeout(timer);
+  }, [allTools]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('pinnedTools');
+      if (stored) {
+        const ids = JSON.parse(stored) as string[];
+        const pinned = ids
+          .map(id => allTools.find(t => t.id === id))
+          .filter((t): t is Tool => Boolean(t));
+        setPinnedTools(pinned);
+      }
+    } catch (e) {
+      console.error('Error loading pinned tools:', e);
+    }
   }, [allTools]);
 
   // Handle scroll to show scroll-to-top button
@@ -121,6 +139,36 @@ const Home: React.FC = () => {
       console.error('Error saving recent tool:', e);
     }
   }, []);
+
+  const togglePin = useCallback((tool: Tool) => {
+    setPinnedTools(prev => {
+      const exists = prev.find(t => t.id === tool.id);
+      let updated: Tool[];
+      if (exists) {
+        updated = prev.filter(t => t.id !== tool.id);
+      } else {
+        updated = [...prev, tool];
+      }
+      localStorage.setItem('pinnedTools', JSON.stringify(updated.map(t => t.id)));
+      return updated;
+    });
+  }, []);
+
+  const handleDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleDrop = (index: number) => {
+    if (dragIndex === null || dragIndex === index) return;
+    setPinnedTools(prev => {
+      const updated = [...prev];
+      const [item] = updated.splice(dragIndex, 1);
+      updated.splice(index, 0, item);
+      localStorage.setItem('pinnedTools', JSON.stringify(updated.map(t => t.id)));
+      return updated;
+    });
+    setDragIndex(null);
+  };
   
   const scrollToTop = () => {
     window.scrollTo({
@@ -139,96 +187,66 @@ const Home: React.FC = () => {
         <meta property="og:description" content="Essential developer toolkit for modern web development" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://mydebugger.vercel.app" />
+        <meta property="og:site_name" content="MyDebugger" />
+        <meta property="og:image" content="https://mydebugger.vercel.app/favicon.svg" />
+        <link rel="canonical" href="https://mydebugger.vercel.app/" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="MyDebugger - Web Developer Tools" />
         <meta name="twitter:description" content="Essential developer toolkit for modern web development" />
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
-        {/* Hero Section */}
-        <section className="mb-10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-50 to-transparent dark:from-gray-900 dark:to-gray-800 opacity-50 rounded-xl"></div>
-          
-          <div className="relative z-10 py-8 px-4 sm:px-8 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-            <div className="md:flex md:items-center md:justify-between">
-              <div className="md:flex-1">
-                <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
-                  <span className="gradient-text">Developer Tools</span> Dashboard
-                </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mb-8">
-                  Access all the tools you need for web development, debugging, security testing, and more.
-                  <br className="hidden md:block" />
-                  <span className="font-medium">Optimized for productivity and enhanced with AI capabilities.</span>
-                </p>
-                
-                <div className="flex flex-wrap gap-3 mb-8">
-                  <Badge color="primary" size="lg" className="category-badge">100+ Tools</Badge>
-                  <Badge color="success" size="lg" className="category-badge">Modern UI</Badge>
-                  <Badge color="warning" size="lg" className="category-badge">Dark Mode</Badge>
-                  <Badge color="info" size="lg" className="category-badge">Responsive</Badge>
-                  <Badge color="secondary" size="lg" className="category-badge">Open Source</Badge>
-                </div>
-              </div>
-              
-              <div className="mt-6 md:mt-0 md:ml-8 flex-shrink-0">
-                <div className="p-1 bg-white dark:bg-gray-700 rounded-full shadow-lg">
-                  <img 
-                    src="/favicon.svg" 
-                    alt="MyDebugger Logo" 
-                    className="w-32 h-32 md:w-40 md:h-40 object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* Search Bar */}
-            <div className="relative max-w-2xl mx-auto md:mx-0 mt-8">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search tools, keywords, functionality..."
-                className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-full leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition shadow-sm hover:shadow-md"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                aria-label="Search tools"
-              />
-              {searchTerm && (
-                <button 
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setSearchTerm('')}
-                  aria-label="Clear search"
-                >
-                  <svg className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-            
-            {/* Quick Stats */}
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
-                <div className="text-2xl font-bold text-primary-500">{allTools.length}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">Total Tools</div>
-              </div>
-              <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
-                <div className="text-2xl font-bold text-primary-500">{categories.length}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">Categories</div>
-              </div>
-              <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
-                <div className="text-2xl font-bold text-primary-500">{popularTools.length}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">Popular Tools</div>
-              </div>
-              <div className="stats-card bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 text-center">
-                <div className="text-2xl font-bold text-primary-500">{getNewTools().length}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">New Tools</div>
-              </div>
-            </div>
+        <div className="relative max-w-2xl mx-auto mb-8">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-        </section>
+          <input
+            type="text"
+            placeholder="Search tools, keywords, functionality..."
+            className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-full leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition shadow-sm hover:shadow-md"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Search tools"
+          />
+          {searchTerm && (
+            <button
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              onClick={() => setSearchTerm('')}
+              aria-label="Clear search"
+            >
+              <svg className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {pinnedTools.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Pinned Tools</h2>
+            <div className="flex flex-wrap gap-3">
+              {pinnedTools.map((tool, idx) => (
+                <div
+                  key={tool.id}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={() => handleDrop(idx)}
+                  className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 cursor-move"
+                >
+                  <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
+                  <Link to={tool.route} className="mr-2 text-sm text-gray-900 dark:text-white">
+                    {tool.title}
+                  </Link>
+                  <button onClick={() => togglePin(tool)} aria-label="Unpin" className="text-gray-500 hover:text-red-600">
+                    <MdPushPin className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
           {/* Category Tabs and Tools Header */}
         <section className="mb-8">
           <div className="flex flex-wrap items-center justify-between mb-4">
@@ -497,6 +515,19 @@ const Home: React.FC = () => {
                             </svg>
                           </button>
                         </Tooltip>
+                        <Tooltip content={pinnedTools.find(t => t.id === tool.id) ? 'Unpin' : 'Pin'}>
+                          <button
+                            onClick={(e) => { e.preventDefault(); togglePin(tool); }}
+                            className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg"
+                            aria-label="Pin tool"
+                          >
+                            {pinnedTools.find(t => t.id === tool.id) ? (
+                              <MdPushPin className="w-4 h-4 text-primary-600" />
+                            ) : (
+                              <MdOutlinePushPin className="w-4 h-4 text-gray-600" />
+                            )}
+                          </button>
+                        </Tooltip>
                       </div>
                       
                       <div className="flex items-start mb-3">
@@ -509,7 +540,6 @@ const Home: React.FC = () => {
                               {tool.title}
                             </h2>
                             <div className="flex space-x-1">
-                              {tool.isNew && <Tag variant="success" size="sm">NEW</Tag>}
                               {tool.isBeta && <Tag variant="warning" size="sm">BETA</Tag>}
                               {tool.isPopular && <Tag size="sm">POPULAR</Tag>}
                             </div>
@@ -554,9 +584,18 @@ const Home: React.FC = () => {
                             {tool.title}
                           </h3>
                           <div className="flex-shrink-0 flex space-x-1">
-                            {tool.isNew && <Tag variant="success" size="sm">NEW</Tag>}
                             {tool.isBeta && <Tag variant="warning" size="sm">BETA</Tag>}
                             {tool.isPopular && <Tag size="sm">POPULAR</Tag>}
+                            <button
+                              onClick={(e) => { e.preventDefault(); togglePin(tool); }}
+                              aria-label="Pin tool"
+                            >
+                              {pinnedTools.find(t => t.id === tool.id) ? (
+                                <MdPushPin className="w-4 h-4 text-primary-600" />
+                              ) : (
+                                <MdOutlinePushPin className="w-4 h-4 text-gray-600" />
+                              )}
+                            </button>
                           </div>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 truncate">

@@ -105,7 +105,6 @@ const toolRegistry: Tool[] = [
     component: lazy(() => import('./jwt/JwtToolkit')),
     category: 'Security',
     isPopular: true,
-    isNew: true,
     metadata: {
       keywords: ['jwt', 'token', 'generator', 'decoder', 'verification', 'json web token', 'authentication', 'verify', 'jwks', 'security analysis', 'jwt inspector', 'jwt benchmark'],
       learnMoreUrl: 'https://jwt.io/introduction',
@@ -207,7 +206,6 @@ const toolRegistry: Tool[] = [
     icon: ClickJackingIcon,
     component: lazy(() => import('./clickjacking/ClickJackingValidator')),
     category: 'Security',
-    isNew: true,
     metadata: {
       keywords: ['clickjacking', 'security', 'x-frame-options', 'csp', 'iframe', 'vulnerability', 'content-security-policy', 'frame-ancestors'],
       learnMoreUrl: 'https://owasp.org/www-community/attacks/Clickjacking',
@@ -225,7 +223,6 @@ const toolRegistry: Tool[] = [
     icon: LinkTracerIcon,
     component: lazy(() => import('./linktracer/LinkTracer')),
     category: 'Testing',
-    isNew: true,
     metadata: {
       keywords: ['redirect', 'trace', 'url', 'link', 'shortened url', 'redirect chain', 'http status', 'redirect checker'],
       learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections',
@@ -243,7 +240,6 @@ const toolRegistry: Tool[] = [
     icon: LinkTracerIcon, // Reusing the same icon for now
     component: lazy(() => import('./linktracer/DeviceTrace')),
     category: 'Testing',
-    isNew: true,
     metadata: {
       keywords: ['app flyer', 'one link', 'dynamic link', 'deep link', 'device probe', 'app store', 'play store', 'universal link'],
       learnMoreUrl: 'https://support.appsflyer.com/hc/en-us/articles/207032366-OneLink-overview',
@@ -261,7 +257,6 @@ const toolRegistry: Tool[] = [
     icon: UtilitiesIcon,
     component: lazy(() => import('./components-demo/ComponentsDemo')),
     category: 'Utilities',
-    isNew: true,
     metadata: {
       keywords: ['components', 'demo', 'ui', 'showcase'],
       learnMoreUrl: 'https://reactjs.org/docs/components-and-props.html',
@@ -280,7 +275,6 @@ const toolRegistry: Tool[] = [
     icon: Base64ImageIcon,
     component: lazy(() => import('./base64-image/page')),
     category: 'Utilities',
-    isNew: true,
     metadata: {
       keywords: ['base64', 'image', 'encoder', 'decoder', 'preview', 'debug', 'visualize', 'png', 'jpg', 'jpeg', 'gif', 'svg'],
       relatedTools: ['url-encoder'],
@@ -297,7 +291,6 @@ const toolRegistry: Tool[] = [
     icon: CookieIcon,
     component: lazy(() => import('./cookie-inspector/page')),
     category: 'Testing',
-    isNew: true,
     metadata: {
       keywords: ['cookie', 'debug', 'browser', 'httpOnly', 'session'],
       relatedTools: [],
@@ -315,7 +308,6 @@ const toolRegistry: Tool[] = [
     icon: SecurityIcon,
     component: lazy(() => import('./aes-cbc/page')),
     category: 'Security',
-    isNew: true,
     metadata: {
       keywords: ['aes', 'gcm', 'rsa', 'encryption', 'decryption', 'crypto', 'cbc', 'security'],
 

@@ -66,6 +66,8 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`https://mydebugger.vercel.app${tool.route}`} />
+        <meta property="og:site_name" content="MyDebugger" />
+        <meta property="og:image" content="https://mydebugger.vercel.app/favicon.svg" />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
@@ -83,9 +85,6 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mr-2">{finalTitle}</h1>
               {tool.isBeta && (
                 <Tag variant="warning" size="sm" className="ml-1">BETA</Tag>
-              )}
-              {tool.isNew && (
-                <Tag variant="success" size="sm" className="ml-1">NEW</Tag>
               )}
             </div>
           </div>
