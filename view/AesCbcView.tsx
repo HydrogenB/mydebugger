@@ -23,6 +23,11 @@ interface Props {
   setExampleIndex: (i: number | null) => void;
   setAlgorithm: (a: CryptoAlgorithm) => void;
   generateKeyPair: () => Promise<void>;
+  saveCurrentKey: () => void;
+  selectSavedKey: (index: number) => void;
+  discardSavedKey: (index: number) => void;
+  savedKeys: string[];
+  savedKeyPairs: { publicKey: string; privateKey: string }[];
 
   toggleMode: () => void;
   clear: () => void;
@@ -47,6 +52,11 @@ export function AesCbcView({
   setExampleIndex,
   setAlgorithm,
   generateKeyPair,
+  saveCurrentKey,
+  selectSavedKey,
+  discardSavedKey,
+  savedKeys,
+  savedKeyPairs,
 
   toggleMode,
   clear,
@@ -66,9 +76,10 @@ export function AesCbcView({
           <option value="aes-cbc">AES-256-CBC</option>
           <option value="aes-gcm">AES-256-GCM</option>
           <option value="rsa-oaep">RSA-OAEP</option>
+          <option value="gpg-rsa-2048">GPG RSA-2048</option>
         </select>
       </div>
-      {algorithm === 'rsa-oaep' ? (
+      {algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048' ? (
         <>
           <div className="mb-4 flex flex-col gap-2">
             {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
@@ -90,6 +101,29 @@ export function AesCbcView({
               onChange={e => setPrivateKey(e.target.value)}
             />
           </div>
+          {savedKeyPairs.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {/* eslint-disable react/no-array-index-key */}
+              {savedKeyPairs.map((_, idx) => (
+                <span
+                  key={`kp-${idx}`}
+                  className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
+                >
+                  <button type="button" onClick={() => selectSavedKey(idx)} className="focus:outline-none">
+                    Key {idx + 1}
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Remove"
+                    onClick={() => discardSavedKey(idx)}
+                    className="text-red-600"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -123,6 +157,29 @@ export function AesCbcView({
               ))}
             </select>
           </div>
+          {savedKeys.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {/* eslint-disable react/no-array-index-key */}
+              {savedKeys.map((k, idx) => (
+                <span
+                  key={`k-${idx}`}
+                  className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
+                >
+                  <button type="button" onClick={() => selectSavedKey(idx)} className="focus:outline-none">
+                    {k.slice(0, 8)}...
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Remove"
+                    onClick={() => discardSavedKey(idx)}
+                    className="text-red-600"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </>
       )}
 
@@ -166,7 +223,16 @@ export function AesCbcView({
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           onClick={generateKeyPair}
         >
-          {algorithm === 'rsa-oaep' ? 'Generate Keys' : 'Generate Key'}
+          {algorithm === 'aes-cbc' || algorithm === 'aes-gcm'
+            ? 'Generate Key'
+            : 'Generate Keys'}
+        </button>
+        <button
+          type="button"
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+          onClick={saveCurrentKey}
+        >
+          Save Key
         </button>
         <button
           type="button"

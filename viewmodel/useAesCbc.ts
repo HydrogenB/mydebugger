@@ -11,10 +11,13 @@ import {
   generateRsaKeyPair,
   rsaOaepEncrypt,
   rsaOaepDecrypt,
+  generateGpgKeyPair,
+  gpgEncrypt,
+  gpgDecrypt,
 } from '../model/aes';
 
 export type AesMode = 'encrypt' | 'decrypt';
-export type CryptoAlgorithm = 'aes-cbc' | 'aes-gcm' | 'rsa-oaep';
+export type CryptoAlgorithm = 'aes-cbc' | 'aes-gcm' | 'rsa-oaep' | 'gpg-rsa-2048';
 
 export interface AesExample {
   label: string;
@@ -45,6 +48,8 @@ export const useAesCbc = () => {
   const [algorithm, setAlgorithm] = useState<CryptoAlgorithm>('aes-cbc');
   const [publicKey, setPublicKey] = useState('');
   const [privateKey, setPrivateKey] = useState('');
+  const [savedKeys, setSavedKeys] = useState<string[]>([]);
+  const [savedKeyPairs, setSavedKeyPairs] = useState<{ publicKey: string; privateKey: string }[]>([]);
 
 
   useEffect(() => {
@@ -75,6 +80,14 @@ export const useAesCbc = () => {
           } else {
             if (!privateKey) throw new Error('Private key is required');
             result = await rsaOaepDecrypt(privateKey, input);
+          }
+        } else if (algorithm === 'gpg-rsa-2048') {
+          if (mode === 'encrypt') {
+            if (!publicKey) throw new Error('Public key is required');
+            result = await gpgEncrypt(publicKey, input);
+          } else {
+            if (!privateKey) throw new Error('Private key is required');
+            result = await gpgDecrypt(privateKey, input);
           }
         }
 
@@ -116,8 +129,43 @@ export const useAesCbc = () => {
       const { publicKey: pub, privateKey: priv } = await generateRsaKeyPair();
       setPublicKey(pub);
       setPrivateKey(priv);
+    } else if (algorithm === 'gpg-rsa-2048') {
+      const { publicKey: pub, privateKey: priv } = await generateGpgKeyPair();
+      setPublicKey(pub);
+      setPrivateKey(priv);
     } else {
       setKey(generateAesKey(32));
+    }
+  };
+
+  const saveCurrentKey = () => {
+    if (algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048') {
+      if (!publicKey || !privateKey) return;
+      setSavedKeyPairs(prev => [...prev, { publicKey, privateKey }]);
+    } else if (key) {
+      setSavedKeys(prev => [...prev, key]);
+    }
+  };
+
+  const selectSavedKey = (idx: number) => {
+    if (algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048') {
+      const kp = savedKeyPairs[idx];
+      if (!kp) return;
+      setPublicKey(kp.publicKey);
+      setPrivateKey(kp.privateKey);
+    } else {
+      const k = savedKeys[idx];
+      if (!k) return;
+      setKey(k);
+    }
+    setError('');
+  };
+
+  const discardSavedKey = (idx: number) => {
+    if (algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048') {
+      setSavedKeyPairs(prev => prev.filter((_, i) => i !== idx));
+    } else {
+      setSavedKeys(prev => prev.filter((_, i) => i !== idx));
     }
   };
 
@@ -152,6 +200,11 @@ export const useAesCbc = () => {
     setPublicKey,
     setPrivateKey,
     generateKeyPair,
+    saveCurrentKey,
+    selectSavedKey,
+    discardSavedKey,
+    savedKeys,
+    savedKeyPairs,
 
     clear,
   };

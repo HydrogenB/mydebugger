@@ -12,6 +12,9 @@ import {
   generateRsaKeyPair,
   rsaOaepEncrypt,
   rsaOaepDecrypt,
+  generateGpgKeyPair,
+  gpgEncrypt,
+  gpgDecrypt,
 } from '../model/aes';
 
 const aesKey = generateAesKey();
@@ -21,6 +24,10 @@ const decrypted = await aes256CbcDecryptRandomIV(aesKey, encrypted);
 const { publicKey, privateKey } = await generateRsaKeyPair();
 const enc = await rsaOaepEncrypt(publicKey, 'secret');
 const dec = await rsaOaepDecrypt(privateKey, enc);
+
+const gpg = await generateGpgKeyPair();
+const encGpg = await gpgEncrypt(gpg.publicKey, 'secret');
+const decGpg = await gpgDecrypt(gpg.privateKey, encGpg);
 ```
 
-Use the Crypto Lab tool to experiment with AES-CBC, AES-GCM, and RSA-OAEP. You can generate keys and key pairs with a button and switch between encrypt and decrypt modes in real time.
+Use the Crypto Lab tool to experiment with AES-CBC, AES-GCM, RSA-OAEP, and GPG RSA‑2048. Keys can be generated and saved as reusable chips during your session for quick switching between algorithms.

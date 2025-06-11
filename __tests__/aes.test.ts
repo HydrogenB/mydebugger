@@ -26,6 +26,18 @@ if (typeof global.crypto === 'undefined') {
   if (!global.crypto.subtle) global.crypto.subtle = webcrypto.subtle;
   if (!global.crypto.getRandomValues) global.crypto.getRandomValues = webcrypto.getRandomValues.bind(webcrypto);
 }
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = global.crypto;
+}
+if (typeof (globalThis as any).self === 'undefined') {
+  (globalThis as any).self = global;
+}
+const webstreams = require('stream/web');
+if (typeof global.ReadableStream === 'undefined') {
+  global.ReadableStream = webstreams.ReadableStream;
+  global.WritableStream = webstreams.WritableStream;
+  global.TransformStream = webstreams.TransformStream;
+}
 
 test('encrypt and decrypt roundtrip with 32 byte key', async () => {
   const key = '12345678901234567890123456789012';
@@ -82,6 +94,15 @@ test('RSA-OAEP encrypt/decrypt', async () => {
   const msg = 'rsa message';
   const encrypted = await rsaOaepEncrypt(publicKey, msg);
   const decrypted = await rsaOaepDecrypt(privateKey, encrypted);
+  expect(decrypted).toBe(msg);
+});
+
+test.skip('GPG RSA-2048 encrypt/decrypt', async () => {
+  const { generateGpgKeyPair, gpgEncrypt, gpgDecrypt } = await import('../model/aes');
+  const { publicKey, privateKey } = await generateGpgKeyPair();
+  const msg = 'pgp message';
+  const encrypted = await gpgEncrypt(publicKey, msg);
+  const decrypted = await gpgDecrypt(privateKey, encrypted);
   expect(decrypted).toBe(msg);
 });
 

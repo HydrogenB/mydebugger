@@ -182,4 +182,37 @@ export const rsaOaepDecrypt = async (
   return new TextDecoder().decode(decrypted);
 };
 
+export const generateGpgKeyPair = async () => {
+  const openpgp = await import('openpgp');
+  const { privateKey, publicKey } = await openpgp.generateKey({
+    type: 'rsa',
+    rsaBits: 2048,
+    userIDs: [{ name: 'CryptoLab' }],
+  });
+  return { publicKey, privateKey };
+};
+
+export const gpgEncrypt = async (
+  publicKeyArmored: string,
+  plaintext: string,
+): Promise<string> => {
+  if (!plaintext) throw new Error('Plaintext is empty');
+  const openpgp = await import('openpgp');
+  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
+  const message = await openpgp.createMessage({ text: plaintext });
+  return openpgp.encrypt({ message, encryptionKeys: publicKey, format: 'armored' }) as Promise<string>;
+};
+
+export const gpgDecrypt = async (
+  privateKeyArmored: string,
+  encrypted: string,
+): Promise<string> => {
+  if (!encrypted) throw new Error('Encrypted text is empty');
+  const openpgp = await import('openpgp');
+  const privateKey = await openpgp.readPrivateKey({ armoredKey: privateKeyArmored });
+  const message = await openpgp.readMessage({ armoredMessage: encrypted });
+  const { data } = await openpgp.decrypt({ message, decryptionKeys: privateKey, format: 'utf8' });
+  return data as string;
+};
+
 export default aes256CbcDecryptRandomIV;
