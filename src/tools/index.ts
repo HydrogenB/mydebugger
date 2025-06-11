@@ -50,10 +50,11 @@ import {
   SecurityIcon, 
   EncodingIcon, 
   TestingIcon, 
-  UtilitiesIcon, 
+  UtilitiesIcon,
   ConversionIcon,
-  FormattersIcon,  JwtIcon,
-  UrlIcon, 
+  FormattersIcon,
+  JwtIcon,
+  UrlIcon,
   HeadersIcon,
   RegexIcon,
   DnsIcon,
@@ -251,6 +252,23 @@ const toolRegistry: Tool[] = [
     }
   },
   {
+    id: 'deep-link-chain',
+    route: '/deep-link-chain',
+    title: 'Deep Link Chain',
+    description: 'Follow redirects and extract UTM parameters entirely in the browser.',
+    icon: LinkTracerIcon,
+    component: lazy(() => import('./deep-link-chain/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['redirect', 'utm', 'deep link', 'link trace', 'url'],
+      learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections',
+      relatedTools: ['link-tracer', 'url-encoder'],
+    },
+    uiOptions: {
+      showExamples: false,
+    }
+  },
+  {
     id: 'components-demo',
     route: '/components-demo',
     title: 'Components Demo',
@@ -310,6 +328,54 @@ const toolRegistry: Tool[] = [
     category: 'Testing',
     metadata: {
       keywords: ['cache', 'http', 'service worker', 'resource timing'],
+      relatedTools: ['headers-analyzer'], // Assuming standard related tools
+    },
+    uiOptions: {
+      showExamples: false // Assuming standard UI options
+    }
+  },
+  {
+    id: 'storage-sync-debugger',
+    route: '/storage-sync',
+    title: 'Storage Sync Debugger',
+    description: 'Inspect localStorage and sessionStorage with live sync events.',
+    icon: UtilitiesIcon,
+    component: lazy(() => import('./storage-sync/page')),
+    category: 'Utilities',
+    metadata: {
+      keywords: ['localStorage', 'sessionStorage', 'debug', 'storage'],
+      relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: false,
+    },
+  },
+  {
+    id: 'cookie-scope',
+    route: '/cookie-scope',
+    title: 'Cookie Scope',
+    description: 'Visualize document cookies and highlight duplicates.',
+    icon: CookieIcon,
+    component: lazy(() => import('./cookie-scope/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cookie', 'scope', 'document.cookie', 'browser'],
+      relatedTools: ['cookie-inspector'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
+  {
+    id: 'cors-tester',
+    route: '/cors-tester',
+    title: 'CORS Tester',
+    description: 'Debug CORS preflight responses.',
+    icon: HeadersIcon,
+    component: lazy(() => import('./cors-tester/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cors', 'preflight', 'debug', 'headers'],
       relatedTools: ['headers-analyzer'],
     },
     uiOptions: {
@@ -349,6 +415,20 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: false
     }
+  },
+  {
+    id: 'header-scanner',
+    route: '/header-scanner',
+    title: 'Header Scanner',
+    description: 'Scan security headers and get fix tips.',
+    icon: HeadersIcon,
+    component: lazy(() => import('./header-scanner/page')),
+    category: 'Security',
+    metadata: {
+      keywords: ['security headers', 'csp', 'hsts', 'referrer-policy'],
+      relatedTools: ['headers-analyzer', 'pentest-suite'],
+    },
+    uiOptions: { showExamples: false }
   },
 ];
 
