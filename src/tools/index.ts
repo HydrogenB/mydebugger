@@ -300,6 +300,22 @@ const toolRegistry: Tool[] = [
     }
   },
   {
+    id: 'cors-tester',
+    route: '/cors-tester',
+    title: 'CORS Tester',
+    description: 'Debug CORS preflight responses.',
+    icon: HeadersIcon,
+    component: lazy(() => import('./cors-tester/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cors', 'preflight', 'debug', 'headers'],
+      relatedTools: ['headers-analyzer'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
+  {
     id: 'crypto-lab',
     route: '/crypto-lab',
     title: 'Crypto Lab',
