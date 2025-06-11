@@ -41,6 +41,15 @@ import CookieInspectorPage from '../src/tools/cookie-inspector';
 Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
 Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
 
+## Cookie Scope
+
+```tsx
+import CookieScopePage from '../src/tools/cookie-scope';
+```
+
+Cookie Scope visualizes cookies from `document.cookie` directly in the browser. It highlights cookies with the same name across different paths or domains and detects SameSite inconsistencies.
+Use the debounced search bar to filter, toggle visibility of HttpOnly cookies, and copy or export the table as JSON or HAR without any network requests.
+
 ## Pentest Validator Suite
 
 ```tsx
@@ -60,3 +69,26 @@ import StorageSyncPage from '../src/tools/storage-sync';
 Use the Storage Sync Debugger to inspect and modify `localStorage` and `sessionStorage` in real time. Entries update live across tabs thanks to the browser `storage` event. Data can be exported as JSON for further analysis.
 
 Advanced features include a live sync monitor across tabs, inline JSON validation, `.env` export and a diff mode that compares your storage with another tab using the BroadcastChannel API.
+## Header Scanner
+
+```tsx
+import HeaderScannerPage from '../src/tools/header-scanner/page';
+```
+
+The Header Scanner fetches a URL and analyzes common security headers like CSP, X-Frame-Options and HSTS. Results are shown with status chips and quick fix tips. You can copy header values or export the full report as JSON for audits.
+## CORS Tester
+
+```tsx
+import CorsTesterPage from '../src/tools/cors-tester';
+```
+
+Use the CORS Tester to simulate preflight requests and inspect the `Access-Control-*` headers returned by a server. Enter a target URL, HTTP method and custom headers to see how the server responds and whether your origin is permitted.
+Common CORS mistakes are highlighted with inline tips and a list of browsers that would block the request. You can quickly add preset headers from a dropdown and copy a generated `curl` command to reproduce the request locally.
+
+## Deep Link Chain
+
+```tsx
+import DeepLinkChainPage from '../src/tools/deep-link-chain/page';
+```
+
+Follow and visualize the redirect chain for any URL entirely in the browser. The tool lists each hop with status codes and headers, highlights the final destination and extracts any UTM parameters present. Long chains collapse automatically with an option to expand. If fetch is blocked by CORS the tool attempts a browser-only fallback. The final URL displays an Open Graph preview when accessible. Results can be exported or copied as a Markdown table.
