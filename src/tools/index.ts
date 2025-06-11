@@ -317,6 +317,22 @@ const toolRegistry: Tool[] = [
       showExamples: false
     }
   },
+  {
+    id: 'pentest-suite',
+    route: '/pentest-suite',
+    title: 'Pentest Validator Suite',
+    description: 'Run basic security checks like HTTPS enforcement and clickjacking detection.',
+    icon: SecurityIcon,
+    component: lazy(() => import('./pentest/page')),
+    category: 'Security',
+    metadata: {
+      keywords: ['pentest', 'security', 'https', 'cors', 'xss', 'open redirect', 'clickjacking'],
+      relatedTools: ['clickjacking-validator', 'headers-analyzer'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
 ];
 
 export default toolRegistry;
