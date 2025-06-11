@@ -34,7 +34,7 @@ const rules: Record<string, Rule> = {
     fix: 'Set Referrer-Policy to no-referrer, same-origin or strict-origin',
   },
   'strict-transport-security': {
-    check: (v) => /max-age=\d+/.test(v ?? ''),
+    check: (v) => /max-age=\d+.*\bincludeSubDomains\b/i.test(v ?? ''),
     fix: 'Enable HSTS with max-age and includeSubDomains',
   },
 };
