@@ -13,6 +13,7 @@ interface ValidationResult {
     'content-security-policy'?: string;
     'frame-ancestors'?: string;
   };
+  rawHeaders: Record<string, string>;
   canBeFramed: boolean;
   frameLoaded: boolean;
   statusCode?: number;
@@ -30,6 +31,9 @@ const ClickJackingValidator: React.FC = () => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
   const [iframeError, setIframeError] = useState<boolean>(false);
+  const [userAgent, setUserAgent] = useState<string>('');
+  const [referrer, setReferrer] = useState<string>('');
+  const [showHeaders, setShowHeaders] = useState<boolean>(false);
   
   // SEO metadata
   const pageTitle = "Click Jacking Validator | MyDebugger";
@@ -72,12 +76,16 @@ const ClickJackingValidator: React.FC = () => {
 
     try {
       // Use our serverless API endpoint to check for clickjacking protections
-      const apiUrl = `/api/clickjacking-analysis?url=${encodeURIComponent(formattedUrl)}`;
+      const params = new URLSearchParams({ url: formattedUrl });
+      if (userAgent) params.append('ua', userAgent);
+      if (referrer) params.append('ref', referrer);
+      const apiUrl = `/api/clickjacking-analysis?${params.toString()}`;
       
       // Initialize result object
       const result: ValidationResult = {
         url: formattedUrl,
         headers: {},
+        rawHeaders: {},
         canBeFramed: true, // Default to true, will be updated based on API response
         frameLoaded: false,
         timestamp: new Date()
@@ -98,6 +106,7 @@ const ClickJackingValidator: React.FC = () => {
       result.statusText = analysis.statusText;
       
       // Extract security headers from analysis
+      result.rawHeaders = analysis.headers;
       if (analysis.headers['x-frame-options']) {
         result.headers['x-frame-options'] = analysis.headers['x-frame-options'];
       }
@@ -165,6 +174,34 @@ const ClickJackingValidator: React.FC = () => {
       validateWebsite();
     }
   };
+
+  const copyRawHeaders = async () => {
+    if (!results?.rawHeaders) return;
+    const text = Object.entries(results.rawHeaders)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // ignore
+    }
+  };
+
+  const saveReport = () => {
+    if (!results) return;
+    const blob = new Blob([
+      JSON.stringify(results, null, 2)
+    ], { type: 'application/json' });
+    const host = (() => {
+      try { return new URL(results.url).hostname; } catch { return 'site'; }
+    })();
+    const ts = results.timestamp.toISOString().replace(/[:T]/g, '-').split('.')[0];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${host}_clickjacking_${ts}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
   
   const reset = () => {
     setUrl('');
@@ -172,6 +209,9 @@ const ClickJackingValidator: React.FC = () => {
     setError(null);
     setIframeLoaded(false);
     setIframeError(false);
+    setUserAgent('');
+    setReferrer('');
+    setShowHeaders(false);
   };
 
   return (
@@ -220,6 +260,22 @@ const ClickJackingValidator: React.FC = () => {
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Enter a URL to check if it's vulnerable to click jacking attacks
                 </p>
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Custom User-Agent (optional)"
+                    value={userAgent}
+                    onChange={(e) => setUserAgent(e.target.value)}
+                    className="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Referrer (optional)"
+                    value={referrer}
+                    onChange={(e) => setReferrer(e.target.value)}
+                    className="rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 dark:focus:ring-primary-900 focus:ring-opacity-50"
+                  />
+                </div>
               </div>
               
               {error && (
@@ -329,11 +385,30 @@ const ClickJackingValidator: React.FC = () => {
                             )}
                           </div>
                         </div>
-                      </div>
                     </div>
                   </div>
-                  
-                  {/* iframe Test */}
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="text-sm text-blue-600 hover:underline"
+                      onClick={() => setShowHeaders((v) => !v)}
+                    >
+                      {showHeaders ? 'Hide Raw Headers' : 'Show Raw Headers'}
+                    </button>
+                    {showHeaders && (
+                      <div className="mt-2 bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-xs whitespace-pre-wrap">
+                        {Object.entries(results.rawHeaders || {}).map(([k, v]) => `${k}: ${v}`).join('\n')}
+                        <div className="mt-2 flex gap-2">
+                          <Button size="sm" onClick={copyRawHeaders}>Copy Headers</Button>
+                          <Button size="sm" onClick={saveReport}>Save Report</Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* iframe Test */}
                   <div className="p-4 rounded-md border border-gray-200 dark:border-gray-700">
                     <h3 className="font-medium text-lg mb-3 text-gray-800 dark:text-gray-200">iframe Test</h3>
                     
