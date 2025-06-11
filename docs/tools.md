@@ -51,6 +51,13 @@ The Pentest Validator Suite runs a set of lightweight client‑side checks again
 Each validator is displayed on a single page with preview iframes so you can observe redirects and payload reflection directly in the browser.
 You can tweak the open redirect parameter and the XSS payload, and expand per-test logs for more detail.
 
+## Header Scanner
+
+```tsx
+import HeaderScannerPage from '../src/tools/header-scanner/page';
+```
+
+The Header Scanner fetches a URL and analyzes common security headers like CSP, X-Frame-Options and HSTS. Results are shown with status chips and quick fix tips. You can copy header values or export the full report as JSON for audits.
 ## CORS Tester
 
 ```tsx
