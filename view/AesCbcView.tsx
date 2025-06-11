@@ -2,7 +2,12 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import { AesMode, AesExample, CryptoAlgorithm } from '../viewmodel/useAesCbc';
+import {
+  AesMode,
+  AesExample,
+  CryptoAlgorithm,
+  OutputFormat,
+} from '../viewmodel/useAesCbc';
 
 interface Props {
   keyValue: string;
@@ -28,6 +33,11 @@ interface Props {
   discardSavedKey: (index: number) => void;
   savedKeys: string[];
   savedKeyPairs: { publicKey: string; privateKey: string }[];
+
+  outputFormat: OutputFormat;
+  setOutputFormat: (f: OutputFormat) => void;
+  toastMessage: string;
+  copyOutput: () => void;
 
   toggleMode: () => void;
   clear: () => void;
@@ -58,12 +68,22 @@ export function AesCbcView({
   savedKeys,
   savedKeyPairs,
 
+  outputFormat,
+  setOutputFormat,
+  toastMessage,
+  copyOutput,
+
   toggleMode,
   clear,
 }: Props) {
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Crypto Lab</h2>
+      {toastMessage && (
+        <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+          {toastMessage}
+        </div>
+      )}
       <div className="mb-4 flex flex-col gap-2">
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor="algo" className="text-gray-700 dark:text-gray-300">Algorithm</label>
@@ -78,6 +98,18 @@ export function AesCbcView({
           <option value="rsa-oaep">RSA-OAEP</option>
           <option value="gpg-rsa-2048">GPG RSA-2048</option>
         </select>
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+        <label htmlFor="format" className="text-gray-700 dark:text-gray-300">Output Format</label>
+        <select
+          id="format"
+          value={outputFormat}
+          onChange={e => setOutputFormat(e.target.value as 'base64' | 'hex' | 'utf-8')}
+          className="border rounded p-2 dark:bg-gray-700 dark:text-gray-200"
+        >
+          <option value="base64">Base64</option>
+          <option value="hex">Hex</option>
+          <option value="utf-8">UTF-8</option>
+        </select>
       </div>
       {algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048' ? (
         <>
@@ -86,7 +118,7 @@ export function AesCbcView({
             <label htmlFor="public" className="text-gray-700 dark:text-gray-300">Public Key</label>
             <textarea
               id="public"
-              className="w-full h-24 p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+              className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
               value={publicKey}
               onChange={e => setPublicKey(e.target.value)}
             />
@@ -96,7 +128,7 @@ export function AesCbcView({
             <label htmlFor="private" className="text-gray-700 dark:text-gray-300">Private Key</label>
             <textarea
               id="private"
-              className="w-full h-24 p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+              className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
               value={privateKey}
               onChange={e => setPrivateKey(e.target.value)}
             />
@@ -109,7 +141,13 @@ export function AesCbcView({
                   key={`kp-${idx}`}
                   className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
                 >
-                  <button type="button" onClick={() => selectSavedKey(idx)} className="focus:outline-none">
+                  <button
+                    type="button"
+                    onClick={() => selectSavedKey(idx)}
+                    className="focus:outline-none"
+                    aria-label={`Use saved key ${idx + 1}`}
+                    title={`Use saved key ${idx + 1}`}
+                  >
                     Key {idx + 1}
                   </button>
                   <button
@@ -165,7 +203,13 @@ export function AesCbcView({
                   key={`k-${idx}`}
                   className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
                 >
-                  <button type="button" onClick={() => selectSavedKey(idx)} className="focus:outline-none">
+                  <button
+                    type="button"
+                    onClick={() => selectSavedKey(idx)}
+                    className="focus:outline-none"
+                    aria-label={`Use saved key ${idx + 1}`}
+                    title={`Use saved key ${idx + 1}`}
+                  >
                     {k.slice(0, 8)}...
                   </button>
                   <button
@@ -190,7 +234,7 @@ export function AesCbcView({
         </label>
         <textarea
           id="input"
-          className="w-full h-32 p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+          className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
           value={input}
           onChange={e => setInput(e.target.value)}
         />
@@ -201,20 +245,32 @@ export function AesCbcView({
         </div>
       )}
       <div className="mb-4 flex flex-col gap-2">
+        <span className="font-semibold text-gray-700 dark:text-gray-300">Mode: {mode === 'encrypt' ? 'Encrypt' : 'Decrypt'}</span>
         {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor="output" className="text-gray-700 dark:text-gray-300">Output</label>
         <textarea
           id="output"
           readOnly
-          className="w-full h-32 p-2 border rounded bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+          className="w-full min-h-[8rem] resize-y p-2 border rounded bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
           value={output}
         />
+        <button
+          type="button"
+          aria-label="Copy output"
+          title="Copy output"
+          className="self-start px-2 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded"
+          onClick={copyOutput}
+        >
+          📋 Copy
+        </button>
       </div>
-      <div className="flex gap-2">
+      <div className="flex flex-col gap-2 flex-wrap md:flex-nowrap md:flex-row">
         <button
           type="button"
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           onClick={toggleMode}
+          aria-label="Toggle between Encrypt and Decrypt"
+          title="Toggle between Encrypt and Decrypt"
         >
           Switch to {mode === 'encrypt' ? 'Decrypt' : 'Encrypt'}
         </button>
@@ -222,6 +278,8 @@ export function AesCbcView({
           type="button"
           className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
           onClick={generateKeyPair}
+          aria-label="Generate Key"
+          title="Creates a secure random key"
         >
           {algorithm === 'aes-cbc' || algorithm === 'aes-gcm'
             ? 'Generate Key'
@@ -231,6 +289,8 @@ export function AesCbcView({
           type="button"
           className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
           onClick={saveCurrentKey}
+          aria-label="Save Key"
+          title="Temporarily stores key in browser memory"
         >
           Save Key
         </button>
@@ -239,6 +299,8 @@ export function AesCbcView({
 
           className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
           onClick={clear}
+          aria-label="Clear"
+          title="Resets all inputs"
         >
           Clear
         </button>

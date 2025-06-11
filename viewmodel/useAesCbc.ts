@@ -14,10 +14,13 @@ import {
   generateGpgKeyPair,
   gpgEncrypt,
   gpgDecrypt,
+  base64ToBytes,
+  bytesToBase64,
 } from '../model/aes';
 
 export type AesMode = 'encrypt' | 'decrypt';
 export type CryptoAlgorithm = 'aes-cbc' | 'aes-gcm' | 'rsa-oaep' | 'gpg-rsa-2048';
+export type OutputFormat = 'base64' | 'hex' | 'utf-8';
 
 export interface AesExample {
   label: string;
@@ -27,14 +30,19 @@ export interface AesExample {
 
 const examples: AesExample[] = [
   {
-    label: 'Example (32 byte key)',
-    key: '12345678901234567890123456789012',
+    label: 'AES-256 (Random Key)',
+    key: generateAesKey(32),
     plaintext: 'hello world',
   },
   {
-    label: 'Example (16 byte key)',
+    label: 'AES-128 (Predefined)',
     key: '1234567890abcdef',
     plaintext: 'test data',
+  },
+  {
+    label: 'CBC Mode (Template)',
+    key: 'abcdefghijklmnop',
+    plaintext: 'sample text',
   },
 ];
 
@@ -50,25 +58,33 @@ export const useAesCbc = () => {
   const [privateKey, setPrivateKey] = useState('');
   const [savedKeys, setSavedKeys] = useState<string[]>([]);
   const [savedKeyPairs, setSavedKeyPairs] = useState<{ publicKey: string; privateKey: string }[]>([]);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('base64');
+  const [toastMessage, setToastMessage] = useState('');
 
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
+      setError('');
       if (!input) {
         setOutput('');
+        setError('Input is required');
         return;
       }
       try {
         let result = '';
         if (algorithm === 'aes-cbc') {
           if (!key) throw new Error('Key must not be empty');
+          if (![16, 24, 32].includes(key.length))
+            throw new Error('Key must be 16, 24, or 32 characters');
           result =
             mode === 'encrypt'
               ? await aes256CbcEncryptRandomIV(key, input)
               : await aes256CbcDecryptRandomIV(key, input);
         } else if (algorithm === 'aes-gcm') {
           if (!key) throw new Error('Key must not be empty');
+          if (![16, 24, 32].includes(key.length))
+            throw new Error('Key must be 16, 24, or 32 characters');
           result =
             mode === 'encrypt'
               ? await aes256GcmEncryptRandomIV(key, input)
@@ -91,7 +107,28 @@ export const useAesCbc = () => {
           }
         }
 
-        if (!cancelled) setOutput(result);
+        if (!cancelled) {
+          const bytes =
+            mode === 'encrypt' && algorithm !== 'gpg-rsa-2048'
+              ? base64ToBytes(result)
+              : new TextEncoder().encode(result);
+          let formatted = result;
+          if (outputFormat === 'hex') {
+            formatted = Array.from(bytes)
+              .map(b => b.toString(16).padStart(2, '0'))
+              .join('');
+          } else if (outputFormat === 'base64') {
+            formatted = algorithm === 'gpg-rsa-2048' && mode === 'encrypt'
+              ? bytesToBase64(bytes)
+              : result;
+            if (mode === 'decrypt' || algorithm === 'gpg-rsa-2048') {
+              formatted = bytesToBase64(bytes);
+            }
+          } else if (outputFormat === 'utf-8') {
+            formatted = new TextDecoder().decode(bytes);
+          }
+          setOutput(formatted);
+        }
       } catch (e) {
         if (!cancelled) setError((e as Error).message);
       }
@@ -100,7 +137,7 @@ export const useAesCbc = () => {
     return () => {
       cancelled = true;
     };
-  }, [key, publicKey, privateKey, input, mode, algorithm]);
+  }, [key, publicKey, privateKey, input, mode, algorithm, outputFormat]);
 
   useEffect(() => {
     if (exampleIndex === null || algorithm !== 'aes-cbc') return;
@@ -114,6 +151,12 @@ export const useAesCbc = () => {
       aes256CbcEncryptRandomIV(ex.key, ex.plaintext).then(setInput);
     }
   }, [exampleIndex, mode, algorithm]);
+
+  useEffect(() => {
+    if (!toastMessage) return undefined;
+    const t = setTimeout(() => setToastMessage(''), 2000);
+    return () => clearTimeout(t);
+  }, [toastMessage]);
 
 
   const toggleMode = () => {
@@ -145,6 +188,7 @@ export const useAesCbc = () => {
     } else if (key) {
       setSavedKeys(prev => [...prev, key]);
     }
+    setToastMessage('Key saved to session');
   };
 
   const selectSavedKey = (idx: number) => {
@@ -169,6 +213,15 @@ export const useAesCbc = () => {
     }
   };
 
+  const copyOutput = async () => {
+    try {
+      await navigator.clipboard.writeText(output);
+      setToastMessage('Output copied');
+    } catch {
+      setToastMessage('Clipboard access denied');
+    }
+  };
+
 
   const clear = () => {
     setInput('');
@@ -177,6 +230,7 @@ export const useAesCbc = () => {
     setExampleIndex(null);
     setPublicKey('');
     setPrivateKey('');
+    setToastMessage('');
 
   };
 
@@ -205,6 +259,11 @@ export const useAesCbc = () => {
     discardSavedKey,
     savedKeys,
     savedKeyPairs,
+
+    outputFormat,
+    setOutputFormat,
+    toastMessage,
+    copyOutput,
 
     clear,
   };
