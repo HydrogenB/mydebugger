@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   runCorsPreflight,
   CorsResult,

@@ -33,6 +33,14 @@ export function CookieScopeView({
   copy,
   toastMessage,
 }: Props) {
+  const getRowClassName = (name: string) =>
+    [
+      duplicates.has(name) && 'bg-yellow-50 dark:bg-yellow-900',
+      conflicts.has(name) && 'bg-red-50 dark:bg-red-900',
+      sameSiteMismatch.has(name) && 'bg-orange-50 dark:bg-orange-900',
+    ]
+      .filter(Boolean)
+      .join(' ');
   return (
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Cookie Scope</h2>

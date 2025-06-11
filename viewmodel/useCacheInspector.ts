@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import {
   analyzeCacheFor,
   CacheResult,
@@ -66,7 +66,7 @@ export const useCacheInspector = () => {
     a.download = formatExportFilename(window.location.hostname);
     a.click();
     URL.revokeObjectURL(a.href);
-  };
+  }, [results]);
 
   return { grouped, loading, exportJson };
 };
