@@ -41,13 +41,12 @@ import CookieInspectorPage from '../src/tools/cookie-inspector';
 Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
 Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
 
-## Clickjacking Validator
+## Pentest Validator Suite
 
 ```tsx
-import ClickJackingValidator from '../src/tools/clickjacking';
+import PentestSuitePage from '../src/tools/pentest/page';
 ```
 
-Check whether a page blocks framing by inspecting `X-Frame-Options` and
-`Content-Security-Policy` headers. The tool attempts to render the site in an
-iframe and shows raw HTTP headers. Results can be copied or exported as JSON for
-security reports.
+The Pentest Validator Suite runs a set of lightweight client‑side checks against any public URL. It tests HTTPS redirection, basic CORS policy, open redirects, reflected XSS and clickjacking protections. Results may be inconclusive when a site blocks cross‑origin access.
+Each validator is displayed on a single page with preview iframes so you can observe redirects and payload reflection directly in the browser.
+You can tweak the open redirect parameter and the XSS payload, and expand per-test logs for more detail.
