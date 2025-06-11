@@ -60,7 +60,8 @@ import {
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon,
-  Base64ImageIcon
+  Base64ImageIcon,
+  CookieIcon
 } from '../design-system/icons/tool-icons';
 
 // Category definitions with icons for consistent UI
@@ -286,6 +287,23 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: true
+    }
+  },
+  {
+    id: 'cookie-inspector',
+    route: '/cookies',
+    title: 'Cookie Inspector',
+    description: 'View cookies for this session and export them.',
+    icon: CookieIcon,
+    component: lazy(() => import('./cookie-inspector/page')),
+    category: 'Testing',
+    isNew: true,
+    metadata: {
+      keywords: ['cookie', 'debug', 'browser', 'httpOnly', 'session'],
+      relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: false
     }
   },
   {

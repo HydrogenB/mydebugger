@@ -31,3 +31,12 @@ const decGpg = await gpgDecrypt(gpg.privateKey, encGpg);
 ```
 
 Use the Crypto Lab tool to experiment with AES-CBC, AES-GCM, RSA-OAEP, and GPG RSA‑2048. Keys can be generated and saved as reusable chips during your session for quick switching between algorithms.
+
+## Cookie Inspector
+
+```tsx
+import CookieInspectorPage from '../src/tools/cookie-inspector';
+```
+
+Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
+Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
