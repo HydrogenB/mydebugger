@@ -57,7 +57,7 @@ export const useCacheInspector = () => {
       .map(([type, items]) => ({ type: type as ResourceType, items }));
   }, [results]);
 
-  const exportJson = () => {
+  const exportJson = useCallback(() => {
     const blob = new Blob([exportCacheResults(results)], {
       type: 'application/json',
     });
