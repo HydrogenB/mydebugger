@@ -60,7 +60,7 @@ export function HeaderScannerView({
                   placeholder="example.com"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  onKeyPress={handleKey}
+                  onKeyDown={handleKey}
                   disabled={loading}
                 />
                 <Button onClick={scan} isLoading={loading} disabled={loading || !url} className="rounded-l-none">Scan</Button>
