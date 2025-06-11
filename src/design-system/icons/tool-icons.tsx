@@ -102,3 +102,9 @@ export const Base64ImageIcon: React.FC<IconProps> = ({ className }) => (
     <polyline points="21 15 16 10 5 21" strokeWidth="2"></polyline>
   </svg>
 );
+export const CookieIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-9-9 5 5 0 009 9z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 15h.01M12 12h.01M12 18h.01M16 14h.01" />
+  </svg>
+);
