@@ -41,6 +41,15 @@ import CookieInspectorPage from '../src/tools/cookie-inspector';
 Use the Cookie Inspector to quickly view and filter cookies available to your session. You can export the visible cookies to a JSON file for debugging or QA reports.
 Click any cookie name or value to copy it. Long values can be expanded inline, and exports are named using the current hostname and timestamp.
 
+## Cookie Scope
+
+```tsx
+import CookieScopePage from '../src/tools/cookie-scope';
+```
+
+Cookie Scope visualizes cookies from `document.cookie` directly in the browser. It highlights cookies with the same name across different paths or domains and detects SameSite inconsistencies.
+Use the debounced search bar to filter, toggle visibility of HttpOnly cookies, and copy or export the table as JSON or HAR without any network requests.
+
 ## Pentest Validator Suite
 
 ```tsx

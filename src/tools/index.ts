@@ -300,6 +300,22 @@ const toolRegistry: Tool[] = [
     }
   },
   {
+    id: 'cookie-scope',
+    route: '/cookie-scope',
+    title: 'Cookie Scope',
+    description: 'Visualize document cookies and highlight duplicates.',
+    icon: CookieIcon,
+    component: lazy(() => import('./cookie-scope/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cookie', 'scope', 'document.cookie', 'browser'],
+      relatedTools: ['cookie-inspector'],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
+  {
     id: 'crypto-lab',
     route: '/crypto-lab',
     title: 'Crypto Lab',
