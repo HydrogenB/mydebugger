@@ -51,6 +51,15 @@ The Pentest Validator Suite runs a set of lightweight client‑side checks again
 Each validator is displayed on a single page with preview iframes so you can observe redirects and payload reflection directly in the browser.
 You can tweak the open redirect parameter and the XSS payload, and expand per-test logs for more detail.
 
+## CORS Tester
+
+```tsx
+import CorsTesterPage from '../src/tools/cors-tester';
+```
+
+Use the CORS Tester to simulate preflight requests and inspect the `Access-Control-*` headers returned by a server. Enter a target URL, HTTP method and custom headers to see how the server responds and whether your origin is permitted.
+Common CORS mistakes are highlighted with inline tips and a list of browsers that would block the request. You can quickly add preset headers from a dropdown and copy a generated `curl` command to reproduce the request locally.
+
 ## Deep Link Chain
 
 ```tsx
