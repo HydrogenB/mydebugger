@@ -250,6 +250,23 @@ const toolRegistry: Tool[] = [
     }
   },
   {
+    id: 'deep-link-chain',
+    route: '/deep-link-chain',
+    title: 'Deep Link Chain',
+    description: 'Follow redirects and extract UTM parameters entirely in the browser.',
+    icon: LinkTracerIcon,
+    component: lazy(() => import('./deep-link-chain/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['redirect', 'utm', 'deep link', 'link trace', 'url'],
+      learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections',
+      relatedTools: ['link-tracer', 'url-encoder'],
+    },
+    uiOptions: {
+      showExamples: false,
+    }
+  },
+  {
     id: 'components-demo',
     route: '/components-demo',
     title: 'Components Demo',
@@ -294,6 +311,22 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['cookie', 'debug', 'browser', 'httpOnly', 'session'],
       relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: false
+    }
+  },
+  {
+    id: 'cors-tester',
+    route: '/cors-tester',
+    title: 'CORS Tester',
+    description: 'Debug CORS preflight responses.',
+    icon: HeadersIcon,
+    component: lazy(() => import('./cors-tester/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['cors', 'preflight', 'debug', 'headers'],
+      relatedTools: ['headers-analyzer'],
     },
     uiOptions: {
       showExamples: false
