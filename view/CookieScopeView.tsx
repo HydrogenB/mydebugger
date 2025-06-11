@@ -100,7 +100,7 @@ export function CookieScopeView({
             {cookies.map((c) => (
               <tr
                 key={`${c.name}-${c.domain ?? 'd'}-${c.path ?? 'p'}`}
-                className={`border-b dark:border-gray-700 ${duplicates.has(c.name) ? 'bg-yellow-50 dark:bg-yellow-900' : ''} ${conflicts.has(c.name) ? 'bg-red-50 dark:bg-red-900' : ''} ${sameSiteMismatch.has(c.name) ? 'bg-orange-50 dark:bg-orange-900' : ''}`}
+                className={`border-b dark:border-gray-700 ${getRowClassName(c.name)}`}
               >
                 <td className="px-2 py-1 break-all">{c.name}</td>
                 <td className="px-2 py-1 break-all">{c.value}</td>
