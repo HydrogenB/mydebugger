@@ -50,3 +50,11 @@ import PentestSuitePage from '../src/tools/pentest/page';
 The Pentest Validator Suite runs a set of lightweight client‑side checks against any public URL. It tests HTTPS redirection, basic CORS policy, open redirects, reflected XSS and clickjacking protections. Results may be inconclusive when a site blocks cross‑origin access.
 Each validator is displayed on a single page with preview iframes so you can observe redirects and payload reflection directly in the browser.
 You can tweak the open redirect parameter and the XSS payload, and expand per-test logs for more detail.
+
+## Deep Link Chain
+
+```tsx
+import DeepLinkChainPage from '../src/tools/deep-link-chain/page';
+```
+
+Follow and visualize the redirect chain for any URL entirely in the browser. The tool lists each hop with status codes and headers, highlights the final destination and extracts any UTM parameters present. Long chains collapse automatically with an option to expand. If fetch is blocked by CORS the tool attempts a browser-only fallback. The final URL displays an Open Graph preview when accessible. Results can be exported or copied as a Markdown table.
