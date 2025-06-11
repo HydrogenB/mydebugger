@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { encodeUrlQueryParams } from "../../model/url";
+import { encodeUrlQueryParams } from "../../../model/url";
 import { Helmet } from "react-helmet";
 import QRCode from "qrcode";
 import { useLocation, useNavigate } from "react-router-dom";
