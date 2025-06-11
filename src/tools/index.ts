@@ -300,6 +300,22 @@ const toolRegistry: Tool[] = [
     }
   },
   {
+    id: 'storage-sync-debugger',
+    route: '/storage-sync',
+    title: 'Storage Sync Debugger',
+    description: 'Inspect localStorage and sessionStorage with live sync events.',
+    icon: UtilitiesIcon,
+    component: lazy(() => import('./storage-sync/page')),
+    category: 'Utilities',
+    metadata: {
+      keywords: ['localStorage', 'sessionStorage', 'debug', 'storage'],
+      relatedTools: [],
+    },
+    uiOptions: {
+      showExamples: false,
+    },
+  },
+  {
     id: 'crypto-lab',
     route: '/crypto-lab',
     title: 'Crypto Lab',
