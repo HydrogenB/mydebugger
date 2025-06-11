@@ -108,3 +108,9 @@ export const CookieIcon: React.FC<IconProps> = ({ className }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 15h.01M12 12h.01M12 18h.01M16 14h.01" />
   </svg>
 );
+
+export const CacheIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
