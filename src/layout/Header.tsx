@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../design-system/components/inputs';
-import { useTheme } from '../design-system/context/ThemeContext';
-import { getAllCategories, categories as toolCategories } from '../tools';
+
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -22,8 +21,6 @@ const getIconHelper = (name: string) => {
 };
 
 const Header: React.FC = () => {
-  const allCategories = getAllCategories();
-  const { isDarkMode } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,11 +41,6 @@ const Header: React.FC = () => {
     return false;
   };
   
-  // Handle category selection
-  const handleCategoryClick = (category: string) => {
-    navigate(`/?category=${encodeURIComponent(category)}`);
-    setMobileMenuOpen(false);
-  };
   
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
@@ -75,27 +67,6 @@ const Header: React.FC = () => {
               <span>All Tools</span>
             </Link>
             
-            <div className="h-5 border-l border-gray-300 dark:border-gray-600"></div>
-            
-            {allCategories.slice(0, 4).map((category) => {
-              const categoryInfo = toolCategories[category] || {};
-              const isCurrentCategory = location.search.includes(`category=${encodeURIComponent(category)}`);
-              
-              return (
-                <button 
-                  key={category}
-                  onClick={() => handleCategoryClick(category)}
-                  className={`flex items-center space-x-1 px-3 py-1 rounded-md ${
-                    isCurrentCategory
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  } transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50`}
-                  aria-current={isCurrentCategory ? 'page' : undefined}
-                >
-                  <span className="capitalize">{category}</span>
-                </button>
-              );
-            })}
               <a
               href="https://github.com/HydrogenB/mydebugger"
               target="_blank"
@@ -148,29 +119,6 @@ const Header: React.FC = () => {
               <span className="w-5 h-5">{getIconHelper('tool')}</span>
               <span>All Tools</span>
             </Link>
-            
-            <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-            
-            <p className="px-3 text-sm font-medium text-gray-500 dark:text-gray-400">Categories</p>
-            
-            {allCategories.map((category) => {
-              const isCurrentCategory = location.search.includes(`category=${encodeURIComponent(category)}`);
-              
-              return (
-                <button 
-                  key={category}
-                  onClick={() => handleCategoryClick(category)}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md ${
-                    isCurrentCategory
-                      ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400" 
-                      : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                  } transition w-full text-left focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50`}
-                  aria-current={isCurrentCategory ? 'page' : undefined}
-                >
-                  <span className="capitalize">{category}</span>
-                </button>
-              );
-            })}
             
             <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
               <a

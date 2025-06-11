@@ -367,45 +367,7 @@ const Home: React.FC = () => {
             </TabGroup>
           </div>
         </section>
-          {/* Featured Tool Section (only on first page load and not during search/filter) */}
-        {!searchTerm && activeTab === 'all' && (
-          <section className="mb-8">
-            <div className="featured-section p-6 wave-bg">
-              <div className="md:flex items-center">
-                <div className="md:w-2/3 md:pr-8">
-                  <Badge color="primary" className="mb-3">FEATURED TOOL</Badge>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">JWT Toolkit</h2>
-                  <p className="text-gray-700 dark:text-gray-300 mb-4 text-lg">
-                    Comprehensive JSON Web Token debugging, decoding, and security analysis tool with support for all common algorithms.
-                  </p>
-                  <div className="flex flex-wrap gap-3 mb-6">
-                    <Badge color="success">Updated</Badge>
-                    <Badge>Security</Badge>
-                    <Badge color="info">Authentication</Badge>
-                  </div>
-                  <Link to="/jwt">
-                    <Button variant="primary" size="lg">
-                      Try JWT Toolkit
-                      <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                      </svg>
-                    </Button>
-                  </Link>
-                </div>
-                <div className="md:w-1/3 mt-6 md:mt-0 text-center">
-                  <div className="p-4 bg-white dark:bg-gray-700 rounded-lg shadow-lg inline-block">
-                    <svg className="w-24 h-24 mx-auto text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                    <div className="mt-3 font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-                      eyJhbGciOiJIUzI1NiJ9...
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+
         
         {/* Recently Used Tools (only show if there are recent tools and not searching) */}
         {!searchTerm && activeTab !== 'recent' && recentTools.length > 0 && (
@@ -673,25 +635,27 @@ const Home: React.FC = () => {
               
               <div className="flex flex-wrap gap-6">
                 <a
-                  href="https://github.com/HydrogenB/mydebugger" 
+                  href="https://github.com/HydrogenB/mydebugger/issues/new"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+                >
+                  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  Request Feature
+                </a>
+                <a
+                  href="https://github.com/HydrogenB/mydebugger"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-primary-600 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
                   </svg>
                   Visit GitHub
                 </a>
-                <Button 
-                  variant="secondary"
-                  className="shadow-sm"
-                >
-                  <svg className="h-5 w-5 mr-2 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                  </svg>
-                  Request Feature
-                </Button>
               </div>
             </div>
             
@@ -712,52 +676,6 @@ const Home: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex justify-center mt-8">
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-700 dark:text-gray-300">Rate this project:</span>
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button 
-                  key={star}
-                  className="text-gray-400 hover:text-yellow-500 focus:outline-none transition-colors"
-                  aria-label={`Rate ${star} stars`}
-                >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                  </svg>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-        
-        {/* Newsletter Section */}
-        <section className="mb-12 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Stay Updated</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Subscribe to our newsletter for updates on new tools and features.
-            </p>
-          </div>
-          
-          <div className="max-w-md mx-auto">
-            <form className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                required
-              />
-              <button 
-                type="submit"
-                className="px-4 py-2 bg-primary-600 text-white rounded-r-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                Subscribe
-              </button>
-            </form>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              We respect your privacy. Unsubscribe at any time.
-            </p>
-          </div>
         </section>
       </ResponsiveContainer>
       
