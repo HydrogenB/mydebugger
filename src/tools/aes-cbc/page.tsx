@@ -33,6 +33,11 @@ const AesCbcPage: React.FC = () => {
       savedKeys={vm.savedKeys}
       savedKeyPairs={vm.savedKeyPairs}
 
+      outputFormat={vm.outputFormat}
+      setOutputFormat={vm.setOutputFormat}
+      toastMessage={vm.toastMessage}
+      copyOutput={vm.copyOutput}
+
       toggleMode={vm.toggleMode}
       clear={vm.clear}
     />
