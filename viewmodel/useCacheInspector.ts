@@ -20,13 +20,26 @@ export const useCacheInspector = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     (async () => {
-      const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
-      const urls = Array.from(new Set(entries.map((e) => e.name)));
-      const data = await analyzeCacheFor(urls);
-      setResults(data);
-      setLoading(false);
+      try {
+        const entries = performance.getEntriesByType('resource') as PerformanceResourceTiming[];
+        const urls = Array.from(new Set(entries.map((e) => e.name)));
+        const data = await analyzeCacheFor(urls);
+        if (isMounted) {
+          setResults(data);
+        }
+      } catch (error) {
+        console.error('Error analyzing cache:', error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
     })();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const grouped = useMemo(() => {
