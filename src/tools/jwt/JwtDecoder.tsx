@@ -5,6 +5,7 @@ import Button from '../../design-system/components/inputs/Button';
 import { Alert } from '../../design-system/components/feedback/Alert';
 import { Badge } from '../../design-system/components/display';
 import { Tooltip } from '../../design-system/components/overlays';
+import { ACTIVE_TAB_CLASS } from '../../design-system/foundations/layout';
 import { useJwt } from './context/JwtContext';
 import { Text } from '../../design-system/components/typography';
 
@@ -370,14 +371,14 @@ const JwtDecoder: React.FC = () => {
                 <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                   <h2 className="text-xl font-semibold">Decoded Data</h2>
                   <div className="flex border border-gray-200 dark:border-gray-700 rounded">
-                    <button 
-                      className={`px-3 py-1 text-sm rounded-l ${activeTab === 'json' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                    <button
+                      className={`px-3 py-1 text-sm rounded-l ${activeTab === 'json' ? `bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ${ACTIVE_TAB_CLASS}` : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                       onClick={() => setActiveTab('json')}
                     >
                       JSON
                     </button>
-                    <button 
-                      className={`px-3 py-1 text-sm rounded-r ${activeTab === 'table' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
+                    <button
+                      className={`px-3 py-1 text-sm rounded-r ${activeTab === 'table' ? `bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 ${ACTIVE_TAB_CLASS}` : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                       onClick={() => setActiveTab('table')}
                     >
                       Table

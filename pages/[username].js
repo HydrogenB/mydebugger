@@ -2,6 +2,7 @@ import React from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { LoadingSpinner } from '../src/design-system/components/feedback';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 
 export default function VCardPage() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function VCardPage() {
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <div className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className={`max-w-md mx-auto ${TOOL_PANEL_CLASS}`}>
           <h1 className="text-2xl font-bold mb-4">Feature Disabled</h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             The namecard and VCard features have been disabled in this version of the application.

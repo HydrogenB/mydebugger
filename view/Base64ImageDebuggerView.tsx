@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { ImageInfo } from '../model/base64Image';
 
 interface Props {
@@ -24,7 +25,7 @@ export function Base64ImageDebuggerView({
   clear,
 }: Props) {
   return (
-  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+  <div className={TOOL_PANEL_CLASS}>
     <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Base64 Image Debugger</h2>
 
     <div className="mb-4">
@@ -34,7 +35,7 @@ export function Base64ImageDebuggerView({
       </label>
       <textarea
         id="base64-input"
-        className="w-full h-32 px-3 py-2 text-gray-700 border rounded-lg focus:outline-none dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+        className="w-full h-32 px-3 py-2 text-gray-700 border rounded-xl focus:outline-none dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
         value={base64Input}
         onChange={handleInputChange}
         placeholder="data:image/png;base64,..."
@@ -66,7 +67,7 @@ export function Base64ImageDebuggerView({
     {imageUrl && !error && (
       <div className="mb-4">
         <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Preview:</h3>
-        <div className="border p-4 rounded-lg bg-gray-50 dark:bg-gray-900">
+        <div className="border p-4 rounded-xl bg-gray-50 dark:bg-gray-900">
           <img
             src={imageUrl}
             alt="Base64 Preview"
@@ -78,7 +79,7 @@ export function Base64ImageDebuggerView({
     )}
 
     {imageInfo && (
-      <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+      <div className="border rounded-xl p-4 bg-gray-50 dark:bg-gray-900">
         <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">Image Details:</h3>
         <table className="w-full text-left">
           <tbody>

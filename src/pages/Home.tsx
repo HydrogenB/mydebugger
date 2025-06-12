@@ -5,8 +5,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { MdPushPin, MdOutlinePushPin } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { 
-  Card, 
+import {
+  Card,
   Grid,
   ResponsiveContainer,
   Button,
@@ -18,7 +18,8 @@ import {
   Text,
   Tooltip
 } from '../design-system';
-import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory } from '../tools';
+import { TOOL_PANEL_CLASS } from '../design-system/foundations/layout';
+import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory, categories as categoryInfo } from '../tools';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -223,7 +224,7 @@ const Home: React.FC = () => {
         </div>
 
         {pinnedTools.length > 0 && (
-          <section className="mb-8">
+          <section className="mb-8 mt-6 bg-gray-50 dark:bg-gray-800/50 rounded-md px-4 py-3">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Pinned Tools</h2>
             <div className="flex flex-wrap gap-3">
               {pinnedTools.map((tool, idx) => (
@@ -233,13 +234,13 @@ const Home: React.FC = () => {
                   onDragStart={() => handleDragStart(idx)}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={() => handleDrop(idx)}
-                  className="flex items-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 cursor-move"
+                  className={`flex items-center border border-gray-200 dark:border-gray-700 px-2 py-1 cursor-move ${TOOL_PANEL_CLASS.replace('p-6', 'p-2')}`}
                 >
                   <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
                   <Link to={tool.route} className="mr-2 text-sm text-gray-900 dark:text-white">
                     {tool.title}
                   </Link>
-                  <button onClick={() => togglePin(tool)} aria-label="Unpin" className="text-gray-500 hover:text-red-600">
+                  <button onClick={() => togglePin(tool)} aria-label="Unpin" title="Unpin Tool" className="text-gray-500 hover:text-red-600">
                     <MdPushPin className="w-4 h-4" />
                   </button>
                 </div>
@@ -272,7 +273,7 @@ const Home: React.FC = () => {
               )}
               
               {/* View Mode toggle */}
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-1 flex">
+              <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-1 flex">
                 <button
                   className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow' : ''}`}
                   onClick={() => setViewMode('grid')}
@@ -390,8 +391,8 @@ const Home: React.FC = () => {
                   onClick={() => handleToolClick(tool)}
                   className="no-underline"
                 >
-                  <div className="flex items-center p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow">
-                    <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
+                  <div className={`flex items-center p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}>
+                    <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-xl">
                       <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
@@ -433,7 +434,7 @@ const Home: React.FC = () => {
             }>
               {Array.from({ length: 6 }).map((_, i) => (
                 viewMode === 'grid' ? (
-                  <div key={`skeleton-${i}`} className="rounded-lg overflow-hidden">
+                  <div key={`skeleton-${i}`} className="rounded-xl overflow-hidden">
                     <div className="h-32 bg-gray-200 dark:bg-gray-700 skeleton"></div>
                     <div className="p-4 bg-white dark:bg-gray-800">
                       <div className="h-5 w-3/4 mb-2 bg-gray-200 dark:bg-gray-700 skeleton rounded"></div>
@@ -442,7 +443,7 @@ const Home: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <div key={`skeleton-${i}`} className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center">
+                  <div key={`skeleton-${i}`} className={`p-3 border border-gray-200 dark:border-gray-700 flex items-center ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}> 
                     <div className="w-10 h-10 rounded mr-4 bg-gray-200 dark:bg-gray-700 skeleton"></div>
                     <div className="flex-grow">
                       <div className="h-5 w-1/2 mb-2 bg-gray-200 dark:bg-gray-700 skeleton rounded"></div>
@@ -468,9 +469,13 @@ const Home: React.FC = () => {
                       className="h-full hover:border-primary-300 dark:hover:border-primary-700 glass-card relative"
                     >
                       {/* Interactive elements overlay on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/30 via-transparent opacity-0 hover:opacity-100 transition-opacity rounded-lg flex items-end justify-end p-3">
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/30 via-transparent opacity-0 hover:opacity-100 transition-opacity rounded-xl flex items-end justify-end p-3 overflow-hidden gap-2">
                         <Tooltip content="Quick preview">
-                          <button className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg mr-2" aria-label="Preview tool">
+                          <button
+                            className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg"
+                            aria-label="Preview tool"
+                            title="Preview Tool"
+                          >
                             <svg className="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -482,6 +487,7 @@ const Home: React.FC = () => {
                             onClick={(e) => { e.preventDefault(); togglePin(tool); }}
                             className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg"
                             aria-label="Pin tool"
+                            title={pinnedTools.find(t => t.id === tool.id) ? 'Unpin Tool' : 'Pin Tool'}
                           >
                             {pinnedTools.find(t => t.id === tool.id) ? (
                               <MdPushPin className="w-4 h-4 text-primary-600" />
@@ -493,7 +499,7 @@ const Home: React.FC = () => {
                       </div>
                       
                       <div className="flex items-start mb-3">
-                        <div className="mr-3 p-2.5 bg-primary-100 dark:bg-primary-900 rounded-lg tool-icon-container">
+                        <div className="mr-3 p-2.5 bg-primary-100 dark:bg-primary-900 rounded-xl tool-icon-container">
                           <tool.icon className="h-6 w-6 text-primary-600 dark:text-primary-400 tool-icon" />
                         </div>
                         <div className="flex-1">
@@ -536,8 +542,8 @@ const Home: React.FC = () => {
                     onClick={() => handleToolClick(tool)}
                     className="no-underline block tool-card"
                   >
-                    <div className="p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 rounded-lg flex items-center">
-                      <div className="mr-4 p-2 bg-primary-100 dark:bg-primary-900 rounded-lg tool-icon-container">
+                    <div className={`p-3 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 flex items-center ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}> 
+                      <div className="mr-4 p-2 bg-primary-100 dark:bg-primary-900 rounded-xl tool-icon-container">
                         <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400 tool-icon" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -551,6 +557,7 @@ const Home: React.FC = () => {
                             <button
                               onClick={(e) => { e.preventDefault(); togglePin(tool); }}
                               aria-label="Pin tool"
+                              title={pinnedTools.find(t => t.id === tool.id) ? 'Unpin Tool' : 'Pin Tool'}
                             >
                               {pinnedTools.find(t => t.id === tool.id) ? (
                                 <MdPushPin className="w-4 h-4 text-primary-600" />
@@ -575,7 +582,7 @@ const Home: React.FC = () => {
               </div>
             )
           ) : (
-            <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="text-center py-16 bg-gray-50 dark:bg-gray-800 rounded-xl">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -597,24 +604,30 @@ const Home: React.FC = () => {
           {/* Categories Navigation */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-5">Browse by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {categories.map(category => (
-              <div 
-                key={`cat-${category}`}
-                className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => setActiveTab(category)}
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-gray-900 dark:text-white">{category}</h3>
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                  </svg>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+            {categories.map(category => {
+              const meta = categoryInfo[category as ToolCategory];
+              return (
+                <div
+                  key={`cat-${category}`}
+                  className={`border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer ${TOOL_PANEL_CLASS.replace('p-6', 'p-4')}`}
+                  onClick={() => setActiveTab(category)}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      {meta?.icon && <meta.icon className="w-5 h-5 text-primary-600" />}
+                      <h3 className="font-medium text-gray-900 dark:text-white">{category}</h3>
+                    </div>
+                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {getToolsByCategory(category as ToolCategory).length} tools
+                  </p>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {getToolsByCategory(category as ToolCategory).length} tools
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -638,7 +651,7 @@ const Home: React.FC = () => {
                   href="https://github.com/HydrogenB/mydebugger/issues/new"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -649,7 +662,7 @@ const Home: React.FC = () => {
                   href="https://github.com/HydrogenB/mydebugger"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-primary-600 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-primary-600 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
@@ -660,7 +673,7 @@ const Home: React.FC = () => {
             </div>
             
             <div className="mt-6 md:mt-0 md:flex-shrink-0">
-              <div className="p-6 bg-white dark:bg-gray-700 rounded-xl shadow-xl">
+              <div className={TOOL_PANEL_CLASS}>
                 <div className="flex items-center gap-3 mb-4">
                   <span className="h-3 w-3 bg-red-500 rounded-full"></span>
                   <span className="h-3 w-3 bg-yellow-500 rounded-full"></span>

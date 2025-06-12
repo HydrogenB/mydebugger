@@ -5,6 +5,7 @@ import { ToolLayout } from '../../design-system/components/layout';
 import { Card } from '../../design-system/components/layout';
 import { Button } from '../../design-system/components/inputs';
 import { LoadingSpinner } from '../../design-system/components/feedback';
+import { ACTIVE_TAB_CLASS } from '../../design-system/foundations/layout';
 
 interface HeaderData {
   name: string;
@@ -261,7 +262,7 @@ const HeadersAnalyzer: React.FC = () => {
                       <button
                         className={`py-2 px-4 border-b-2 font-medium text-sm focus:outline-none ${
                           activeTab === 'response'
-                            ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                            ? `border-primary-500 text-primary-600 dark:text-primary-400 ${ACTIVE_TAB_CLASS}`
                             : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                         }`}
                         onClick={() => setActiveTab('response')}
@@ -271,7 +272,7 @@ const HeadersAnalyzer: React.FC = () => {
                       <button
                         className={`py-2 px-4 border-b-2 font-medium text-sm focus:outline-none ${
                           activeTab === 'request'
-                            ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                            ? `border-primary-500 text-primary-600 dark:text-primary-400 ${ACTIVE_TAB_CLASS}`
                             : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
                         }`}
                         onClick={() => setActiveTab('request')}

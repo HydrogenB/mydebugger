@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { getIcon } from '../../icons';
+import { TOOL_PANEL_CLASS } from '../../foundations/layout';
 
 export type DrawerPlacement = 'left' | 'right' | 'top' | 'bottom';
 export type DrawerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -197,7 +198,7 @@ export const Drawer: React.FC<DrawerProps> = ({
 
   // Combine all classes
   const drawerClasses = [
-    'fixed z-50 bg-white dark:bg-gray-800 shadow-xl',
+    `fixed z-50 ${TOOL_PANEL_CLASS} shadow-xl`,
     'flex flex-col',
     'transition-transform duration-300 ease-in-out',
     getPositionClass(),

@@ -30,6 +30,7 @@ export const useCacheInspector = () => {
           setResults(data);
         }
       } catch (error) {
+        // eslint-disable-next-line no-console -- surface analysis failure for debugging
         console.error('Error analyzing cache:', error);
       } finally {
         if (isMounted) {

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, createContext, useContext } from 'react';
+import { ACTIVE_TAB_CLASS } from '../../foundations/layout';
 
 // Types
 type TabVariant = 'underlined' | 'pills' | 'boxed' | 'buttons';
@@ -400,7 +401,7 @@ export const Tab: React.FC<TabItemProps> = ({
         classes.push(
           'pb-2 border-b-2 transition-all duration-200 motion-reduce:transition-none',
           isActive
-            ? 'border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-400'
+            ? `border-primary-500 dark:border-primary-400 text-primary-600 dark:text-primary-400 ${ACTIVE_TAB_CLASS}`
             : 'border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 hover:border-gray-300 dark:hover:text-gray-100 dark:hover:border-gray-600'
         );
     }

@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { CorsResult, CorsAnalysis } from '../model/cors';
 
 interface Props {
@@ -38,7 +39,7 @@ export function CorsTesterView({
   const blockedBrowsers = analysis?.blockedBrowsers || [];
 
   return (
-    <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className={`space-y-4 ${TOOL_PANEL_CLASS}`}>
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white">CORS Tester</h2>
       <div className="flex flex-col gap-4 md:flex-row md:items-end">
         <input

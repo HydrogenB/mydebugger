@@ -1,4 +1,5 @@
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../foundations/layout';
 
 // Basic component types
 export interface ButtonProps {
@@ -62,10 +63,6 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 // Example of a Card component
-export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
-  return (
-    <div className={`bg-white rounded-lg shadow p-4 ${className}`}>
-      {children}
-    </div>
-  );
-};
+export const Card: React.FC<CardProps> = ({ children, className = '' }) => (
+  <div className={`${TOOL_PANEL_CLASS} ${className}`}>{children}</div>
+);

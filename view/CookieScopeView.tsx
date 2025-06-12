@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { ParsedCookie } from '../model/cookieScope';
 
 interface Props {
@@ -42,7 +43,7 @@ export function CookieScopeView({
       .filter(Boolean)
       .join(' ');
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className={TOOL_PANEL_CLASS}>
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Cookie Scope</h2>
       <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-2">
         <input
