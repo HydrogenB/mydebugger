@@ -232,7 +232,7 @@ const VCardView = ({ username }) => {
         {/* QR Code Modal */}
         {showQR && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowQR(false)}>
-            <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <div className={`max-w-md w-full ${TOOL_PANEL_CLASS}`} onClick={(e) => e.stopPropagation()}>
               <h2 className="text-xl font-bold mb-4">Scan QR Code</h2>
               <div className="mb-4 flex justify-center">
                 <img 
@@ -253,7 +253,7 @@ const VCardView = ({ username }) => {
           {vcard.phone && (
             <a 
               href={`tel:${vcard.phone}`} 
-              className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition"
+              className={`flex items-center p-4 ${TOOL_PANEL_CLASS} hover:shadow-md transition`}
               onClick={() => trackClick('phone')}
             >
               <img src={SOCIAL_ICONS.phone} alt="Phone" className="w-6 h-6 mr-3" />
@@ -267,7 +267,7 @@ const VCardView = ({ username }) => {
           {vcard.email && (
             <a 
               href={`mailto:${vcard.email}`}
-              className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition"
+              className={`flex items-center p-4 ${TOOL_PANEL_CLASS} hover:shadow-md transition`}
               onClick={() => trackClick('email')}
             >
               <img src={SOCIAL_ICONS.email} alt="Email" className="w-6 h-6 mr-3" />
@@ -283,7 +283,7 @@ const VCardView = ({ username }) => {
               href={vcard.website.startsWith('http') ? vcard.website : `https://${vcard.website}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition"
+              className={`flex items-center p-4 ${TOOL_PANEL_CLASS} hover:shadow-md transition`}
               onClick={() => trackClick('website')}
             >
               <img src={SOCIAL_ICONS.website} alt="Website" className="w-6 h-6 mr-3" />
@@ -299,7 +299,7 @@ const VCardView = ({ username }) => {
               href={`https://wa.me/${vcard.whatsapp.replace(/\D/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition"
+              className={`flex items-center p-4 ${TOOL_PANEL_CLASS} hover:shadow-md transition`}
               onClick={() => trackClick('whatsapp')}
             >
               <img src={SOCIAL_ICONS.whatsapp} alt="WhatsApp" className="w-6 h-6 mr-3" />
@@ -445,7 +445,7 @@ const VCardView = ({ username }) => {
                       href={link.url?.startsWith('http') ? link.url : `https://${link.url}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow text-center hover:shadow-md transition"
+                      className={`block p-4 ${TOOL_PANEL_CLASS} text-center hover:shadow-md transition`}
                       onClick={() => trackClick(`custom_${link.title}`)}
                       style={{ border: `1px solid ${primaryColor}` }}
                     >
@@ -465,7 +465,7 @@ const VCardView = ({ username }) => {
                 href="https://buymeacoffee.com/jiradbirdp"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-lg shadow text-center hover:shadow-md transition mt-4"
+                className="block p-4 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded-xl shadow text-center hover:shadow-md transition mt-4"
                 onClick={() => trackClick('donate_button')}
               >
                 <span className="flex items-center justify-center text-yellow-800 dark:text-yellow-200">
@@ -484,7 +484,7 @@ const VCardView = ({ username }) => {
                   href={link.url?.startsWith('http') ? link.url : `https://${link.url}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition"
+                  className={`flex flex-col items-center p-4 ${TOOL_PANEL_CLASS} hover:shadow-md transition`}
                   onClick={() => trackClick(`social_${link.platform}`)}
                 >
                   <img 
@@ -503,7 +503,7 @@ const VCardView = ({ username }) => {
               {vcard.skills.map((skill) => (
                 <div 
                   key={skill.id}
-                  className="p-3 bg-white dark:bg-gray-800 rounded-lg shadow text-center"
+                  className={`p-3 ${TOOL_PANEL_CLASS} text-center`}
                 >
                   {skill.name}
                 </div>
@@ -516,7 +516,7 @@ const VCardView = ({ username }) => {
               {vcard.services.map((service) => (
                 <div 
                   key={service.id}
-                  className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow"
+                  className={`p-4 ${TOOL_PANEL_CLASS}`}
                 >
                   <div className="flex items-start">
                     {service.icon && (
@@ -543,7 +543,7 @@ const VCardView = ({ username }) => {
               {vcard.portfolio.map((item) => (
                 <div 
                   key={item.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden"
+                  className={`${TOOL_PANEL_CLASS} overflow-hidden`}
                 >
                   {item.imageUrl && (
                     <img 
@@ -586,7 +586,7 @@ const VCardView = ({ username }) => {
               {vcard.testimonials.map((testimonial) => (
                 <div 
                   key={testimonial.id}
-                  className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow"
+                  className={`p-4 ${TOOL_PANEL_CLASS}`}
                 >
                   <div className="flex">
                     {testimonial.avatar ? (

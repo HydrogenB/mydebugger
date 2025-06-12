@@ -5,6 +5,7 @@ export * from './foundations/colors';
 export * from './foundations/typography';
 export * from './foundations/spacing';
 export * from './foundations/animations';
+export * from './foundations/layout';
 
 // Export all icons
 export * from './icons';

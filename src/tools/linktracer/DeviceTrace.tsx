@@ -1,4 +1,5 @@
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../../design-system/foundations/layout';
 // Remove import from helmet
 // import { Helmet } from 'react-helmet-async';
 
@@ -22,7 +23,7 @@ const DeviceTrace: React.FC = () => {
       </div>
       
       {/* Simplified form */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className={TOOL_PANEL_CLASS}>
         <form>
           <div className="mb-4">
             <label className="block text-gray-700 font-medium mb-2">URL to Trace</label>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { TOOL_PANEL_CLASS } from '../../foundations/layout';
 
 export type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
@@ -227,7 +228,7 @@ export const Modal: ModalComponent = ({
   
   // Modal container classes
   const modalContainerClasses = [
-    'relative bg-white dark:bg-gray-900 rounded-lg shadow-xl overflow-hidden',
+    `relative ${TOOL_PANEL_CLASS} overflow-hidden shadow-xl`,
     'w-full mx-4',
     size !== 'full' ? sizeClasses[size] : 'rounded-none',
     fullHeight ? 'h-full' : '',

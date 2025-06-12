@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import { Tool } from '../../../tools/index';
 import { ResponsiveContainer } from './ResponsiveContainer';
 import { LoadingSpinner } from '../feedback';
+import { TOOL_PANEL_CLASS } from '../../foundations/layout';
 import { Tag } from '../display/Tag';
 
 // Import RelatedTools component dynamically
@@ -109,7 +110,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
         {metadata.learnMoreUrl && (
           <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Learn More</h2>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-md border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className={`border border-gray-200 dark:border-gray-700 ${TOOL_PANEL_CLASS.replace('p-6', 'p-4')}`}> 
               <a 
                 href={metadata.learnMoreUrl} 
                 target="_blank" 

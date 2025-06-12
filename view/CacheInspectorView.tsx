@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { GroupedResults } from '../viewmodel/useCacheInspector';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 
 export function CacheInspectorView({ grouped, loading, exportJson }: Props) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className={TOOL_PANEL_CLASS}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Cache Inspector</h2>
         <button

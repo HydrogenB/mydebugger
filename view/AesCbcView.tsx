@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import {
   AesMode,
   AesExample,
@@ -77,7 +78,7 @@ export function AesCbcView({
   clear,
 }: Props) {
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className={TOOL_PANEL_CLASS}>
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Crypto Lab</h2>
       {toastMessage && (
         <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">

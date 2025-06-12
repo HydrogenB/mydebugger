@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { TOOL_PANEL_CLASS } from "../../design-system/foundations/layout";
 import { encodeUrlQueryParams } from "../../../model/url";
 import { Helmet } from "react-helmet";
 import QRCode from "qrcode";
@@ -498,7 +499,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* Input Section */}
           <div className="flex-1">
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <div className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace('p-6', 'p-5')}`}> 
               <label
                 htmlFor="input"
                 className="block font-medium text-gray-700 mb-2"
@@ -797,7 +798,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
           {/* QR Code Output Section */}
           <div className="flex-1">
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 h-full flex flex-col">
+            <div className={`border border-gray-200 h-full flex flex-col ${TOOL_PANEL_CLASS.replace('p-6', 'p-5')}`}> 
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">QR Code Preview</h2>
               </div>
@@ -1011,10 +1012,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         {/* Save Modal */}
         {showSaveModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              ref={modalRef}
-              className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
-            >
+            <div ref={modalRef} className={`w-full max-w-md ${TOOL_PANEL_CLASS}`}>
               <h3 className="text-lg font-medium mb-4">
                 Save QR Code to My Collection
               </h3>
@@ -1053,10 +1051,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         {/* Large QR Modal */}
         {showLargeQRModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              ref={modalRef}
-              className="bg-white p-6 rounded-lg shadow-lg w-full max-w-3xl"
-            >
+            <div ref={modalRef} className={`w-full max-w-3xl ${TOOL_PANEL_CLASS}`}>
               <h3 className="text-lg font-medium mb-4">Large QR Code</h3>
               <div className="flex justify-center mb-4">
                 <img

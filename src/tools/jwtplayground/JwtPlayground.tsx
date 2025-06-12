@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import Card from '../../design-system/components/layout/Card';
 import Button from '../../design-system/components/inputs/Button';
+import { ACTIVE_TAB_CLASS } from '../../design-system/foundations/layout';
 import { Alert } from '../../design-system/components/feedback/Alert';
 
 // Algorithm options
@@ -310,15 +311,15 @@ const JwtPlayground: React.FC = () => {
               </div>
               
               <div className="flex border-b border-gray-200">
-                <div 
-                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'encoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+                <div
+                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'encoded' ? `border-b-2 border-blue-500 text-blue-600 ${ACTIVE_TAB_CLASS}` : 'text-gray-600 hover:text-gray-800'}`}
                   onClick={() => setActiveTab('encoded')}
                 >
                   Encoded
                   <small className="block text-xs text-gray-500">paste a token</small>
                 </div>
-                <div 
-                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'decoded' ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'}`}
+                <div
+                  className={`px-4 py-2 cursor-pointer transition ${activeTab === 'decoded' ? `border-b-2 border-blue-500 text-blue-600 ${ACTIVE_TAB_CLASS}` : 'text-gray-600 hover:text-gray-800'}`}
                   onClick={() => setActiveTab('decoded')}
                 >
                   Decoded
