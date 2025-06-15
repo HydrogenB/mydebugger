@@ -100,3 +100,11 @@ import DeepLinkChainPage from '../src/tools/deep-link-chain/page';
 ```
 
 Follow and visualize the redirect chain for any URL entirely in the browser. The tool lists each hop with status codes and headers, highlights the final destination and extracts any UTM parameters present. Long chains collapse automatically with an option to expand. If fetch is blocked by CORS the tool attempts a browser-only fallback. The final URL displays an Open Graph preview when accessible. Results can be exported or copied as a Markdown table.
+
+## Virtual Name Card
+
+```tsx
+import VirtualCardPage from '../src/tools/virtual-card/page';
+```
+
+Create a shareable contact card completely in-browser. The tool generates a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
