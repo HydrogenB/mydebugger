@@ -20,6 +20,7 @@ import {
 } from '../design-system';
 import { TOOL_PANEL_CLASS } from '../design-system/foundations/layout';
 import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory, categories as categoryInfo } from '../tools';
+import { excludeById } from '../utils/toolFilters';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -97,7 +98,7 @@ const Home: React.FC = () => {
       let filtered: Tool[];
       
       if (activeTab === 'all') {
-        filtered = allTools;
+        filtered = searchTerm ? allTools : excludeById(allTools, recentTools);
       } else if (activeTab === 'popular') {
         filtered = popularTools;
       } else if (activeTab === 'new') {
