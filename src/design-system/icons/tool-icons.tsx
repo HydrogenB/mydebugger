@@ -1,3 +1,6 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 import React from 'react';
 
 // Tool icon components for the application
@@ -112,5 +115,13 @@ export const CookieIcon: React.FC<IconProps> = ({ className }) => (
 export const CacheIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+  </svg>
+);
+
+export const ContactCardIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <rect x="3" y="4" width="18" height="16" rx="2" ry="2" strokeWidth={2} />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h6M7 12h6M7 16h6" />
+    <circle cx="17" cy="12" r="2" strokeWidth={2} />
   </svg>
 );

@@ -63,7 +63,8 @@ import {
   LinkTracerIcon,
   Base64ImageIcon,
   CookieIcon,
-  CacheIcon
+  CacheIcon,
+  ContactCardIcon
 } from '../design-system/icons/tool-icons';
 
 // Category definitions with icons for consistent UI
@@ -301,6 +302,22 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: true
     }
+  },
+  {
+    id: 'virtual-card',
+    route: '/vcard',
+    title: 'Virtual Name Card',
+    description: 'Create and share a digital contact card with QR code.',
+    icon: ContactCardIcon,
+    component: lazy(() => import('./virtual-card/page')),
+    category: 'Utilities',
+    metadata: {
+      keywords: ['vcard', 'contact', 'qr', 'share link', 'virtual card'],
+      relatedTools: ['qrcode-generator'],
+    },
+    uiOptions: {
+      showExamples: false,
+    },
   },
   {
     id: 'cookie-inspector',

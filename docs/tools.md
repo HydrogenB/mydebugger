@@ -107,4 +107,4 @@ Follow and visualize the redirect chain for any URL entirely in the browser. The
 import VirtualCardPage from '../src/tools/virtual-card/page';
 ```
 
-Create a shareable contact card completely in-browser. The tool generates a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
+Create a shareable contact card completely in-browser. Visit `/vcard` in the app to generate a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
