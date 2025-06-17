@@ -45,6 +45,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   // Recently generated links
   const [recentLinks, setRecentLinks] = useState<string[]>([]);
+  const MAX_RECENT_LINKS = 10;
 
   const recentLinksBlock = recentLinks.length > 0 && (
     <div className="mt-8 border-t border-gray-200 pt-6">
@@ -76,6 +77,19 @@ const DeepLinkQRGenerator: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeoutRef = useRef<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const addRecentLink = useCallback((link: string) => {
+    if (!link) return;
+    setRecentLinks((prev) => {
+      const updated = [link, ...prev.filter((l) => l !== link)].slice(0, MAX_RECENT_LINKS);
+      try {
+        localStorage.setItem("recentLinks", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Error saving recent links:", error);
+      }
+      return updated;
+    });
+  }, []);
 
   // Check if device is mobile and load saved QR codes
   useEffect(() => {
@@ -195,20 +209,6 @@ const DeepLinkQRGenerator: React.FC = () => {
     };
   }, [input, size, errorCorrection, darkColor, lightColor, autoEncode]);
 
-  useEffect(() => {
-    if (encodedLink) {
-      const updated = [
-        encodedLink,
-        ...recentLinks.filter((l) => l !== encodedLink),
-      ].slice(0, 5);
-      setRecentLinks(updated);
-      try {
-        localStorage.setItem("recentLinks", JSON.stringify(updated));
-      } catch (error) {
-        console.error("Error saving recent links:", error);
-      }
-    }
-  }, [encodedLink, recentLinks]);
 
   // Clear toast message after 2 seconds
   useEffect(() => {
@@ -276,11 +276,13 @@ const DeepLinkQRGenerator: React.FC = () => {
   const handleCopyEncodedLink = () => {
     if (!encodedLink) return;
     copyToClipboard(encodedLink, "Encoded link copied!");
+    addRecentLink(encodedLink);
   };
 
   const handleCopyRawLink = () => {
     if (!input) return;
     copyToClipboard(input, "Link copied!");
+    addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
   };
 
   const handleCopyQRAsImage = async () => {
@@ -297,6 +299,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         });
         await navigator.clipboard.write([clipboardItem]);
         setToastMessage("QR image copied to clipboard!");
+        addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
       } else {
         // Fallback - create a temp link and download
         const link = document.createElement("a");
@@ -308,6 +311,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         setToastMessage(
           "QR image downloaded (copy not supported in this browser)",
         );
+        addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
       }
     } catch (error) {
       console.error("Error copying QR:", error);
@@ -366,6 +370,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     document.body.removeChild(link);
 
     setToastMessage("QR code downloaded!");
+    addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
   };
 
   const handleRunLink = () => {
@@ -381,6 +386,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         setToastMessage("Error opening link");
       }
       setTimeout(() => setIsRunningLink(false), 1000);
+      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     }, 10);
   };
 
@@ -404,6 +410,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         currentUrl.toString(),
         "Shareable link copied! Send to your team.",
       );
+      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     } catch (error) {
       console.error("Error creating shareable link:", error);
       setToastMessage("Error creating shareable link");
@@ -453,6 +460,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     try {
       localStorage.setItem("savedQRCodes", JSON.stringify(updatedCollection));
       setToastMessage("QR code saved to collection!");
+      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     } catch (error) {
       console.error("Error saving to collection:", error);
       setToastMessage("Error saving QR code");
