@@ -1,5 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { TOOL_PANEL_CLASS } from '../../design-system/foundations/layout';
+import { Tooltip } from '../../design-system/components/overlays/Tooltip';
+
+const clsx = (...c: Array<string | false | null | undefined>) =>
+  c.filter(Boolean).join(' ');
 
 type EncodingMode = 'encode' | 'decode';
 type EncodingMethod = 'encodeURIComponent' | 'encodeURI' | 'escape';
@@ -12,9 +17,12 @@ const UrlEncoder: React.FC = () => {
   const [method, setMethod] = useState<EncodingMethod>('encodeURIComponent');
   const [batchMode, setBatchMode] = useState<boolean>(false);
   
-  // Process input when mode, method or input changes
-  React.useEffect(() => {
-    processInput();
+  // Process input when dependencies change with a small debounce for UX
+  useEffect(() => {
+    const t = setTimeout(() => {
+      processInput();
+    }, 250);
+    return () => clearTimeout(t);
   }, [input, mode, method, batchMode]);
   
   // Reset copied state after 2 seconds
@@ -103,8 +111,9 @@ const UrlEncoder: React.FC = () => {
   };
   
   // SEO metadata
-  const pageTitle = "URL Encoder/Decoder | MyDebugger";
-  const pageDescription = "Encode or decode URL components and query parameters safely.";
+  const pageTitle = 'URL Encoder / Decoder – Safe encodeURIComponent for URLs';
+  const pageDescription =
+    'Free online URL encoder and decoder. Encode special characters using encodeURIComponent or decode query parameters.';
   
   return (
     <>
@@ -127,32 +136,49 @@ const UrlEncoder: React.FC = () => {
           Safely encode or decode URL components and query parameters.
         </p>
         
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
           {/* Input Section */}
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="input" className="block font-medium text-gray-700">
-                Input
-              </label>
-              <div className="flex items-center">
-                <span className="text-sm text-gray-600 mr-2">Mode:</span>
+          <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex rounded-md overflow-hidden" role="tablist">
                 <button
-                  onClick={toggleMode}
-                  className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-md text-sm transition flex items-center"
-                >
-                  {mode === 'encode' ? (
-                    <>Encode <span className="ml-1">→</span></>
-                  ) : (
-                    <>Decode <span className="ml-1">→</span></>
+                  type="button"
+                  onClick={() => setMode('encode')}
+                  className={clsx(
+                    'px-3 py-1 text-sm',
+                    mode === 'encode'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
                   )}
+                  role="tab"
+                  aria-selected={mode === 'encode'}
+                >
+                  Encode
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('decode')}
+                  className={clsx(
+                    'px-3 py-1 text-sm',
+                    mode === 'decode'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200',
+                  )}
+                  role="tab"
+                  aria-selected={mode === 'decode'}
+                >
+                  Decode
                 </button>
               </div>
-            </div>
-            
-            <div className="flex gap-4 mb-2">
-              <div className="flex-1">
-                <label htmlFor="method" className="block text-sm font-medium text-gray-700 mb-1">
-                  Encoding Method
+
+              <div className="flex-1 min-w-[10rem]">
+                <label htmlFor="method" className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                  <span className="flex items-center gap-1">
+                    Encoding Method
+                    <Tooltip content="encodeURIComponent for query values. encodeURI for full URLs. escape is legacy." className="ml-1">
+                      <span className="cursor-help">ℹ️</span>
+                    </Tooltip>
+                  </span>
                 </label>
                 <select
                   id="method"
@@ -160,62 +186,69 @@ const UrlEncoder: React.FC = () => {
                   value={method}
                   onChange={(e) => setMethod(e.target.value as EncodingMethod)}
                 >
-                  <option value="encodeURIComponent">encodeURIComponent (recommended)</option>
-                  <option value="encodeURI">encodeURI (preserves URL structure)</option>
-                  <option value="escape">escape (legacy, not recommended)</option>
+                  <option value="encodeURIComponent">encodeURIComponent</option>
+                  <option value="encodeURI">encodeURI</option>
+                  <option value="escape">escape</option>
                 </select>
               </div>
-              <div className="flex items-end mb-1">
-                <label className="inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    className="form-checkbox h-5 w-5 text-blue-500"
-                    checked={batchMode}
-                    onChange={(e) => setBatchMode(e.target.checked)}
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Batch Mode (process line by line)</span>
-                </label>
-              </div>
+
+              <label className="inline-flex items-center text-sm cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-primary-500"
+                  checked={batchMode}
+                  onChange={(e) => setBatchMode(e.target.checked)}
+                />
+                <span className="ml-2 flex items-center gap-1">
+                  Batch Mode
+                  <Tooltip content="Process each line separately" className="ml-1">
+                    <span className="cursor-help">ℹ️</span>
+                  </Tooltip>
+                </span>
+              </label>
             </div>
-            
+
             <textarea
               id="input"
               className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-40"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'encode' 
-                ? 'Enter text to encode...' 
-                : 'Enter URL encoded text to decode...'}
+              placeholder={
+                mode === 'encode' ? 'Enter text to encode...' : 'Enter encoded text to decode...'
+              }
               autoFocus
             />
+            <div className="text-right text-xs text-gray-500">Length: {input.length}</div>
           </div>
-          
+
           {/* Output Section */}
-          <div className="flex-1">
-            <div className="flex justify-between items-center mb-2">
-              <label htmlFor="output" className="block font-medium text-gray-700">
-                Output
-              </label>
+          <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
+            <div className="flex justify-between items-center">
+              <h2 className="font-medium">Output</h2>
               <div className="flex space-x-2">
                 <button
+                  type="button"
                   onClick={handleCopyOutput}
                   disabled={!output}
-                  className={`px-3 py-1 rounded-md text-sm transition ${
+                  className={clsx(
+                    'px-3 py-1 rounded-md text-sm transition',
                     output
-                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
+                      ? 'bg-primary-500 text-white hover:bg-primary-600'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed',
+                  )}
                 >
-                  {copied ? 'Copied!' : 'Copy'}
+                  {copied ? '✓ Copied!' : 'Copy'}
                 </button>
                 <button
+                  type="button"
                   onClick={handleReset}
                   disabled={!input && !output}
-                  className={`px-3 py-1 rounded-md text-sm transition ${
+                  className={clsx(
+                    'px-3 py-1 rounded-md text-sm transition',
                     input || output
                       ? 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  }`}
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed',
+                  )}
                 >
                   Reset
                 </button>
@@ -223,18 +256,19 @@ const UrlEncoder: React.FC = () => {
             </div>
             <textarea
               id="output"
-              className="w-full rounded-md border-gray-300 bg-gray-50 shadow-sm h-40"
+              className="w-full rounded-md border-gray-300 bg-gray-50 dark:bg-gray-900 shadow-sm h-40 font-mono"
               value={output}
               readOnly
               placeholder="Result will appear here..."
             />
+            <div className="text-right text-xs text-gray-500">Length: {output.length}</div>
           </div>
         </div>
         
         {/* Examples */}
         <div className="mt-8 border-t border-gray-200 pt-6">
           <h2 className="text-xl font-semibold mb-4">Examples</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-md border border-gray-200">
               <h3 className="font-medium mb-2">Common URL Characters to Encode</h3>
               <table className="w-full text-sm">
@@ -282,6 +316,26 @@ const UrlEncoder: React.FC = () => {
                   name%3DJohn%20Doe%26query%3Dsearch%20term%26lang%3Den-US
                 </div>
               </div>
+            </div>
+            <div className="bg-white p-4 rounded-md border border-gray-200">
+              <h3 className="font-medium mb-2">Try It</h3>
+              <ul className="space-y-2 text-sm">
+                {[
+                  'https://example.com/search?q=hello world',
+                  'name=John Doe&lang=en-US',
+                  'path/to/page?param=one&x=2',
+                ].map((ex) => (
+                  <li key={ex}>
+                    <button
+                      type="button"
+                      className="underline text-blue-600 hover:text-blue-800"
+                      onClick={() => setInput(ex)}
+                    >
+                      {ex}
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
