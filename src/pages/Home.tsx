@@ -412,7 +412,9 @@ const Home: React.FC = () => {
           <div className="mb-4 flex justify-between items-center">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {visibleTools.length > 0 ? (
-                <span>Showing {visibleTools.length} tool{visibleTools.length !== 1 ? 's' : ''}</span>
+                <p className="mt-4 mb-4 text-sm text-gray-500 pl-1">
+                  Showing {visibleTools.length} tool{visibleTools.length !== 1 ? 's' : ''}
+                </p>
               ) : null}
             </div>
             <div className="flex space-x-2">
