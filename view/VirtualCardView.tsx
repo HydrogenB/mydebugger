@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import VirtualCardHero from './VirtualCardHero';
+import VirtualCardActions from './VirtualCardActions';
 
 interface Props {
   fullName: string;
@@ -13,11 +15,17 @@ interface Props {
   setEmail: (v: string) => void;
   vcard: string;
   qrDataUrl: string;
-  shareUrl: string;
   showRaw: boolean;
   toggleRaw: () => void;
   download: () => void;
   copyLink: () => void;
+  copyVcard: () => void;
+  downloadQr: () => void;
+  shareCard: () => void;
+  isFlipped: boolean;
+  flip: (toBack?: boolean) => void;
+  toastMessage: string;
+  cancelFlip: () => void;
 }
 
 export function VirtualCardView({
@@ -29,11 +37,17 @@ export function VirtualCardView({
   setEmail,
   vcard,
   qrDataUrl,
-  shareUrl,
   showRaw,
   toggleRaw,
   download,
   copyLink,
+  copyVcard,
+  shareCard,
+  downloadQr,
+  isFlipped,
+  flip,
+  toastMessage,
+  cancelFlip,
 }: Props) {
   return (
     <div className={TOOL_PANEL_CLASS}>
@@ -80,12 +94,31 @@ export function VirtualCardView({
         {showRaw && (
           <textarea className="w-full h-32 p-2 border rounded dark:bg-gray-700" readOnly value={vcard} />
         )}
-        {qrDataUrl && (
-          <div className="mt-4 text-center">
-            <img src={qrDataUrl} alt="QR code" className="inline-block" />
-            <p className="mt-2 break-all text-sm">{shareUrl}</p>
+        {toastMessage && (
+          <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+            {toastMessage}
           </div>
         )}
+        <div className="transition-opacity duration-300 delay-150">
+          <VirtualCardHero
+            fullName={fullName}
+            phone={phone}
+            email={email}
+            qrDataUrl={qrDataUrl}
+            flipped={isFlipped}
+            flip={flip}
+            download={download}
+            downloadQr={downloadQr}
+            copyVcard={copyVcard}
+            shareCard={shareCard}
+            onInteract={cancelFlip}
+          />
+          <VirtualCardActions
+            download={download}
+            shareCard={shareCard}
+            showQr={() => flip(true)}
+          />
+        </div>
       </div>
     </div>
   );
