@@ -294,7 +294,7 @@ const toolRegistry: Tool[] = [
     description:
       "Test how App Flyer/OneLink URLs behave across different device contexts and installation states.",
     icon: LinkTracerIcon, // Reusing the same icon for now
-    component: lazy(() => import("./linktracer/DeviceTrace")),
+    component: lazy(() => import("./device-trace/page")),
     category: "Testing",
     metadata: {
       keywords: [
