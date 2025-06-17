@@ -490,13 +490,14 @@ const toolRegistry: Tool[] = [
   {
     id: 'pre-rendering-tester',
     route: '/pre-rendering-tester',
-    title: 'Pre-rendering Tester',
-    description: 'Compare HTML snapshots across user-agents.',
+    title: 'Pre-rendering & SEO Meta Tester',
+    description:
+      'Test how Googlebot, Bingbot, Facebook, and real users see your web content — including title, description and H1 rendering.',
     icon: TestingIcon,
     component: lazy(() => import('./pre-rendering-tester/page')),
     category: 'Testing',
     metadata: {
-      keywords: ['seo', 'prerender', 'crawler', 'user-agent'],
+      keywords: ['seo', 'prerender', 'crawler', 'meta description', 'user-agent'],
       relatedTools: ['fetch-render'],
     },
     uiOptions: { showExamples: false }

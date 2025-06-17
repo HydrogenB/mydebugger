@@ -1,15 +1,41 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { fetchSnapshot, Snapshot } from '../model/prerender';
 
-export const USER_AGENTS: Record<string, string> = {
-  Googlebot: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-  Bingbot: 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
-  'Desktop Chrome':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
-};
+export interface Agent {
+  id: string;
+  ua: string;
+  category: 'SEO Crawler' | 'Browser' | 'Social Bot';
+}
+
+export const AGENTS: Agent[] = [
+  {
+    id: 'Googlebot',
+    ua: 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    category: 'SEO Crawler',
+  },
+  {
+    id: 'Bingbot',
+    ua: 'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+    category: 'SEO Crawler',
+  },
+  {
+    id: 'FacebookBot',
+    ua: 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+    category: 'Social Bot',
+  },
+  {
+    id: 'Desktop Chrome',
+    ua: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+    category: 'Browser',
+  },
+];
+
+export const USER_AGENTS: Record<string, string> = Object.fromEntries(
+  AGENTS.map(a => [a.id, a.ua])
+);
 
 export const usePreRenderingTester = () => {
   const [url, setUrl] = useState('');
@@ -29,9 +55,10 @@ export const usePreRenderingTester = () => {
     setError('');
     try {
       const snaps = await Promise.all(
-        agents.map(id =>
-          fetchSnapshot(url, USER_AGENTS[id]).then(s => ({ ...s, userAgent: id }))
-        )
+        agents.map(id => {
+          const agent = AGENTS.find(a => a.id === id)!;
+          return fetchSnapshot(url, agent.ua).then(s => ({ ...s, userAgent: id }));
+        })
       );
       setResults(snaps);
     } catch (e) {
@@ -55,7 +82,34 @@ export const usePreRenderingTester = () => {
     URL.revokeObjectURL(href);
   };
 
-  return { url, setUrl, agents, toggleAgent, results, run, loading, error, copyJson, exportJson };
+  const summary = useMemo(() => {
+    if (!results.length) return '';
+    const agentsTested = results.length;
+    const titlesMatch = results.every(r => r.title === results[0].title);
+    const descMatch = results.every(r => r.description === results[0].description);
+    const missingH1 = results.some(r => !r.h1);
+    const descLen = results[0].description?.length ?? 0;
+    return `${agentsTested} agents • ${titlesMatch ? '✅ Titles match' : '⚠️ Title mismatch'} • ${descMatch ? '✅ Descriptions match' : '⚠️ Description mismatch'} • ${missingH1 ? '⚠️ Missing H1' : '✅ H1 present'} • 📏 Description: ${descLen} chars`;
+  }, [results]);
+
+  const copySnapshot = async (snap: Snapshot) => {
+    await navigator.clipboard.writeText(JSON.stringify(snap, null, 2));
+  };
+
+  return {
+    url,
+    setUrl,
+    agents,
+    toggleAgent,
+    results,
+    run,
+    loading,
+    error,
+    copyJson,
+    exportJson,
+    summary,
+    copySnapshot,
+  };
 };
 
 export default usePreRenderingTester;
