@@ -57,11 +57,9 @@ import {
   UrlIcon,
   HeadersIcon,
   RegexIcon,
-  DnsIcon,
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon,
-  Base64ImageIcon,
   CookieIcon,
   CacheIcon,
   ContactCardIcon,
@@ -187,21 +185,6 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: false,
-    },
-  },
-  {
-    id: "dns-lookup",
-    route: "/dns-check",
-    title: "DNS Lookup Tool",
-    description: "Query DNS records for any domain name.",
-    icon: DnsIcon,
-    component: lazy(() => import("./dns/DnsLookup")),
-    category: "Testing",
-    isBeta: true,
-    metadata: {
-      keywords: ["dns", "lookup", "domain", "nameserver", "records"],
-      learnMoreUrl: "https://www.cloudflare.com/learning/dns/what-is-dns/",
-      relatedTools: ["headers-analyzer"],
     },
   },
   {
@@ -362,38 +345,6 @@ const toolRegistry: Tool[] = [
       keywords: ["components", "demo", "ui", "showcase"],
       learnMoreUrl: "https://reactjs.org/docs/components-and-props.html",
       relatedTools: [],
-    },
-    uiOptions: {
-      showExamples: true,
-    },
-  },
-  {
-    id: "base64-image",
-    route: "/base64-image",
-    title: "Base64 Image Debugger",
-    description:
-      "Debug and visualize base64-encoded images with detailed information.",
-    longDescription:
-      "Tool to visualize base64-encoded images and display detailed information about them including format, dimensions, file size and more.",
-    icon: Base64ImageIcon,
-    component: lazy(() => import("./base64-image/page")),
-    category: "Utilities",
-    metadata: {
-      keywords: [
-        "base64",
-        "image",
-        "encoder",
-        "decoder",
-        "preview",
-        "debug",
-        "visualize",
-        "png",
-        "jpg",
-        "jpeg",
-        "gif",
-        "svg",
-      ],
-      relatedTools: ["url-encoder"],
     },
     uiOptions: {
       showExamples: true,
