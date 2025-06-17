@@ -33,6 +33,27 @@ export const parseUtmParams = (target: string): Record<string, string> => {
 
 export const MAX_REDIRECTS = 20;
 
+/**
+ * Request the redirect chain from the serverless API to avoid CORS issues.
+ * @param initialUrl URL to trace
+ */
+export const followRedirectChainRemote = async (
+  initialUrl: string,
+): Promise<RedirectHop[]> => {
+  try {
+    const res = await fetch('/api/deep-link-chain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: initialUrl }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    return Array.isArray(data.hops) ? data.hops : [];
+  } catch (e) {
+    return [{ url: initialUrl, error: (e as Error).message }];
+  }
+};
+
 const tryFetchFinalUrl = async (url: string): Promise<string | undefined> => {
   try {
     const res = await fetch(url, { mode: 'no-cors', redirect: 'follow' });
