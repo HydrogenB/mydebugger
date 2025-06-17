@@ -243,34 +243,6 @@ const toolRegistry: Tool[] = [
     },
   },
   {
-    id: "link-tracer",
-    route: "/link-tracer",
-    title: "Link Tracer",
-    description:
-      "Trace the complete redirect path of any URL, showing each hop, status code and latency.",
-    icon: LinkTracerIcon,
-    component: lazy(() => import("./linktracer/LinkTracer")),
-    category: "Testing",
-    metadata: {
-      keywords: [
-        "redirect",
-        "trace",
-        "url",
-        "link",
-        "shortened url",
-        "redirect chain",
-        "http status",
-        "redirect checker",
-      ],
-      learnMoreUrl:
-        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections",
-      relatedTools: ["headers-analyzer", "url-encoder"],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
     id: "device-trace",
     route: "/device-trace",
     title: "Dynamic-Link Probe",
@@ -292,7 +264,7 @@ const toolRegistry: Tool[] = [
       ],
       learnMoreUrl:
         "https://support.appsflyer.com/hc/en-us/articles/207032366-OneLink-overview",
-      relatedTools: ["link-tracer", "headers-analyzer"],
+      relatedTools: ["headers-analyzer"],
     },
     uiOptions: {
       showExamples: false,
@@ -327,7 +299,7 @@ const toolRegistry: Tool[] = [
       keywords: ["redirect", "utm", "deep link", "link trace", "url"],
       learnMoreUrl:
         "https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections",
-      relatedTools: ["link-tracer", "url-encoder"],
+      relatedTools: ["url-encoder"],
     },
     uiOptions: {
       showExamples: false,
