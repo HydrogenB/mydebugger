@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { RedirectHop, OpenGraphPreview } from '../model/deepLinkChain';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 
 interface Props {
   url: string;
@@ -46,7 +47,7 @@ export function DeepLinkChainView({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={`${TOOL_PANEL_CLASS.replace('p-6', 'p-4')} max-w-5xl mx-auto space-y-4`}>
       <div className="flex gap-2">
         <input
           value={url}
@@ -65,10 +66,12 @@ export function DeepLinkChainView({
       </div>
       {error && <div className="text-red-600">{error}</div>}
       {chain.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+        <div>
+          <h3 className="font-semibold text-lg mb-2">Redirect Trace Results</h3>
+          <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border border-gray-200 dark:border-gray-700">
             <thead>
-              <tr className="border-b">
+              <tr className="border-b bg-gray-50 dark:bg-gray-900">
                 <th className="px-2 py-1 text-left">Hop</th>
                 <th className="px-2 py-1 text-left">URL</th>
                 <th className="px-2 py-1 text-left">Status</th>
@@ -80,7 +83,7 @@ export function DeepLinkChainView({
                 return (
                   <tr
                     key={`${h.url}-${realIndex}`}
-                    className={`border-b ${realIndex === chain.length - 1 ? 'bg-green-50 dark:bg-green-900' : ''}`}
+                    className={`border-b odd:bg-gray-50 dark:odd:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 ${realIndex === chain.length - 1 ? 'bg-green-50 dark:bg-green-900' : ''}`}
                   >
                     <td className="px-2 py-1">{realIndex + 1}</td>
                     <td className="px-2 py-1 break-all">{h.url}</td>
@@ -103,10 +106,11 @@ export function DeepLinkChainView({
               )}
             </tbody>
           </table>
-          <div className="flex gap-2 mt-2">
-            <button type="button" onClick={exportJson} className="text-sm underline">Export JSON</button>
-            <button type="button" onClick={exportMarkdown} className="text-sm underline">Export Markdown</button>
-            <button type="button" onClick={copyMarkdown} className="text-sm underline">Copy Markdown</button>
+          <div className="flex justify-end mt-4 gap-4 text-sm text-blue-600">
+            <button type="button" onClick={exportJson} className="underline">Export JSON</button>
+            <button type="button" onClick={exportMarkdown} className="underline">Export Markdown</button>
+            <button type="button" onClick={copyMarkdown} className="underline">Copy Markdown</button>
+          </div>
           </div>
         </div>
       )}
