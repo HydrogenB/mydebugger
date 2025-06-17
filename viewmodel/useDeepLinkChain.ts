@@ -2,7 +2,13 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useState } from 'react';
-import followRedirectChainFn, { RedirectHop, parseUtmParams, fetchOpenGraph, OpenGraphPreview } from '../model/deepLinkChain';
+import {
+  RedirectHop,
+  parseUtmParams,
+  fetchOpenGraph,
+  OpenGraphPreview,
+  followRedirectChainRemote,
+} from '../model/deepLinkChain';
 
 export const useDeepLinkChain = (initialUrl = '') => {
   const [url, setUrl] = useState(initialUrl);
@@ -17,7 +23,7 @@ export const useDeepLinkChain = (initialUrl = '') => {
     setError('');
     setOpenGraph(null);
     try {
-      const hops = await followRedirectChainFn(url);
+      const hops = await followRedirectChainRemote(url);
       setChain(hops);
       const last = hops[hops.length - 1];
       if (last) {

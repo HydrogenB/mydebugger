@@ -1,4 +1,4 @@
-import { followRedirectChain, parseUtmParams, fetchOpenGraph } from '../model/deepLinkChain';
+import { followRedirectChain, followRedirectChainRemote, parseUtmParams, fetchOpenGraph } from '../model/deepLinkChain';
 
 describe('parseUtmParams', () => {
   it('extracts utm parameters', () => {
@@ -79,6 +79,19 @@ describe('followRedirectChain', () => {
     (global.fetch as any) = jest.fn().mockRejectedValue(new Error('x'));
     const og = await fetchOpenGraph('https://a.com');
     expect(og).toBeNull();
+  });
+
+  it('requests redirect chain from API', async () => {
+    (global.fetch as any) = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ hops: [{ url: 'https://a.com', status: 200 }] }),
+    });
+    const hops = await followRedirectChainRemote('https://a.com');
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/deep-link-chain',
+      expect.objectContaining({ method: 'POST' }),
+    );
+    expect(hops[0].status).toBe(200);
   });
 });
 
