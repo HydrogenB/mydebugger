@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import React, { forwardRef, useImperativeHandle } from 'react';
+import React, { forwardRef, useImperativeHandle, useRef } from 'react';
 
 const clsx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(' ');
 
@@ -9,6 +9,10 @@ interface Props {
   fullName: string;
   phone: string;
   email: string;
+  organization: string;
+  title: string;
+  website: string;
+  address: string;
   qrDataUrl: string;
   flipped: boolean;
   flip: (toBack?: boolean) => void;
@@ -21,12 +25,17 @@ interface Props {
 
 export interface VirtualCardHeroHandle {
   showQr: () => void;
+  root: HTMLDivElement | null;
 }
 
 const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({ 
   fullName,
   phone,
   email,
+  organization,
+  title,
+  website,
+  address,
   qrDataUrl,
   flipped,
   flip,
@@ -36,12 +45,13 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
   shareCard,
   onInteract,
 }, ref) => {
+  const rootRef = useRef<HTMLDivElement>(null);
   const handleFlip = () => flip(!flipped);
 
-  useImperativeHandle(ref, () => ({ showQr: () => flip(true) }));
+  useImperativeHandle(ref, () => ({ showQr: () => flip(true), root: rootRef.current }));
 
   return (
-    <div className="relative mx-auto my-6 w-72 h-96 [perspective:1000px]">
+    <div ref={rootRef} className="relative mx-auto my-6 w-72 h-96 [perspective:1000px]">
       <div
         role="button"
         tabIndex={0}
@@ -67,8 +77,16 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
         >
           <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 shadow mb-4" />
           <p className="text-xl font-semibold text-gray-800 dark:text-white">{fullName || 'Your Name'}</p>
+          {title && <p className="text-gray-600 dark:text-gray-300 text-sm">{title}</p>}
+          {organization && <p className="text-gray-600 dark:text-gray-300 text-sm">{organization}</p>}
           {phone && <p className="text-gray-600 dark:text-gray-300 text-sm">{phone}</p>}
           {email && <p className="text-gray-600 dark:text-gray-300 text-sm">{email}</p>}
+          {website && (
+            <a href={website} className="text-primary-600 dark:text-primary-400 text-sm" target="_blank" rel="noopener noreferrer">
+              {website}
+            </a>
+          )}
+          {address && <p className="text-gray-600 dark:text-gray-300 text-sm text-center">{address}</p>}
           <div className="flex gap-3 mt-4">
             {phone && (
               <a

@@ -8,6 +8,7 @@ import {
   encodeContactData,
   decodeContactData,
 } from '../model/virtualCard';
+import { VirtualCardHeroHandle } from '../view/VirtualCardHero';
 
 let qrImport: Promise<typeof import('qrcode')> | null = null;
 const loadQRCode = async () => {
@@ -19,12 +20,18 @@ export const useVirtualCard = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [organization, setOrganization] = useState('');
+  const [title, setTitle] = useState('');
+  const [website, setWebsite] = useState('');
+  const [address, setAddress] = useState('');
   const [vcard, setVcard] = useState('');
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [shareUrl, setShareUrl] = useState('');
   const [showRaw, setShowRaw] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [viewOnly, setViewOnly] = useState(false);
+  const heroRef = useRef<VirtualCardHeroHandle | null>(null);
   const flipTimer = useRef<number>();
 
   const updateOutputs = async (info: ContactInfo) => {
@@ -50,20 +57,33 @@ export const useVirtualCard = () => {
         setFullName(decoded.fullName || '');
         setPhone(decoded.phone || '');
         setEmail(decoded.email || '');
+        setOrganization(decoded.organization || '');
+        setTitle(decoded.title || '');
+        setWebsite(decoded.website || '');
+        setAddress(decoded.address || '');
+        setViewOnly(true);
       }
     }
   }, []);
 
   useEffect(() => {
-    const info: ContactInfo = { fullName, phone, email };
-    if (fullName || phone || email) {
+    const info: ContactInfo = {
+      fullName,
+      phone,
+      email,
+      organization,
+      title,
+      website,
+      address,
+    };
+    if (fullName || phone || email || organization || title || website || address) {
       updateOutputs(info);
     } else {
       setVcard('');
       setQrDataUrl('');
       setShareUrl('');
     }
-  }, [fullName, phone, email]);
+  }, [fullName, phone, email, organization, title, website, address]);
 
   useEffect(() => {
     if (!toastMessage) return undefined;
@@ -89,6 +109,16 @@ export const useVirtualCard = () => {
     link.download = 'qr.png';
     link.click();
     setToastMessage('QR saved');
+  };
+
+  const downloadImage = async () => {
+    if (!heroRef.current?.root) return;
+    const htmlToImage = await import('html-to-image');
+    const url = await htmlToImage.toPng(heroRef.current.root);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'card.png';
+    link.click();
   };
   const copyLink = async () => {
     if (shareUrl) {
@@ -142,6 +172,14 @@ export const useVirtualCard = () => {
     setPhone,
     email,
     setEmail,
+    organization,
+    setOrganization,
+    title,
+    setTitle,
+    website,
+    setWebsite,
+    address,
+    setAddress,
     vcard,
     qrDataUrl,
     shareUrl,
@@ -149,6 +187,7 @@ export const useVirtualCard = () => {
     toggleRaw,
     download,
     downloadQr,
+    downloadImage,
     copyLink,
     copyVcard,
     shareCard,
@@ -156,6 +195,8 @@ export const useVirtualCard = () => {
     flip,
     cancelFlip,
     toastMessage,
+    viewOnly,
+    heroRef,
   };
 };
 
