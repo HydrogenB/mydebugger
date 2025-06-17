@@ -5,3 +5,4 @@ export { Badge, BadgeContainer } from './Badge';
 export { default as ResponsiveImage } from './ResponsiveImage';
 export { default as InfoBox } from './InfoBox';
 export { default as Tag } from './Tag';
+export { default as CodeBlock } from './CodeBlock';

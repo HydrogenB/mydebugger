@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { CodeBlock } from '../src/design-system/components/display/CodeBlock';
 import { CorsResult, CorsAnalysis } from '../model/cors';
 
 interface Props {
@@ -124,7 +125,9 @@ export function CorsTesterView({
           )}
           <details className="mt-4">
             <summary className="cursor-pointer">Request Flow & cURL</summary>
-            <pre className="bg-gray-100 dark:bg-gray-900 p-2 mt-2 rounded text-xs whitespace-pre-wrap">{JSON.stringify(result, null, 2)}</pre>
+            <CodeBlock className="mt-2 text-xs" maxHeight="16rem">
+              {JSON.stringify(result, null, 2)}
+            </CodeBlock>
             <div className="mt-2 flex items-center gap-2">
               <code className="px-2 py-1 bg-gray-100 dark:bg-gray-900 rounded text-xs break-all">{curlCommand}</code>
               <button

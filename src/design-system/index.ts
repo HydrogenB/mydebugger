@@ -32,6 +32,7 @@ export { Button } from './components/inputs';
 export { Card } from './components/layout';
 export { Alert } from './components/feedback';
 export { Badge, BadgeContainer } from './components/display';
+export { CodeBlock } from './components/display';
 export { Modal } from './components/overlays';
 export { TabGroup, Tab, TabPanel } from './components/navigation';
 export { Text } from './components/typography';
