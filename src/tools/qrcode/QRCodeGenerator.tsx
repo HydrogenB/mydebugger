@@ -41,6 +41,29 @@ const DeepLinkQRGenerator: React.FC = () => {
     useState<boolean>(false);
   const [autoEncode, setAutoEncode] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [mobileOS, setMobileOS] = useState<string>("");
+
+  // Recently generated links
+  const [recentLinks, setRecentLinks] = useState<string[]>([]);
+
+  const recentLinksBlock = recentLinks.length > 0 && (
+    <div className="mt-8 border-t border-gray-200 pt-6">
+      <h2 className="text-xl font-semibold mb-4">Recent Links</h2>
+      <ul className="list-disc list-inside space-y-1 text-sm">
+        {recentLinks.map((link) => (
+          <li key={link} className="break-all">
+            <button
+              type="button"
+              onClick={() => setInput(link)}
+              className="text-blue-600 hover:underline"
+            >
+              {link}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 
   // Collection related state
   const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
@@ -63,6 +86,9 @@ const DeepLinkQRGenerator: React.FC = () => {
           userAgent,
         );
       setIsMobile(isMobileDevice);
+      if (/android/i.test(userAgent)) setMobileOS("Android");
+      else if (/iphone|ipad|ipod/i.test(userAgent)) setMobileOS("iPhone");
+      else setMobileOS("");
     };
 
     checkMobile();
@@ -90,6 +116,15 @@ const DeepLinkQRGenerator: React.FC = () => {
         setSavedQRCodes(JSON.parse(savedCodes));
       } catch (error) {
         console.error("Error loading saved QR codes:", error);
+      }
+    }
+
+    const storedRecent = localStorage.getItem("recentLinks");
+    if (storedRecent) {
+      try {
+        setRecentLinks(JSON.parse(storedRecent));
+      } catch (error) {
+        console.error("Error loading recent links:", error);
       }
     }
 
@@ -159,6 +194,21 @@ const DeepLinkQRGenerator: React.FC = () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [input, size, errorCorrection, darkColor, lightColor, autoEncode]);
+
+  useEffect(() => {
+    if (encodedLink) {
+      const updated = [
+        encodedLink,
+        ...recentLinks.filter((l) => l !== encodedLink),
+      ].slice(0, 5);
+      setRecentLinks(updated);
+      try {
+        localStorage.setItem("recentLinks", JSON.stringify(updated));
+      } catch (error) {
+        console.error("Error saving recent links:", error);
+      }
+    }
+  }, [encodedLink, recentLinks]);
 
   // Clear toast message after 2 seconds
   useEffect(() => {
@@ -465,18 +515,36 @@ const DeepLinkQRGenerator: React.FC = () => {
   return (
     <>
       <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:type" content="website" />
+        <title>
+          Deep-Link Tester & QR Code Generator for iOS & Android Apps
+        </title>
         <meta
-          property="og:url"
-          content="https://mydebugger.vercel.app/qrcode"
+          name="description"
+          content="Test mobile deep links instantly and generate QR codes for iOS/Android schemes like trueapp:// or custom URLs. Share encoded links with your team easily."
         />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:description" content={pageDescription} />
+        <meta
+          property="og:title"
+          content="Deep-Link Tester & QR Generator – MyDebugger"
+        />
+        <meta
+          property="og:description"
+          content="Create deep link QR codes, auto-encode safe URLs, and run links on devices. Built for mobile app teams."
+        />
+        <meta property="og:image" content="/og-deeplink-preview.png" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href="https://mydebugger.vercel.app/qrcode" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            name: "Deep-Link Tester & QR Generator",
+            url: "https://mydebugger.vercel.app/qrcode",
+            applicationCategory: "DeveloperTool",
+            description:
+              "Test and share mobile deep links with QR code generation for iOS and Android apps.",
+            creator: { "@type": "Person", name: "Jirad Sreerattana-arporn" },
+          })}
+        </script>
       </Helmet>
 
       <div className="container mx-auto px-4 py-8">
@@ -484,9 +552,10 @@ const DeepLinkQRGenerator: React.FC = () => {
           Deep-Link Tester & QR Generator
         </h1>
         <p className="text-gray-600 mb-8">
-          Generate QR codes for any URL or mobile deeplink (e.g.,
-          trueapp://app.true.th/home), test them on your device, and share with
-          your team.
+          Generate QR codes for any URL or mobile deep link (e.g,
+          <code>trueapp://</code>, <code>myapp://</code>, or
+          <code>https://</code>). This tool auto-encodes query parameters,
+          previews safe links, and lets you test instantly on your own device.
         </p>
 
         {/* Toast Message */}
@@ -499,7 +568,9 @@ const DeepLinkQRGenerator: React.FC = () => {
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* Input Section */}
           <div className="flex-1">
-            <div className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace('p-6', 'p-5')}`}> 
+            <div
+              className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
+            >
               <label
                 htmlFor="input"
                 className="block font-medium text-gray-700 mb-2"
@@ -512,6 +583,12 @@ const DeepLinkQRGenerator: React.FC = () => {
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleRunLink();
+                  }
+                }}
                 placeholder="https://example.com/"
                 autoFocus
               />
@@ -535,9 +612,14 @@ const DeepLinkQRGenerator: React.FC = () => {
                     Percent-Encoded (Safe for Sharing)
                   </label>
                   <div className="flex">
-                    <div className="flex-1 bg-gray-50 rounded-md border border-gray-300 p-2 text-sm text-gray-600 break-all">
-                      {encodedLink}
-                    </div>
+                    <input
+                      type="text"
+                      readOnly
+                      value={encodedLink}
+                      onFocus={(e) => e.target.select()}
+                      onClick={handleCopyEncodedLink}
+                      className="flex-1 bg-gray-50 rounded-md border border-gray-300 p-2 text-sm text-gray-600 break-all cursor-copy"
+                    />
                     <button
                       onClick={handleCopyEncodedLink}
                       className="ml-2 px-3 flex-shrink-0 rounded-md bg-gray-200 hover:bg-gray-300 transition"
@@ -560,6 +642,8 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {recentLinksBlock}
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -641,7 +725,11 @@ const DeepLinkQRGenerator: React.FC = () => {
                       d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  {isRunningLink ? "Opening..." : "Run on This Device"}
+                  {isRunningLink
+                    ? "Opening..."
+                    : isMobile
+                      ? `Open on ${mobileOS || "Device"}`
+                      : "Run on This Device"}
                 </button>
                 <button
                   onClick={handleReset}
@@ -798,7 +886,9 @@ const DeepLinkQRGenerator: React.FC = () => {
 
           {/* QR Code Output Section */}
           <div className="flex-1">
-            <div className={`border border-gray-200 h-full flex flex-col ${TOOL_PANEL_CLASS.replace('p-6', 'p-5')}`}> 
+            <div
+              className={`border border-gray-200 h-full flex flex-col ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
+            >
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-semibold">QR Code Preview</h2>
               </div>
@@ -815,7 +905,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       title="Click to view larger size"
                     />
                     <div className="text-xs text-center text-gray-500 break-all mt-2 px-4">
-                      {input}
+                      {input.length > 50 ? `${input.slice(0, 47)}...` : input}
                     </div>
                   </>
                 ) : (
@@ -984,35 +1074,43 @@ const DeepLinkQRGenerator: React.FC = () => {
           </div>
         </div>
 
-        {/* Related Tools */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
-              href="/url-encoder"
-              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
-            >
-              <h3 className="font-medium text-lg mb-1">URL Encoder/Decoder</h3>
-              <p className="text-gray-600">
-                Encode or decode URL components safely.
-              </p>
-            </a>
-            <a
-              href="/headers-analyzer"
-              className="bg-white p-4 rounded-md border border-gray-200 hover:shadow-md transition"
-            >
-              <h3 className="font-medium text-lg mb-1">Headers Analyzer</h3>
-              <p className="text-gray-600">
-                Analyze HTTP headers and security policies of any website.
-              </p>
-            </a>
-          </div>
-        </div>
+        {/* Related Debugging Tools */}
+        <section className="mt-8 border-t border-gray-200 pt-6">
+          <h2 className="text-xl font-semibold mb-4">
+            Related Debugging Tools
+          </h2>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              <a href="/base64-image" className="text-blue-600 hover:underline">
+                Base64 Image Viewer
+              </a>
+            </li>
+            <li>
+              <a
+                href="/url-inspector"
+                className="text-blue-600 hover:underline"
+              >
+                URL Parameter Inspector
+              </a>
+            </li>
+            <li>
+              <a
+                href="/base64-decode"
+                className="text-blue-600 hover:underline"
+              >
+                Text Base64 Decoder
+              </a>
+            </li>
+          </ul>
+        </section>
 
         {/* Save Modal */}
         {showSaveModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div ref={modalRef} className={`w-full max-w-md ${TOOL_PANEL_CLASS}`}>
+            <div
+              ref={modalRef}
+              className={`w-full max-w-md ${TOOL_PANEL_CLASS}`}
+            >
               <h3 className="text-lg font-medium mb-4">
                 Save QR Code to My Collection
               </h3>
@@ -1051,7 +1149,10 @@ const DeepLinkQRGenerator: React.FC = () => {
         {/* Large QR Modal */}
         {showLargeQRModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div ref={modalRef} className={`w-full max-w-3xl ${TOOL_PANEL_CLASS}`}>
+            <div
+              ref={modalRef}
+              className={`w-full max-w-3xl ${TOOL_PANEL_CLASS}`}
+            >
               <h3 className="text-lg font-medium mb-4">Large QR Code</h3>
               <div className="flex justify-center mb-4">
                 <img

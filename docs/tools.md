@@ -143,3 +143,11 @@ import FetchRenderPage from '../src/tools/fetch-render/page';
 ```
 
 Simulate JavaScript rendering in a sandboxed iframe. Set a timeout before capture, inspect console output and export the rendered DOM to clipboard or file for further analysis.
+
+## Deep-Link QR Generator
+
+```tsx
+import QRCodeGeneratorPage from "../src/tools/qrcode/QRCodeGenerator";
+```
+
+Generate QR codes for any URL or mobile deep link. The tool auto-encodes query parameters, shows a real-time preview and lets you open or share the link instantly. Access it at `/qrcode`.
