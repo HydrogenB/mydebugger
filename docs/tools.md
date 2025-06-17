@@ -47,7 +47,7 @@ Click any cookie name or value to copy it. Long values can be expanded inline, a
 import CacheInspectorPage from "../src/tools/cache-inspector";
 ```
 
-Use the Cache Inspector to analyze caching behaviour for resources loaded in your session. It now shows cache freshness badges (`FRESH`, `STALE`, `EXPIRED`, `NO-CACHE`), lists matching Service Worker cache names, and annotates whether a resource came from the network or memory. Results can be exported to a timestamped JSON file grouped by domain.
+Use the Cache Inspector to analyze caching behaviour for resources loaded in your session. It now shows cache freshness badges (`FRESH`, `STALE`, `EXPIRED`, `NO-CACHE`), lists matching Service Worker cache names, and annotates whether a resource came from the network or memory. A summary panel highlights totals per resource type and overall freshness. Results can be exported to JSON or CSV and you can copy a sharable link to revisit the inspection later.
 
 ## Cookie Scope
 
