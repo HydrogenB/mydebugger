@@ -79,7 +79,7 @@ const ClickJackingValidator: React.FC = () => {
       const params = new URLSearchParams({ url: formattedUrl });
       if (userAgent) params.append('ua', userAgent);
       if (referrer) params.append('ref', referrer);
-      const apiUrl = `/api/clickjacking-analysis?${params.toString()}`;
+      const apiUrl = `/api/audit-tools?type=clickjacking&${params.toString()}`;
       
       // Initialize result object
       const result: ValidationResult = {

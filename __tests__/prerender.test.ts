@@ -17,7 +17,7 @@ describe('fetchSnapshot', () => {
       Promise.resolve({ ok: true, json: () => Promise.resolve({ status: 200, html: '<title>x</title>' }) })
     );
     const snap = await fetchSnapshot('https://a.com', 'ua');
-    expect((global.fetch as jest.Mock).mock.calls[0][0]).toContain('/api/fetch-proxy');
+    expect((global.fetch as jest.Mock).mock.calls[0][0]).toContain('/api/utility-tools?tool=proxy');
     expect(snap.title).toBe('x');
   });
 });

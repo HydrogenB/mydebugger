@@ -14,7 +14,7 @@ export const runDeviceTrace = async (
   url: string,
   options: DeviceTraceOptions = {},
 ): Promise<DeviceTraceResult> => {
-  const res = await fetch('/api/device-trace', {
+  const res = await fetch('/api/probe-router?action=trace', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ url, ...options }),

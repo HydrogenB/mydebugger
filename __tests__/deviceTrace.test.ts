@@ -12,7 +12,7 @@ describe('runDeviceTrace', () => {
     );
     const res = await runDeviceTrace('https://a.com');
     expect(res.url).toBe('https://a.com');
-    expect((global.fetch as jest.Mock).mock.calls[0][0]).toBe('/api/device-trace');
+    expect((global.fetch as jest.Mock).mock.calls[0][0]).toBe('/api/probe-router?action=trace');
   });
 
   it('throws when request fails', async () => {

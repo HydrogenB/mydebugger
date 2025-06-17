@@ -23,7 +23,7 @@ export interface Snapshot extends Metadata {
 }
 
 export const fetchSnapshot = async (url: string, userAgent: string): Promise<Snapshot> => {
-  const res = await fetch(`/api/fetch-proxy?url=${encodeURIComponent(url)}&ua=${encodeURIComponent(userAgent)}`);
+  const res = await fetch(`/api/utility-tools?tool=proxy&url=${encodeURIComponent(url)}&ua=${encodeURIComponent(userAgent)}`);
   if (!res.ok) throw new Error('Failed to fetch');
   const data = await res.json();
   const meta = parseMetadata(data.html);
