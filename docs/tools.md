@@ -114,11 +114,11 @@ Follow and visualize the redirect chain for any URL entirely in the browser. The
 ## Dynamic-Link Probe
 
 ```tsx
-import DeviceTracePage from "../src/tools/linktracer/DeviceTrace";
+import DeviceTracePage from "../src/tools/device-trace/page";
 ```
 
 Simulate how OneLink or custom dynamic URLs behave across iOS and Android with or without your app installed. Provide optional app identifiers and a deep-link scheme to verify that redirects land on the correct store page or launch the app as expected.
-Results can be copied to the clipboard or downloaded as JSON for further analysis.
+Results can be copied to the clipboard or downloaded as JSON for further analysis. Access this tool at `/device-trace`.
 
 ## Virtual Name Card
 
