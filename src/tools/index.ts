@@ -597,22 +597,21 @@ const toolRegistry: Tool[] = [
 export default toolRegistry;
 
 // Export a function to get all tools
-export const getTools = () => {
-  return toolRegistry;
-};
+// Returns the list of tools shown on the Home screen
+// JWT Toolkit remains available via direct route but is hidden from listings
+export const getTools = (): Tool[] =>
+  toolRegistry.filter((tool) => tool.id !== 'jwt-toolkit');
 
 // Helper functions to work with the tool registry
-export const getToolByRoute = (route: string): Tool | undefined => {
-  return getTools().find((tool) => tool.route === route);
-};
+export const getToolByRoute = (route: string): Tool | undefined =>
+  toolRegistry.find((tool) => tool.route === route);
 
 export const getToolById = (id: string): Tool | undefined => {
   return toolRegistry.find((tool) => tool.id === id);
 };
 
-export const getToolsByCategory = (category: ToolCategory): Tool[] => {
-  return toolRegistry.filter((tool) => tool.category === category);
-};
+export const getToolsByCategory = (category: ToolCategory): Tool[] =>
+  getTools().filter((tool) => tool.category === category);
 
 export const getRelatedTools = (toolId: string): Tool[] => {
   const tool = getToolById(toolId);
@@ -623,17 +622,12 @@ export const getRelatedTools = (toolId: string): Tool[] => {
     .filter((tool): tool is Tool => tool !== undefined);
 };
 
-export const getPopularTools = (): Tool[] => {
-  return toolRegistry.filter((tool) => tool.isPopular);
-};
+export const getPopularTools = (): Tool[] =>
+  getTools().filter((tool) => tool.isPopular);
 
-export const getNewTools = (): Tool[] => {
-  return toolRegistry.filter((tool) => tool.isNew);
-};
+export const getNewTools = (): Tool[] => getTools().filter((tool) => tool.isNew);
 
-export const getBetaTools = (): Tool[] => {
-  return toolRegistry.filter((tool) => tool.isBeta);
-};
+export const getBetaTools = (): Tool[] => getTools().filter((tool) => tool.isBeta);
 
 export const getAllTools = (): Tool[] => {
   return toolRegistry;
@@ -641,6 +635,6 @@ export const getAllTools = (): Tool[] => {
 
 export const getAllCategories = (): ToolCategory[] => {
   const categorySet = new Set<ToolCategory>();
-  toolRegistry.forEach((tool) => categorySet.add(tool.category));
+  getTools().forEach((tool) => categorySet.add(tool.category));
   return Array.from(categorySet);
 };
