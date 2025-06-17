@@ -3,25 +3,65 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
-import { GroupedResults } from '../viewmodel/useCacheInspector';
+import { GroupedResults, CacheSummary } from '../viewmodel/useCacheInspector';
 
 interface Props {
   grouped: GroupedResults[];
   loading: boolean;
+  summary: CacheSummary;
   exportJson: () => void;
+  exportCsv: () => void;
+  copyShareLink: () => void;
 }
 
-export function CacheInspectorView({ grouped, loading, exportJson }: Props) {
+export function CacheInspectorView({
+  grouped,
+  loading,
+  summary,
+  exportJson,
+  exportCsv,
+  copyShareLink,
+}: Props) {
   return (
     <div className={TOOL_PANEL_CLASS}>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Cache Inspector</h2>
+      <header className="mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          Cache Inspector – Analyze HTTP Cache-Control, ETag, and CDN Behavior
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
+          Inspect JavaScript, CSS, images, and API responses for cache status, max-age, and freshness using MyDebugger&apos;s Cache Inspector.
+        </p>
+      </header>
+      <div className="mb-4 bg-gray-50 dark:bg-gray-900/20 p-3 rounded-md text-sm text-gray-800 dark:text-gray-200">
+        <p className="font-semibold mb-1">📊 Cache Summary:</p>
+        <ul className="space-y-1">
+          <li>🔧 Scripts: {summary.counts.script} scanned | {summary.statusCounts.FRESH ?? 0} FRESH</li>
+          <li>🎨 Styles: {summary.counts.style} files</li>
+          <li>🖼️ Images: {summary.counts.image} total</li>
+          <li>🔁 API Fetch: {summary.counts.fetch}</li>
+        </ul>
+      </div>
+      <div className="flex gap-2 mb-4">
         <button
           type="button"
           className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
           onClick={exportJson}
         >
           Export JSON
+        </button>
+        <button
+          type="button"
+          className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
+          onClick={exportCsv}
+        >
+          Export CSV
+        </button>
+        <button
+          type="button"
+          className="px-3 py-1 bg-primary-500 text-white rounded hover:bg-primary-600"
+          onClick={copyShareLink}
+        >
+          Copy Share Link
         </button>
       </div>
       {loading && <p className="text-gray-700 dark:text-gray-300">Analyzing...</p>}
@@ -42,6 +82,7 @@ export function CacheInspectorView({ grouped, loading, exportJson }: Props) {
                     <th className="px-2 py-1">SW Caches</th>
                     <th className="px-2 py-1">Origin</th>
                     <th className="px-2 py-1">Status</th>
+                    <th className="px-2 py-1">Issues</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -67,6 +108,9 @@ export function CacheInspectorView({ grouped, loading, exportJson }: Props) {
                             </span>
                           );
                         })()}
+                      </td>
+                      <td className="px-2 py-1 break-all text-xs text-red-600 dark:text-red-400">
+                        {r.issues.join('; ')}
                       </td>
                     </tr>
                   ))}

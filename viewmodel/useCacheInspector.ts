@@ -7,12 +7,18 @@ import {
   CacheResult,
   ResourceType,
   exportCacheResults,
+  exportCacheResultsCsv,
 } from '../model/cacheInspector';
 import { formatExportFilename } from '../model/cookies';
 
 export interface GroupedResults {
   type: ResourceType;
   items: CacheResult[];
+}
+
+export interface CacheSummary {
+  counts: Record<ResourceType, number>;
+  statusCounts: Record<string, number>;
 }
 
 export const useCacheInspector = () => {
@@ -58,6 +64,21 @@ export const useCacheInspector = () => {
       .map(([type, items]) => ({ type: type as ResourceType, items }));
   }, [results]);
 
+  const summary = useMemo(() => {
+    const counts: Record<ResourceType, number> = {
+      script: 0,
+      style: 0,
+      image: 0,
+      fetch: 0,
+    };
+    const statusCounts: Record<string, number> = {};
+    results.forEach((r) => {
+      counts[r.resourceType] += 1;
+      statusCounts[r.status] = (statusCounts[r.status] || 0) + 1;
+    });
+    return { counts, statusCounts };
+  }, [results]);
+
   const exportJson = useCallback(() => {
     const blob = new Blob([exportCacheResults(results)], {
       type: 'application/json',
@@ -69,7 +90,22 @@ export const useCacheInspector = () => {
     URL.revokeObjectURL(a.href);
   }, [results]);
 
-  return { grouped, loading, exportJson };
+  const exportCsv = useCallback(() => {
+    const blob = new Blob([exportCacheResultsCsv(results)], {
+      type: 'text/csv',
+    });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${formatExportFilename(window.location.hostname)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }, [results]);
+
+  const copyShareLink = useCallback(() => {
+    navigator.clipboard.writeText(window.location.href).catch(() => {});
+  }, []);
+
+  return { grouped, loading, summary, exportJson, exportCsv, copyShareLink };
 };
 
 export default useCacheInspector;

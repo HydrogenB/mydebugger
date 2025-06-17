@@ -18,6 +18,8 @@ export interface CacheResult {
   fromMemoryCache: boolean;
   origin: CacheOrigin;
   status: CacheStatus;
+  /** Heuristics highlighting potential caching issues */
+  issues: string[];
 }
 
 export interface ParsedCacheControl {
@@ -78,6 +80,34 @@ export const exportCacheResults = (results: CacheResult[]): string => {
     entries,
   }));
   return JSON.stringify(payload, null, 2);
+};
+
+export const exportCacheResultsCsv = (results: CacheResult[]): string => {
+  const header = [
+    'url',
+    'type',
+    'cacheControl',
+    'etag',
+    'expires',
+    'origin',
+    'status',
+    'issues',
+  ].join(',');
+  const lines = results.map((r) =>
+    [
+      r.url,
+      r.resourceType,
+      r.cacheControl ?? '',
+      r.etag ?? '',
+      r.expires ?? '',
+      r.origin,
+      r.status,
+      r.issues.join(';'),
+    ]
+      .map((v) => JSON.stringify(v))
+      .join(',')
+  );
+  return [header, ...lines].join('\n');
 };
 
 const guessType = (url: string, initiator?: string): ResourceType => {
@@ -142,6 +172,12 @@ export const analyzeCacheFor = async (urls: string[]): Promise<CacheResult[]> =>
       else if (exp !== undefined && exp < now) status = 'EXPIRED';
       else status = 'FRESH';
 
+      const issues: string[] = [];
+      if (parsed.maxAge === 0 || parsed.noCache) issues.push('Not cacheable');
+      if (!etag && !expires) issues.push('Missing ETag or Expires');
+      if (parsed.maxAge !== undefined && parsed.maxAge < 300) issues.push('Short max-age');
+      if (origin === 'network') issues.push('Network origin');
+
       return {
         url,
         resourceType: guessType(url, entry?.initiatorType),
@@ -153,6 +189,7 @@ export const analyzeCacheFor = async (urls: string[]): Promise<CacheResult[]> =>
         fromMemoryCache,
         origin,
         status,
+        issues,
       } as CacheResult;
     })
   );
