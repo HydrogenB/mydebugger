@@ -40,4 +40,21 @@ describe('runDeviceTrace', () => {
       result.current.exportJson();
     });
   });
+
+  it('clear resets state', () => {
+    const { result } = renderHook(() => useDeviceTrace());
+    act(() => {
+      result.current.setUrl('x');
+      result.current.setIosAppId('id');
+      result.current.setAndroidPackage('pkg');
+      result.current.setDeepLinkScheme('scheme');
+      result.current.setMaxHops(10);
+      result.current.clear();
+    });
+    expect(result.current.url).toBe('');
+    expect(result.current.iosAppId).toBe('');
+    expect(result.current.androidPackage).toBe('');
+    expect(result.current.deepLinkScheme).toBe('');
+    expect(result.current.maxHops).toBe(20);
+  });
 });

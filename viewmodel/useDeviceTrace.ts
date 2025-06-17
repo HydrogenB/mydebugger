@@ -51,6 +51,16 @@ export const useDeviceTrace = () => {
     URL.revokeObjectURL(href);
   };
 
+  const clear = () => {
+    setUrl('');
+    setIosAppId('');
+    setAndroidPackage('');
+    setDeepLinkScheme('');
+    setMaxHops(20);
+    setResult(null);
+    setError('');
+  };
+
   return {
     url,
     setUrl,
@@ -68,6 +78,7 @@ export const useDeviceTrace = () => {
     run,
     copyJson,
     exportJson,
+    clear,
   };
 };
 

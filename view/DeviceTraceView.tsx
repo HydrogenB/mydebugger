@@ -5,7 +5,10 @@ import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { Badge } from '../src/design-system/components/display/Badge';
 import { Button } from '../src/design-system/components/inputs/Button';
-import { DeviceTraceResult, ScenarioResult } from '../src/tools/linktracer/types';
+import { Card } from '../src/design-system/components/layout/Card';
+import { Tooltip } from '../src/design-system/components/overlays/Tooltip';
+import { InfoBox } from '../src/design-system/components/display/InfoBox';
+import { DeviceTraceResult } from '../src/tools/linktracer/types';
 
 interface Props {
   url: string;
@@ -22,56 +25,9 @@ interface Props {
   result: DeviceTraceResult | null;
   error: string;
   run: () => void;
+  clear: () => void;
   copyJson: () => void;
   exportJson: () => void;
-}
-
-function ScenarioTable({ data }: { data: ScenarioResult }) {
-  return (
-    <details className="border rounded mb-4">
-      <summary className="cursor-pointer px-2 py-1 font-medium flex items-center gap-2">
-        <span>{data.name}</span>
-        <Badge variant={data.isValidOutcome ? 'success' : 'warning'} size="sm" pill>
-          {data.status}
-        </Badge>
-      </summary>
-      <div className="overflow-x-auto p-2">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr className="border-b">
-            <th className="px-2 py-1 text-left">Hop</th>
-            <th className="px-2 py-1 text-left">URL</th>
-            <th className="px-2 py-1 text-left">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.hops.map((h) => (
-            <tr key={h.n} className="border-b">
-              <td className="px-2 py-1">{h.n}</td>
-              <td className="px-2 py-1 break-all">{h.url}</td>
-              <td className="px-2 py-1">{h.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {data.deep_link && (
-        <p className="mt-2 text-sm break-all">
-          Deep Link: <code>{data.deep_link}</code>
-        </p>
-      )}
-      {data.final_url && data.final_url !== data.deep_link && (
-        <p className="mt-1 text-sm break-all">
-          Final URL: <code>{data.final_url}</code>
-        </p>
-      )}
-        {data.warnings.length > 0 && (
-          <p className="mt-1 text-sm text-yellow-700">
-            Warnings: {data.warnings.join(', ')}
-          </p>
-        )}
-      </div>
-    </details>
-  );
 }
 
 export function DeviceTraceView({
@@ -89,67 +45,164 @@ export function DeviceTraceView({
   result,
   error,
   run,
+  clear,
   copyJson,
   exportJson,
 }: Props) {
   return (
-    <div className={TOOL_PANEL_CLASS}>
-      <div className="space-y-4">
-        <div className="flex gap-2">
-          <input
-            className="flex-1 border px-2 py-1 rounded"
-            placeholder="https://example.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-          />
-          <button
-            type="button"
-            onClick={run}
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-1 rounded disabled:opacity-50"
-          >
-            Trace
-          </button>
+    <div className={`${TOOL_PANEL_CLASS} mx-auto max-w-screen-lg overflow-x-auto box-border`}>
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row gap-2 items-end">
+          <div className="flex-1">
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="trace-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1">
+                URL
+                <Tooltip content="Starting URL to trace" className="ml-1">
+                  <span className="cursor-help">ℹ️</span>
+                </Tooltip>
+              </span>
+            </label>
+            <input
+              id="trace-url"
+              className="mt-1 w-full border px-2 py-1 rounded"
+              placeholder="https://example.com"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={run} isDisabled={loading}>Trace</Button>
+            <Button variant="secondary" onClick={clear}>Clear</Button>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-          <input
-            className="border px-2 py-1 rounded"
-            placeholder="iOS App ID"
-            value={iosAppId}
-            onChange={(e) => setIosAppId(e.target.value)}
-          />
-          <input
-            className="border px-2 py-1 rounded"
-            placeholder="Android Package"
-            value={androidPackage}
-            onChange={(e) => setAndroidPackage(e.target.value)}
-          />
-          <input
-            className="border px-2 py-1 rounded"
-            placeholder="Deep Link Scheme"
-            value={deepLinkScheme}
-            onChange={(e) => setDeepLinkScheme(e.target.value)}
-          />
-          <input
-            type="number"
-            className="border px-2 py-1 rounded"
-            placeholder="Max Hops"
-            value={maxHops}
-            onChange={(e) => setMaxHops(Number(e.target.value))}
-            min={1}
-            max={50}
-          />
-        </div>
-        {error && <div className="text-red-600">{error}</div>}
-        {result && (
+
+        <fieldset className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           <div>
-            <h3 className="font-bold mb-2">Results ({result.overallTimeMs}ms)</h3>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="ios-app" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1">
+                iOS App ID
+                <Tooltip content="App Store ID used to detect install" className="ml-1">
+                  <span className="cursor-help">ℹ️</span>
+                </Tooltip>
+              </span>
+            </label>
+            <input
+              id="ios-app"
+              className="mt-1 w-full border px-2 py-1 rounded"
+              placeholder="1234567890"
+              value={iosAppId}
+              onChange={(e) => setIosAppId(e.target.value)}
+            />
+          </div>
+          <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="android-package" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1">
+                Android Package
+                <Tooltip content="Package name of your Android app" className="ml-1">
+                  <span className="cursor-help">ℹ️</span>
+                </Tooltip>
+              </span>
+            </label>
+            <input
+              id="android-package"
+              className="mt-1 w-full border px-2 py-1 rounded"
+              placeholder="com.example.app"
+              value={androidPackage}
+              onChange={(e) => setAndroidPackage(e.target.value)}
+            />
+          </div>
+          <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="scheme" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1">
+                Deep Link Scheme
+                <Tooltip content="e.g. myapp://" className="ml-1">
+                  <span className="cursor-help">ℹ️</span>
+                </Tooltip>
+              </span>
+            </label>
+            <input
+              id="scheme"
+              className="mt-1 w-full border px-2 py-1 rounded"
+              placeholder="myapp"
+              value={deepLinkScheme}
+              onChange={(e) => setDeepLinkScheme(e.target.value)}
+            />
+          </div>
+          <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+            <label htmlFor="hops" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <span className="flex items-center gap-1">
+                Max Hops
+                <Tooltip content="Stop tracing after this many redirects" className="ml-1">
+                  <span className="cursor-help">ℹ️</span>
+                </Tooltip>
+              </span>
+            </label>
+            <input
+              id="hops"
+              type="number"
+              className="mt-1 w-full border px-2 py-1 rounded"
+              placeholder="20"
+              value={maxHops}
+              onChange={(e) => setMaxHops(Number(e.target.value))}
+              min={1}
+              max={50}
+            />
+          </div>
+        </fieldset>
+
+        {error && <div className="text-red-600" aria-live="polite">{error}</div>}
+
+        {result && (
+          <div className="space-y-4">
+            <h3 className="font-bold mb-2">Showing {result.overallTimeMs}ms</h3>
             {result.results.map((r) => (
-              <ScenarioTable key={r.scenario} data={r} />
+              <Card key={r.scenario} shadowed>
+                <Card.Header
+                  title={<span className="flex items-center gap-2"><span>{r.name}</span><Badge variant={r.isValidOutcome ? 'success' : 'warning'} size="sm" pill>{r.status}</Badge></span>}
+                />
+                <Card.Body padded={false} className="overflow-x-auto p-2">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="px-2 py-1 text-left">Hop</th>
+                        <th className="px-2 py-1 text-left">URL</th>
+                        <th className="px-2 py-1 text-left">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="font-mono">
+                      {r.hops.map((h) => (
+                        <tr key={h.n} className="border-b">
+                          <td className="px-2 py-1">{h.n}</td>
+                          <td className="px-2 py-1 break-all">{h.url}</td>
+                          <td className="px-2 py-1">{h.status}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  {r.deep_link && (
+                    <p className="mt-2 text-sm break-all font-mono">Deep Link: <code>{r.deep_link}</code></p>
+                  )}
+                  {r.final_url && r.final_url !== r.deep_link && (
+                    <p className="mt-1 text-sm break-all font-mono">Final URL: <code>{r.final_url}</code></p>
+                  )}
+                  {r.warnings.length > 0 && (
+                    <div className="mt-2">
+                      <InfoBox title="Warning" variant="warning" icon="⚠️">
+                        {r.warnings.join(', ')}
+                      </InfoBox>
+                    </div>
+                  )}
+                </Card.Body>
+              </Card>
             ))}
             <div className="flex gap-2 mt-2">
-              <Button size="sm" onClick={copyJson} variant="secondary">Copy JSON</Button>
-              <Button size="sm" onClick={exportJson} variant="secondary">Download</Button>
+              <Button size="sm" variant="secondary" onClick={copyJson}>Copy JSON</Button>
+              <Button size="sm" variant="secondary" onClick={exportJson}>Download</Button>
             </div>
           </div>
         )}
