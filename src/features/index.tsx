@@ -57,7 +57,6 @@ const urlEncoder = placeholderManifest('url-encoder', 'URL Encoder');
 const regex = placeholderManifest('regex-tester', 'Regex Tester');
 const headerAnalyzer = placeholderManifest('headers-analyzer', 'Headers Analyzer');
 const clickjacking = placeholderManifest('clickjacking-validator', 'Clickjacking Validator');
-const linkTracer = placeholderManifest('link-tracer', 'Link Tracer');
 const componentsDemo = placeholderManifest('components-demo', 'Components Demo');
 
 export const features: Tool[] = [
@@ -65,7 +64,6 @@ export const features: Tool[] = [
   regex,
   headerAnalyzer,
   clickjacking,
-  linkTracer,
   componentsDemo,
   {
     id: 'jwt',
