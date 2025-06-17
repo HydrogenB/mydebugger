@@ -6,6 +6,10 @@ export interface ContactInfo {
   fullName: string;
   phone?: string;
   email?: string;
+  organization?: string;
+  title?: string;
+  website?: string;
+  address?: string;
 }
 
 export const generateVCard = (info: ContactInfo): string => {
@@ -17,6 +21,10 @@ export const generateVCard = (info: ContactInfo): string => {
   ];
   if (info.phone) lines.push(`TEL;TYPE=CELL:${info.phone}`);
   if (info.email) lines.push(`EMAIL:${info.email}`);
+  if (info.organization) lines.push(`ORG:${info.organization}`);
+  if (info.title) lines.push(`TITLE:${info.title}`);
+  if (info.website) lines.push(`URL:${info.website}`);
+  if (info.address) lines.push(`ADR:${info.address}`);
   lines.push('END:VCARD');
   return lines.join('\n');
 };

@@ -127,6 +127,7 @@ import VirtualCardPage from "../src/tools/virtual-card/page";
 ```
 
 Create a shareable contact card completely in-browser. The tool generates a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
+It now supports organization, title, website and address fields, renders a preview business card and can download the card as a PNG image. Opening a link with `?data=` switches to view-only mode showing just the card.
 Access this tool at `/vcard`.
 ## Pre-rendering Tester
 
