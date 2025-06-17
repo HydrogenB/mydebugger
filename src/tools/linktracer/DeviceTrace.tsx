@@ -1,51 +1,16 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 import React from 'react';
-import { TOOL_PANEL_CLASS } from '../../design-system/foundations/layout';
-// Remove import from helmet
-// import { Helmet } from 'react-helmet-async';
+import useDeviceTrace from '../../../viewmodel/useDeviceTrace';
+import DeviceTraceView from '../../../view/DeviceTraceView';
 
-// Simplified DeviceTrace component
-const DeviceTrace: React.FC = () => {
+const DeviceTracePage: React.FC = () => {
+  const vm = useDeviceTrace();
   React.useEffect(() => {
     document.title = 'Device Trace | MyDebugger';
   }, []);
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Device Trace Tool</h1>
-      <p className="mb-8">
-        This tool helps you trace how links behave across different devices and configurations.
-      </p>
-      
-      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-        <p className="text-yellow-700">
-          The device tracing functionality is currently disabled.
-        </p>
-      </div>
-      
-      {/* Simplified form */}
-      <div className={TOOL_PANEL_CLASS}>
-        <form>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">URL to Trace</label>
-            <input
-              type="url"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              placeholder="https://example.com"
-              disabled
-            />
-          </div>
-          
-          <button
-            type="button"
-            disabled
-            className="bg-blue-500 text-white px-4 py-2 rounded-md opacity-50 cursor-not-allowed"
-          >
-            Trace URL
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+  return <DeviceTraceView {...vm} />;
 };
 
-export default DeviceTrace;
+export default DeviceTracePage;
