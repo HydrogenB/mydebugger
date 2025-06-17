@@ -55,7 +55,6 @@ const placeholderManifest = (id: string, title: string): Tool => ({
 
 const urlEncoder = placeholderManifest('url-encoder', 'URL Encoder');
 const regex = placeholderManifest('regex-tester', 'Regex Tester');
-const dnsLookup = placeholderManifest('dns-lookup', 'DNS Lookup');
 const headerAnalyzer = placeholderManifest('headers-analyzer', 'Headers Analyzer');
 const clickjacking = placeholderManifest('clickjacking-validator', 'Clickjacking Validator');
 const linkTracer = placeholderManifest('link-tracer', 'Link Tracer');
@@ -64,7 +63,6 @@ const componentsDemo = placeholderManifest('components-demo', 'Components Demo')
 export const features: Tool[] = [
   urlEncoder,
   regex,
-  dnsLookup,
   headerAnalyzer,
   clickjacking,
   linkTracer,

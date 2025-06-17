@@ -24,7 +24,6 @@ export default defineConfig({
           
           // Split tools by category for better loading performance          'jwt': ['./src/tools/jwt/index.ts'],
           'qrcode': ['./src/tools/qrcode/index.ts'],
-          'base64-image': ['./src/tools/base64-image/index.ts'],
         }
       }
     }

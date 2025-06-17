@@ -1081,11 +1081,6 @@ const DeepLinkQRGenerator: React.FC = () => {
           </h2>
           <ul className="list-disc list-inside space-y-1">
             <li>
-              <a href="/base64-image" className="text-blue-600 hover:underline">
-                Base64 Image Viewer
-              </a>
-            </li>
-            <li>
               <a
                 href="/url-inspector"
                 className="text-blue-600 hover:underline"

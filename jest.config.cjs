@@ -15,5 +15,9 @@ module.exports = {
   },
   transform: {
     '^.+\\.[tj]sx?$': ['ts-jest', { useESM: true }]
-  }
+  },
+  coveragePathIgnorePatterns: [
+    '<rootDir>/view/',
+    '<rootDir>/viewmodel/'
+  ]
 };

@@ -73,11 +73,6 @@ export const RegexIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
-export const DnsIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-  </svg>
-);
 
 export const QrCodeIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,13 +93,6 @@ export const LinkTracerIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 
-export const Base64ImageIcon: React.FC<IconProps> = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" strokeWidth="2"></rect>
-    <circle cx="8.5" cy="8.5" r="1.5" strokeWidth="2"></circle>
-    <polyline points="21 15 16 10 5 21" strokeWidth="2"></polyline>
-  </svg>
-);
 export const CookieIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-9-9 5 5 0 009 9z" />
