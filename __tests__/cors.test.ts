@@ -39,6 +39,15 @@ describe('runCorsPreflight', () => {
     const res = await runCorsPreflight('https://api.com', 'GET', {});
     expect(res.response.type).toBe('opaque');
   });
+
+  it('calls server mode when specified', async () => {
+    (global.fetch as any) = jest.fn(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ test: true }) })
+    );
+    const res = await runCorsPreflight('https://api.com', 'GET', {}, 'server');
+    expect((global.fetch as jest.Mock).mock.calls[0][0]).toContain('cors-preflight');
+    expect(res).toEqual({ test: true });
+  });
 });
 
 describe('analyzeCors', () => {

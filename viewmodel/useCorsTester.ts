@@ -19,6 +19,7 @@ const presets: Record<string, Record<string, string>> = {
 export const useCorsTester = () => {
   const [url, setUrl] = useState('');
   const [method, setMethod] = useState('GET');
+  const [mode, setMode] = useState<'browser' | 'server'>('browser');
   const [headerJson, setHeaderJson] = useState('{}');
   const [result, setResult] = useState<CorsResult | null>(null);
   const [analysis, setAnalysis] = useState<CorsAnalysis | null>(null);
@@ -36,7 +37,7 @@ export const useCorsTester = () => {
       return;
     }
     try {
-      const res = await runCorsPreflight(url, method, headers);
+      const res = await runCorsPreflight(url, method, headers, mode);
       setResult(res);
       setAnalysis(analyzeCors(res, window.location.origin, headers));
     } catch (e: unknown) {
@@ -72,6 +73,8 @@ export const useCorsTester = () => {
     setUrl,
     method,
     setMethod,
+    mode,
+    setMode,
     headerJson,
     setHeaderJson,
     addPreset,
