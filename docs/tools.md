@@ -128,13 +128,13 @@ import VirtualCardPage from "../src/tools/virtual-card/page";
 
 Create a shareable contact card completely in-browser. The tool generates a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
 Access this tool at `/vcard`.
-## Pre-rendering Tester
+## Pre-rendering & SEO Meta Tester
 
 ```tsx
 import PreRenderingTesterPage from '../src/tools/pre-rendering-tester/page';
 ```
 
-Fetch HTML snapshots for any URL using multiple user-agent headers. Compare the page title, description and first H1 tag across crawlers or browsers. Results can be exported as raw markup or JSON.
+Analyze how Googlebot, Bingbot, FacebookBot and real browsers render your page metadata. Fetch HTML snapshots, compare title, description and H1 consistency, then export results or raw markup for further debugging.
 
 ## Fetch & Render Tool
 

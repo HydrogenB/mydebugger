@@ -3,7 +3,10 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
-import { USER_AGENTS } from '../viewmodel/usePreRenderingTester';
+import { AGENTS, Agent } from '../viewmodel/usePreRenderingTester';
+import { Card } from '../src/design-system/components/layout/Card';
+import { Button } from '../src/design-system/components/inputs/Button';
+import { Badge } from '../src/design-system/components/display/Badge';
 import { Snapshot } from '../model/prerender';
 
 interface Props {
@@ -17,6 +20,8 @@ interface Props {
   results: Snapshot[];
   copyJson: () => void;
   exportJson: () => void;
+  summary: string;
+  copySnapshot: (snap: Snapshot) => void;
 }
 
 export function PreRenderingTesterView({
@@ -30,11 +35,34 @@ export function PreRenderingTesterView({
   results,
   copyJson,
   exportJson,
+  summary,
+  copySnapshot,
 }: Props) {
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
+
+  const toggleHtml = (id: string) => {
+    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const grouped = React.useMemo(() => {
+    const map: Record<string, Agent[]> = {};
+    AGENTS.forEach(a => {
+      if (!map[a.category]) map[a.category] = [];
+      map[a.category].push(a);
+    });
+    return map;
+  }, []);
+
   return (
-    <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Pre-rendering Tester</h2>
-      <div className="space-y-4">
+    <div className="space-y-6 max-w-3xl mx-auto">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Pre-rendering & SEO Meta Tester</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
+          Test how Googlebot, Bingbot, Facebook, and real users see your web content — including title, description, H1, and rendering accuracy.
+        </p>
+      </div>
+
+      <div className={`${TOOL_PANEL_CLASS} space-y-4`}>
         <div>
           {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label htmlFor="url" className="text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
@@ -46,64 +74,76 @@ export function PreRenderingTesterView({
             className="w-full border p-2 rounded dark:bg-gray-700 dark:text-gray-200"
           />
         </div>
-        <div className="flex flex-wrap gap-2">
-          {Object.keys(USER_AGENTS).map(id => (
-            // eslint-disable-next-line jsx-a11y/label-has-associated-control
-            <label key={id} className="flex items-center gap-1 text-sm text-gray-700 dark:text-gray-300">
-              <input
-                type="checkbox"
-                checked={agents.includes(id)}
-                onChange={() => toggleAgent(id)}
-                className="mr-1"
-              />
-              {id}
-            </label>
+        <div className="space-y-3">
+          {Object.entries(grouped).map(([cat, ags]) => (
+            <div key={cat} className="flex items-center flex-wrap gap-2">
+              <span className="text-sm font-semibold mr-2 text-gray-700 dark:text-gray-300">{cat}</span>
+              {ags.map(a => (
+                <label
+                  key={a.id}
+                  htmlFor={`agent-${a.id}`}
+                  className="flex items-center gap-1 text-sm text-gray-700 dark:text-gray-300"
+                >
+                  <input
+                    id={`agent-${a.id}`}
+                    type="checkbox"
+                    checked={agents.includes(a.id)}
+                    onChange={() => toggleAgent(a.id)}
+                    className="mr-1"
+                  />
+                  {a.id}
+                </label>
+              ))}
+            </div>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={run}
-          disabled={loading}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {loading ? 'Fetching...' : 'Fetch'}
-        </button>
+        <div className="flex justify-end">
+          <Button onClick={run} isLoading={loading} disabled={loading || !url || agents.length === 0}>
+            Fetch
+          </Button>
+        </div>
         {error && <div className="text-red-600" aria-live="polite">{error}</div>}
-        {results.length > 0 && (
-          <div className="space-y-2">
-            <table className="min-w-full text-sm border border-gray-200 dark:border-gray-700">
-              <thead>
-                <tr className="bg-gray-50 dark:bg-gray-900">
-                  <th className="px-2 py-1 text-left">Agent</th>
-                  <th className="px-2 py-1 text-left">Title</th>
-                  <th className="px-2 py-1 text-left">Description</th>
-                  <th className="px-2 py-1 text-left">H1</th>
-                  <th className="px-2 py-1 text-left">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map(r => (
-                  <tr key={r.userAgent} className="border-t border-gray-200 dark:border-gray-700">
-                    <td className="px-2 py-1 break-all">{r.userAgent}</td>
-                    <td className="px-2 py-1 break-all">{r.title ?? '-'}</td>
-                    <td className="px-2 py-1 break-all">{r.description ?? '-'}</td>
-                    <td className="px-2 py-1 break-all">{r.h1 ?? '-'}</td>
-                    <td className="px-2 py-1">{r.status}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex gap-2">
-              <button type="button" onClick={copyJson} className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">
-                Copy JSON
-              </button>
-              <button type="button" onClick={exportJson} className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">
-                Download
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {results.length > 0 && (
+        <div className="sticky top-0 bg-primary-50 dark:bg-primary-900 text-primary-800 dark:text-primary-200 px-4 py-2 rounded-md shadow-sm">
+          {summary}
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {results.map(r => (
+            <Card key={r.userAgent} isElevated>
+              <Card.Header
+                title={<span className="font-medium">{r.userAgent}</span>}
+                actions={<Badge variant={r.status === 200 ? 'success' : 'danger'}>{r.status}</Badge>}
+              />
+              <Card.Body className="space-y-1 text-sm break-words">
+                <div><strong>Title:</strong> {r.title ?? '-'}</div>
+                <div><strong>Description:</strong> {r.description ?? '-'}</div>
+                <div><strong>H1 Tag:</strong> {r.h1 ?? '-'}</div>
+              </Card.Body>
+              <Card.Footer align="between">
+                <Button size="sm" variant="secondary" onClick={() => copySnapshot(r)}>Copy JSON</Button>
+                <Button size="sm" variant="ghost" onClick={() => toggleHtml(r.userAgent)}>
+                  {expanded[r.userAgent] ? 'Hide HTML' : 'View Raw HTML'}
+                </Button>
+              </Card.Footer>
+              {expanded[r.userAgent] && (
+                <pre className="text-xs overflow-auto p-2 bg-gray-50 dark:bg-gray-800 rounded-b-md">{r.html}</pre>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {results.length > 0 && (
+        <div className="flex gap-2 justify-end">
+          <Button size="sm" variant="outline-primary" onClick={copyJson}>Copy All JSON</Button>
+          <Button size="sm" variant="outline-primary" onClick={exportJson}>Download JSON</Button>
+        </div>
+      )}
     </div>
   );
 }
