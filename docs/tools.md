@@ -151,3 +151,11 @@ import QRCodeGeneratorPage from "../src/tools/qrcode/QRCodeGenerator";
 ```
 
 Generate QR codes for any URL or mobile deep link. The tool auto-encodes query parameters, shows a real-time preview and lets you open or share the link instantly. Access it at `/qrcode`.
+
+## URL Encoder / Decoder
+
+```tsx
+import UrlEncoderPage from "../src/tools/url/UrlEncoder";
+```
+
+Quickly encode or decode URL components. Choose between `encodeURIComponent`, `encodeURI` or legacy `escape`. Batch mode processes each line separately. Access it at `/url-encoder`.
