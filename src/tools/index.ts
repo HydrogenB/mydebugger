@@ -564,6 +564,34 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: 'pre-rendering-tester',
+    route: '/pre-rendering-tester',
+    title: 'Pre-rendering Tester',
+    description: 'Compare HTML snapshots across user-agents.',
+    icon: TestingIcon,
+    component: lazy(() => import('./pre-rendering-tester/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['seo', 'prerender', 'crawler', 'user-agent'],
+      relatedTools: ['fetch-render'],
+    },
+    uiOptions: { showExamples: false }
+  },
+  {
+    id: 'fetch-render',
+    route: '/fetch-render',
+    title: 'Fetch & Render',
+    description: 'Emulate JS rendering and capture DOM.',
+    icon: TestingIcon,
+    component: lazy(() => import('./fetch-render/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['seo', 'render', 'javascript', 'dom snapshot'],
+      relatedTools: ['pre-rendering-tester'],
+    },
+    uiOptions: { showExamples: false }
+  },
 ];
 
 export default toolRegistry;
