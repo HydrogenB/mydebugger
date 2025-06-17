@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import TrustBanner from '../../view/TrustBanner';
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -138,7 +139,9 @@ const Footer: React.FC = () => {
             </a>
           </div>
         </div>
-        
+
+        <TrustBanner />
+
         {/* Bottom section */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
