@@ -92,8 +92,7 @@ The Header Scanner fetches a URL and analyzes common security headers like CSP, 
 import CorsTesterPage from "../src/tools/cors-tester";
 ```
 
-Use the CORS Tester to simulate preflight requests and inspect the `Access-Control-*` headers returned by a server. Enter a target URL, HTTP method and custom headers to see how the server responds and whether your origin is permitted.
-Common CORS mistakes are highlighted with inline tips and a list of browsers that would block the request. You can quickly add preset headers from a dropdown and copy a generated `curl` command to reproduce the request locally.
+The CORS Tester is a full-featured debugger for cross-origin issues. Enter a URL, choose the HTTP method and build headers in key/value or JSON format. Toggle between browser mode and a server-side curl simulation. Results are shown with color-coded badges, a header diff table and quick configuration tips. You can expand the raw request and copy a generated `curl` command for backend testing.
 
 ## Dynamic Link Tracker
 

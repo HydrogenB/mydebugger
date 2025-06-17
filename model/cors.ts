@@ -24,7 +24,8 @@ export interface CorsResult {
 export const runCorsPreflight = async (
   url: string,
   method: string,
-  headers: Record<string, string>
+  headers: Record<string, string>,
+  mode: 'browser' | 'server' = 'browser'
 ): Promise<CorsResult> => {
   const { origin } = window.location;
   const requestHeaders: Record<string, string> = {
@@ -37,6 +38,15 @@ export const runCorsPreflight = async (
   }
 
   try {
+    if (mode === 'server') {
+      const res = await fetch('/api/utility-tools?tool=cors-preflight', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, method, headers }),
+      });
+      if (!res.ok) throw new Error('Server request failed');
+      return await res.json();
+    }
     const res = await fetch(url, {
       method: 'OPTIONS',
       mode: 'cors',

@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { CodeBlock } from '../src/design-system/components/display/CodeBlock';
 import { CorsResult, CorsAnalysis } from '../model/cors';
@@ -11,6 +11,8 @@ interface Props {
   setUrl: (v: string) => void;
   method: string;
   setMethod: (v: string) => void;
+  mode: 'browser' | 'server';
+  setMode: (m: 'browser' | 'server') => void;
   headerJson: string;
   setHeaderJson: (v: string) => void;
   runTest: () => void;
@@ -26,6 +28,8 @@ export function CorsTesterView({
   setUrl,
   method,
   setMethod,
+  mode,
+  setMode,
   headerJson,
   setHeaderJson,
   runTest,
@@ -38,6 +42,10 @@ export function CorsTesterView({
   const mismatches = analysis ? analysis.mismatches : { origin: false, method: false, headers: false, credentials: false };
   const guides = analysis?.guides || {};
   const blockedBrowsers = analysis?.blockedBrowsers || [];
+  const [format, setFormat] = useState<'kv' | 'json'>('kv');
+  const parseHeaders = () => {
+    try { return JSON.parse(headerJson || '{}'); } catch { return {}; }
+  };
 
   return (
     <div className={`space-y-4 ${TOOL_PANEL_CLASS}`}>
@@ -61,6 +69,14 @@ export function CorsTesterView({
         </select>
         <select
           className="border px-3 py-2 rounded dark:bg-gray-700 dark:text-gray-200"
+          value={mode}
+          onChange={(e) => setMode(e.target.value as 'browser' | 'server')}
+        >
+          <option value="browser">Browser</option>
+          <option value="server">Server curl</option>
+        </select>
+        <select
+          className="border px-3 py-2 rounded dark:bg-gray-700 dark:text-gray-200"
           onChange={(e) => { addPreset(e.target.value); e.currentTarget.selectedIndex = 0; }}
         >
           <option value="">Add header...</option>
@@ -76,12 +92,62 @@ export function CorsTesterView({
           Run Preflight
         </button>
       </div>
-      <textarea
-        className="border px-3 py-2 rounded w-full h-24 dark:bg-gray-700 dark:text-gray-200"
-        placeholder='{"Content-Type": "application/json"}'
-        value={headerJson}
-        onChange={(e) => setHeaderJson(e.target.value)}
-      />
+      <label htmlFor="header-format" className="flex justify-between items-center text-sm">
+        <span>Headers</span>
+        <select
+          id="header-format"
+          className="border px-2 py-1 rounded text-sm dark:bg-gray-700 dark:text-gray-200"
+          value={format}
+          onChange={(e) => setFormat(e.target.value as 'kv' | 'json')}
+        >
+          <option value="kv">Key/Value</option>
+          <option value="json">JSON</option>
+        </select>
+      </label>
+      {format === 'json' ? (
+        <textarea
+          className="border px-3 py-2 rounded w-full h-24 dark:bg-gray-700 dark:text-gray-200"
+          placeholder='{"Content-Type": "application/json"}'
+          value={headerJson}
+          onChange={(e) => setHeaderJson(e.target.value)}
+        />
+      ) : (
+        <div className="space-y-2">
+          {Object.entries(parseHeaders()).map(([k, v], idx) => (
+            <div key={k || idx} className="flex gap-2">
+              <input
+                className="border px-2 py-1 rounded w-1/2 dark:bg-gray-700 dark:text-gray-200"
+                value={k}
+                onChange={(e) => {
+                  const entries = Object.entries(parseHeaders());
+                  entries[idx][0] = e.target.value;
+                  setHeaderJson(JSON.stringify(Object.fromEntries(entries), null, 2));
+                }}
+              />
+              <input
+                className="border px-2 py-1 rounded w-1/2 dark:bg-gray-700 dark:text-gray-200"
+                value={v as string}
+                onChange={(e) => {
+                  const entries = Object.entries(parseHeaders());
+                  entries[idx][1] = e.target.value;
+                  setHeaderJson(JSON.stringify(Object.fromEntries(entries), null, 2));
+                }}
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            className="px-2 py-1 text-sm bg-primary-500 text-white rounded"
+            onClick={() => {
+              const entries = Object.entries(parseHeaders());
+              entries.push(['', '']);
+              setHeaderJson(JSON.stringify(Object.fromEntries(entries), null, 2));
+            }}
+          >
+            Add header
+          </button>
+        </div>
+      )}
       {error && <div className="text-red-600">{error}</div>}
       {result && (
         <>
