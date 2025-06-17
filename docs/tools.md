@@ -111,6 +111,15 @@ import DeepLinkChainPage from "../src/tools/deep-link-chain/page";
 
 Follow and visualize the redirect chain for any URL entirely in the browser. The tool lists each hop with status codes and headers, highlights the final destination and extracts any UTM parameters present. Long chains collapse automatically with an option to expand. If fetch is blocked by CORS the tool attempts a browser-only fallback. The final URL displays an Open Graph preview when accessible. Results can be exported or copied as a Markdown table.
 
+## Dynamic-Link Probe
+
+```tsx
+import DeviceTracePage from "../src/tools/linktracer/DeviceTrace";
+```
+
+Simulate how OneLink or custom dynamic URLs behave across iOS and Android with or without your app installed. Provide optional app identifiers and a deep-link scheme to verify that redirects land on the correct store page or launch the app as expected.
+Results can be copied to the clipboard or downloaded as JSON for further analysis.
+
 ## Virtual Name Card
 
 ```tsx
