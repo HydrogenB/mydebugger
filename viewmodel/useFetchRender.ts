@@ -2,17 +2,25 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useEffect, useRef, useState } from 'react';
-import { fetchSnapshot } from '../model/prerender';
+import { fetchSnapshot, parseMetadata, Metadata } from '../model/prerender';
+import { AGENTS } from './usePreRenderingTester';
+
+export type ExportFormat = 'html' | 'json';
 
 export const useFetchRender = () => {
   const [url, setUrl] = useState('');
   const [delay, setDelay] = useState(2); // seconds
+  const [userAgent, setUserAgent] = useState(AGENTS[3].id); // Desktop Chrome default
   const [rawHtml, setRawHtml] = useState('');
   const [renderedHtml, setRenderedHtml] = useState('');
+  const [metadata, setMetadata] = useState<Metadata | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('html');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const agentIds = AGENTS.map(a => a.id);
 
   const run = async () => {
     if (!url) return;
@@ -20,9 +28,12 @@ export const useFetchRender = () => {
     setError('');
     setRenderedHtml('');
     setLogs([]);
+    setMetadata(null);
     try {
-      const snap = await fetchSnapshot(url, 'MyDebugger-FetchRender/1.0');
+      const agent = AGENTS.find(a => a.id === userAgent);
+      const snap = await fetchSnapshot(url, agent ? agent.ua : userAgent);
       setRawHtml(snap.html);
+      setMetadata(parseMetadata(snap.html));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -45,7 +56,11 @@ export const useFetchRender = () => {
     const timer = window.setTimeout(() => {
       try {
         const doc = frame.contentDocument;
-        if (doc) setRenderedHtml(doc.documentElement.outerHTML);
+        if (doc) {
+          const html = doc.documentElement.outerHTML;
+          setRenderedHtml(html);
+          setMetadata(parseMetadata(html));
+        }
       } catch {
         // ignore cross origin
       }
@@ -65,22 +80,36 @@ export const useFetchRender = () => {
       )
     : undefined;
 
-  const copyHtml = async () => {
-    if (!renderedHtml) return;
+  const copyOutput = async () => {
+    const html = renderedHtml || rawHtml;
+    if (!html) return;
     try {
-      await navigator.clipboard.writeText(renderedHtml);
+      if (exportFormat === 'html') {
+        await navigator.clipboard.writeText(html);
+      } else {
+        await navigator.clipboard.writeText(
+          JSON.stringify({ rawHtml, renderedHtml, metadata }, null, 2),
+        );
+      }
     } catch {
       // ignore clipboard errors
     }
   };
 
-  const exportHtml = () => {
-    if (!renderedHtml) return;
-    const blob = new Blob([renderedHtml], { type: 'text/html' });
+  const exportOutput = () => {
+    const html = renderedHtml || rawHtml;
+    if (!html) return;
+    const data =
+      exportFormat === 'html'
+        ? html
+        : JSON.stringify({ rawHtml, renderedHtml, metadata }, null, 2);
+    const type = exportFormat === 'html' ? 'text/html' : 'application/json';
+    const ext = exportFormat === 'html' ? 'html' : 'json';
+    const blob = new Blob([data], { type });
     const href = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = href;
-    a.download = 'rendered.html';
+    a.download = `rendered.${ext}`;
     a.click();
     URL.revokeObjectURL(href);
   };
@@ -90,6 +119,11 @@ export const useFetchRender = () => {
     setUrl,
     delay,
     setDelay,
+    userAgent,
+    setUserAgent,
+    exportFormat,
+    setExportFormat,
+    agentIds,
     run,
     loading,
     error,
@@ -97,9 +131,10 @@ export const useFetchRender = () => {
     srcDoc,
     rawHtml,
     renderedHtml,
+    metadata,
     logs,
-    copyHtml,
-    exportHtml,
+    copyOutput,
+    exportOutput,
   };
 };
 
