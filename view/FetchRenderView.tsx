@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { ResponsiveContainer } from '../src/design-system/components/layout/ResponsiveContainer';
 
 /* eslint-disable react/require-default-props */
 
@@ -40,9 +41,10 @@ export function FetchRenderView({
   exportHtml,
 }: Props) {
   return (
-    <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Fetch &amp; Render</h2>
-      <div className="space-y-4">
+    <ResponsiveContainer maxWidth="5xl" className="py-6">
+      <div className={TOOL_PANEL_CLASS}>
+        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">Fetch &amp; Render</h2>
+        <div className="space-y-4">
         <div>
           {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
           <label htmlFor="url" className="text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
@@ -83,14 +85,18 @@ export function FetchRenderView({
         )}
         {rawHtml && (
           <div>
-            <h3 className="font-semibold">Raw HTML</h3>
-            <textarea value={rawHtml} readOnly className="w-full h-32 border p-2 rounded bg-gray-50 dark:bg-gray-900" />
+            <h3 className="font-semibold mb-1">Raw HTML</h3>
+            <div className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4 overflow-x-auto max-h-96 text-sm font-mono">
+              <pre>{rawHtml}</pre>
+            </div>
           </div>
         )}
         {renderedHtml && (
           <div>
-            <h3 className="font-semibold">Rendered HTML</h3>
-            <textarea value={renderedHtml} readOnly className="w-full h-32 border p-2 rounded bg-gray-50 dark:bg-gray-900" />
+            <h3 className="font-semibold mb-1">Rendered HTML</h3>
+            <div className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4 overflow-x-auto max-h-96 text-sm font-mono">
+              <pre>{renderedHtml}</pre>
+            </div>
             <div className="flex gap-2 mt-2">
               <button type="button" onClick={copyHtml} className="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded">
                 Copy
@@ -104,11 +110,12 @@ export function FetchRenderView({
         {logs.length > 0 && (
           <div>
             <h3 className="font-semibold">Console</h3>
-            <pre className="bg-gray-100 dark:bg-gray-900 p-2 overflow-x-auto text-xs h-32">{logs.join('\n')}</pre>
+            <pre className="rounded-md border bg-gray-50 dark:bg-gray-900 p-4 overflow-x-auto max-h-64 text-sm font-mono">{logs.join('\n')}</pre>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </ResponsiveContainer>
   );
 }
 
