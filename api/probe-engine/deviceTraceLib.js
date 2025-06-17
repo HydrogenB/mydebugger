@@ -375,7 +375,7 @@ async function traceDeviceScenario(url, scenarioId, config, maxHops) {
   }
 }
 
-export default async function handler(req, res) {
+export async function deviceTraceHandler(req, res) {
   try {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');

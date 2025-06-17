@@ -23,7 +23,7 @@ declare global {
 
 const fetchServerCookies = async (): Promise<BasicCookie[]> => {
   try {
-    const res = await fetch('/api/cookies');
+    const res = await fetch('/api/utility-tools?tool=cookies');
     if (!res.ok) throw new Error('Failed to fetch cookies');
     const data = await res.json();
     return Array.isArray(data.cookies) ? data.cookies : [];
