@@ -2,8 +2,20 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Globe,
+  Briefcase,
+  Star,
+  Zap,
+} from 'lucide-react';
 import VirtualCardHero, { VirtualCardHeroHandle } from './VirtualCardHero';
 import VirtualCardActions from './VirtualCardActions';
+import AuroraBackground from './AuroraBackground';
+import AuroraInput from './AuroraInput';
 
 interface Props {
   fullName: string;
@@ -71,86 +83,55 @@ export function VirtualCardView({
   heroRef,
 }: Props) {
   return (
-    <div className="w-full min-h-screen bg-gray-50 px-4 py-10">
-      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Virtual Name Card</h2>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div className="space-y-4">
-        {!viewOnly && (
-        <>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="full-name" className="block mb-1 text-sm font-medium">Full Name</label>
-          <input
-            id="full-name"
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700"
-          />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="phone" className="block mb-1 text-sm font-medium">Phone</label>
-          <input
-            id="phone"
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700"
-          />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="email" className="block mb-1 text-sm font-medium">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700"
-          />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="org" className="block mb-1 text-sm font-medium">Organization</label>
-          <input id="org" type="text" value={organization} onChange={(e) => setOrganization(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700" />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="title" className="block mb-1 text-sm font-medium">Title</label>
-          <input id="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700" />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="website" className="block mb-1 text-sm font-medium">Website</label>
-          <input id="website" type="url" value={website} onChange={(e) => setWebsite(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700" />
-        </div>
-        <div>
-          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-          <label htmlFor="addr" className="block mb-1 text-sm font-medium">Address</label>
-          <input id="addr" type="text" value={address} onChange={(e) => setAddress(e.target.value)} className="w-full p-2 border rounded dark:bg-gray-700" />
-        </div>
-</>
-)}
-        <div className="flex gap-2">
-          <button type="button" onClick={download} className="px-3 py-1 bg-blue-500 text-white rounded">Download VCF</button>
+    <div className="relative min-h-screen px-4 py-10 overflow-hidden">
+      <AuroraBackground />
+      <motion.h2
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-3xl font-bold mb-8 text-center text-white"
+      >
+        Virtual Name Card
+      </motion.h2>
+      <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="space-y-6">
           {!viewOnly && (
-            <button type="button" onClick={copyLink} className="px-3 py-1 bg-blue-500 text-white rounded">Copy Link</button>
+            <>
+              <AuroraInput label="Full Name" name="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" icon={<Star className="w-4 h-4" />} />
+              <AuroraInput label="Phone" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+1" icon={<Phone className="w-4 h-4" />} />
+              <AuroraInput label="Email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="john@example.com" icon={<Mail className="w-4 h-4" />} />
+              <AuroraInput label="Organization" name="organization" value={organization} onChange={(e) => setOrganization(e.target.value)} placeholder="Org" icon={<Zap className="w-4 h-4" />} />
+              <AuroraInput label="Title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="CEO" icon={<Briefcase className="w-4 h-4" />} />
+              <AuroraInput label="Website" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="example.com" icon={<Globe className="w-4 h-4" />} />
+              <AuroraInput label="Address" name="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 street" icon={<MapPin className="w-4 h-4" />} />
+            </>
           )}
-          {!viewOnly && (
-            <button type="button" onClick={downloadImage} className="px-3 py-1 bg-blue-500 text-white rounded">Download PNG</button>
-          )}
-          <button type="button" onClick={toggleRaw} className="px-3 py-1 bg-gray-300 rounded dark:bg-gray-600 dark:text-white">{showRaw ? 'Hide VCF' : 'Show VCF'}</button>
-        </div>
-        {showRaw && (
-          <textarea className="w-full h-32 p-2 border rounded dark:bg-gray-700" readOnly value={vcard} />
-        )}
-        {toastMessage && (
-          <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
-            {toastMessage}
+          <div className="flex flex-wrap gap-2">
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={download} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl">
+              Download VCF
+            </motion.button>
+            {!viewOnly && (
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={copyLink} className="px-4 py-2 bg-white/20 backdrop-blur text-white rounded-xl">
+                Copy Link
+              </motion.button>
+            )}
+            {!viewOnly && (
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={downloadImage} className="px-4 py-2 bg-white/20 backdrop-blur text-white rounded-xl">
+                Download PNG
+              </motion.button>
+            )}
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={toggleRaw} className="px-4 py-2 bg-gray-300 rounded dark:bg-gray-600 dark:text-white">
+              {showRaw ? 'Hide VCF' : 'Show VCF'}
+            </motion.button>
           </div>
-        )}
-      </div>
+          {showRaw && (
+            <textarea className="w-full h-32 p-2 border rounded dark:bg-gray-700" readOnly value={vcard} />
+          )}
+          {toastMessage && (
+            <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+              {toastMessage}
+            </div>
+          )}
+        </div>
         <div className="flex justify-center lg:justify-end">
           <div className="transition-opacity duration-300 delay-150 max-w-sm">
             <VirtualCardHero
@@ -170,11 +151,7 @@ export function VirtualCardView({
               copyVcard={copyVcard}
               onInteract={cancelFlip}
             />
-            <VirtualCardActions
-              download={download}
-              shareCard={shareCard}
-              showQr={() => flip(true)}
-            />
+            <VirtualCardActions download={download} shareCard={shareCard} showQr={() => flip(true)} />
           </div>
         </div>
       </div>
