@@ -8,12 +8,16 @@ import { motion } from 'framer-motion';
 interface FloatingParticleProps { delay?: number; }
 
 function FloatingParticle({ delay = 0 }: FloatingParticleProps) {
+  const randomXStart = React.useMemo(() => `${Math.random() * 100}%`, []);
+  const randomXEnd = React.useMemo(() => `${Math.random() * 100}%`, []);
+  const randomDuration = React.useMemo(() => Math.random() * 20 + 10, []);
+
   return (
     <motion.div
       className="absolute w-1 h-1 bg-white/20 rounded-full"
-      initial={{ x: `${Math.random() * 100}%`, y: '110%' }}
-      animate={{ y: '-10%', x: `${Math.random() * 100}%` }}
-      transition={{ duration: Math.random() * 20 + 10, repeat: Infinity, delay, ease: 'linear' }}
+      initial={{ x: randomXStart, y: '110%' }}
+      animate={{ y: '-10%', x: randomXEnd }}
+      transition={{ duration: randomDuration, repeat: Infinity, delay, ease: 'linear' }}
     />
   );
 }
