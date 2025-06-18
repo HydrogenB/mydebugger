@@ -1,69 +1,67 @@
 # MyDebugger
 
-A comprehensive web-based debugging and developer toolkit application.
+MyDebugger is a stateless collection of browser-based utilities for developers, QA and DevOps. Each tool runs entirely client side and the project is deployed to Vercel with no persistent backend.
 
-## Overview
+## Features
 
-MyDebugger is a stateless application that provides a suite of specialized tools designed to streamline development workflows. The platform is built to be deployed on Vercel, requiring no database and ensuring each deployment stands as a clean slate.
+- **Crypto Lab** – experiment with AES, RSA and GPG routines
+- **Cookie Inspector** – view, filter and export cookies
+- **Cache Inspector** – analyze browser caching behaviour
+- **Cookie Scope** – visualize `document.cookie` with duplicates detection
+- **Pentest Validator Suite** – run basic security checks for any site
+- **Storage Sync Debugger** – inspect `localStorage` and `sessionStorage`
+- **Header Scanner** – report on common security headers
+- **CORS Tester** – debug CORS preflight responses
+- **Dynamic Link Tracker** – parse dynamic link parameters with an overlay
+- **Deep Link Chain** – follow redirect chains and extract UTM params
+- **Dynamic-Link Probe** – simulate app links on iOS and Android
+- **Virtual Name Card** – generate a shareable vCard and QR code
+- **Pre-rendering & SEO Meta Tester** – compare how bots render your page
+- **Fetch & Render Tool** – capture DOM after JS execution
+- **Deep-Link QR Generator** – build QR codes for links or deeplinks
+- **URL Encoder / Decoder** – quickly encode or decode URLs
 
-This project embraces a cohesive design system. See [docs/design-philosophy.md](docs/design-philosophy.md) for guiding principles.
+Read more in [docs/tools.md](docs/tools.md).
 
-## Project Structure
+## Architecture
 
-The project follows the MVVM (Model-View-ViewModel) architecture pattern:
+The codebase follows the **Model → ViewModel → View** pattern:
 
-- **Model**: Pure domain logic & API calls (TypeScript) with no React/MUI dependencies
-- **ViewModel**: Hooks that map Model to UI state & handlers
-- **View**: Material UI components rendering props from ViewModel
+- **Model** – pure TypeScript functions with no UI dependencies
+- **ViewModel** – React hooks that bind models to UI state
+- **View** – presentational components using Tailwind and Material UI
 
-## Tech Stack
+## Getting Started
 
-- **Frontend**: React with Next.js
-- **UI Framework**: Material UI v7
-- **TypeScript**: For type safety
-- **Deployment**: Vercel
-- **State Management**: React hooks and context
+### Requirements
 
-## Running the Project
-
-### Prerequisites
-
-- Node.js (v18)
-- [pnpm](https://pnpm.io/) (v8 or higher)
+- Node.js 18
+- [pnpm](https://pnpm.io/) 8+
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/mydebugger.git
-   cd mydebugger
-   ```
+```bash
+pnpm install
+pnpm dev
+```
 
-2. Install dependencies using pnpm:
-   ```bash
-   pnpm install
-   ```
+Then open <http://localhost:3000>.
 
-3. Run the development server:
-   ```bash
-   pnpm dev
-   ```
+## Scripts
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+```bash
+pnpm build       # create a production build
+pnpm preview     # locally preview the build
+pnpm lint        # run ESLint
+pnpm typecheck   # strict TypeScript checking
+pnpm test        # run unit tests with coverage
+```
 
-## Project Scripts
+## Contributing
 
-- `pnpm dev` – start the development server
-- `pnpm build` – create a production build
-- `pnpm preview` – preview the production build locally
-- `pnpm lint` – run ESLint
-- `pnpm typecheck` – run TypeScript in strict mode
-- `pnpm test` – run the unit tests with coverage
-
-## Deployment
-
-The application is designed to be deployed on Vercel. Each deployment is stateless and represents a clean slate.
+Pull requests are welcome! For substantial changes, please open an issue to discuss your idea first. Run `pnpm lint`, `pnpm typecheck` and `pnpm test` before pushing your changes.
 
 ## License
 
-ISC
+MIT
+
