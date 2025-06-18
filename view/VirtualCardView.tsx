@@ -2,7 +2,6 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import VirtualCardHero, { VirtualCardHeroHandle } from './VirtualCardHero';
 import VirtualCardActions from './VirtualCardActions';
 
@@ -72,9 +71,10 @@ export function VirtualCardView({
   heroRef,
 }: Props) {
   return (
-    <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Virtual Name Card</h2>
-      <div className="space-y-4">
+    <div className="w-full min-h-screen bg-gray-50 px-4 py-10">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">Virtual Name Card</h2>
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="space-y-4">
         {!viewOnly && (
         <>
         <div>
@@ -150,30 +150,32 @@ export function VirtualCardView({
             {toastMessage}
           </div>
         )}
-        <div className="transition-opacity duration-300 delay-150">
-          <VirtualCardHero
-            ref={heroRef}
-            fullName={fullName}
-            phone={phone}
-            email={email}
-            organization={organization}
-            title={title}
-            website={website}
-            address={address}
-            qrDataUrl={qrDataUrl}
-            flipped={isFlipped}
-            flip={flip}
-            download={download}
-            downloadQr={downloadQr}
-            copyVcard={copyVcard}
-            shareCard={shareCard}
-            onInteract={cancelFlip}
-          />
-          <VirtualCardActions
-            download={download}
-            shareCard={shareCard}
-            showQr={() => flip(true)}
-          />
+      </div>
+        <div className="flex justify-center lg:justify-end">
+          <div className="transition-opacity duration-300 delay-150 max-w-sm">
+            <VirtualCardHero
+              ref={heroRef}
+              fullName={fullName}
+              phone={phone}
+              email={email}
+              organization={organization}
+              title={title}
+              website={website}
+              address={address}
+              qrDataUrl={qrDataUrl}
+              flipped={isFlipped}
+              flip={flip}
+              download={download}
+              downloadQr={downloadQr}
+              copyVcard={copyVcard}
+              onInteract={cancelFlip}
+            />
+            <VirtualCardActions
+              download={download}
+              shareCard={shareCard}
+              showQr={() => flip(true)}
+            />
+          </div>
         </div>
       </div>
     </div>
