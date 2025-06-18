@@ -27,12 +27,7 @@
       "@/*": ["./src/*"],
       "@design-system": ["./src/design-system"],
       "@design-system/*": ["./src/design-system/*"],
-      "@features/*": ["./src/features/*"],
       "@tools/*": ["./src/tools/*"],
-      "@components/*": ["./src/components/*"],
-      "@layout/*": ["./src/layout/*"],
-      "@pages/*": ["./src/pages/*"],
-      "@services/*": ["./src/services/*"],
       "@shared/*": ["./src/shared/*"],
       "@types/*": ["./src/types/*"],
       "@api/*": ["./api/*"]
