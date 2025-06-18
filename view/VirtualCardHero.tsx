@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import CardPreview from './CardPreview';
 
 const clsx = (...c: Array<string | false | null | undefined>) => c.filter(Boolean).join(' ');
 
@@ -19,7 +20,6 @@ interface Props {
   download: () => void;
   downloadQr: () => void;
   copyVcard: () => void;
-  shareCard: () => void;
   onInteract: () => void;
 }
 
@@ -42,7 +42,6 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
   download,
   downloadQr,
   copyVcard,
-  shareCard,
   onInteract,
 }, ref) => {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -51,7 +50,10 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
   useImperativeHandle(ref, () => ({ showQr: () => flip(true), root: rootRef.current }));
 
   return (
-    <div ref={rootRef} className="relative mx-auto my-6 w-72 h-96 [perspective:1000px]">
+    <div
+      ref={rootRef}
+      className="relative mx-auto my-6 w-full max-w-sm aspect-[16/10] [perspective:1000px]"
+    >
       <div
         role="button"
         tabIndex={0}
@@ -69,49 +71,22 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
       >
         <div
           className={clsx(
-            'absolute inset-0 flex flex-col items-center justify-center rounded-2xl shadow-xl',
+            'absolute inset-0 flex items-center justify-center rounded-2xl shadow-xl',
             'bg-white dark:bg-gray-800 [backface-visibility:hidden] motion-reduce:[backface-visibility:visible]',
             'transition-opacity duration-300',
             flipped && 'opacity-0 motion-reduce:opacity-100',
           )}
         >
-          <div className="w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 shadow mb-4" />
-          <p className="text-xl font-semibold text-gray-800 dark:text-white">{fullName || 'Your Name'}</p>
-          {title && <p className="text-gray-600 dark:text-gray-300 text-sm">{title}</p>}
-          {organization && <p className="text-gray-600 dark:text-gray-300 text-sm">{organization}</p>}
-          {phone && <p className="text-gray-600 dark:text-gray-300 text-sm">{phone}</p>}
-          {email && <p className="text-gray-600 dark:text-gray-300 text-sm">{email}</p>}
-          {website && (
-            <a href={website} className="text-primary-600 dark:text-primary-400 text-sm" target="_blank" rel="noopener noreferrer">
-              {website}
-            </a>
-          )}
-          {address && <p className="text-gray-600 dark:text-gray-300 text-sm text-center">{address}</p>}
-          <div className="flex gap-3 mt-4">
-            {phone && (
-              <a
-                href={`tel:${phone}`}
-                className="flex items-center gap-1 px-3 py-1 text-sm bg-primary-600 text-white rounded focus:outline-none"
-              >
-                📞 Call
-              </a>
-            )}
-            {email && (
-              <a
-                href={`mailto:${email}`}
-                className="flex items-center gap-1 px-3 py-1 text-sm bg-primary-600 text-white rounded focus:outline-none"
-              >
-                ✉️ Email
-              </a>
-            )}
-            <button
-              type="button"
-              onClick={() => { shareCard(); onInteract(); }}
-              className="flex items-center gap-1 px-3 py-1 text-sm bg-primary-600 text-white rounded focus:outline-none"
-            >
-              🔗 Share
-            </button>
-          </div>
+          <CardPreview
+            fullName={fullName}
+            phone={phone}
+            email={email}
+            organization={organization}
+            title={title}
+            website={website}
+            address={address}
+            download={download}
+          />
         </div>
         <div
           className={clsx(

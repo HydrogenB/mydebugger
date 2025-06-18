@@ -46,3 +46,14 @@ export const decodeContactData = (encoded: string): ContactInfo | null => {
     return null;
   }
 };
+
+export const getInitials = (fullName: string): string => {
+  if (!fullName) return '';
+  return fullName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+};

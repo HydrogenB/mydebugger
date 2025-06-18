@@ -1,4 +1,4 @@
-import { generateVCard, encodeContactData, decodeContactData } from '../model/virtualCard';
+import { generateVCard, encodeContactData, decodeContactData, getInitials } from '../model/virtualCard';
 
 describe('generateVCard', () => {
   it('creates a minimal vcard', () => {
@@ -34,5 +34,19 @@ describe('encodeContactData/decodeContactData', () => {
 
   it('returns null on invalid input', () => {
     expect(decodeContactData('!nv4l!d')).toBeNull();
+  });
+});
+
+describe('getInitials', () => {
+  it('returns initials for full name', () => {
+    expect(getInitials('John Doe')).toBe('JD');
+  });
+
+  it('handles single word name', () => {
+    expect(getInitials('Plato')).toBe('P');
+  });
+
+  it('returns empty string for empty input', () => {
+    expect(getInitials('')).toBe('');
   });
 });
