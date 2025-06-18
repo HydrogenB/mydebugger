@@ -14,9 +14,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.0.3
         version: 4.5.1(vite@4.5.14(@types/node@18.19.111)(terser@5.41.0))
-      chalk:
-        specifier: ^5.3.0
-        version: 5.4.1
       html-to-image:
         specifier: ^1.11.13
         version: 1.11.13
@@ -120,6 +117,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.21(postcss@8.5.4)
+      chalk:
+        specifier: ^5.3.0
+        version: 5.4.1
       eslint:
         specifier: ^8.53.0
         version: 8.57.1
