@@ -101,14 +101,6 @@ const Footer: React.FC = () => {
                   Contributing
                 </a>
               </li>
-              <li>
-                <Link
-                  to="/components-demo"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
-                >
-                  Components
-                </Link>
-              </li>
             </ul>
           </div>
           

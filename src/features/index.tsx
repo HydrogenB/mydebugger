@@ -57,14 +57,12 @@ const urlEncoder = placeholderManifest('url-encoder', 'URL Encoder');
 const regex = placeholderManifest('regex-tester', 'Regex Tester');
 const headerAnalyzer = placeholderManifest('headers-analyzer', 'Headers Analyzer');
 const clickjacking = placeholderManifest('clickjacking-validator', 'Clickjacking Validator');
-const componentsDemo = placeholderManifest('components-demo', 'Components Demo');
 
 export const features: Tool[] = [
   urlEncoder,
   regex,
   headerAnalyzer,
   clickjacking,
-  componentsDemo,
   {
     id: 'jwt',
     title: 'JWT Toolkit',
