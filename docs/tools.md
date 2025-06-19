@@ -1,5 +1,33 @@
 # MyDebugger Tools
 
+This page explains every built-in tool. Each lives under `src/tools/<name>` and is available in the browser at `/tools/<name>`. When running the development server (`pnpm dev`) you can browse them at <http://localhost:3000/tools>.
+
+Every section starts with an import snippet showing the component location so you can embed it elsewhere or customize it. Use the list below to jump directly to any tool.
+
+## Table of Contents
+
+- [Cache Inspector](#cache-inspector)
+- [Click Jacking Validator](#click-jacking-validator)
+- [Cookie Inspector](#cookie-inspector)
+- [Cookie Scope](#cookie-scope)
+- [CORS Tester](#cors-tester)
+- [Crypto Lab](#crypto-lab)
+- [Deep Link Chain](#deep-link-chain)
+- [Deep-Link QR Generator](#deep-link-qr-generator)
+- [Dynamic Link Tracker](#dynamic-link-tracker)
+- [Dynamic-Link Probe](#dynamic-link-probe)
+- [Fetch & Render Tool](#fetch--render-tool)
+- [Header Scanner](#header-scanner)
+- [HTTP Headers Analyzer](#http-headers-analyzer)
+- [JWT Toolkit](#jwt-toolkit)
+- [Pentest Validator Suite](#pentest-validator-suite)
+- [Pre-rendering & SEO Meta Tester](#pre-rendering--seo-meta-tester)
+- [Regex Tester](#regex-tester)
+- [Storage Sync Debugger](#storage-sync-debugger)
+- [URL Encoder / Decoder](#url-encoder--decoder)
+- [Virtual Name Card](#virtual-name-card)
+- [Web Permission Tester](#web-permission-tester)
+
 ## Crypto Lab
 
 ```
@@ -159,3 +187,12 @@ import UrlEncoderPage from "../src/tools/url/UrlEncoder";
 ```
 
 Quickly encode or decode URL components. Choose between `encodeURIComponent`, `encodeURI` or legacy `escape`. Batch mode processes each line separately. Access it at `/url-encoder`.
+
+## PWA Push Tester
+
+```tsx
+import PushTesterPage from '../src/tools/push-tester/page';
+```
+
+Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
+
