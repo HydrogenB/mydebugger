@@ -12,6 +12,7 @@ import { Button } from '../src/design-system/components/inputs/Button';
 import { Badge } from '../src/design-system/components/display/Badge';
 import { Card } from '../src/design-system/components/layout/Card';
 import { LoadingSpinner } from '../src/design-system/components/feedback/LoadingSpinner';
+import { CameraPreview, MicMeter, GeoPanel, SensorTable, LightSpark } from './DataPreview';
 
 interface PermissionCardProps {
   permission: PermissionState;
@@ -73,12 +74,101 @@ function PermissionCard({
       setShowPreview(true);
     }
   };
-
   const handleRetry = async () => {
     await onRetry();
     if (status === 'granted' && permissionInfo.hasLivePreview) {
       setShowPreview(true);
     }
+  };
+
+  const handleStopPreview = () => {
+    // Stop media streams
+    if (permissionData instanceof MediaStream) {
+      permissionData.getTracks().forEach(track => track.stop());
+    }
+    
+    // For sensors, they should be stopped by the parent component
+    setShowPreview(false);
+  };
+
+  const renderLivePreview = () => {
+    if (!permissionData || !showPreview) return null;
+
+    switch (permissionInfo.name) {
+      case 'camera':
+        if (permissionData instanceof MediaStream) {
+          return <CameraPreview stream={permissionData} onStop={handleStopPreview} />;
+        }
+        break;
+        
+      case 'microphone':
+        if (permissionData instanceof MediaStream) {
+          return <MicMeter stream={permissionData} onStop={handleStopPreview} />;
+        }
+        break;
+        
+      case 'geolocation':
+        if (permissionData && typeof permissionData === 'object' && 'coords' in permissionData) {
+          return (
+            <GeoPanel 
+              position={permissionData as GeolocationPosition} 
+              onRefresh={onRetry}
+            />
+          );
+        }
+        break;
+          case 'accelerometer':
+      case 'gyroscope':
+      case 'magnetometer':
+        if (permissionData && typeof permissionData === 'object') {
+          return (
+            <SensorTable 
+              sensor={permissionData as {
+                x?: number;
+                y?: number;
+                z?: number;
+                addEventListener: (event: string, handler: () => void) => void;
+                removeEventListener: (event: string, handler: () => void) => void;
+                start: () => void;
+                stop: () => void;
+              }}
+              sensorType={permissionInfo.name as 'accelerometer' | 'gyroscope' | 'magnetometer'}
+              onStop={handleStopPreview}
+            />
+          );
+        }
+        break;
+        
+      case 'ambient-light-sensor':
+        if (permissionData && typeof permissionData === 'object') {
+          return <LightSpark 
+            sensor={permissionData as {
+              illuminance?: number;
+              addEventListener: (event: string, handler: () => void) => void;
+              removeEventListener: (event: string, handler: () => void) => void;
+              start: () => void;
+              stop: () => void;
+            }} 
+            onStop={handleStopPreview} 
+          />;
+        }
+        break;
+        
+      default:
+        // Generic data display for other permissions
+        return (
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Permission Data:
+            </p>
+            <pre className="text-xs bg-white dark:bg-gray-900 p-3 rounded border overflow-x-auto">
+              {JSON.stringify(permissionData, null, 2)}
+            </pre>
+          </div>
+        );
+    }
+    
+    return null;
   };
 
   return (
@@ -171,21 +261,9 @@ function PermissionCard({
                 className={`w-4 h-4 transition-transform ${showPreview ? 'rotate-180' : ''}`} 
               />
             </button>
-            
-            {showPreview && (
-              <div className="mt-3 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {permissionData ? (
-                    <div>
-                      <p className="font-medium">Live data available</p>
-                      <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-                        {JSON.stringify(permissionData, null, 2)}
-                      </pre>
-                    </div>
-                  ) : (
-                    <p>Live preview will show here when permission is active</p>
-                  )}
-                </div>
+              {showPreview && (
+              <div className="mt-3">
+                {renderLivePreview()}
               </div>
             )}
           </div>

@@ -6,6 +6,42 @@
 
 export type PermissionStatus = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
+export type PermissionName = 
+  | 'geolocation'
+  | 'camera' 
+  | 'microphone'
+  | 'notifications'
+  | 'clipboard-read'
+  | 'clipboard-write'
+  | 'accelerometer'
+  | 'gyroscope'
+  | 'magnetometer'
+  | 'ambient-light-sensor'
+  | 'screen-wake-lock'
+  | 'idle-detection'
+  | 'compute-pressure'
+  | 'window-management'
+  | 'bluetooth'
+  | 'usb'
+  | 'serial'
+  | 'hid'
+  | 'midi'
+  | 'nfc'
+  | 'persistent-storage'
+  | 'local-fonts'
+  | 'storage-access'
+  | 'top-level-storage-access'
+  | 'display-capture'
+  | 'push'
+  | 'background-sync'
+  | 'payment-handler'
+  | 'background-fetch'
+  | 'periodic-background-sync'
+  | 'web-share'
+  | 'picture-in-picture'
+  | 'speaker-selection'
+  | 'identity-credentials-get';
+
 export interface Permission {
   name: string;
   displayName: string;
@@ -161,11 +197,57 @@ const requestFunctions = {
   'background-sync': async () => {
     const registration = await navigator.serviceWorker.ready;
     return (registration as any).sync?.register('background-sync');
+  },  'top-level-storage-access': async () => document.requestStorageAccess?.(),
+
+  'background-fetch': async () => {
+    const registration = await navigator.serviceWorker.ready;
+    return (registration as ServiceWorkerRegistration & {
+      backgroundFetch?: { fetch: (id: string, url: string) => Promise<unknown> };
+    }).backgroundFetch?.fetch('bg-fetch', '/');
   },
 
-  'top-level-storage-access': async () => {
-    return document.requestStorageAccess?.();
-  }
+  'periodic-background-sync': async () => {
+    const registration = await navigator.serviceWorker.ready;
+    return (registration as ServiceWorkerRegistration & {
+      periodicSync?: { register: (tag: string, options: { minInterval: number }) => Promise<void> };
+    }).periodicSync?.register('periodic-sync', {
+      minInterval: 24 * 60 * 60 * 1000 // 24 hours
+    });
+  },
+
+  'web-share': async () => navigator.share?.({
+    title: 'Test Share',
+    text: 'Testing Web Share API',
+    url: window.location.href
+  }),
+
+  'picture-in-picture': async () => {
+    const video = document.createElement('video');
+    return (video as HTMLVideoElement & {
+      requestPictureInPicture?: () => Promise<unknown>;
+    }).requestPictureInPicture?.();
+  },
+
+  'speaker-selection': async () => (navigator.mediaDevices as MediaDevices & {
+    selectAudioOutput?: () => Promise<MediaDeviceInfo>;
+  }).selectAudioOutput?.(),
+
+  'identity-credentials-get': async () => (navigator as Navigator & {
+    credentials?: {
+      get?: (options: {
+        identity: {
+          providers: Array<{ configURL: string; clientId: string }>;
+        };
+      }) => Promise<unknown>;
+    };
+  }).credentials?.get?.({
+    identity: {
+      providers: [{
+        configURL: "https://accounts.google.com/.well-known/web_identity",
+        clientId: "demo"
+      }]
+    }
+  })
 };
 
 // Permission definitions from Appendix A
@@ -376,8 +458,7 @@ export const PERMISSIONS: Permission[] = [
     category: 'System',
     requestFn: requestFunctions['window-management'],
     hasLivePreview: false
-  },
-  {
+  },  {
     name: 'nfc',
     displayName: 'NFC',
     description: 'Near Field Communication',
@@ -385,6 +466,96 @@ export const PERMISSIONS: Permission[] = [
     category: 'Device',
     requestFn: requestFunctions.nfc,
     hasLivePreview: true
+  },
+  {
+    name: 'push',
+    displayName: 'Push Notifications',
+    description: 'Receive push notifications',
+    icon: 'Send',
+    category: 'System',
+    requestFn: requestFunctions.push,
+    hasLivePreview: false
+  },
+  {
+    name: 'background-sync',
+    displayName: 'Background Sync',
+    description: 'Sync data in background',
+    icon: 'RefreshCw',
+    category: 'System',
+    requestFn: requestFunctions['background-sync'],
+    hasLivePreview: false
+  },
+  {
+    name: 'payment-handler',
+    displayName: 'Payment Handler',
+    description: 'Handle payment requests',
+    icon: 'CreditCard',
+    category: 'System',
+    requestFn: requestFunctions['payment-handler'],
+    hasLivePreview: false
+  },
+  {
+    name: 'top-level-storage-access',
+    displayName: 'Top-Level Storage Access',
+    description: 'Access storage from embedded context',
+    icon: 'FolderOpen',
+    category: 'Storage',
+    requestFn: requestFunctions['top-level-storage-access'],
+    hasLivePreview: false
+  },
+  {
+    name: 'background-fetch',
+    displayName: 'Background Fetch',
+    description: 'Download files in background',
+    icon: 'Download',
+    category: 'System',
+    requestFn: requestFunctions['background-fetch'],
+    hasLivePreview: false
+  },
+  {
+    name: 'periodic-background-sync',
+    displayName: 'Periodic Background Sync',
+    description: 'Periodic data synchronization',
+    icon: 'Timer',
+    category: 'System',
+    requestFn: requestFunctions['periodic-background-sync'],
+    hasLivePreview: false
+  },
+  {
+    name: 'web-share',
+    displayName: 'Web Share',
+    description: 'Share content via native sharing',
+    icon: 'Share2',
+    category: 'System',
+    requestFn: requestFunctions['web-share'],
+    hasLivePreview: false
+  },
+  {
+    name: 'picture-in-picture',
+    displayName: 'Picture-in-Picture',
+    description: 'Display video in floating window',
+    icon: 'PictureInPicture',
+    category: 'Media',
+    requestFn: requestFunctions['picture-in-picture'],
+    hasLivePreview: false
+  },
+  {
+    name: 'speaker-selection',
+    displayName: 'Speaker Selection',
+    description: 'Select audio output device',
+    icon: 'Volume2',
+    category: 'Media',
+    requestFn: requestFunctions['speaker-selection'],
+    hasLivePreview: true
+  },
+  {
+    name: 'identity-credentials-get',
+    displayName: 'Identity Credentials',
+    description: 'Get user identity credentials',
+    icon: 'UserCheck',
+    category: 'System',
+    requestFn: requestFunctions['identity-credentials-get'],
+    hasLivePreview: false
   }
 ];
 
@@ -392,8 +563,7 @@ export const PERMISSIONS: Permission[] = [
 export const checkPermissionStatus = async (permissionName: string): Promise<PermissionStatus> => {
   if (!navigator.permissions) return 'unsupported';
   
-  try {
-    const result = await navigator.permissions.query({ name: permissionName as any });
+  try {    const result = await navigator.permissions.query({ name: permissionName as any });
     return result.state as PermissionStatus;
   } catch {
     return 'unsupported';
