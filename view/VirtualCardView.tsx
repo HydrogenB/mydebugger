@@ -83,7 +83,7 @@ export function VirtualCardView({
   heroRef,
 }: Props) {
   return (
-    <div className="relative min-h-screen px-4 py-10 overflow-hidden">
+    <div className="relative min-h-screen px-4 py-10">
       <AuroraBackground />
       <motion.h2
         initial={{ opacity: 0, y: -20 }}
@@ -92,8 +92,8 @@ export function VirtualCardView({
       >
         Virtual Name Card
       </motion.h2>
-      <div className="relative z-10 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div className="space-y-6">
+      <div className="relative z-10 max-w-6xl mx-auto flex flex-col md:flex-row md:items-start gap-12">
+        <div className="w-full md:max-w-md flex-1 space-y-6">
           {!viewOnly && (
             <>
               <AuroraInput label="Full Name" name="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" icon={<Star className="w-4 h-4" />} />
@@ -132,8 +132,8 @@ export function VirtualCardView({
             </div>
           )}
         </div>
-        <div className="flex justify-center lg:justify-end">
-          <div className="transition-opacity duration-300 delay-150 max-w-sm">
+        <aside className="w-full md:w-[320px] flex justify-center md:justify-start sticky top-24">
+          <div className="w-[320px] shrink-0 drop-shadow-xl transition-opacity duration-300 delay-150">
             <VirtualCardHero
               ref={heroRef}
               fullName={fullName}
@@ -153,7 +153,7 @@ export function VirtualCardView({
             />
             <VirtualCardActions download={download} shareCard={shareCard} showQr={() => flip(true)} />
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   );
