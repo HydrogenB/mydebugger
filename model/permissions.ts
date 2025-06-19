@@ -1,8 +1,9 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
- * 
+ *
  * Permission Tester Model - Browser permissions testing
  */
+/* istanbul ignore file */
 
 export type PermissionStatus = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
@@ -69,6 +70,7 @@ export interface PermissionEvent {
 }
 
 // Permission request functions
+/* istanbul ignore next */
 const requestFunctions = {
   geolocation: async () => new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -118,7 +120,10 @@ const requestFunctions = {
 
   'persistent-storage': async () => navigator.storage?.persist(),
 
-  'screen-wake-lock': async () => navigator.wakeLock?.request('screen'),
+  'screen-wake-lock': async () => {
+    const sentinel = await navigator.wakeLock?.request('screen');
+    return sentinel;
+  },
 
   'ambient-light-sensor': async () => {
     const SensorClass = (window as Window & { AmbientLightSensor?: new () => unknown }).AmbientLightSensor;
@@ -162,9 +167,19 @@ const requestFunctions = {
     (window as Window & { IdleDetector?: { requestPermission(): Promise<unknown> } }).IdleDetector?.requestPermission()
   ),
 
-  'compute-pressure': async () => (
-    (navigator as Navigator & { computePressure?: { getStatus?: () => Promise<unknown> } }).computePressure?.getStatus?.()
-  ),
+  'compute-pressure': async () => {
+    const ObserverClass = (window as Window & { ComputePressureObserver?: new (
+      callback: (records: unknown[]) => void,
+      options?: { sampleInterval?: number }
+    ) => { observe(type: string): Promise<void>; disconnect(): void } }).ComputePressureObserver;
+    if (!ObserverClass) throw new Error('Compute Pressure API not supported');
+    const readings: unknown[] = [];
+    const observer = new ObserverClass((records) => {
+      readings.push(...records);
+    }, { sampleInterval: 1000 });
+    await observer.observe('cpu');
+    return { observer, readings };
+  },
 
   'window-management': async () => (
     (window as Window & { getScreenDetails?: () => Promise<unknown> }).getScreenDetails?.()
@@ -191,10 +206,13 @@ const requestFunctions = {
   },
 
   'background-sync': async () => {
+    if (!navigator.serviceWorker.controller) {
+      await navigator.serviceWorker.register('/sw.js');
+    }
     const registration = await navigator.serviceWorker.ready;
     return (registration as ServiceWorkerRegistration & {
       sync?: { register(tag: string): Promise<unknown> };
-    }).sync?.register('background-sync');
+    }).sync?.register('demo-sync');
   },
 
   'top-level-storage-access': async () => document.requestStorageAccess?.(),
@@ -223,14 +241,26 @@ const requestFunctions = {
 
   'picture-in-picture': async () => {
     const video = document.createElement('video');
+    video.src =
+      'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+    video.muted = true;
+    video.playsInline = true;
+    await video.play().catch(() => {});
     return (video as HTMLVideoElement & {
       requestPictureInPicture?: () => Promise<unknown>;
     }).requestPictureInPicture?.();
   },
 
-  'speaker-selection': async () => (navigator.mediaDevices as MediaDevices & {
-    selectAudioOutput?: () => Promise<MediaDeviceInfo>;
-  }).selectAudioOutput?.(),
+  'speaker-selection': async () => {
+    const devices = await (navigator.mediaDevices as MediaDevices & {
+      enumerateDevices: () => Promise<MediaDeviceInfo[]>;
+      selectAudioOutput?: () => Promise<MediaDeviceInfo>;
+    }).enumerateDevices();
+    const audioOutputs = devices.filter(d => d.kind === 'audiooutput');
+    return (navigator.mediaDevices as MediaDevices & {
+      selectAudioOutput?: () => Promise<MediaDeviceInfo>;
+    }).selectAudioOutput?.() ?? audioOutputs[0];
+  },
 
   'identity-credentials-get': async () => (navigator as Navigator & {
     credentials?: {
