@@ -3,7 +3,7 @@
  * 
  * Permission Card View Component
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FiCode, FiChevronDown, FiCopy, FiPlay, FiHelpCircle 
 } from 'react-icons/fi';
@@ -67,18 +67,19 @@ function PermissionCard({
   const { permission: permissionInfo, status, error } = permission;
   const statusBadgeProps = getStatusBadgeProps(status);
 
+  useEffect(() => {
+    if (permission.status === 'granted' && permission.permission.hasLivePreview) {
+      setShowPreview(true);
+    } else if (permission.status !== 'granted') {
+      setShowPreview(false);
+    }
+  }, [permission.status, permission.permission.hasLivePreview]);
+
   const handleRequest = async () => {
     await onRequest();
-    // Auto-show preview if granted and has live preview
-    if (status === 'granted' && permissionInfo.hasLivePreview) {
-      setShowPreview(true);
-    }
   };
   const handleRetry = async () => {
     await onRetry();
-    if (status === 'granted' && permissionInfo.hasLivePreview) {
-      setShowPreview(true);
-    }
   };
 
   const handleStopPreview = () => {

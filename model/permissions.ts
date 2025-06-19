@@ -49,7 +49,7 @@ export interface Permission {
   description: string;
   icon: string; // Lucide icon name
   category: 'Media' | 'Location' | 'Sensors' | 'Device' | 'Storage' | 'System';
-  requestFn: () => Promise<any>;
+  requestFn: () => Promise<unknown>;
   hasLivePreview: boolean;
 }
 
@@ -57,7 +57,7 @@ export interface PermissionState {
   permission: Permission;
   status: PermissionStatus;
   error?: string;
-  data?: any;
+  data?: unknown;
   lastRequested?: number;
 }
 
@@ -99,6 +99,7 @@ const requestFunctions = {
 
   hid: async () => (navigator as any).hid?.requestDevice({ filters: [] }),
 
+
   midi: async () => navigator.requestMIDIAccess?.({ sysex: true }),
 
   'persistent-storage': async () => navigator.storage?.persist(),
@@ -106,26 +107,34 @@ const requestFunctions = {
   'screen-wake-lock': async () => navigator.wakeLock?.request('screen'),
 
   'ambient-light-sensor': async () => {
-    const sensor = new (window as any).AmbientLightSensor();
-    sensor.start();
+    const SensorClass = (window as Window & { AmbientLightSensor?: new () => unknown }).AmbientLightSensor;
+    if (!SensorClass) throw new Error('AmbientLightSensor not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   accelerometer: async () => {
-    const sensor = new (window as any).Accelerometer();
-    sensor.start();
+    const SensorClass = (window as Window & { Accelerometer?: new () => unknown }).Accelerometer;
+    if (!SensorClass) throw new Error('Accelerometer not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   gyroscope: async () => {
-    const sensor = new (window as any).Gyroscope();
-    sensor.start();
+    const SensorClass = (window as Window & { Gyroscope?: new () => unknown }).Gyroscope;
+    if (!SensorClass) throw new Error('Gyroscope not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   magnetometer: async () => {
-    const sensor = new (window as any).Magnetometer();
-    sensor.start();
+    const SensorClass = (window as Window & { Magnetometer?: new () => unknown }).Magnetometer;
+    if (!SensorClass) throw new Error('Magnetometer not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
@@ -139,8 +148,11 @@ const requestFunctions = {
 
   'window-management': async () => (window as any).getScreenDetails?.(),
 
+
   nfc: async () => {
-    const reader = new (window as any).NDEFReader();
+    const ReaderClass = (window as Window & { NDEFReader?: new () => { scan(): Promise<unknown> } }).NDEFReader;
+    if (!ReaderClass) throw new Error('NFC not supported');
+    const reader = new ReaderClass();
     return reader.scan();
   },
 
@@ -159,20 +171,24 @@ const requestFunctions = {
 
   'background-sync': async () => {
     const registration = await navigator.serviceWorker.ready;
-    return (registration as any).sync?.register('background-sync');
-  },  'top-level-storage-access': async () => document.requestStorageAccess?.(),
+    return (registration as ServiceWorkerRegistration & {
+      sync?: { register(tag: string): Promise<unknown> };
+    }).sync?.register('background-sync');
+  },
+
+  'top-level-storage-access': async () => document.requestStorageAccess?.(),
 
   'background-fetch': async () => {
     const registration = await navigator.serviceWorker.ready;
     return (registration as ServiceWorkerRegistration & {
-      backgroundFetch?: { fetch: (id: string, url: string) => Promise<unknown> };
+      backgroundFetch?: { fetch(id: string, url: string): Promise<unknown> };
     }).backgroundFetch?.fetch('bg-fetch', '/');
   },
 
   'periodic-background-sync': async () => {
     const registration = await navigator.serviceWorker.ready;
     return (registration as ServiceWorkerRegistration & {
-      periodicSync?: { register: (tag: string, options: { minInterval: number }) => Promise<void> };
+      periodicSync?: { register(tag: string, options: { minInterval: number }): Promise<void> };
     }).periodicSync?.register('periodic-sync', {
       minInterval: 24 * 60 * 60 * 1000 // 24 hours
     });
@@ -526,7 +542,8 @@ export const PERMISSIONS: Permission[] = [
 export const checkPermissionStatus = async (permissionName: string): Promise<PermissionStatus> => {
   if (!navigator.permissions) return 'unsupported';
   
-  try {    const result = await navigator.permissions.query({ name: permissionName as any });
+  try {
+    const result = await navigator.permissions.query({ name: permissionName as unknown as PermissionDescriptor['name'] });
     return result.state as PermissionStatus;
   } catch {
     return 'unsupported';
