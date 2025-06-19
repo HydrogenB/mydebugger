@@ -34,15 +34,17 @@ export default function PushTester() {
       </div>
 
       <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
-        <label htmlFor="vapid" className="block text-sm font-medium">VAPID Public Key</label>
-        <input
-          id="vapid"
-          type="text"
-          className="w-full rounded-md border-gray-300 p-2"
-          value={vapidKey}
-          onChange={e => setVapidKey(e.target.value)}
-          placeholder="Base64 encoded VAPID key"
-        />
+        <label htmlFor="vapid" className="block text-sm font-medium">
+          VAPID Public Key
+          <input
+            id="vapid"
+            type="text"
+            className="w-full rounded-md border-gray-300 p-2 mt-1"
+            value={vapidKey}
+            onChange={(e) => setVapidKey(e.target.value)}
+            placeholder="Base64 encoded VAPID key"
+          />
+        </label>
         <button type="button" onClick={register} className="px-3 py-1 bg-primary-500 text-white rounded-md">
           Register Service Worker
         </button>
@@ -51,29 +53,37 @@ export default function PushTester() {
         </button>
       </div>
 
-      {subscription && (
-        <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
-          <label htmlFor="title" className="block text-sm font-medium">Notification Title</label>
-          <input
-            id="title"
-            type="text"
-            className="w-full rounded-md border-gray-300 p-2"
-            value={payload.title}
-            onChange={e => setPayload({ ...payload, title: e.target.value })}
-          />
-          <label htmlFor="body" className="block text-sm font-medium">Notification Body</label>
-          <textarea
-            id="body"
-            className="w-full rounded-md border-gray-300 p-2"
-            value={payload.body}
-            onChange={e => setPayload({ ...payload, body: e.target.value })}
-            rows={2}
-          />
-          <button type="button" onClick={sendPush} className="px-3 py-1 bg-primary-500 text-white rounded-md">
-            Send test push
-          </button>
-        </div>
-      )}
+        {subscription && (
+          <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
+          <label htmlFor="title" className="block text-sm font-medium">
+            Notification Title
+            <input
+              id="title"
+              type="text"
+              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              value={payload.title}
+              onChange={(e) => setPayload({ ...payload, title: e.target.value })}
+            />
+          </label>
+          <label htmlFor="body" className="block text-sm font-medium">
+            Notification Body
+            <textarea
+              id="body"
+              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              value={payload.body}
+              onChange={(e) => setPayload({ ...payload, body: e.target.value })}
+              rows={2}
+            />
+          </label>
+            <button
+              type="button"
+              onClick={sendPush}
+              className="px-3 py-1 bg-primary-500 text-white rounded-md"
+            >
+              Send test push
+            </button>
+          </div>
+        )}
 
       <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
         <h2 className="font-semibold">Status: {status}</h2>
@@ -81,8 +91,8 @@ export default function PushTester() {
           Cleanup
         </button>
         <div className="text-xs text-gray-500 whitespace-pre-wrap">
-          {logs.map((l, i) => (
-            <div key={`${i}-${l}`}>{l}</div>
+          {logs.map((l) => (
+            <div key={l}>{l}</div>
           ))}
         </div>
       </div>
