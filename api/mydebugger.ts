@@ -1,9 +1,10 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
+import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 
-export const config = { runtime: 'edge' };
+export const runtime = 'edge';
 
 const VAPID = {
   publicKey: process.env.VAPID_PUBLIC_KEY!,
@@ -13,15 +14,21 @@ const VAPID = {
 
 webpush.setVapidDetails(VAPID.subject, VAPID.publicKey, VAPID.privateKey);
 
-export default async function handler(req: Request) {
-  const { action, subscription, notification } = await req.json();
-  if (action !== 'push-echo') {
-    return new Response(JSON.stringify({ ok: false, error: 'Unknown action' }), { status: 400 });
+export async function POST(req: NextRequest) {
+  const { action, ...payload } = await req.json();
+  switch (action) {
+    case 'push-echo':
+      return pushEcho(payload as any);
+    default:
+      return NextResponse.json({ ok: false, error: 'Unknown action' }, { status: 400 });
   }
+}
+
+async function pushEcho({ subscription, notification }: { subscription: any; notification: any }) {
   try {
     await webpush.sendNotification(subscription, JSON.stringify(notification));
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err: any) {
-    return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500 });
+    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }
 }
