@@ -159,3 +159,11 @@ import UrlEncoderPage from "../src/tools/url/UrlEncoder";
 ```
 
 Quickly encode or decode URL components. Choose between `encodeURIComponent`, `encodeURI` or legacy `escape`. Batch mode processes each line separately. Access it at `/url-encoder`.
+
+## PWA Push Tester
+
+```tsx
+import PushTesterPage from '../src/tools/push-tester/page';
+```
+
+Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
