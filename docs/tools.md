@@ -1,5 +1,33 @@
 # MyDebugger Tools
 
+This page explains every built-in tool. Each lives under `src/tools/<name>` and is available in the browser at `/tools/<name>`. When running the development server (`pnpm dev`) you can browse them at <http://localhost:3000/tools>.
+
+Every section starts with an import snippet showing the component location so you can embed it elsewhere or customize it. Use the list below to jump directly to any tool.
+
+## Table of Contents
+
+- [Cache Inspector](#cache-inspector)
+- [Click Jacking Validator](#click-jacking-validator)
+- [Cookie Inspector](#cookie-inspector)
+- [Cookie Scope](#cookie-scope)
+- [CORS Tester](#cors-tester)
+- [Crypto Lab](#crypto-lab)
+- [Deep Link Chain](#deep-link-chain)
+- [Deep-Link QR Generator](#deep-link-qr-generator)
+- [Dynamic Link Tracker](#dynamic-link-tracker)
+- [Dynamic-Link Probe](#dynamic-link-probe)
+- [Fetch & Render Tool](#fetch--render-tool)
+- [Header Scanner](#header-scanner)
+- [HTTP Headers Analyzer](#http-headers-analyzer)
+- [JWT Toolkit](#jwt-toolkit)
+- [Pentest Validator Suite](#pentest-validator-suite)
+- [Pre-rendering & SEO Meta Tester](#pre-rendering--seo-meta-tester)
+- [Regex Tester](#regex-tester)
+- [Storage Sync Debugger](#storage-sync-debugger)
+- [URL Encoder / Decoder](#url-encoder--decoder)
+- [Virtual Name Card](#virtual-name-card)
+- [Web Permission Tester](#web-permission-tester)
+
 ## Crypto Lab
 
 ```
@@ -159,3 +187,44 @@ import UrlEncoderPage from "../src/tools/url/UrlEncoder";
 ```
 
 Quickly encode or decode URL components. Choose between `encodeURIComponent`, `encodeURI` or legacy `escape`. Batch mode processes each line separately. Access it at `/url-encoder`.
+
+## HTTP Headers Analyzer
+
+```tsx
+import HeadersAnalyzerPage from '../src/tools/headers/HeadersAnalyzer';
+```
+
+Visualize request and response headers in a friendly table. Great for learning what each header does and spotting missing security policies. You can inspect raw values, copy them or export the full set to JSON.
+
+## JWT Toolkit
+
+```tsx
+import JwtToolkitPage from '../src/tools/jwt/JwtToolkit';
+```
+
+Decode, create and verify JSON Web Tokens right in the browser. Supports HS256 and RS256 algorithms with optional JWKS lookup. Use it to test authentication flows without sending tokens to a server.
+
+## Regex Tester
+
+```tsx
+import RegexTesterPage from '../src/tools/regex/RegexTester';
+```
+
+Experiment with regular expressions and see matches update live as you type. The tester highlights groups and lets you toggle global or multiline flags for quick troubleshooting.
+
+## Click Jacking Validator
+
+```tsx
+import ClickJackingValidatorPage from '../src/tools/clickjacking/ClickJackingValidator';
+```
+
+Checks if a site is vulnerable to being embedded in an iframe. It looks at `X-Frame-Options` and Content Security Policy headers and shows clear pass/fail indicators.
+
+## Web Permission Tester
+
+```tsx
+import PermissionTesterPage from '../src/tools/permission-tester/page';
+```
+
+Request and monitor browser permissions such as geolocation or notifications. The tool displays the current state and provides example code snippets for each permission type.
+
