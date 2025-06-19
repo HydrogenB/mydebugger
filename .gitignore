@@ -52,3 +52,14 @@ dist-ssr
 
 # Test coverage
 coverage
+
+# Ignore binary assets
+*.png
+*.gif
+*.jpg
+*.jpeg
+*.mp4
+*.webm
+*.mov
+*.avi
+
