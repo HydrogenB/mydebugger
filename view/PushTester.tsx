@@ -18,8 +18,17 @@ export default function PushTester() {
     register,
     subscribe,
     sendPush,
+    copySubscription,
     cleanup,
   } = usePushTester();
+
+  const steps = [
+    { key: 'registered', label: 'Service Worker Registered' },
+    { key: 'subscribed', label: 'Push Subscribed' },
+    { key: 'notified', label: 'Notification Sent' },
+  ];
+
+  const statusIndex = steps.findIndex((s) => s.key === status);
 
   return (
     <div className="space-y-4">
@@ -75,18 +84,33 @@ export default function PushTester() {
               rows={2}
             />
           </label>
-            <button
-              type="button"
-              onClick={sendPush}
-              className="px-3 py-1 bg-primary-500 text-white rounded-md"
-            >
-              Send test push
-            </button>
+          <button
+            type="button"
+            onClick={sendPush}
+            className="px-3 py-1 bg-primary-500 text-white rounded-md"
+          >
+            Send test push
+          </button>
+          <button
+            type="button"
+            onClick={copySubscription}
+            className="px-3 py-1 bg-gray-200 rounded-md"
+          >
+            Copy Subscription
+          </button>
           </div>
         )}
 
       <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
-        <h2 className="font-semibold">Status: {status}</h2>
+        <h2 className="font-semibold">Status</h2>
+        <ol className="space-y-1 text-sm ml-4">
+          {steps.map((step, idx) => (
+            <li key={step.key} className="flex items-center space-x-1">
+              <span>{statusIndex >= idx ? '✅' : '⬜'}</span>
+              <span>{step.label}</span>
+            </li>
+          ))}
+        </ol>
         <button type="button" onClick={cleanup} className="px-3 py-1 bg-gray-200 rounded-md">
           Cleanup
         </button>

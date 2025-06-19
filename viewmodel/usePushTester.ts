@@ -63,6 +63,12 @@ export const usePushTester = () => {
     log('Push sent');
   };
 
+  const copySubscription = async () => {
+    if (!subscription) return;
+    await navigator.clipboard.writeText(JSON.stringify(subscription));
+    log('Subscription copied to clipboard');
+  };
+
   const cleanup = async () => {
     if (subscription) {
       await subscription.unsubscribe();
@@ -89,6 +95,7 @@ export const usePushTester = () => {
     register,
     subscribe,
     sendPush,
+    copySubscription,
     cleanup,
   } as const;
 };
