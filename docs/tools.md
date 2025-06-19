@@ -188,43 +188,11 @@ import UrlEncoderPage from "../src/tools/url/UrlEncoder";
 
 Quickly encode or decode URL components. Choose between `encodeURIComponent`, `encodeURI` or legacy `escape`. Batch mode processes each line separately. Access it at `/url-encoder`.
 
-## HTTP Headers Analyzer
+## PWA Push Tester
 
 ```tsx
-import HeadersAnalyzerPage from '../src/tools/headers/HeadersAnalyzer';
+import PushTesterPage from '../src/tools/push-tester/page';
 ```
 
-Visualize request and response headers in a friendly table. Great for learning what each header does and spotting missing security policies. You can inspect raw values, copy them or export the full set to JSON.
-
-## JWT Toolkit
-
-```tsx
-import JwtToolkitPage from '../src/tools/jwt/JwtToolkit';
-```
-
-Decode, create and verify JSON Web Tokens right in the browser. Supports HS256 and RS256 algorithms with optional JWKS lookup. Use it to test authentication flows without sending tokens to a server.
-
-## Regex Tester
-
-```tsx
-import RegexTesterPage from '../src/tools/regex/RegexTester';
-```
-
-Experiment with regular expressions and see matches update live as you type. The tester highlights groups and lets you toggle global or multiline flags for quick troubleshooting.
-
-## Click Jacking Validator
-
-```tsx
-import ClickJackingValidatorPage from '../src/tools/clickjacking/ClickJackingValidator';
-```
-
-Checks if a site is vulnerable to being embedded in an iframe. It looks at `X-Frame-Options` and Content Security Policy headers and shows clear pass/fail indicators.
-
-## Web Permission Tester
-
-```tsx
-import PermissionTesterPage from '../src/tools/permission-tester/page';
-```
-
-Request and monitor browser permissions such as geolocation or notifications. The tool displays the current state and provides example code snippets for each permission type.
+Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
 

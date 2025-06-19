@@ -1,0 +1,126 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+import React from 'react';
+import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { usePushTester } from '../viewmodel/usePushTester';
+
+export default function PushTester() {
+  const {
+    support,
+    subscription,
+    payload,
+    setPayload,
+    vapidKey,
+    setVapidKey,
+    status,
+    logs,
+    register,
+    subscribe,
+    sendPush,
+    copySubscription,
+    cleanup,
+  } = usePushTester();
+
+  const steps = [
+    { key: 'registered', label: 'Service Worker Registered' },
+    { key: 'subscribed', label: 'Push Subscribed' },
+    { key: 'notified', label: 'Notification Sent' },
+  ];
+
+  const statusIndex = steps.findIndex((s) => s.key === status);
+
+  return (
+    <div className="space-y-4">
+      <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
+        <h2 className="font-semibold">Support</h2>
+        <ul className="text-sm list-disc ml-4">
+          <li>Secure Context: {support.secure ? '✅' : '❌'}</li>
+          <li>Service Worker: {support.serviceWorker ? '✅' : '❌'}</li>
+          <li>PushManager: {support.pushManager ? '✅' : '❌'}</li>
+          <li>Notification: {support.notification ? '✅' : '❌'}</li>
+        </ul>
+      </div>
+
+      <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
+        <label htmlFor="vapid" className="block text-sm font-medium">
+          VAPID Public Key
+          <input
+            id="vapid"
+            type="text"
+            className="w-full rounded-md border-gray-300 p-2 mt-1"
+            value={vapidKey}
+            onChange={(e) => setVapidKey(e.target.value)}
+            placeholder="Base64 encoded VAPID key"
+          />
+        </label>
+        <button type="button" onClick={register} className="px-3 py-1 bg-primary-500 text-white rounded-md">
+          Register Service Worker
+        </button>
+        <button type="button" onClick={subscribe} className="px-3 py-1 bg-primary-500 text-white rounded-md">
+          Subscribe
+        </button>
+      </div>
+
+        {subscription && (
+          <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
+          <label htmlFor="title" className="block text-sm font-medium">
+            Notification Title
+            <input
+              id="title"
+              type="text"
+              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              value={payload.title}
+              onChange={(e) => setPayload({ ...payload, title: e.target.value })}
+            />
+          </label>
+          <label htmlFor="body" className="block text-sm font-medium">
+            Notification Body
+            <textarea
+              id="body"
+              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              value={payload.body}
+              onChange={(e) => setPayload({ ...payload, body: e.target.value })}
+              rows={2}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={sendPush}
+            className="px-3 py-1 bg-primary-500 text-white rounded-md"
+          >
+            Send test push
+          </button>
+          <button
+            type="button"
+            onClick={copySubscription}
+            className="px-3 py-1 bg-gray-200 rounded-md"
+          >
+            Copy Subscription
+          </button>
+          </div>
+        )}
+
+      <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
+        <h2 className="font-semibold">Status</h2>
+        <ol className="space-y-1 text-sm ml-4">
+          {steps.map((step, idx) => (
+            <li key={step.key} className="flex items-center space-x-1">
+              <span>{statusIndex >= idx ? '✅' : '⬜'}</span>
+              <span>{step.label}</span>
+            </li>
+          ))}
+        </ol>
+        <button type="button" onClick={cleanup} className="px-3 py-1 bg-gray-200 rounded-md">
+          Cleanup
+        </button>
+        <div className="text-xs text-gray-500 whitespace-pre-wrap">
+          {logs.map((l) => (
+            <div key={l}>{l}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+

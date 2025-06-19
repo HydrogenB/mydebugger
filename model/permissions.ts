@@ -1,8 +1,9 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
- * 
+ *
  * Permission Tester Model - Browser permissions testing
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type PermissionStatus = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
@@ -90,29 +91,14 @@ const requestFunctions = {
 
   'clipboard-write': async () => navigator.clipboard.writeText('test'),
 
-  bluetooth: async () => (
-    (navigator as Navigator & {
-      bluetooth?: { requestDevice(options: { acceptAllDevices: boolean }): Promise<unknown> };
-    }).bluetooth?.requestDevice({ acceptAllDevices: true })
-  ),
+  bluetooth: async () => (navigator as any).bluetooth?.requestDevice({ acceptAllDevices: true }),
 
-  usb: async () => (
-    (navigator as Navigator & {
-      usb?: { requestDevice(options: { filters: unknown[] }): Promise<unknown> };
-    }).usb?.requestDevice({ filters: [] })
-  ),
+  usb: async () => (navigator as any).usb?.requestDevice({ filters: [] }),
 
-  serial: async () => (
-    (navigator as Navigator & {
-      serial?: { requestPort(): Promise<unknown> };
-    }).serial?.requestPort()
-  ),
+  serial: async () => (navigator as any).serial?.requestPort(),
 
-  hid: async () => (
-    (navigator as Navigator & {
-      hid?: { requestDevice(options: { filters: unknown[] }): Promise<unknown> };
-    }).hid?.requestDevice({ filters: [] })
-  ),
+  hid: async () => (navigator as any).hid?.requestDevice({ filters: [] }),
+
 
   midi: async () => navigator.requestMIDIAccess?.({ sysex: true }),
 
@@ -152,23 +138,16 @@ const requestFunctions = {
     return sensor;
   },
 
-  'local-fonts': async () => (
-    (navigator as Navigator & { fonts?: { query(): Promise<unknown> } }).fonts?.query()
-  ),
+  'local-fonts': async () => (navigator as any).fonts?.query(),
 
   'storage-access': async () => document.requestStorageAccess?.(),
 
-  'idle-detection': async () => (
-    (window as Window & { IdleDetector?: { requestPermission(): Promise<unknown> } }).IdleDetector?.requestPermission()
-  ),
+  'idle-detection': async () => (window as any).IdleDetector?.requestPermission(),
 
-  'compute-pressure': async () => (
-    (navigator as Navigator & { computePressure?: { getStatus?: () => Promise<unknown> } }).computePressure?.getStatus?.()
-  ),
+  'compute-pressure': async () => (navigator as any).computePressure?.getStatus?.(),
 
-  'window-management': async () => (
-    (window as Window & { getScreenDetails?: () => Promise<unknown> }).getScreenDetails?.()
-  ),
+  'window-management': async () => (window as any).getScreenDetails?.(),
+
 
   nfc: async () => {
     const ReaderClass = (window as Window & { NDEFReader?: new () => { scan(): Promise<unknown> } }).NDEFReader;
