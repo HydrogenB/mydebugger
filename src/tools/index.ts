@@ -484,8 +484,7 @@ const toolRegistry: Tool[] = [
       relatedTools: ['fetch-render'],
     },
     uiOptions: { showExamples: false }
-  },
-  {
+  },  {
     id: 'fetch-render',
     route: '/fetch-render',
     title: 'Fetch & Render',
@@ -496,6 +495,33 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['seo', 'render', 'javascript', 'dom snapshot'],
       relatedTools: ['pre-rendering-tester'],
+    },
+    uiOptions: { showExamples: false }
+  },
+  {
+    id: 'permission-tester',
+    route: '/permission-tester',
+    title: 'Web Permission Tester',
+    description: 'Request, inspect, and test browser permissions with live previews and code snippets.',
+    icon: SecurityIcon,
+    component: lazy(() => import('./permission-tester/page')),
+    category: 'Testing',
+    isNew: true,
+    metadata: {
+      keywords: [
+        'permissions',
+        'browser permissions',
+        'geolocation',
+        'camera',
+        'microphone',
+        'notifications',
+        'clipboard',
+        'api testing',
+        'web api',
+        'permission state'
+      ],
+      learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API',
+      relatedTools: ['headers-analyzer', 'cors-tester'],
     },
     uiOptions: { showExamples: false }
   },
