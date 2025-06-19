@@ -24,6 +24,7 @@ export interface UsePermissionTesterReturn {
   copyCodeSnippet: (permissionName: string) => Promise<void>;
   copyEventLog: () => Promise<void>;
   clearEvents: () => void;
+  testNotification: () => void;
   getCodeSnippet: (permissionName: string) => string;
   isLoading: (permissionName: string) => boolean;
   getPermissionData: (permissionName: string) => unknown;
@@ -189,6 +190,31 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     ));
   }, [addEvent]);
 
+  const testNotification = useCallback(() => {
+    if (Notification.permission !== 'granted') {
+      addEvent(createPermissionEvent(
+        'notifications',
+        'error',
+        'Notification permission not granted'
+      ));
+      return;
+    }
+    try {
+      // eslint-disable-next-line no-new
+      new Notification('MyDebugger', {
+        body: 'Test notification from Permission Tester'
+      });
+      addEvent(createPermissionEvent(
+        'notifications',
+        'request',
+        'Test notification sent'
+      ));
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : 'Notification error';
+      addEvent(createPermissionEvent('notifications', 'error', msg));
+    }
+  }, [addEvent]);
+
   const getCodeSnippet = useCallback((permissionName: string): string => {
     const permission = PERMISSIONS.find(p => p.name === permissionName);
     return permission ? generateCodeSnippet(permission) : '';
@@ -226,6 +252,7 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     copyCodeSnippet,
     copyEventLog,
     clearEvents,
+    testNotification,
     getCodeSnippet,
     isLoading,
     getPermissionData
