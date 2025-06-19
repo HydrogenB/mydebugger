@@ -306,23 +306,6 @@ const toolRegistry: Tool[] = [
     },
   },
   {
-    id: "components-demo",
-    route: "/components-demo",
-    title: "Components Demo",
-    description: "Showcase of various UI components and their usage.",
-    icon: UtilitiesIcon,
-    component: lazy(() => import("./components-demo/ComponentsDemo")),
-    category: "Utilities",
-    metadata: {
-      keywords: ["components", "demo", "ui", "showcase"],
-      learnMoreUrl: "https://reactjs.org/docs/components-and-props.html",
-      relatedTools: [],
-    },
-    uiOptions: {
-      showExamples: true,
-    },
-  },
-  {
     id: "cookie-inspector",
     route: "/cookies",
     title: "Cookie Inspector",
