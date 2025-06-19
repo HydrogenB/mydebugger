@@ -43,28 +43,6 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileOS, setMobileOS] = useState<string>("");
 
-  // Recently generated links
-  const [recentLinks, setRecentLinks] = useState<string[]>([]);
-  const MAX_RECENT_LINKS = 10;
-
-  const recentLinksBlock = recentLinks.length > 0 && (
-    <div className="mt-8 border-t border-gray-200 pt-6">
-      <h2 className="text-xl font-semibold mb-4">Recent Links</h2>
-      <ul className="list-disc list-inside space-y-1 text-sm">
-        {recentLinks.map((link) => (
-          <li key={link} className="break-all">
-            <button
-              type="button"
-              onClick={() => setInput(link)}
-              className="text-blue-600 hover:underline"
-            >
-              {link}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 
   // Collection related state
   const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
@@ -77,19 +55,6 @@ const DeepLinkQRGenerator: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const timeoutRef = useRef<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-
-  const addRecentLink = useCallback((link: string) => {
-    if (!link) return;
-    setRecentLinks((prev) => {
-      const updated = [link, ...prev.filter((l) => l !== link)].slice(0, MAX_RECENT_LINKS);
-      try {
-        localStorage.setItem("recentLinks", JSON.stringify(updated));
-      } catch (error) {
-        console.error("Error saving recent links:", error);
-      }
-      return updated;
-    });
-  }, []);
 
   // Check if device is mobile and load saved QR codes
   useEffect(() => {
@@ -130,15 +95,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         setSavedQRCodes(JSON.parse(savedCodes));
       } catch (error) {
         console.error("Error loading saved QR codes:", error);
-      }
-    }
-
-    const storedRecent = localStorage.getItem("recentLinks");
-    if (storedRecent) {
-      try {
-        setRecentLinks(JSON.parse(storedRecent));
-      } catch (error) {
-        console.error("Error loading recent links:", error);
       }
     }
 
@@ -276,13 +232,11 @@ const DeepLinkQRGenerator: React.FC = () => {
   const handleCopyEncodedLink = () => {
     if (!encodedLink) return;
     copyToClipboard(encodedLink, "Encoded link copied!");
-    addRecentLink(encodedLink);
   };
 
   const handleCopyRawLink = () => {
     if (!input) return;
     copyToClipboard(input, "Link copied!");
-    addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
   };
 
   const handleCopyQRAsImage = async () => {
@@ -299,7 +253,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         });
         await navigator.clipboard.write([clipboardItem]);
         setToastMessage("QR image copied to clipboard!");
-        addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
       } else {
         // Fallback - create a temp link and download
         const link = document.createElement("a");
@@ -311,7 +264,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         setToastMessage(
           "QR image downloaded (copy not supported in this browser)",
         );
-        addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
       }
     } catch (error) {
       console.error("Error copying QR:", error);
@@ -370,7 +322,6 @@ const DeepLinkQRGenerator: React.FC = () => {
     document.body.removeChild(link);
 
     setToastMessage("QR code downloaded!");
-    addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
   };
 
   const handleRunLink = () => {
@@ -386,7 +337,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         setToastMessage("Error opening link");
       }
       setTimeout(() => setIsRunningLink(false), 1000);
-      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     }, 10);
   };
 
@@ -410,7 +360,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         currentUrl.toString(),
         "Shareable link copied! Send to your team.",
       );
-      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     } catch (error) {
       console.error("Error creating shareable link:", error);
       setToastMessage("Error creating shareable link");
@@ -460,7 +409,6 @@ const DeepLinkQRGenerator: React.FC = () => {
     try {
       localStorage.setItem("savedQRCodes", JSON.stringify(updatedCollection));
       setToastMessage("QR code saved to collection!");
-      addRecentLink(autoEncode ? encodeUrlQueryParams(input) : input);
     } catch (error) {
       console.error("Error saving to collection:", error);
       setToastMessage("Error saving QR code");
@@ -650,8 +598,6 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </div>
                 </div>
               )}
-
-              {recentLinksBlock}
 
               {/* Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
