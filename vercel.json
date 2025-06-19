@@ -68,7 +68,7 @@
   ],
   "functions": {
     "api/mydebugger.ts": {
-      "runtime": "edge"
+      "runtime": "@vercel/edge@1.2.2"
     }
   }
 }
