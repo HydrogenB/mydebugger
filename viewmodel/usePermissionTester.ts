@@ -84,15 +84,18 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
 
     try {
       const result = await permission.requestFn();
-      
-      // Update permission state
-      setPermissions(prev => 
-        prev.map(p => 
+      let status = await checkPermissionStatus(permissionName);
+      if (status === 'unsupported' || status === 'prompt') {
+        status = 'granted';
+      }
+
+      setPermissions(prev =>
+        prev.map(p =>
           p.permission.name === permissionName
             ? {
                 ...p,
-                status: 'granted',
-                data: result,
+                status,
+                data: status === 'granted' ? result : undefined,
                 error: undefined,
                 lastRequested: Date.now()
               }
@@ -100,11 +103,13 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
         )
       );
 
-      addEvent(createPermissionEvent(
-        permissionName,
-        'grant',
-        `${permission.displayName} access granted`
-      ));
+      addEvent(
+        createPermissionEvent(
+          permissionName,
+          status === 'granted' ? 'grant' : 'deny',
+          `${permission.displayName} access ${status}`
+        )
+      );
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Permission denied';

@@ -48,7 +48,7 @@ export interface Permission {
   description: string;
   icon: string; // Lucide icon name
   category: 'Media' | 'Location' | 'Sensors' | 'Device' | 'Storage' | 'System';
-  requestFn: () => Promise<any>;
+  requestFn: () => Promise<unknown>;
   hasLivePreview: boolean;
 }
 
@@ -56,7 +56,7 @@ export interface PermissionState {
   permission: Permission;
   status: PermissionStatus;
   error?: string;
-  data?: any;
+  data?: unknown;
   lastRequested?: number;
 }
 
@@ -70,114 +70,110 @@ export interface PermissionEvent {
 
 // Permission request functions
 const requestFunctions = {
-  geolocation: async () => {
-    return new Promise((resolve, reject) => {
+  geolocation: async () => new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0
       });
-    });
-  },
+    }),
 
-  camera: async () => {
-    return navigator.mediaDevices.getUserMedia({ video: true });
-  },
+  camera: async () => navigator.mediaDevices.getUserMedia({ video: true }),
 
-  microphone: async () => {
-    return navigator.mediaDevices.getUserMedia({ audio: true });
-  },
+  microphone: async () => navigator.mediaDevices.getUserMedia({ audio: true }),
 
-  'display-capture': async () => {
-    return navigator.mediaDevices.getDisplayMedia({ video: true });
-  },
+  'display-capture': async () => navigator.mediaDevices.getDisplayMedia({ video: true }),
 
-  notifications: async () => {
-    return Notification.requestPermission();
-  },
+  notifications: async () => Notification.requestPermission(),
 
-  'clipboard-read': async () => {
-    return navigator.clipboard.readText();
-  },
+  'clipboard-read': async () => navigator.clipboard.readText(),
 
-  'clipboard-write': async () => {
-    return navigator.clipboard.writeText('test');
-  },
+  'clipboard-write': async () => navigator.clipboard.writeText('test'),
 
-  bluetooth: async () => {
-    return (navigator as any).bluetooth?.requestDevice({ acceptAllDevices: true });
-  },
+  bluetooth: async () => (
+    (navigator as Navigator & {
+      bluetooth?: { requestDevice(options: { acceptAllDevices: boolean }): Promise<unknown> };
+    }).bluetooth?.requestDevice({ acceptAllDevices: true })
+  ),
 
-  usb: async () => {
-    return (navigator as any).usb?.requestDevice({ filters: [] });
-  },
+  usb: async () => (
+    (navigator as Navigator & {
+      usb?: { requestDevice(options: { filters: unknown[] }): Promise<unknown> };
+    }).usb?.requestDevice({ filters: [] })
+  ),
 
-  serial: async () => {
-    return (navigator as any).serial?.requestPort();
-  },
+  serial: async () => (
+    (navigator as Navigator & {
+      serial?: { requestPort(): Promise<unknown> };
+    }).serial?.requestPort()
+  ),
 
-  hid: async () => {
-    return (navigator as any).hid?.requestDevice({ filters: [] });
-  },
+  hid: async () => (
+    (navigator as Navigator & {
+      hid?: { requestDevice(options: { filters: unknown[] }): Promise<unknown> };
+    }).hid?.requestDevice({ filters: [] })
+  ),
 
-  midi: async () => {
-    return navigator.requestMIDIAccess?.({ sysex: true });
-  },
+  midi: async () => navigator.requestMIDIAccess?.({ sysex: true }),
 
-  'persistent-storage': async () => {
-    return navigator.storage?.persist();
-  },
+  'persistent-storage': async () => navigator.storage?.persist(),
 
-  'screen-wake-lock': async () => {
-    return navigator.wakeLock?.request('screen');
-  },
+  'screen-wake-lock': async () => navigator.wakeLock?.request('screen'),
 
   'ambient-light-sensor': async () => {
-    const sensor = new (window as any).AmbientLightSensor();
-    sensor.start();
+    const SensorClass = (window as Window & { AmbientLightSensor?: new () => unknown }).AmbientLightSensor;
+    if (!SensorClass) throw new Error('AmbientLightSensor not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   accelerometer: async () => {
-    const sensor = new (window as any).Accelerometer();
-    sensor.start();
+    const SensorClass = (window as Window & { Accelerometer?: new () => unknown }).Accelerometer;
+    if (!SensorClass) throw new Error('Accelerometer not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   gyroscope: async () => {
-    const sensor = new (window as any).Gyroscope();
-    sensor.start();
+    const SensorClass = (window as Window & { Gyroscope?: new () => unknown }).Gyroscope;
+    if (!SensorClass) throw new Error('Gyroscope not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
   magnetometer: async () => {
-    const sensor = new (window as any).Magnetometer();
-    sensor.start();
+    const SensorClass = (window as Window & { Magnetometer?: new () => unknown }).Magnetometer;
+    if (!SensorClass) throw new Error('Magnetometer not supported');
+    const sensor = new SensorClass();
+    (sensor as { start: () => void }).start();
     return sensor;
   },
 
-  'local-fonts': async () => {
-    return (navigator as any).fonts?.query();
-  },
+  'local-fonts': async () => (
+    (navigator as Navigator & { fonts?: { query(): Promise<unknown> } }).fonts?.query()
+  ),
 
-  'storage-access': async () => {
-    return document.requestStorageAccess?.();
-  },
+  'storage-access': async () => document.requestStorageAccess?.(),
 
-  'idle-detection': async () => {
-    return (window as any).IdleDetector?.requestPermission();
-  },
+  'idle-detection': async () => (
+    (window as Window & { IdleDetector?: { requestPermission(): Promise<unknown> } }).IdleDetector?.requestPermission()
+  ),
 
-  'compute-pressure': async () => {
-    return (navigator as any).computePressure?.getStatus?.();
-  },
+  'compute-pressure': async () => (
+    (navigator as Navigator & { computePressure?: { getStatus?: () => Promise<unknown> } }).computePressure?.getStatus?.()
+  ),
 
-  'window-management': async () => {
-    return (window as any).getScreenDetails?.();
-  },
+  'window-management': async () => (
+    (window as Window & { getScreenDetails?: () => Promise<unknown> }).getScreenDetails?.()
+  ),
 
   nfc: async () => {
-    const reader = new (window as any).NDEFReader();
+    const ReaderClass = (window as Window & { NDEFReader?: new () => { scan(): Promise<unknown> } }).NDEFReader;
+    if (!ReaderClass) throw new Error('NFC not supported');
+    const reader = new ReaderClass();
     return reader.scan();
   },
 
@@ -196,20 +192,24 @@ const requestFunctions = {
 
   'background-sync': async () => {
     const registration = await navigator.serviceWorker.ready;
-    return (registration as any).sync?.register('background-sync');
-  },  'top-level-storage-access': async () => document.requestStorageAccess?.(),
+    return (registration as ServiceWorkerRegistration & {
+      sync?: { register(tag: string): Promise<unknown> };
+    }).sync?.register('background-sync');
+  },
+
+  'top-level-storage-access': async () => document.requestStorageAccess?.(),
 
   'background-fetch': async () => {
     const registration = await navigator.serviceWorker.ready;
     return (registration as ServiceWorkerRegistration & {
-      backgroundFetch?: { fetch: (id: string, url: string) => Promise<unknown> };
+      backgroundFetch?: { fetch(id: string, url: string): Promise<unknown> };
     }).backgroundFetch?.fetch('bg-fetch', '/');
   },
 
   'periodic-background-sync': async () => {
     const registration = await navigator.serviceWorker.ready;
     return (registration as ServiceWorkerRegistration & {
-      periodicSync?: { register: (tag: string, options: { minInterval: number }) => Promise<void> };
+      periodicSync?: { register(tag: string, options: { minInterval: number }): Promise<void> };
     }).periodicSync?.register('periodic-sync', {
       minInterval: 24 * 60 * 60 * 1000 // 24 hours
     });
@@ -563,7 +563,8 @@ export const PERMISSIONS: Permission[] = [
 export const checkPermissionStatus = async (permissionName: string): Promise<PermissionStatus> => {
   if (!navigator.permissions) return 'unsupported';
   
-  try {    const result = await navigator.permissions.query({ name: permissionName as any });
+  try {
+    const result = await navigator.permissions.query({ name: permissionName as unknown as PermissionDescriptor['name'] });
     return result.state as PermissionStatus;
   } catch {
     return 'unsupported';
