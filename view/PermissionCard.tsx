@@ -12,7 +12,7 @@ import { Button } from '../src/design-system/components/inputs/Button';
 import { Badge } from '../src/design-system/components/display/Badge';
 import { Card } from '../src/design-system/components/layout/Card';
 import { LoadingSpinner } from '../src/design-system/components/feedback/LoadingSpinner';
-import { CameraPreview, MicMeter, GeoPanel, SensorTable, LightSpark } from './DataPreview';
+import { CameraPreview, MicMeter, GeoPanel, SensorTable, LightSpark, ComputePressure } from './DataPreview';
 
 interface PermissionCardProps {
   permission: PermissionState;
@@ -22,6 +22,7 @@ interface PermissionCardProps {
   codeSnippet: string;
   isLoading: boolean;
   permissionData?: unknown;
+  onTestNotification?: () => void;
 }
 
 // Helper function to get OS-specific reset instructions
@@ -59,7 +60,8 @@ function PermissionCard({
   onCopyCode,
   codeSnippet,
   isLoading,
-  permissionData = undefined
+  permissionData = undefined,
+  onTestNotification
 }: PermissionCardProps) {
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -92,11 +94,31 @@ function PermissionCard({
     setShowPreview(false);
   };
 
+  // Clean up active streams or sensors when component unmounts
+  useEffect(
+    () => () => {
+      if (permissionData instanceof MediaStream) {
+        permissionData.getTracks().forEach(track => track.stop());
+      }
+      if (permissionInfo.name === 'screen-wake-lock' && permissionData) {
+        (permissionData as { release: () => Promise<void> }).release?.();
+      }
+      if (showPreview) setShowPreview(false);
+    },
+    [permissionData, showPreview, permissionInfo.name]
+  );
+
   const renderLivePreview = () => {
     if (!permissionData || !showPreview) return null;
 
     switch (permissionInfo.name) {
       case 'camera':
+        if (permissionData instanceof MediaStream) {
+          return <CameraPreview stream={permissionData} onStop={handleStopPreview} />;
+        }
+        break;
+
+      case 'display-capture':
         if (permissionData instanceof MediaStream) {
           return <CameraPreview stream={permissionData} onStop={handleStopPreview} />;
         }
@@ -142,16 +164,27 @@ function PermissionCard({
         
       case 'ambient-light-sensor':
         if (permissionData && typeof permissionData === 'object') {
-          return <LightSpark 
+          return <LightSpark
             sensor={permissionData as {
               illuminance?: number;
               addEventListener: (event: string, handler: () => void) => void;
               removeEventListener: (event: string, handler: () => void) => void;
               start: () => void;
               stop: () => void;
-            }} 
-            onStop={handleStopPreview} 
+            }}
+            onStop={handleStopPreview}
           />;
+        }
+        break;
+
+      case 'compute-pressure':
+        if (permissionData && typeof permissionData === 'object') {
+          return (
+            <ComputePressure
+              data={permissionData as { observer: { disconnect(): void }; readings: unknown[] }}
+              onStop={handleStopPreview}
+            />
+          );
         }
         break;
         
@@ -273,9 +306,9 @@ function PermissionCard({
         {/* Actions */}
         <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
           {status === 'prompt' || status === 'unsupported' ? (
-            <Button 
-              onClick={handleRequest} 
-              disabled={isLoading || status === 'unsupported'}
+            <Button
+              onClick={handleRequest}
+              disabled={isLoading}
               variant="primary"
               size="sm"
             >
@@ -306,8 +339,8 @@ function PermissionCard({
             </Button>
           )}
           
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={() => {
               const resetUrl = getResetInstructionsUrl();
@@ -315,12 +348,29 @@ function PermissionCard({
             }}
           >
             Reset
-          </Button>        </div>
+          </Button>
+          {permissionInfo.name === 'screen-wake-lock' && permissionData ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                (permissionData as { release: () => Promise<void> }).release?.();
+              }}
+            >
+              Release
+            </Button>
+          ) : null}
+          {permissionInfo.name === 'notifications' && status === 'granted' && onTestNotification && (
+            <Button variant="ghost" size="sm" onClick={onTestNotification}>
+              Test Push
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );
 }
 
-PermissionCard.defaultProps = { permissionData: undefined };
+PermissionCard.defaultProps = { permissionData: undefined, onTestNotification: undefined };
 
 export default PermissionCard;
