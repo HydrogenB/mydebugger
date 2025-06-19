@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { CodeBlock } from '../src/design-system/components/display/CodeBlock';
+import { Button, SelectInput, TextInput } from '../src/design-system/components/inputs';
+import { InfoBox } from '../src/design-system/components/display/InfoBox';
 import { CorsResult, CorsAnalysis } from '../model/cors';
 
 interface Props {
@@ -43,6 +45,7 @@ export function CorsTesterView({
   const guides = analysis?.guides || {};
   const blockedBrowsers = analysis?.blockedBrowsers || [];
   const [format, setFormat] = useState<'kv' | 'json'>('kv');
+  const [preset, setPreset] = useState('');
   const parseHeaders = () => {
     try { return JSON.parse(headerJson || '{}'); } catch { return {}; }
   };
@@ -50,60 +53,70 @@ export function CorsTesterView({
   return (
     <div className={`space-y-4 ${TOOL_PANEL_CLASS}`}>
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white">CORS Tester</h2>
-      <div className="flex flex-col gap-4 md:flex-row md:items-end">
-        <input
-          type="text"
-          className="border px-3 py-2 rounded w-full dark:bg-gray-700 dark:text-gray-200"
+      <div className="space-y-4">
+        <TextInput
+          id="cors-url"
+          label="Target URL"
           placeholder="https://api.example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
+          fullWidth
         />
-        <select
-          className="border px-3 py-2 rounded dark:bg-gray-700 dark:text-gray-200"
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
-        >
-          {['GET', 'POST', 'PUT', 'DELETE', 'PATCH'].map((m) => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-        <select
-          className="border px-3 py-2 rounded dark:bg-gray-700 dark:text-gray-200"
-          value={mode}
-          onChange={(e) => setMode(e.target.value as 'browser' | 'server')}
-        >
-          <option value="browser">Browser</option>
-          <option value="server">Server curl</option>
-        </select>
-        <select
-          className="border px-3 py-2 rounded dark:bg-gray-700 dark:text-gray-200"
-          onChange={(e) => { addPreset(e.target.value); e.currentTarget.selectedIndex = 0; }}
-        >
-          <option value="">Add header...</option>
-          {['Authorization', 'Content-Type', 'X-Custom'].map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-        <button
-          type="button"
-          className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
-          onClick={runTest}
-        >
-          Run Preflight
-        </button>
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+          <SelectInput
+            id="cors-method"
+            label="Method"
+            value={method}
+            onChange={setMethod}
+            options={[
+              { value: 'GET', label: 'GET' },
+              { value: 'POST', label: 'POST' },
+              { value: 'PUT', label: 'PUT' },
+              { value: 'DELETE', label: 'DELETE' },
+              { value: 'PATCH', label: 'PATCH' },
+            ]}
+          />
+          <SelectInput
+            id="cors-mode"
+            label="Mode"
+            value={mode}
+            onChange={(v) => setMode(v as 'browser' | 'server')}
+            options={[
+              { value: 'browser', label: 'Browser' },
+              { value: 'server', label: 'Server curl' },
+            ]}
+          />
+          <SelectInput
+            id="cors-preset"
+            label="Preset Headers"
+            value={preset}
+            onChange={(v) => { setPreset(''); addPreset(v); }}
+            options={[
+              { value: 'Authorization', label: 'Authorization' },
+              { value: 'Content-Type', label: 'Content-Type' },
+              { value: 'X-Custom', label: 'X-Custom' },
+            ]}
+            placeholder="Add header..."
+          />
+          <div className="self-end">
+            <Button onClick={runTest} className="w-full">Run Preflight</Button>
+          </div>
+        </div>
       </div>
-      <label htmlFor="header-format" className="flex justify-between items-center text-sm">
-        <span>Headers</span>
-        <select
+        <SelectInput
           id="header-format"
-          className="border px-2 py-1 rounded text-sm dark:bg-gray-700 dark:text-gray-200"
+          label="Headers Format"
           value={format}
-          onChange={(e) => setFormat(e.target.value as 'kv' | 'json')}
-        >
-          <option value="kv">Key/Value</option>
-          <option value="json">JSON</option>
-        </select>
-      </label>
+          onChange={(v) => setFormat(v as 'kv' | 'json')}
+          options={[
+            { value: 'kv', label: 'Key/Value' },
+            { value: 'json', label: 'JSON' },
+          ]}
+        />
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Headers
+        </label>
       {format === 'json' ? (
         <textarea
           className="border px-3 py-2 rounded w-full h-24 dark:bg-gray-700 dark:text-gray-200"
@@ -148,12 +161,18 @@ export function CorsTesterView({
           </button>
         </div>
       )}
-      {error && <div className="text-red-600">{error}</div>}
+      {error && (
+        <InfoBox title="Error" variant="error" className="mt-2">
+          {error}
+        </InfoBox>
+      )}
       {result && (
         <>
-          <table className="min-w-full text-sm text-left">
-            <thead>
-              <tr>
+          <h3 className="font-semibold text-lg">Results</h3>
+          <div className="overflow-x-auto">
+          <table className="min-w-full text-sm text-left border border-gray-200 dark:border-gray-700">
+            <thead className="sticky top-0 bg-gray-100 dark:bg-gray-700 z-10">
+              <tr className="bg-gray-50 dark:bg-gray-900">
                 <th className="px-2 py-1">Header</th>
                 <th className="px-2 py-1">Value</th>
               </tr>
@@ -168,9 +187,10 @@ export function CorsTesterView({
                 };
                 const mismatchKey = keyMap[k] || '';
                 const highlight = mismatchKey && mismatches[mismatchKey] ? 'text-red-600' : '';
+                const rowClass = mismatchKey && mismatches[mismatchKey] ? 'bg-red-50 dark:bg-red-900/20' : '';
                 return (
                   <React.Fragment key={k}>
-                    <tr className="border-b">
+                    <tr className={`border-b ${rowClass}`}>
                       <td className="px-2 py-1 font-medium">{k}</td>
                       <td className={`px-2 py-1 ${highlight}`}>{v ?? '-'}</td>
                     </tr>
@@ -184,6 +204,7 @@ export function CorsTesterView({
               })}
             </tbody>
           </table>
+          </div>
           {blockedBrowsers.length > 0 && (
             <div className="mt-2 text-sm text-red-700">
               Blocked browsers: {blockedBrowsers.join(', ')}
