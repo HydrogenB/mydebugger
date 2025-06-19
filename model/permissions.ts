@@ -1,8 +1,9 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
- * 
+ *
  * Permission Tester Model - Browser permissions testing
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type PermissionStatus = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
@@ -70,67 +71,39 @@ export interface PermissionEvent {
 
 // Permission request functions
 const requestFunctions = {
-  geolocation: async () => {
-    return new Promise((resolve, reject) => {
+  geolocation: async () => new Promise((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0
       });
-    });
-  },
+    }),
 
-  camera: async () => {
-    return navigator.mediaDevices.getUserMedia({ video: true });
-  },
+  camera: async () => navigator.mediaDevices.getUserMedia({ video: true }),
 
-  microphone: async () => {
-    return navigator.mediaDevices.getUserMedia({ audio: true });
-  },
+  microphone: async () => navigator.mediaDevices.getUserMedia({ audio: true }),
 
-  'display-capture': async () => {
-    return navigator.mediaDevices.getDisplayMedia({ video: true });
-  },
+  'display-capture': async () => navigator.mediaDevices.getDisplayMedia({ video: true }),
 
-  notifications: async () => {
-    return Notification.requestPermission();
-  },
+  notifications: async () => Notification.requestPermission(),
 
-  'clipboard-read': async () => {
-    return navigator.clipboard.readText();
-  },
+  'clipboard-read': async () => navigator.clipboard.readText(),
 
-  'clipboard-write': async () => {
-    return navigator.clipboard.writeText('test');
-  },
+  'clipboard-write': async () => navigator.clipboard.writeText('test'),
 
-  bluetooth: async () => {
-    return (navigator as any).bluetooth?.requestDevice({ acceptAllDevices: true });
-  },
+  bluetooth: async () => (navigator as any).bluetooth?.requestDevice({ acceptAllDevices: true }),
 
-  usb: async () => {
-    return (navigator as any).usb?.requestDevice({ filters: [] });
-  },
+  usb: async () => (navigator as any).usb?.requestDevice({ filters: [] }),
 
-  serial: async () => {
-    return (navigator as any).serial?.requestPort();
-  },
+  serial: async () => (navigator as any).serial?.requestPort(),
 
-  hid: async () => {
-    return (navigator as any).hid?.requestDevice({ filters: [] });
-  },
+  hid: async () => (navigator as any).hid?.requestDevice({ filters: [] }),
 
-  midi: async () => {
-    return navigator.requestMIDIAccess?.({ sysex: true });
-  },
+  midi: async () => navigator.requestMIDIAccess?.({ sysex: true }),
 
-  'persistent-storage': async () => {
-    return navigator.storage?.persist();
-  },
+  'persistent-storage': async () => navigator.storage?.persist(),
 
-  'screen-wake-lock': async () => {
-    return navigator.wakeLock?.request('screen');
-  },
+  'screen-wake-lock': async () => navigator.wakeLock?.request('screen'),
 
   'ambient-light-sensor': async () => {
     const sensor = new (window as any).AmbientLightSensor();
@@ -156,25 +129,15 @@ const requestFunctions = {
     return sensor;
   },
 
-  'local-fonts': async () => {
-    return (navigator as any).fonts?.query();
-  },
+  'local-fonts': async () => (navigator as any).fonts?.query(),
 
-  'storage-access': async () => {
-    return document.requestStorageAccess?.();
-  },
+  'storage-access': async () => document.requestStorageAccess?.(),
 
-  'idle-detection': async () => {
-    return (window as any).IdleDetector?.requestPermission();
-  },
+  'idle-detection': async () => (window as any).IdleDetector?.requestPermission(),
 
-  'compute-pressure': async () => {
-    return (navigator as any).computePressure?.getStatus?.();
-  },
+  'compute-pressure': async () => (navigator as any).computePressure?.getStatus?.(),
 
-  'window-management': async () => {
-    return (window as any).getScreenDetails?.();
-  },
+  'window-management': async () => (window as any).getScreenDetails?.(),
 
   nfc: async () => {
     const reader = new (window as any).NDEFReader();

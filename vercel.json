@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "public": true,
   "framework": "vite",
   "installCommand": "npm install --production=false",
@@ -7,10 +7,26 @@
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/(.+\\.(?:js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/sw/push-tester-sw.js",
+      "destination": "/sw/push-tester-sw.js"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
+    {
+      "source": "/(.+\\.(?:js|css|ico|json|png|jpg|jpeg|svg|webp))",
+      "destination": "/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "env": {},
   "headers": [
@@ -49,5 +65,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/mydebugger.ts": {
+      "runtime": "@vercel/edge@1.2.2"
+    }
+  }
 }

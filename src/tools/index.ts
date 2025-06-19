@@ -62,6 +62,7 @@ import {
   LinkTracerIcon,
   CookieIcon,
   CacheIcon,
+  PushIcon,
   ContactCardIcon,
 } from "../design-system/icons/tool-icons";
 
@@ -524,6 +525,20 @@ const toolRegistry: Tool[] = [
       relatedTools: ['headers-analyzer', 'cors-tester'],
     },
     uiOptions: { showExamples: false }
+  },
+  {
+    id: 'push-tester',
+    route: '/push-tester',
+    title: 'PWA Push Tester',
+    description: 'Verify Web Push capability end-to-end.',
+    icon: PushIcon,
+    component: lazy(() => import('./push-tester/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['push', 'notification', 'service worker'],
+      relatedTools: ['permission-tester'],
+    },
+    uiOptions: { showExamples: false },
   },
 ];
 
