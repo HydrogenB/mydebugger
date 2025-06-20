@@ -25,6 +25,7 @@ function PermissionTesterView({
   getCodeSnippet,
   isLoading,
   getPermissionData,
+  clearPermissionData,
   testNotification
 }: PermissionTesterViewProps) {
   
@@ -98,6 +99,7 @@ function PermissionTesterView({
                   codeSnippet={getCodeSnippet(permission.permission.name)}
                   isLoading={isLoading(permission.permission.name)}
                   permissionData={getPermissionData(permission.permission.name)}
+                  onClearData={() => clearPermissionData(permission.permission.name)}
                   onTestNotification={
                     permission.permission.name === 'notifications'
                       ? testNotification

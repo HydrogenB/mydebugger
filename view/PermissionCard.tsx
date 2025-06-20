@@ -12,7 +12,8 @@ import { Button } from '../src/design-system/components/inputs/Button';
 import { Badge } from '../src/design-system/components/display/Badge';
 import { Card } from '../src/design-system/components/layout/Card';
 import { LoadingSpinner } from '../src/design-system/components/feedback/LoadingSpinner';
-import { CameraPreview, MicMeter, GeoPanel, SensorTable, LightSpark, ComputePressure } from './DataPreview';
+import { CameraPreview, MicMeter, GeoPanel, SensorTable, LightSpark, ComputePressure, IdlePanel, WindowPanel } from './DataPreview';
+import type { IdleDetectorLike } from '../model/permissions';
 
 interface PermissionCardProps {
   permission: PermissionState;
@@ -23,6 +24,7 @@ interface PermissionCardProps {
   isLoading: boolean;
   permissionData?: unknown;
   onTestNotification?: () => void;
+  onClearData: () => void;
 }
 
 // Helper function to get OS-specific reset instructions
@@ -61,7 +63,8 @@ function PermissionCard({
   codeSnippet,
   isLoading,
   permissionData = undefined,
-  onTestNotification
+  onTestNotification,
+  onClearData
 }: PermissionCardProps) {
   const [showCode, setShowCode] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -89,9 +92,15 @@ function PermissionCard({
     if (permissionData instanceof MediaStream) {
       permissionData.getTracks().forEach(track => track.stop());
     }
-    
+
+    if (permissionInfo.name === 'window-management' && permissionData) {
+      const win = permissionData as Window;
+      if (!win.closed) win.close();
+    }
+
     // For sensors, they should be stopped by the parent component
     setShowPreview(false);
+    onClearData?.();
   };
 
   // Clean up active streams or sensors when component unmounts
@@ -103,9 +112,14 @@ function PermissionCard({
       if (permissionInfo.name === 'screen-wake-lock' && permissionData) {
         (permissionData as { release: () => Promise<void> }).release?.();
       }
+      if (permissionInfo.name === 'window-management' && permissionData) {
+        const win = permissionData as Window;
+        if (!win.closed) win.close();
+      }
       if (showPreview) setShowPreview(false);
+      onClearData?.();
     },
-    [permissionData, showPreview, permissionInfo.name]
+    [permissionData, showPreview, permissionInfo.name, onClearData]
   );
 
   const renderLivePreview = () => {
@@ -184,6 +198,25 @@ function PermissionCard({
               data={permissionData as { observer: { disconnect(): void }; readings: unknown[] }}
               onStop={handleStopPreview}
             />
+          );
+        }
+        break;
+
+      case 'idle-detection':
+        if (permissionData && typeof permissionData === 'object') {
+          return (
+            <IdlePanel
+              detector={permissionData as unknown as IdleDetectorLike}
+              onStop={handleStopPreview}
+            />
+          );
+        }
+        break;
+
+      case 'window-management':
+        if (permissionData && typeof permissionData === 'object') {
+          return (
+            <WindowPanel win={permissionData as Window} onClose={handleStopPreview} />
           );
         }
         break;
@@ -371,6 +404,6 @@ function PermissionCard({
   );
 }
 
-PermissionCard.defaultProps = { permissionData: undefined, onTestNotification: undefined };
+PermissionCard.defaultProps = { permissionData: undefined, onTestNotification: undefined, onClearData: () => {} } as Partial<PermissionCardProps>;
 
 export default PermissionCard;

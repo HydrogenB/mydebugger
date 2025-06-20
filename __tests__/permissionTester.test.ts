@@ -52,4 +52,50 @@ describe('usePermissionTester', () => {
 
     expect(result.current.getPermissionData(permission.name)).toBe('data');
   });
+
+  it('stores window handle for window-management', async () => {
+    const winMock = { closed: false, close: jest.fn() } as unknown as Window;
+    const permission = {
+      ...originalPermissions[0],
+      name: 'window-management',
+      requestFn: jest.fn().mockResolvedValue(winMock),
+    };
+    perms.PERMISSIONS.splice(0, perms.PERMISSIONS.length, permission);
+    jest.spyOn(perms, 'checkPermissionStatus').mockResolvedValue('prompt');
+
+    const { result } = renderHook(() => usePermissionTester());
+    await act(async () => { await Promise.resolve(); });
+    await waitFor(() => result.current.permissions.length > 0);
+
+    await act(async () => {
+      await result.current.requestPermission('window-management');
+    });
+
+    expect(result.current.getPermissionData('window-management')).toBe(winMock);
+  });
+
+  it('clears stored data when clearPermissionData is called', async () => {
+    const permission = {
+      ...originalPermissions[0],
+      name: 'window-management',
+      requestFn: jest.fn().mockResolvedValue({}),
+    };
+    perms.PERMISSIONS.splice(0, perms.PERMISSIONS.length, permission);
+    jest.spyOn(perms, 'checkPermissionStatus').mockResolvedValue('prompt');
+
+    const { result } = renderHook(() => usePermissionTester());
+    await act(async () => { await Promise.resolve(); });
+    await waitFor(() => result.current.permissions.length > 0);
+
+    await act(async () => {
+      await result.current.requestPermission('window-management');
+    });
+    expect(result.current.getPermissionData('window-management')).toBeDefined();
+
+    act(() => {
+      result.current.clearPermissionData('window-management');
+    });
+
+    expect(result.current.getPermissionData('window-management')).toBeUndefined();
+  });
 });
