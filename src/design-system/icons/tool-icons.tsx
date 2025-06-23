@@ -129,3 +129,10 @@ export const ContactCardIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+
+export const TracerouteIcon: React.FC<IconProps> = ({ className }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l4-4 4 4m0 8l4 4 4-4" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 16h10" />
+  </svg>
+);

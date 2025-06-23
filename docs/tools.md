@@ -27,6 +27,7 @@ Every section starts with an import snippet showing the component location so yo
 - [URL Encoder / Decoder](#url-encoder--decoder)
 - [Virtual Name Card](#virtual-name-card)
 - [Web Permission Tester](#web-permission-tester)
+- [Traceroute Tool](#traceroute-tool)
 
 ## Crypto Lab
 
@@ -196,3 +197,11 @@ import PushTesterPage from '../src/tools/push-tester/page';
 
 Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
 
+
+## Traceroute Tool
+
+```tsx
+import TraceroutePage from '../src/tools/traceroute/page';
+```
+
+Trace the network path to any hostname or IP via the Hackertarget MTR API. Provide your API key in the tool and view each hop with GeoIP lookup results and an optional raw output log. Results can be copied in JSON or plain text.

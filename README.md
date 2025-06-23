@@ -35,6 +35,7 @@
 - **Pre-rendering & SEO Meta Tester** – see how bots render your page
 - **Fetch & Render Tool** – capture DOM after JS execution
 - **Web Permission Tester** – request and inspect browser permissions
+- **Traceroute Tool** – visualize hop-by-hop network paths
 
 Read more in [docs/tools.md](docs/tools.md).
 

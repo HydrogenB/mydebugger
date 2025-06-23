@@ -64,6 +64,7 @@ import {
   CacheIcon,
   PushIcon,
   ContactCardIcon,
+  TracerouteIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -537,6 +538,20 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['push', 'notification', 'service worker'],
       relatedTools: ['permission-tester'],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "traceroute",
+    route: "/traceroute",
+    title: "Traceroute Tool",
+    description: "Visualize hop-by-hop network paths in the browser.",
+    icon: TracerouteIcon,
+    component: lazy(() => import("./traceroute/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["traceroute", "network", "diagnostic", "ping"],
+      relatedTools: ["headers-analyzer", "cors-tester"],
     },
     uiOptions: { showExamples: false },
   },
