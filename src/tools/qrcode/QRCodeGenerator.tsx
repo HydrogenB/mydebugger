@@ -8,6 +8,7 @@ import QRCodeStyling, { DotType, CornerSquareType } from "qr-code-styling";
 import { QR_PRESETS, getPresetByName } from "../../../model/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
 import { qrStylePresets } from "../../../model/qrStylePresets";
+import { convertPngToPdf, QRDownloadFormat } from "../../../model/qrcode";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -48,6 +49,7 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [presetIndex, setPresetIndex] = useState<number>(-1);
   const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
+  const [downloadFormat, setDownloadFormat] = useState<QRDownloadFormat>('png');
   const [showCosmeticOptions, setShowCosmeticOptions] =
     useState<boolean>(false);
   const [autoEncode, setAutoEncode] = useState<boolean>(true);
@@ -102,6 +104,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         setLogoSize(options.logoSize || 20);
         setShowCosmeticOptions(options.showCosmeticOptions || false);
         setAutoEncode(options.autoEncode !== false);
+        setDownloadFormat(options.downloadFormat || 'png');
       } catch (error) {
         console.error("Error loading saved options:", error);
       }
@@ -156,6 +159,7 @@ const DeepLinkQRGenerator: React.FC = () => {
           logoSize,
           showCosmeticOptions,
           autoEncode,
+          downloadFormat,
         }),
       );
     } catch (error) {
@@ -174,6 +178,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     logoSize,
     showCosmeticOptions,
     autoEncode,
+    downloadFormat,
   ]);
 
   // Generate QR code when input or properties change
@@ -349,16 +354,22 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   const handleDownloadQR = async () => {
     if (!qrInstanceRef.current || !input) return;
+    if (downloadFormat === 'svg') {
+      const name = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}`;
+      await qrInstanceRef.current.download({ name, extension: 'svg' });
+      setToastMessage('QR code downloaded!');
+      return;
+    }
 
-    const blob = await qrInstanceRef.current.getRawData("png");
+    const blob = await qrInstanceRef.current.getRawData('png');
     if (!blob) return;
 
     const img = new Image();
     const url = URL.createObjectURL(blob);
     img.src = url;
-    img.onload = () => {
-      const tempCanvas = document.createElement("canvas");
-      const ctx = tempCanvas.getContext("2d");
+    img.onload = async () => {
+      const tempCanvas = document.createElement('canvas');
+      const ctx = tempCanvas.getContext('2d');
 
       const padding = 20;
       tempCanvas.width = size + padding * 2;
@@ -369,36 +380,40 @@ const DeepLinkQRGenerator: React.FC = () => {
         ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
         ctx.drawImage(img, padding, padding, size, size);
 
-      // Draw the URL text below QR code
-      ctx.font = "12px Arial";
-      ctx.fillStyle = "#333333";
-      ctx.textAlign = "center";
+        ctx.font = '12px Arial';
+        ctx.fillStyle = '#333333';
+        ctx.textAlign = 'center';
+        const displayText = input.length > 50 ? `${input.substring(0, 47)}...` : input;
+        ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
 
-      // Truncate long URLs for display
-      const displayText =
-        input.length > 50 ? input.substring(0, 47) + "..." : input;
-      ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
-
-      // Add a "Generated with MyDebugger" note
-      ctx.font = "10px Arial";
-      ctx.fillStyle = "#666666";
-        ctx.fillText(
-          "Generated with MyDebugger QR Tool",
-          tempCanvas.width / 2,
-          size + padding * 2 + 15,
-        );
+        ctx.font = '10px Arial';
+        ctx.fillStyle = '#666666';
+        ctx.fillText('Generated with MyDebugger QR Tool', tempCanvas.width / 2, size + padding * 2 + 15);
       }
 
-      const link = document.createElement("a");
-      const fileName = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
-      link.download = fileName;
-      link.href = tempCanvas.toDataURL("image/png");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const sanitized = input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-');
+      const dataUrl = tempCanvas.toDataURL('image/png');
+      if (downloadFormat === 'pdf') {
+        const resp = await fetch(dataUrl);
+        const pngBlob = await resp.blob();
+        const pdfBlob = await convertPngToPdf(pngBlob);
+        const link = document.createElement('a');
+        link.download = `qrcode-${sanitized}.pdf`;
+        link.href = URL.createObjectURL(pdfBlob);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      } else {
+        const link = document.createElement('a');
+        link.download = `qrcode-${sanitized}.png`;
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
       URL.revokeObjectURL(url);
-
-      setToastMessage("QR code downloaded!");
+      setToastMessage('QR code downloaded!');
     };
   };
 
@@ -1109,25 +1124,36 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </svg>
                     Copy QR Image
                   </button>
-                  <button
-                    onClick={handleDownloadQR}
-                    className="flex items-center justify-center px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white transition"
-                  >
-                    <svg
-                      className="h-5 w-5 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  <div className="flex gap-2">
+                    <select
+                      value={downloadFormat}
+                      onChange={(e) => setDownloadFormat(e.target.value as QRDownloadFormat)}
+                      className="rounded-md border-gray-300"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                    Download PNG
-                  </button>
+                      <option value="png">PNG</option>
+                      <option value="svg">SVG</option>
+                      <option value="pdf">PDF</option>
+                    </select>
+                    <button
+                      onClick={handleDownloadQR}
+                      className="flex items-center justify-center px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white transition"
+                    >
+                      <svg
+                        className="h-5 w-5 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                      Download
+                    </button>
+                  </div>
                   <button
                     onClick={handleSaveToCollection}
                     className="flex items-center justify-center px-4 py-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white transition"

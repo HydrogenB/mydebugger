@@ -179,7 +179,7 @@ Simulate JavaScript rendering in a sandboxed iframe. Set a timeout before captur
 import QRCodeGeneratorPage from "../src/tools/qrcode/QRCodeGenerator";
 ```
 
-Generate QR codes for any URL or mobile deep link. The tool auto-encodes query parameters, shows a real-time preview and lets you open or share the link instantly. You can pick from ten visual presets, tweak dot/eye styles, gradients and upload a center logo. Access it at `/qrcode`.
+Generate QR codes for any URL or mobile deep link. The tool auto-encodes query parameters, shows a real-time preview and lets you open or share the link instantly. Choose from ten visual presets, tweak dot/eye styles, gradients and upload a center logo. Export your QR in **PNG**, **SVG** or **PDF**. Access it at `/qrcode`.
 
 This generator now ships with **40 curated style presets** for instant visual theming. Choose a preset to apply matching colors in one click.
 
