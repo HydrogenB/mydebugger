@@ -21,12 +21,10 @@ export default defineConfig({
           // Split vendor code
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['react-helmet'],
-          
+
           // Split tools by category for better loading performance          'jwt': ['./src/tools/jwt/index.ts'],
           'qrcode': ['./src/tools/qrcode/index.ts'],
-          'markdown': ['./src/tools/markdown-preview/index.ts'],
-          'sequence': ['./src/tools/sequence-diagram/index.ts'],
-          'base64-image': ['./src/tools/base64-image/index.ts'],
+          // Additional tool chunks can be added here as directories are created
         }
       }
     }
