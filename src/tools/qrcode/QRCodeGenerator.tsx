@@ -380,16 +380,11 @@ const DeepLinkQRGenerator: React.FC = () => {
       // Add a "Generated with MyDebugger" note
       ctx.font = "10px Arial";
       ctx.fillStyle = "#666666";
-      ctx.fillText(
-        "Generated with MyDebugger QR Tool",
-        tempCanvas.width / 2,
-        size + padding * 2 + 15,
-      );
-        const displayText = input.length > 50 ? input.substring(0, 47) + "..." : input;
-        ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
-        ctx.font = "10px Arial";
-        ctx.fillStyle = "#666666";
-        ctx.fillText("Generated with MyDebugger QR Tool", tempCanvas.width / 2, size + padding * 2 + 15);
+        ctx.fillText(
+          "Generated with MyDebugger QR Tool",
+          tempCanvas.width / 2,
+          size + padding * 2 + 15,
+        );
       }
 
       const link = document.createElement("a");
