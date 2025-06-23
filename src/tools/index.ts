@@ -540,6 +540,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: "generate-large-image",
+    route: "/generate-large-image",
+    title: "Generate Large Image",
+    description: "Create dummy images for upload testing.",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./generate-large-image/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["image", "upload", "test", "dummy"],
+      relatedTools: []
+    },
+    uiOptions: { showExamples: false }
+  },
 ];
 
 export default toolRegistry;
