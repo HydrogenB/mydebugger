@@ -8,6 +8,7 @@
     "@vitejs/plugin-react": "^4.0.3",
     "framer-motion": "^12.18.1",
     "html-to-image": "^1.11.13",
+    "jspdf": "^3.0.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.517.0",
     "lz-string": "^1.5.0",
