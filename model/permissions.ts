@@ -70,6 +70,18 @@ export interface PermissionEvent {
   details?: string;
 }
 
+export interface IdleDetectorLike extends EventTarget {
+  start: (options: { threshold: number }) => Promise<void>;
+  stop?: () => void;
+  userState: 'active' | 'idle';
+  screenState: 'locked' | 'unlocked';
+}
+
+export interface IdleDetectorConstructor {
+  requestPermission: () => Promise<'granted' | 'denied'>;
+  new (): IdleDetectorLike;
+}
+
 // Permission request functions
 /* istanbul ignore next */
 const requestFunctions = {
@@ -93,13 +105,29 @@ const requestFunctions = {
 
   'clipboard-write': async () => navigator.clipboard.writeText('test'),
 
-  bluetooth: async () => (navigator as any).bluetooth?.requestDevice({ acceptAllDevices: true }),
+  bluetooth: async () => (
+    (navigator as Navigator & {
+      bluetooth?: { requestDevice: (options: unknown) => Promise<unknown> };
+    }).bluetooth?.requestDevice({ acceptAllDevices: true })
+  ),
 
-  usb: async () => (navigator as any).usb?.requestDevice({ filters: [] }),
+  usb: async () => (
+    (navigator as Navigator & {
+      usb?: { requestDevice: (options: unknown) => Promise<unknown> };
+    }).usb?.requestDevice({ filters: [] })
+  ),
 
-  serial: async () => (navigator as any).serial?.requestPort(),
+  serial: async () => (
+    (navigator as Navigator & {
+      serial?: { requestPort: () => Promise<unknown> };
+    }).serial?.requestPort()
+  ),
 
-  hid: async () => (navigator as any).hid?.requestDevice({ filters: [] }),
+  hid: async () => (
+    (navigator as Navigator & {
+      hid?: { requestDevice: (options: unknown) => Promise<unknown> };
+    }).hid?.requestDevice({ filters: [] })
+  ),
 
 
   midi: async () => navigator.requestMIDIAccess?.({ sysex: true }),
@@ -143,13 +171,21 @@ const requestFunctions = {
     return sensor;
   },
 
-  'local-fonts': async () => (navigator as any).fonts?.query(),
+  'local-fonts': async () => (
+    (navigator as Navigator & { fonts?: { query: () => Promise<unknown> } }).fonts?.query()
+  ),
 
   'storage-access': async () => document.requestStorageAccess?.(),
 
-  'idle-detection': async () => (window as any).IdleDetector?.requestPermission(),
-
-  'compute-pressure': async () => (navigator as any).computePressure?.getStatus?.(),
+  'idle-detection': async () => {
+    const IdleClass = (window as Window & { IdleDetector?: IdleDetectorConstructor }).IdleDetector;
+    if (!IdleClass) throw new Error('IdleDetector not supported');
+    const permission = await IdleClass.requestPermission();
+    if (permission !== 'granted') throw new Error('Permission denied');
+    const detector = new IdleClass();
+    await detector.start({ threshold: 60000 });
+    return detector;
+  },
 
   'compute-pressure': async () => {
     const ObserverClass = (window as Window & { ComputePressureObserver?: new (
@@ -163,6 +199,12 @@ const requestFunctions = {
     }, { sampleInterval: 1000 });
     await observer.observe('cpu');
     return { observer, readings };
+  },
+
+  'window-management': async () => {
+    const win = window.open('', '_blank', 'noopener');
+    if (!win) throw new Error('Window failed to open');
+    return win;
   },
 
 
@@ -469,8 +511,9 @@ export const PERMISSIONS: Permission[] = [
     icon: 'Monitor',
     category: 'System',
     requestFn: requestFunctions['window-management'],
-    hasLivePreview: false
-  },  {
+    hasLivePreview: true
+  },
+  {
     name: 'nfc',
     displayName: 'NFC',
     description: 'Near Field Communication',

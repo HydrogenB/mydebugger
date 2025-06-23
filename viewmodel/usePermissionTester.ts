@@ -28,6 +28,7 @@ export interface UsePermissionTesterReturn {
   getCodeSnippet: (permissionName: string) => string;
   isLoading: (permissionName: string) => boolean;
   getPermissionData: (permissionName: string) => unknown;
+  clearPermissionData: (permissionName: string) => void;
 }
 
 const usePermissionTester = (): UsePermissionTesterReturn => {
@@ -228,6 +229,14 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     return permissionState?.data;
   }, [permissions]);
 
+  const clearPermissionData = useCallback((permissionName: string) => {
+    setPermissions(prev =>
+      prev.map(p =>
+        p.permission.name === permissionName ? { ...p, data: undefined } : p
+      )
+    );
+  }, []);
+
   // Filter permissions based on search query
   const filteredPermissions = useMemo(() => {
     if (!searchQuery.trim()) return permissions;
@@ -255,7 +264,8 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     testNotification,
     getCodeSnippet,
     isLoading,
-    getPermissionData
+    getPermissionData,
+    clearPermissionData
   };
 };
 
