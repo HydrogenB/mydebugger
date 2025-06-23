@@ -6,6 +6,7 @@ import { encodeUrlQueryParams } from "../../../model/url";
 import { Helmet } from "react-helmet";
 import QRCode from "qrcode";
 import { useLocation, useNavigate } from "react-router-dom";
+import { qrStylePresets } from "../../../model/qrStylePresets";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -35,6 +36,7 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [darkColor, setDarkColor] = useState<string>("#000000");
   const [lightColor, setLightColor] = useState<string>("#FFFFFF");
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [presetIndex, setPresetIndex] = useState<number>(-1);
   const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [showCosmeticOptions, setShowCosmeticOptions] =
@@ -363,6 +365,19 @@ const DeepLinkQRGenerator: React.FC = () => {
     } catch (error) {
       console.error("Error creating shareable link:", error);
       setToastMessage("Error creating shareable link");
+    }
+  };
+
+  const handlePresetChange = (index: number) => {
+    setPresetIndex(index);
+    const preset = qrStylePresets[index];
+    if (!preset) return;
+    if (preset.start && preset.end) {
+      setDarkColor(preset.start);
+      setLightColor(preset.end);
+    } else {
+      if (preset.darkColor) setDarkColor(preset.darkColor);
+      if (preset.lightColor) setLightColor(preset.lightColor);
     }
   };
 
@@ -739,6 +754,28 @@ const DeepLinkQRGenerator: React.FC = () => {
                 <div className="pt-4 grid grid-cols-1 gap-4">
                   <div>
                     <label
+                      htmlFor="stylePreset"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Style Preset
+                    </label>
+                    <select
+                      id="stylePreset"
+                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      value={presetIndex}
+                      onChange={(e) => handlePresetChange(parseInt(e.target.value, 10))}
+                    >
+                      <option value={-1}>Custom</option>
+                      {qrStylePresets.map((p, i) => (
+                        <option key={p.name} value={i}>
+                          {`${p.group} – ${p.name}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
                       htmlFor="size"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
@@ -753,7 +790,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         max="512"
                         step="8"
                         value={size}
-                        onChange={(e) => setSize(parseInt(e.target.value))}
+                        onChange={(e) => setSize(parseInt(e.target.value, 10))}
                       />
                       <div className="text-sm text-gray-500 w-12 text-right">
                         {size}px

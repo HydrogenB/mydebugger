@@ -181,6 +181,8 @@ import QRCodeGeneratorPage from "../src/tools/qrcode/QRCodeGenerator";
 
 Generate QR codes for any URL or mobile deep link. The tool auto-encodes query parameters, shows a real-time preview and lets you open or share the link instantly. Access it at `/qrcode`.
 
+This generator now ships with **40 curated style presets** for instant visual theming. Choose a preset to apply matching colors in one click.
+
 ## URL Encoder / Decoder
 
 ```tsx
