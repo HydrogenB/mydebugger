@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useReducer, useCallback, ReactNode } from 'react';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
-import * as jsonwebtoken from 'jsonwebtoken';
 
 // Types for JWT parts
 export interface JwtParts {
@@ -439,47 +438,6 @@ const isValid = await cryptoWorker.verify(
       }
     }
     return false;
-  };
-  // Fix the function calls with too many arguments
-  const signJwt = (tokenPayload: any, secretKey: string, options?: any) => {
-    try {
-      // Simplify the algorithm selection
-      const algorithm = options?.algorithm || 'HS256';
-      
-      // Use the imported jsonwebtoken library
-      return jsonwebtoken.sign(
-        tokenPayload,
-        secretKey,
-        { algorithm }
-      );
-    } catch (error) {
-      console.error("Error signing JWT:", error);
-      return null;
-    }
-  };
-
-  // Updated function to use proper variables
-  const handleSign = (tokenPayload: any, secretKey: string, options?: any) => {
-    if (!tokenPayload || !secretKey) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: 'Payload and secret are required to sign a token' 
-      });
-      return;
-    }
-    
-    try {
-      const token = signJwt(tokenPayload, secretKey, options);
-      if (token) {
-        dispatch({ type: 'SET_TOKEN', payload: token });
-        decodeToken(token);
-      }
-    } catch (error) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error instanceof Error ? error.message : 'Failed to sign token'
-      });
-    }
   };
 
   return (
