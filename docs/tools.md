@@ -27,6 +27,7 @@ Every section starts with an import snippet showing the component location so yo
 - [URL Encoder / Decoder](#url-encoder--decoder)
 - [Virtual Name Card](#virtual-name-card)
 - [Web Permission Tester](#web-permission-tester)
+- [Generate Large Image](#generate-large-image)
 
 ## Crypto Lab
 
@@ -196,3 +197,11 @@ import PushTesterPage from '../src/tools/push-tester/page';
 
 Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
 
+
+## Generate Large Image
+
+```tsx
+import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
+```
+
+Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤200KB) and expand it right in the browser. Access this tool at `/generate-large-image`.
