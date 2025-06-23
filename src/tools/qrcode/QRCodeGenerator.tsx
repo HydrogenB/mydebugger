@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TOOL_PANEL_CLASS } from "../../design-system/foundations/layout";
 import { encodeUrlQueryParams } from "../../../model/url";
 import { Helmet } from "react-helmet";
-import QRCode from "qrcode";
+import QRCodeStyling, { DotType, CornerSquareType } from "qr-code-styling";
+import { QR_PRESETS, getPresetByName } from "../../../model/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
 
 // Interface definitions for saved QR codes
@@ -34,6 +35,14 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [errorCorrection, setErrorCorrection] = useState<string>("M");
   const [darkColor, setDarkColor] = useState<string>("#000000");
   const [lightColor, setLightColor] = useState<string>("#FFFFFF");
+  const [dotStyle, setDotStyle] = useState<DotType>("square");
+  const [eyeStyle, setEyeStyle] = useState<CornerSquareType>("square");
+  const [gradientStart, setGradientStart] = useState<string>("#000000");
+  const [gradientEnd, setGradientEnd] = useState<string>("#000000");
+  const [gradientAngle, setGradientAngle] = useState<number>(0);
+  const [logoDataUrl, setLogoDataUrl] = useState<string | null>(null);
+  const [logoSize, setLogoSize] = useState<number>(20); // percent
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
@@ -52,7 +61,9 @@ const DeepLinkQRGenerator: React.FC = () => {
   // Large QR code modal state
   const [showLargeQRModal, setShowLargeQRModal] = useState<boolean>(false);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
+  const qrInstanceRef = useRef<QRCodeStyling | null>(null);
+  const qrUrlRef = useRef<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +92,12 @@ const DeepLinkQRGenerator: React.FC = () => {
         setErrorCorrection(options.errorCorrection || "M");
         setDarkColor(options.darkColor || "#000000");
         setLightColor(options.lightColor || "#FFFFFF");
+        setDotStyle(options.dotStyle || "square");
+        setEyeStyle(options.eyeStyle || "square");
+        setGradientStart(options.gradientStart || "#000000");
+        setGradientEnd(options.gradientEnd || "#000000");
+        setGradientAngle(options.gradientAngle || 0);
+        setLogoSize(options.logoSize || 20);
         setShowCosmeticOptions(options.showCosmeticOptions || false);
         setAutoEncode(options.autoEncode !== false);
       } catch (error) {
@@ -129,6 +146,12 @@ const DeepLinkQRGenerator: React.FC = () => {
           errorCorrection,
           darkColor,
           lightColor,
+          dotStyle,
+          eyeStyle,
+          gradientStart,
+          gradientEnd,
+          gradientAngle,
+          logoSize,
           showCosmeticOptions,
           autoEncode,
         }),
@@ -141,6 +164,12 @@ const DeepLinkQRGenerator: React.FC = () => {
     errorCorrection,
     darkColor,
     lightColor,
+    dotStyle,
+    eyeStyle,
+    gradientStart,
+    gradientEnd,
+    gradientAngle,
+    logoSize,
     showCosmeticOptions,
     autoEncode,
   ]);
@@ -163,7 +192,21 @@ const DeepLinkQRGenerator: React.FC = () => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [input, size, errorCorrection, darkColor, lightColor, autoEncode]);
+  }, [
+    input,
+    size,
+    errorCorrection,
+    darkColor,
+    lightColor,
+    dotStyle,
+    eyeStyle,
+    gradientStart,
+    gradientEnd,
+    gradientAngle,
+    logoDataUrl,
+    logoSize,
+    autoEncode,
+  ]);
 
 
   // Clear toast message after 2 seconds
@@ -187,33 +230,53 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   }, [isRunningLink]);
 
-  // Generate QR code using the qrcode library
   const generateQRCode = async () => {
-    try {
-      const canvas = canvasRef.current;
-      if (!canvas || !input) return;
+    if (!qrInstanceRef.current) {
+      qrInstanceRef.current = new QRCodeStyling({ type: "canvas" });
+    }
 
-      // Configure QR code options
-      const options = {
-        errorCorrectionLevel: errorCorrection,
-        margin: 1,
-        width: size,
-        color: {
-          dark: darkColor,
-          light: lightColor,
-        },
-      };
+    const linkForQR = input ? (autoEncode ? encodeUrlQueryParams(input) : input) : "";
+    const gradient =
+      gradientStart !== gradientEnd
+        ? {
+            type: "linear" as const,
+            rotation: (gradientAngle * Math.PI) / 180,
+            colorStops: [
+              { offset: 0, color: gradientStart },
+              { offset: 1, color: gradientEnd },
+            ],
+          }
+        : undefined;
 
-      const linkForQR = autoEncode ? encodeUrlQueryParams(input) : input;
+    qrInstanceRef.current.update({
+      width: size,
+      height: size,
+      data: linkForQR,
+      qrOptions: { errorCorrectionLevel: errorCorrection },
+      dotsOptions: {
+        type: dotStyle,
+        color: gradient ? undefined : darkColor,
+        gradient,
+      },
+      cornersSquareOptions: { type: eyeStyle, color: darkColor },
+      cornersDotOptions: { type: eyeStyle, color: darkColor },
+      backgroundOptions: { color: lightColor },
+      image: logoDataUrl || undefined,
+      imageOptions: { crossOrigin: "anonymous", imageSize: logoSize / 100 },
+    });
 
-      // Generate QR code on canvas
-      await QRCode.toCanvas(canvas, linkForQR, options);
+    if (qrRef.current) {
+      qrRef.current.innerHTML = "";
+      qrInstanceRef.current.append(qrRef.current);
+    }
 
-      // Convert canvas to data URL
-      const dataUrl = canvas.toDataURL("image/png");
-      setQrCodeUrl(dataUrl);
-    } catch (error) {
-      console.error("Error generating QR code:", error);
+    const blob = await qrInstanceRef.current.getRawData("png");
+    if (blob) {
+      if (qrUrlRef.current) {
+        URL.revokeObjectURL(qrUrlRef.current);
+      }
+      qrUrlRef.current = URL.createObjectURL(blob);
+      setQrCodeUrl(qrUrlRef.current);
     }
   };
 
@@ -239,12 +302,22 @@ const DeepLinkQRGenerator: React.FC = () => {
     copyToClipboard(input, "Link copied!");
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setLogoDataUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleCopyQRAsImage = async () => {
-    if (!canvasRef.current) return;
+    if (!qrInstanceRef.current) return;
 
     try {
-      const dataUrl = canvasRef.current.toDataURL("image/png");
-      const blob = await (await fetch(dataUrl)).blob();
+      const blob = await qrInstanceRef.current.getRawData("png");
+      if (!blob) return;
 
       // Try to use the clipboard API for images if supported
       if (navigator.clipboard && navigator.clipboard.write) {
@@ -257,7 +330,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         // Fallback - create a temp link and download
         const link = document.createElement("a");
         link.download = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
-        link.href = dataUrl;
+        link.href = URL.createObjectURL(blob);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -272,25 +345,27 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   };
 
-  const handleDownloadQR = () => {
-    if (!canvasRef.current || !input) return;
+  const handleDownloadQR = async () => {
+    if (!qrInstanceRef.current || !input) return;
 
-    // Generate a new canvas with the QR code and URL text
-    const tempCanvas = document.createElement("canvas");
-    const ctx = tempCanvas.getContext("2d");
+    const blob = await qrInstanceRef.current.getRawData("png");
+    if (!blob) return;
 
-    // Set sizes to allow for text below QR code
-    const padding = 20;
-    tempCanvas.width = size + padding * 2;
-    tempCanvas.height = size + padding * 3 + 20; // Extra space for text
+    const img = new Image();
+    const url = URL.createObjectURL(blob);
+    img.src = url;
+    img.onload = () => {
+      const tempCanvas = document.createElement("canvas");
+      const ctx = tempCanvas.getContext("2d");
 
-    if (ctx) {
-      // Fill with light color
-      ctx.fillStyle = lightColor;
-      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      const padding = 20;
+      tempCanvas.width = size + padding * 2;
+      tempCanvas.height = size + padding * 3 + 20;
 
-      // Draw the QR code from our hidden canvas
-      ctx.drawImage(canvasRef.current, padding, padding, size, size);
+      if (ctx) {
+        ctx.fillStyle = lightColor;
+        ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+        ctx.drawImage(img, padding, padding, size, size);
 
       // Draw the URL text below QR code
       ctx.font = "12px Arial";
@@ -310,18 +385,24 @@ const DeepLinkQRGenerator: React.FC = () => {
         tempCanvas.width / 2,
         size + padding * 2 + 15,
       );
-    }
+        const displayText = input.length > 50 ? input.substring(0, 47) + "..." : input;
+        ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
+        ctx.font = "10px Arial";
+        ctx.fillStyle = "#666666";
+        ctx.fillText("Generated with MyDebugger QR Tool", tempCanvas.width / 2, size + padding * 2 + 15);
+      }
 
-    // Create download link
-    const link = document.createElement("a");
-    const fileName = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
-    link.download = fileName;
-    link.href = tempCanvas.toDataURL("image/png");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const link = document.createElement("a");
+      const fileName = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
+      link.download = fileName;
+      link.href = tempCanvas.toDataURL("image/png");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
-    setToastMessage("QR code downloaded!");
+      setToastMessage("QR code downloaded!");
+    };
   };
 
   const handleRunLink = () => {
@@ -781,6 +862,38 @@ const DeepLinkQRGenerator: React.FC = () => {
                         <option value="H">High (30%)</option>
                       </select>
                     </div>
+                    <div>
+                      <label
+                        htmlFor="preset"
+                        className="block text-sm font-medium text-gray-700 mb-1"
+                      >
+                        Style Preset
+                      </label>
+                      <select
+                        id="preset"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        value={selectedPreset || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedPreset(val || null);
+                          const preset = getPresetByName(val);
+                          if (preset) {
+                            setDarkColor(preset.darkColor);
+                            setLightColor(preset.lightColor);
+                            setDotStyle(preset.dotStyle);
+                            setEyeStyle(preset.eyeStyle);
+                            setGradientStart(preset.gradient?.start || preset.darkColor);
+                            setGradientEnd(preset.gradient?.end || preset.darkColor);
+                            setGradientAngle(preset.gradient?.angle || 0);
+                          }
+                        }}
+                      >
+                        <option value="">Custom...</option>
+                        {QR_PRESETS.map((p) => (
+                          <option key={p.name} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -833,6 +946,64 @@ const DeepLinkQRGenerator: React.FC = () => {
                       </div>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <label htmlFor="dotStyle" className="block text-sm font-medium text-gray-700 mb-1">Dot Style</label>
+                      <select
+                        id="dotStyle"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        value={dotStyle}
+                        onChange={(e) => setDotStyle(e.target.value as DotType)}
+                      >
+                        <option value="square">square</option>
+                        <option value="rounded">rounded</option>
+                        <option value="dots">dots</option>
+                        <option value="classy">classy</option>
+                        <option value="classy-rounded">classy-rounded</option>
+                        <option value="extra-rounded">extra-rounded</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="eyeStyle" className="block text-sm font-medium text-gray-700 mb-1">Eye Style</label>
+                      <select
+                        id="eyeStyle"
+                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        value={eyeStyle}
+                        onChange={(e) => setEyeStyle(e.target.value as CornerSquareType)}
+                      >
+                        <option value="square">square</option>
+                        <option value="dot">dot</option>
+                        <option value="extra-rounded">extra-rounded</option>
+                        <option value="classy">classy</option>
+                        <option value="classy-rounded">classy-rounded</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <label htmlFor="gradientStart" className="block text-sm font-medium text-gray-700 mb-1">Gradient Start</label>
+                      <input type="color" id="gradientStart" className="h-8 w-8 rounded" value={gradientStart} onChange={(e) => setGradientStart(e.target.value)} />
+                    </div>
+                    <div>
+                      <label htmlFor="gradientEnd" className="block text-sm font-medium text-gray-700 mb-1">Gradient End</label>
+                      <input type="color" id="gradientEnd" className="h-8 w-8 rounded" value={gradientEnd} onChange={(e) => setGradientEnd(e.target.value)} />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="gradientAngle" className="block text-sm font-medium text-gray-700 mb-1">Gradient Angle ({gradientAngle}°)</label>
+                    <input type="range" id="gradientAngle" min="0" max="360" value={gradientAngle} onChange={(e) => setGradientAngle(parseInt(e.target.value))} className="w-full" />
+                  </div>
+
+                  <div>
+                    <label htmlFor="logoUpload" className="block text-sm font-medium text-gray-700 mb-1">Center Logo</label>
+                    <input type="file" id="logoUpload" accept="image/*" onChange={handleLogoUpload} />
+                  </div>
+                  <div>
+                    <label htmlFor="logoSize" className="block text-sm font-medium text-gray-700 mb-1">Logo Size ({logoSize}%)</label>
+                    <input type="range" id="logoSize" min="0" max="30" value={logoSize} onChange={(e) => setLogoSize(parseInt(e.target.value))} className="w-full" />
+                  </div>
                 </div>
               </details>
             </div>
@@ -882,12 +1053,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                 )}
               </div>
 
-              <canvas
-                ref={canvasRef}
-                style={{ display: "none" }}
-                width={size}
-                height={size}
-              />
+              <div ref={qrRef} className="hidden" />
 
               {/* QR Actions */}
               {qrCodeUrl && (
