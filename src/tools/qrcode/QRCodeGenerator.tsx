@@ -1,10 +1,16 @@
-// @ts-nocheck
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TOOL_PANEL_CLASS } from "../../design-system/foundations/layout";
 import { encodeUrlQueryParams } from "../../../model/url";
 import { Helmet } from "react-helmet";
-import QRCodeStyling, { DotType, CornerSquareType } from "qr-code-styling";
+import QRCodeStyling, {
+  DotType,
+  CornerSquareType,
+  ErrorCorrectionLevel,
+} from "qr-code-styling";
 import { QR_PRESETS, getPresetByName } from "../../../model/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
 import { qrStylePresets } from "../../../model/qrStylePresets";
@@ -19,7 +25,7 @@ interface SavedQRCode {
   qrCodeUrl: string;
   settings: {
     size: number;
-    errorCorrection: string;
+    errorCorrection: ErrorCorrectionLevel;
     darkColor: string;
     lightColor: string;
   };
@@ -34,7 +40,9 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [input, setInput] = useState<string>(initialLink);
   const [encodedLink, setEncodedLink] = useState<string>("");
   const [size, setSize] = useState<number>(256);
-  const [errorCorrection, setErrorCorrection] = useState<string>("M");
+  const [errorCorrection, setErrorCorrection] = useState<ErrorCorrectionLevel>(
+    "M",
+  );
   const [darkColor, setDarkColor] = useState<string>("#000000");
   const [lightColor, setLightColor] = useState<string>("#FFFFFF");
   const [dotStyle, setDotStyle] = useState<DotType>("square");
@@ -56,6 +64,14 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileOS, setMobileOS] = useState<string>("");
 
+  // QR type state
+  const [qrType, setQrType] = useState<string>('link');
+  const [wifiSsid, setWifiSsid] = useState('');
+  const [wifiPassword, setWifiPassword] = useState('');
+  const [wifiEncryption, setWifiEncryption] = useState('WPA');
+  const [geoLat, setGeoLat] = useState('');
+  const [geoLng, setGeoLng] = useState('');
+
 
   // Collection related state
   const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
@@ -70,6 +86,32 @@ const DeepLinkQRGenerator: React.FC = () => {
   const qrUrlRef = useRef<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  const getQRData = useCallback(() => {
+    switch (qrType) {
+      case 'text':
+        return input;
+      case 'phone':
+        return `tel:${input}`;
+      case 'wifi':
+        return `WIFI:T:${wifiEncryption};S:${wifiSsid};P:${wifiPassword};;`;
+      case 'geo':
+        return `geo:${geoLat},${geoLng}`;
+      case 'calendar':
+        return input;
+      default:
+        return autoEncode ? encodeUrlQueryParams(input) : input;
+    }
+  }, [
+    qrType,
+    input,
+    autoEncode,
+    wifiEncryption,
+    wifiSsid,
+    wifiPassword,
+    geoLat,
+    geoLng,
+  ]);
 
   // Check if device is mobile and load saved QR codes
   useEffect(() => {
@@ -183,17 +225,20 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   // Generate QR code when input or properties change
   useEffect(() => {
-    if (input) {
-      const processed = autoEncode ? encodeUrlQueryParams(input) : input;
-      setEncodedLink(processed);
-      // Generate QR code after short debounce
+    const data = getQRData();
+    if (qrType === 'link' && input) {
+      setEncodedLink(data);
+    } else {
+      setEncodedLink('');
+    }
+
+    if (data) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         generateQRCode();
       }, 300) as unknown as number;
     } else {
-      setQrCodeUrl("");
-      setEncodedLink("");
+      setQrCodeUrl('');
     }
 
     return () => {
@@ -201,6 +246,12 @@ const DeepLinkQRGenerator: React.FC = () => {
     };
   }, [
     input,
+    qrType,
+    wifiSsid,
+    wifiPassword,
+    wifiEncryption,
+    geoLat,
+    geoLng,
     size,
     errorCorrection,
     darkColor,
@@ -242,7 +293,7 @@ const DeepLinkQRGenerator: React.FC = () => {
       qrInstanceRef.current = new QRCodeStyling({ type: "canvas" });
     }
 
-    const linkForQR = input ? (autoEncode ? encodeUrlQueryParams(input) : input) : "";
+    const linkForQR = getQRData();
     const gradient =
       gradientStart !== gradientEnd
         ? {
@@ -277,7 +328,7 @@ const DeepLinkQRGenerator: React.FC = () => {
       qrInstanceRef.current.append(qrRef.current);
     }
 
-    const blob = await qrInstanceRef.current.getRawData("png");
+    const blob = (await qrInstanceRef.current.getRawData("png")) as Blob;
     if (blob) {
       if (qrUrlRef.current) {
         URL.revokeObjectURL(qrUrlRef.current);
@@ -305,8 +356,9 @@ const DeepLinkQRGenerator: React.FC = () => {
   };
 
   const handleCopyRawLink = () => {
-    if (!input) return;
-    copyToClipboard(input, "Link copied!");
+    const text = qrType === 'link' ? input : getQRData();
+    if (!text) return;
+    copyToClipboard(text, 'Link copied!');
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,20 +375,20 @@ const DeepLinkQRGenerator: React.FC = () => {
     if (!qrInstanceRef.current) return;
 
     try {
-      const blob = await qrInstanceRef.current.getRawData("png");
+      const blob = (await qrInstanceRef.current.getRawData("png")) as Blob;
       if (!blob) return;
 
       // Try to use the clipboard API for images if supported
       if (navigator.clipboard && navigator.clipboard.write) {
-        const clipboardItem = new ClipboardItem({
-          [blob.type]: blob,
-        });
+        const item: Record<string, Blob> = { [blob.type]: blob };
+        const clipboardItem = new ClipboardItem(item);
         await navigator.clipboard.write([clipboardItem]);
         setToastMessage("QR image copied to clipboard!");
       } else {
         // Fallback - create a temp link and download
         const link = document.createElement("a");
-        link.download = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, "-")}.png`;
+        const sanitizedName = getQRData().substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-');
+        link.download = `qrcode-${sanitizedName}.png`;
         link.href = URL.createObjectURL(blob);
         document.body.appendChild(link);
         link.click();
@@ -353,15 +405,15 @@ const DeepLinkQRGenerator: React.FC = () => {
   };
 
   const handleDownloadQR = async () => {
-    if (!qrInstanceRef.current || !input) return;
+    if (!qrInstanceRef.current || !getQRData()) return;
     if (downloadFormat === 'svg') {
-      const name = `qrcode-${input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}`;
+      const name = `qrcode-${getQRData().substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}`;
       await qrInstanceRef.current.download({ name, extension: 'svg' });
       setToastMessage('QR code downloaded!');
       return;
     }
 
-    const blob = await qrInstanceRef.current.getRawData('png');
+    const blob = (await qrInstanceRef.current.getRawData('png')) as Blob;
     if (!blob) return;
 
     const img = new Image();
@@ -383,7 +435,8 @@ const DeepLinkQRGenerator: React.FC = () => {
         ctx.font = '12px Arial';
         ctx.fillStyle = '#333333';
         ctx.textAlign = 'center';
-        const displayText = input.length > 50 ? `${input.substring(0, 47)}...` : input;
+        const raw = qrType === 'link' ? input : getQRData();
+        const displayText = raw.length > 50 ? `${raw.substring(0, 47)}...` : raw;
         ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
 
         ctx.font = '10px Arial';
@@ -391,7 +444,9 @@ const DeepLinkQRGenerator: React.FC = () => {
         ctx.fillText('Generated with MyDebugger QR Tool', tempCanvas.width / 2, size + padding * 2 + 15);
       }
 
-      const sanitized = input.substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-');
+      const sanitized = getQRData()
+        .substring(0, 15)
+        .replace(/[^a-zA-Z0-9]/g, '-');
       const dataUrl = tempCanvas.toDataURL('image/png');
       if (downloadFormat === 'pdf') {
         const resp = await fetch(dataUrl);
@@ -418,7 +473,7 @@ const DeepLinkQRGenerator: React.FC = () => {
   };
 
   const handleRunLink = () => {
-    if (!input) return;
+    if (qrType !== 'link' || !input) return;
 
     setIsRunningLink(true);
     setTimeout(() => {
@@ -434,7 +489,7 @@ const DeepLinkQRGenerator: React.FC = () => {
   };
 
   const handleSharePageWithLink = () => {
-    if (!input) return;
+    if (qrType !== 'link' || !input) return;
 
     try {
       // Create a URL object for the current page
@@ -475,6 +530,11 @@ const DeepLinkQRGenerator: React.FC = () => {
   const handleReset = () => {
     setInput("");
     setIsRunningLink(false);
+    setWifiSsid('');
+    setWifiPassword('');
+    setGeoLat('');
+    setGeoLng('');
+    setQrType('link');
 
     // Don't reset cosmetic options as they're persistent
     // Instead update the URL to remove the link param
@@ -483,11 +543,18 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   // Save QR code to collection
   const handleSaveToCollection = () => {
-    if (!input || !qrCodeUrl) return;
+    if (!getQRData() || !qrCodeUrl) return;
     setShowSaveModal(true);
-    // Set default nickname based on URL
-    const domain = new URL(input).hostname || input.split("/")[0].split("?")[0];
-    setNickname(domain || "My QR Code");
+    if (qrType === 'link') {
+      try {
+        const domain = new URL(input).hostname || input.split('/')[0];
+        setNickname(domain || 'My QR Code');
+      } catch {
+        setNickname('My QR Code');
+      }
+    } else {
+      setNickname('My QR Code');
+    }
   };
 
   // Save QR code with nickname to collection
@@ -496,7 +563,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
     const newCode: SavedQRCode = {
       id: `qr-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      url: input,
+      url: getQRData(),
       nickname: nickname || "My QR Code",
       createdAt: Date.now(),
       qrCodeUrl,
@@ -527,6 +594,7 @@ const DeepLinkQRGenerator: React.FC = () => {
   // Load QR code from collection
   const handleLoadFromCollection = (saved: SavedQRCode) => {
     setInput(saved.url);
+    setQrType('link');
     setSize(saved.settings.size);
     setErrorCorrection(saved.settings.errorCorrection);
     setDarkColor(saved.settings.darkColor);
@@ -556,8 +624,8 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   // Close modal when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setShowSaveModal(false);
         setShowLargeQRModal(false);
       }
@@ -633,42 +701,158 @@ const DeepLinkQRGenerator: React.FC = () => {
             <div
               className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
             >
-              <label
-                htmlFor="input"
-                className="block font-medium text-gray-700 mb-2"
+              <label htmlFor="qrType" className="block font-medium text-gray-700 mb-2">
+                QR Code Type
+              </label>
+              <select
+                id="qrType"
+                className="w-full rounded-md border-gray-300 mb-4"
+                value={qrType}
+                onChange={(e) => setQrType(e.target.value)}
               >
-                URL or Deeplink
-              </label>
-              <input
-                type="text"
-                id="input"
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleRunLink();
-                  }
-                }}
-                placeholder="https://example.com/"
-                autoFocus
-              />
+                <option value="link">Link</option>
+                <option value="text">Text</option>
+                <option value="phone">Phone</option>
+                <option value="wifi">Wi-Fi</option>
+                <option value="geo">Geo</option>
+                <option value="calendar">Calendar</option>
+              </select>
 
-              <label className="inline-flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-blue-500"
-                  checked={autoEncode}
-                  onChange={(e) => setAutoEncode(e.target.checked)}
-                />
-                <span className="ml-2 text-sm text-gray-700">
-                  Auto-encode query params
-                </span>
-              </label>
+              {qrType === 'link' && (
+                <>
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                    URL or Deeplink
+                  </label>
+                  <input
+                    type="text"
+                    id="input"
+                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleRunLink();
+                      }
+                    }}
+                    placeholder="https://example.com/"
+                    autoFocus
+                  />
+                  <label className="inline-flex items-center mb-2">
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-5 w-5 text-blue-500"
+                      checked={autoEncode}
+                      onChange={(e) => setAutoEncode(e.target.checked)}
+                    />
+                    <span className="ml-2 text-sm text-gray-700">
+                      Auto-encode query params
+                    </span>
+                  </label>
+                </>
+              )}
+
+              {qrType === 'text' && (
+                <>
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                    Text
+                  </label>
+                  <textarea
+                    id="input"
+                    rows={3}
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Just some text here."
+                  />
+                </>
+              )}
+
+              {qrType === 'phone' && (
+                <>
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    id="input"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="+66812345678"
+                  />
+                </>
+              )}
+
+              {qrType === 'wifi' && (
+                <>
+                  <label className="block font-medium text-gray-700 mb-2">SSID</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={wifiSsid}
+                    onChange={(e) => setWifiSsid(e.target.value)}
+                    placeholder="MyWiFi"
+                  />
+                  <label className="block font-medium text-gray-700 mb-2">Password</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={wifiPassword}
+                    onChange={(e) => setWifiPassword(e.target.value)}
+                  />
+                  <label className="block font-medium text-gray-700 mb-2">Encryption</label>
+                  <select
+                    className="w-full rounded-md border-gray-300 mb-2"
+                    value={wifiEncryption}
+                    onChange={(e) => setWifiEncryption(e.target.value)}
+                  >
+                    <option value="WPA">WPA/WPA2</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">None</option>
+                  </select>
+                </>
+              )}
+
+              {qrType === 'geo' && (
+                <>
+                  <label className="block font-medium text-gray-700 mb-2">Latitude</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={geoLat}
+                    onChange={(e) => setGeoLat(e.target.value)}
+                    placeholder="13.7563"
+                  />
+                  <label className="block font-medium text-gray-700 mb-2">Longitude</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={geoLng}
+                    onChange={(e) => setGeoLng(e.target.value)}
+                    placeholder="100.5018"
+                  />
+                </>
+              )}
+
+              {qrType === 'calendar' && (
+                <>
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                    Calendar iCal
+                  </label>
+                  <textarea
+                    id="input"
+                    rows={4}
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="BEGIN:VEVENT...END:VEVENT"
+                  />
+                </>
+              )}
 
               {/* Encoded URL Display */}
-              {encodedLink && (
+              {qrType === 'link' && encodedLink && (
                 <div className="mt-2 mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Percent-Encoded (Safe for Sharing)
@@ -709,11 +893,11 @@ const DeepLinkQRGenerator: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <button
                   onClick={handleCopyRawLink}
-                  disabled={!input}
+                  disabled={!getQRData()}
                   className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
-                    input
-                      ? "bg-blue-500 hover:bg-blue-600"
-                      : "bg-gray-300 cursor-not-allowed"
+                    getQRData()
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-gray-300 cursor-not-allowed'
                   }`}
                 >
                   <svg
@@ -731,6 +915,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </svg>
                   Copy Raw Link
                 </button>
+                {qrType === 'link' && (
                 <button
                   onClick={handleSharePageWithLink}
                   disabled={!input}
@@ -755,8 +940,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </svg>
                   Share Page with Link Pre-filled
                 </button>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {qrType === 'link' && (
                 <button
                   onClick={handleRunLink}
                   disabled={!input}
@@ -791,6 +978,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       ? `Open on ${mobileOS || "Device"}`
                       : "Run on This Device"}
                 </button>
+                )}
                 <button
                   onClick={handleReset}
                   className="flex items-center justify-center px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
@@ -901,7 +1089,9 @@ const DeepLinkQRGenerator: React.FC = () => {
                         id="errorCorrection"
                         className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                         value={errorCorrection}
-                        onChange={(e) => setErrorCorrection(e.target.value)}
+                        onChange={(e) =>
+                          setErrorCorrection(e.target.value as ErrorCorrectionLevel)
+                        }
                       >
                         <option value="L">Low (7%)</option>
                         <option value="M">Medium (15%)</option>
