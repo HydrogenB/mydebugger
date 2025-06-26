@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { Button, TextInput, SelectInput } from '../src/design-system/components/inputs';
+import { InfoBox } from '../src/design-system/components/display/InfoBox';
 import {
   AesMode,
   AesExample,
@@ -78,68 +80,74 @@ export function AesCbcView({
   clear,
 }: Props) {
   return (
-    <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Crypto Lab</h2>
+    <div className={`${TOOL_PANEL_CLASS} space-y-4`}>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Crypto Lab</h2>
       {toastMessage && (
-        <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
+        <div
+          role="status"
+          className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out"
+        >
           {toastMessage}
         </div>
       )}
-      <div className="mb-4 flex flex-col gap-2">
-        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-        <label htmlFor="algo" className="text-gray-700 dark:text-gray-300">Algorithm</label>
-        <select
+      <div className="grid sm:grid-cols-2 gap-4">
+        <SelectInput
           id="algo"
+          label="Algorithm"
           value={algorithm}
-          onChange={e => setAlgorithm(e.target.value as CryptoAlgorithm)}
-          className="border rounded p-2 dark:bg-gray-700 dark:text-gray-200"
-        >
-          <option value="aes-cbc">AES-256-CBC</option>
-          <option value="aes-gcm">AES-256-GCM</option>
-          <option value="rsa-oaep">RSA-OAEP</option>
-          <option value="gpg-rsa-2048">GPG RSA-2048</option>
-        </select>
-        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-        <label htmlFor="format" className="text-gray-700 dark:text-gray-300">Output Format</label>
-        <select
+          onChange={v => setAlgorithm(v as CryptoAlgorithm)}
+          options={[
+            { value: 'aes-cbc', label: 'AES-256-CBC' },
+            { value: 'aes-gcm', label: 'AES-256-GCM' },
+            { value: 'rsa-oaep', label: 'RSA-OAEP' },
+            { value: 'gpg-rsa-2048', label: 'GPG RSA-2048' },
+          ]}
+        />
+        <SelectInput
           id="format"
+          label="Output Format"
           value={outputFormat}
-          onChange={e => setOutputFormat(e.target.value as 'base64' | 'hex' | 'utf-8')}
-          className="border rounded p-2 dark:bg-gray-700 dark:text-gray-200"
-        >
-          <option value="base64">Base64</option>
-          <option value="hex">Hex</option>
-          <option value="utf-8">UTF-8</option>
-        </select>
+          onChange={v => setOutputFormat(v as OutputFormat)}
+          options={[
+            { value: 'base64', label: 'Base64' },
+            { value: 'hex', label: 'Hex' },
+            { value: 'utf-8', label: 'UTF-8' },
+          ]}
+        />
       </div>
       {algorithm === 'rsa-oaep' || algorithm === 'gpg-rsa-2048' ? (
         <>
-          <div className="mb-4 flex flex-col gap-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label htmlFor="public" className="text-gray-700 dark:text-gray-300">Public Key</label>
-            <textarea
-              id="public"
-              className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-              value={publicKey}
-              onChange={e => setPublicKey(e.target.value)}
-            />
-          </div>
-          <div className="mb-4 flex flex-col gap-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label htmlFor="private" className="text-gray-700 dark:text-gray-300">Private Key</label>
-            <textarea
-              id="private"
-              className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-              value={privateKey}
-              onChange={e => setPrivateKey(e.target.value)}
-            />
+          <div className="space-y-4">
+            <div>
+            <label htmlFor="public" className="sr-only">
+              Public Key
+              <textarea
+                id="public"
+                className="w-full h-32 resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+                placeholder="Paste public key PEM"
+                value={publicKey}
+                onChange={e => setPublicKey(e.target.value)}
+              />
+            </label>
+            </div>
+            <div>
+            <label htmlFor="private" className="sr-only">
+              Private Key
+              <textarea
+                id="private"
+                className="w-full h-32 resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+                placeholder="Paste private key PEM"
+                value={privateKey}
+                onChange={e => setPrivateKey(e.target.value)}
+              />
+            </label>
+            </div>
           </div>
           {savedKeyPairs.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {/* eslint-disable react/no-array-index-key */}
-              {savedKeyPairs.map((_, idx) => (
+              {savedKeyPairs.map((kp, idx) => (
                 <span
-                  key={`kp-${idx}`}
+                  key={kp.publicKey}
                   className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
                 >
                   <button
@@ -166,42 +174,27 @@ export function AesCbcView({
         </>
       ) : (
         <>
-          <div className="mb-4 flex flex-col gap-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label htmlFor="key" className="text-gray-700 dark:text-gray-300">Key</label>
-            <input
-              id="key"
-              type="text"
-              value={keyValue}
-              onChange={e => setKey(e.target.value)}
-              className="border rounded p-2 dark:bg-gray-700 dark:text-gray-200"
-            />
-          </div>
-          <div className="mb-4 flex flex-col gap-2">
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label htmlFor="example" className="text-gray-700 dark:text-gray-300">Examples</label>
-            <select
-              id="example"
-              value={exampleIndex ?? ''}
-              onChange={e =>
-                setExampleIndex(e.target.value === '' ? null : Number(e.target.value))
-              }
-              className="border rounded p-2 dark:bg-gray-700 dark:text-gray-200"
-            >
-              <option value="">Custom...</option>
-              {examples.map((ex, idx) => (
-                <option key={ex.label} value={idx}>
-                  {ex.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <TextInput
+            id="key"
+            label="Key"
+            value={keyValue}
+            onChange={e => setKey(e.target.value)}
+            placeholder="32 character key"
+            fullWidth
+          />
+          <SelectInput
+            id="example"
+            label="Examples"
+            value={exampleIndex === null ? '' : exampleIndex.toString()}
+            onChange={v => setExampleIndex(v === '' ? null : Number(v))}
+            options={examples.map((ex, idx) => ({ value: idx.toString(), label: ex.label }))}
+            placeholder="Custom..."
+          />
           {savedKeys.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {/* eslint-disable react/no-array-index-key */}
               {savedKeys.map((k, idx) => (
                 <span
-                  key={`k-${idx}`}
+                  key={k}
                   className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded flex items-center gap-1 text-sm"
                 >
                   <button
@@ -229,82 +222,45 @@ export function AesCbcView({
       )}
 
       <div className="mb-4 flex flex-col gap-2">
-        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor="input" className="text-gray-700 dark:text-gray-300">
           {mode === 'encrypt' ? 'Plain Text' : 'Encrypted Text'}
+          <textarea
+            id="input"
+            className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+          />
         </label>
-        <textarea
-          id="input"
-          className="w-full min-h-[8rem] resize-y p-2 border rounded dark:bg-gray-700 dark:text-gray-200"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-        />
       </div>
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded dark:bg-red-900 dark:text-red-200">
+        <InfoBox title="Error" variant="error" className="mb-4">
           {error}
-        </div>
+        </InfoBox>
       )}
       <div className="mb-4 flex flex-col gap-2">
         <span className="font-semibold text-gray-700 dark:text-gray-300">Mode: {mode === 'encrypt' ? 'Encrypt' : 'Decrypt'}</span>
-        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-        <label htmlFor="output" className="text-gray-700 dark:text-gray-300">Output</label>
-        <textarea
-          id="output"
-          readOnly
-          className="w-full min-h-[8rem] resize-y p-2 border rounded bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
-          value={output}
-        />
-        <button
-          type="button"
-          aria-label="Copy output"
-          title="Copy output"
-          className="self-start px-2 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded"
-          onClick={copyOutput}
-        >
+        <label htmlFor="output" className="text-gray-700 dark:text-gray-300">
+          Output
+          <textarea
+            id="output"
+            readOnly
+            className="w-full min-h-[8rem] resize-y p-2 border rounded bg-gray-50 dark:bg-gray-900 dark:text-gray-200"
+            value={output}
+          />
+        </label>
+        <Button variant="secondary" size="sm" onClick={copyOutput} className="self-start">
           📋 Copy
-        </button>
+        </Button>
       </div>
       <div className="flex flex-col gap-2 flex-wrap md:flex-nowrap md:flex-row">
-        <button
-          type="button"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={toggleMode}
-          aria-label="Toggle between Encrypt and Decrypt"
-          title="Toggle between Encrypt and Decrypt"
-        >
+        <Button variant="primary" onClick={toggleMode}>
           Switch to {mode === 'encrypt' ? 'Decrypt' : 'Encrypt'}
-        </button>
-        <button
-          type="button"
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-          onClick={generateKeyPair}
-          aria-label="Generate Key"
-          title="Creates a secure random key"
-        >
-          {algorithm === 'aes-cbc' || algorithm === 'aes-gcm'
-            ? 'Generate Key'
-            : 'Generate Keys'}
-        </button>
-        <button
-          type="button"
-          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-          onClick={saveCurrentKey}
-          aria-label="Save Key"
-          title="Temporarily stores key in browser memory"
-        >
-          Save Key
-        </button>
-        <button
-          type="button"
-
-          className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
-          onClick={clear}
-          aria-label="Clear"
-          title="Resets all inputs"
-        >
-          Clear
-        </button>
+        </Button>
+        <Button variant="success" onClick={generateKeyPair}>
+          {algorithm === 'aes-cbc' || algorithm === 'aes-gcm' ? 'Generate Key' : 'Generate Keys'}
+        </Button>
+        <Button variant="info" onClick={saveCurrentKey}>Save Key</Button>
+        <Button variant="secondary" onClick={clear}>Clear</Button>
       </div>
     </div>
   );
