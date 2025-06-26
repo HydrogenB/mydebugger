@@ -1,3 +1,6 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen } from '../src/test-utils/test-utils';
@@ -34,7 +37,7 @@ beforeAll(() => {
 describe('Home page', () => {
   it('renders hero heading', () => {
     render(<Home />);
-    const heading = screen.getByRole('heading', { name: /hyper seo/i });
+    const heading = screen.getByRole('heading', { name: /developer tools/i });
     expect(heading).toBeInTheDocument();
   });
 });

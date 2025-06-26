@@ -211,7 +211,7 @@ const Home: React.FC = () => {
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
         <h1 id="hero-heading" className="text-center text-3xl sm:text-4xl font-extrabold gradient-text mb-6">
-          Developer Tools for Hyper SEO
+          Developer tools
         </h1>
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
