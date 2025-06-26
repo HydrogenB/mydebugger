@@ -207,7 +207,10 @@ const Home: React.FC = () => {
         <meta name="twitter:title" content="MyDebugger - Web Developer Tools" />
         <meta name="twitter:description" content="Essential developer toolkit for modern web development" />
         <meta name="robots" content="index,follow" />
-        <script type="application/ld+json">{JSON.stringify(schemaData)}</script>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        />
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
         <h1 id="hero-heading" className="text-center text-3xl sm:text-4xl font-extrabold gradient-text mb-6">
