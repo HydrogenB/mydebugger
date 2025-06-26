@@ -206,4 +206,4 @@ Verify browser support for Service Workers and Web Push, create a push subscript
 import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
 ```
 
-Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤200KB) and expand it right in the browser. Access this tool at `/generate-large-image`.
+Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤1MB) and expand it right in the browser. Access this tool at `/generate-large-image`.

@@ -45,7 +45,7 @@ function GenerateLargeImageView({
         onDragOver={(e) => e.preventDefault()}
       >
         <label htmlFor="file" className={`block text-sm font-medium ${dropClasses}`}>
-          Upload Image (≤200KB)
+          Upload Image (≤1MB)
           <input id="file" type="file" accept="image/jpeg,image/png" onChange={handleFile} className="mt-2" />
           <p className="text-xs text-gray-500">Drag & drop or click to select</p>
         </label>
