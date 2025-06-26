@@ -8,6 +8,8 @@ import { StorageArea } from '../viewmodel/useStorageDebugger';
 interface Props {
   tab: StorageArea;
   setTab: (a: StorageArea) => void;
+  search: string;
+  setSearch: (v: string) => void;
   entries: StorageEntry[];
   editEntry: (key: string, value: string, area: StorageArea) => void;
   removeEntry: (key: string, area: StorageArea) => void;
@@ -23,6 +25,8 @@ interface Props {
 export function StorageDebuggerView({
   tab,
   setTab,
+  search,
+  setSearch,
   entries,
   editEntry,
   removeEntry,
@@ -36,7 +40,7 @@ export function StorageDebuggerView({
 }: Props) {
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4 items-center">
         <button
           type="button"
           onClick={() => setTab('localStorage')}
@@ -59,6 +63,14 @@ export function StorageDebuggerView({
         >
           SessionStorage
         </button>
+        <input
+          type="text"
+          aria-label="Search entries"
+          placeholder="Search"
+          className="border px-2 py-1 rounded w-full sm:w-48 dark:bg-gray-800"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         <div className="flex-1" />
         <button
           type="button"
