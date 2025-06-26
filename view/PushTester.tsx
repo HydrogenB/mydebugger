@@ -2,12 +2,15 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { Card } from '../src/design-system/components/layout/Card';
+import { Collapsible } from '../src/design-system/components/layout/Collapsible';
+import { Button, TextInput } from '../src/design-system/components/inputs';
 import { usePushTester } from '../viewmodel/usePushTester';
 
 export default function PushTester() {
   const {
     support,
+    registration,
     subscription,
     payload,
     setPayload,
@@ -32,94 +35,92 @@ export default function PushTester() {
 
   return (
     <div className="space-y-4">
-      <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
-        <h2 className="font-semibold">Support</h2>
-        <ul className="text-sm list-disc ml-4">
-          <li>Secure Context: {support.secure ? '✅' : '❌'}</li>
-          <li>Service Worker: {support.serviceWorker ? '✅' : '❌'}</li>
-          <li>PushManager: {support.pushManager ? '✅' : '❌'}</li>
-          <li>Notification: {support.notification ? '✅' : '❌'}</li>
-        </ul>
-      </div>
-
-      <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
-        <label htmlFor="vapid" className="block text-sm font-medium">
-          VAPID Public Key
-          <input
+      <Card shadowed>
+        <Card.Header title="Setup Web Push" />
+        <Card.Body className="space-y-4">
+          <ul className="text-sm list-disc ml-4">
+            <li>Secure Context: {support.secure ? '✅' : '❌'}</li>
+            <li>Service Worker: {support.serviceWorker ? '✅' : '❌'}</li>
+            <li>PushManager: {support.pushManager ? '✅' : '❌'}</li>
+            <li>Notification: {support.notification ? '✅' : '❌'}</li>
+          </ul>
+          <TextInput
             id="vapid"
-            type="text"
-            className="w-full rounded-md border-gray-300 p-2 mt-1"
+            label="VAPID Public Key"
             value={vapidKey}
             onChange={(e) => setVapidKey(e.target.value)}
             placeholder="Base64 encoded VAPID key"
+            fullWidth
           />
-        </label>
-        <button type="button" onClick={register} className="px-3 py-1 bg-primary-500 text-white rounded-md">
-          Register Service Worker
-        </button>
-        <button type="button" onClick={subscribe} className="px-3 py-1 bg-primary-500 text-white rounded-md">
-          Subscribe
-        </button>
-      </div>
+          <div className="flex gap-2">
+            <Button
+              onClick={register}
+              isDisabled={!support.serviceWorker || !!registration}
+            >
+              Register SW
+            </Button>
+            <Button
+              onClick={subscribe}
+              isDisabled={!registration || !!subscription}
+            >
+              Subscribe
+            </Button>
+          </div>
+        </Card.Body>
+      </Card>
 
-        {subscription && (
-          <div className={`${TOOL_PANEL_CLASS} space-y-3`}>
-          <label htmlFor="title" className="block text-sm font-medium">
-            Notification Title
-            <input
+      {subscription && (
+        <Card shadowed>
+          <Card.Header title="Send Test Notification" />
+          <Card.Body className="space-y-4">
+            <TextInput
               id="title"
-              type="text"
-              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              label="Notification Title"
               value={payload.title}
               onChange={(e) => setPayload({ ...payload, title: e.target.value })}
+              fullWidth
             />
-          </label>
-          <label htmlFor="body" className="block text-sm font-medium">
-            Notification Body
-            <textarea
+            <TextInput
               id="body"
-              className="w-full rounded-md border-gray-300 p-2 mt-1"
+              label="Notification Body"
               value={payload.body}
               onChange={(e) => setPayload({ ...payload, body: e.target.value })}
-              rows={2}
+              fullWidth
             />
-          </label>
-          <button
-            type="button"
-            onClick={sendPush}
-            className="px-3 py-1 bg-primary-500 text-white rounded-md"
-          >
-            Send test push
-          </button>
-          <button
-            type="button"
-            onClick={copySubscription}
-            className="px-3 py-1 bg-gray-200 rounded-md"
-          >
-            Copy Subscription
-          </button>
-          </div>
-        )}
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={sendPush}>Send push</Button>
+              <Button variant="secondary" onClick={copySubscription}>
+                Copy Subscription
+              </Button>
+            </div>
+            <Collapsible title="View Subscription">
+              <pre className="text-xs whitespace-pre-wrap break-all">
+                {JSON.stringify(subscription, null, 2)}
+              </pre>
+            </Collapsible>
+          </Card.Body>
+        </Card>
+      )}
 
-      <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
-        <h2 className="font-semibold">Status</h2>
-        <ol className="space-y-1 text-sm ml-4">
-          {steps.map((step, idx) => (
-            <li key={step.key} className="flex items-center space-x-1">
-              <span>{statusIndex >= idx ? '✅' : '⬜'}</span>
-              <span>{step.label}</span>
-            </li>
-          ))}
-        </ol>
-        <button type="button" onClick={cleanup} className="px-3 py-1 bg-gray-200 rounded-md">
-          Cleanup
-        </button>
-        <div className="text-xs text-gray-500 whitespace-pre-wrap">
-          {logs.map((l) => (
-            <div key={l}>{l}</div>
-          ))}
-        </div>
-      </div>
+      <Card shadowed>
+        <Card.Header title="Status" />
+        <Card.Body className="space-y-4">
+          <ol className="space-y-1 text-sm ml-4">
+            {steps.map((step, idx) => (
+              <li key={step.key} className="flex items-center gap-2">
+                <span>{statusIndex >= idx ? '✅' : '⬜'}</span>
+                <span>{step.label}</span>
+              </li>
+            ))}
+          </ol>
+          <Button variant="secondary" onClick={cleanup}>Cleanup</Button>
+          <Collapsible title="Logs">
+            <pre className="text-xs whitespace-pre-wrap">
+              {logs.join('\n')}
+            </pre>
+          </Collapsible>
+        </Card.Body>
+      </Card>
     </div>
   );
 };
