@@ -35,8 +35,8 @@ export const useGenerateLargeImage = () => {
       setError('Only JPG or PNG images allowed');
       return;
     }
-    if (f.size > 200 * 1024) {
-      setError('Image must be 200KB or smaller');
+    if (f.size > 1 * 1024 * 1024) {
+      setError('Image must be 1MB or smaller');
       return;
     }
     setError('');
