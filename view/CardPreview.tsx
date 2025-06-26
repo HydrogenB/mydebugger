@@ -28,7 +28,7 @@ function CardPreview({
   download,
 }: CardPreviewProps) {
   return (
-    <div className="relative w-full max-w-sm mx-auto border rounded-xl shadow-md bg-white p-6 text-center space-y-2">
+    <div className="relative w-full max-w-sm mx-auto border rounded-xl shadow-md bg-white p-6 pb-16 text-center space-y-2">
       <div className="bg-black text-white text-sm font-semibold py-1 rounded">
         {organization || fullName || 'KOKTAIL'}
       </div>
@@ -97,7 +97,7 @@ function CardPreview({
           </a>
         )}
       </div>
-      <div className="absolute bottom-2 right-4 flex gap-4 text-xl text-gray-500">
+      <div className="absolute bottom-4 right-4 flex gap-4 text-xl text-gray-500">
         <a href="https://github.com" aria-label="GitHub">
           <FaGithub />
         </a>
