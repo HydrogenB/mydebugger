@@ -403,7 +403,7 @@ const Home: React.FC = () => {
                 View All
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-8">
               {recentTools.map(tool => (
                 <Link
                   key={`recent-${tool.id}`}
@@ -450,8 +450,8 @@ const Home: React.FC = () => {
 
           {isLoading ? (
             // Skeleton loading state
-            <div className={viewMode === 'grid' ? 
-              "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6" :
+            <div className={viewMode === 'grid' ?
+              "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-8" :
               "space-y-3"
             }>
               {Array.from({ length: 6 }).map((_, i) => (
@@ -477,7 +477,7 @@ const Home: React.FC = () => {
             </div>
           ) : visibleTools.length > 0 ? (
             viewMode === 'grid' ? (
-              <Grid columns={{ base: 1, sm: 2, md: 3 }} gap="lg">
+              <Grid columns={{ base: 1, sm: 2, md: 3 }} gap={{ x: 'lg', y: 'xl' }}>
                 {visibleTools.map(tool => (
                   <Link
                     key={tool.id}
@@ -626,7 +626,7 @@ const Home: React.FC = () => {
           {/* Categories Navigation */}
         <section className="mb-12">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-5">Browse by Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-8">
             {categories.map(category => {
               const meta = categoryInfo[category as ToolCategory];
               return (
