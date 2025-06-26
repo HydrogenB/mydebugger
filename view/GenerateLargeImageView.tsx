@@ -4,8 +4,9 @@
 import React, { ChangeEvent, DragEvent } from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { UseGenerateLargeImageReturn } from '../viewmodel/useGenerateLargeImage';
+import { ProgressBar, Alert } from '../src/design-system/components/feedback';
 
-const dropClasses = 'border-2 border-dashed border-gray-300 p-4 rounded-md text-center';
+const dropClasses = 'border-2 border-dashed border-gray-300 p-6 rounded-md text-center bg-gray-50 dark:bg-gray-700 hover:border-primary-400 dark:hover:border-primary-500 transition-colors';
 
 function GenerateLargeImageView({
   previewUrl,
@@ -39,35 +40,46 @@ function GenerateLargeImageView({
 
   return (
     <div className="space-y-4">
-      <div
-        className={`${TOOL_PANEL_CLASS} space-y-2`}
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-      >
-        <label htmlFor="file" className={`block text-sm font-medium ${dropClasses}`}>
-          Upload Image (≤1MB)
-          <input id="file" type="file" accept="image/jpeg,image/png" onChange={handleFile} className="mt-2" />
-          <p className="text-xs text-gray-500">Drag & drop or click to select</p>
-        </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {file && (
-          <div className="text-sm space-y-2">
-            <p>Name: {file.name}</p>
-            <p>Resolution: {width} × {height}</p>
-            <p>Size: {sizeKB} KB</p>
-            {previewUrl && (
-              <img src={previewUrl} alt="preview" className="max-h-40 rounded" />
-            )}
-          </div>
-        )}
-      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div
+          className={`${TOOL_PANEL_CLASS} space-y-2`}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+        >
+          <label htmlFor="file" className={`block text-sm font-medium ${dropClasses}`}> 
+            Upload Image (≤1MB)
+            <input
+              id="file"
+              type="file"
+              accept="image/jpeg,image/png"
+              onChange={handleFile}
+              className="mt-2"
+            />
+            <p className="text-xs text-gray-500">Drag & drop or click to select</p>
+          </label>
+          {error && (
+            <Alert type="error" className="text-sm">
+              {error}
+            </Alert>
+          )}
+          {file && (
+            <div className="text-sm space-y-2">
+              <p>Name: {file.name}</p>
+              <p>Resolution: {width} × {height}</p>
+              <p>Size: {sizeKB} KB</p>
+              {previewUrl && (
+                <img src={previewUrl} alt="preview" className="max-h-40 rounded" />
+              )}
+            </div>
+          )}
+        </div>
 
-      <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
-        <label htmlFor="target-size" className="block text-sm font-medium">
-          Target size (MB)
-          <select
-            id="target-size"
-            value={targetSizeMB}
+        <div className={`${TOOL_PANEL_CLASS} space-y-2`}>
+          <label htmlFor="target-size" className="block text-sm font-medium">
+            Target size (MB)
+            <select
+              id="target-size"
+              value={targetSizeMB}
             onChange={(e) => setTargetSizeMB(parseFloat(e.target.value))}
             className="border p-2 rounded-md w-full"
           >
@@ -135,7 +147,7 @@ function GenerateLargeImageView({
           Generate
         </button>
         {progress > 0 && (
-          <p className="text-sm">Generating... {progress}%</p>
+          <ProgressBar value={progress} className="mt-2" />
         )}
         {outputUrl && (
           <div className="text-sm">
@@ -153,6 +165,7 @@ function GenerateLargeImageView({
             </a>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

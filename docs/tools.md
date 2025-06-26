@@ -207,3 +207,4 @@ import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
 ```
 
 Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤1MB) and expand it right in the browser. Access this tool at `/generate-large-image`.
+The interface now features a drag‑and‑drop upload area, a progress bar for generation and improved layout on larger screens.
