@@ -106,6 +106,7 @@ import StorageSyncPage from "../src/tools/storage-sync";
 Use the Storage Sync Debugger to inspect and modify `localStorage` and `sessionStorage` in real time. Entries update live across tabs thanks to the browser `storage` event. Data can be exported as JSON for further analysis.
 
 Advanced features include a live sync monitor across tabs, inline JSON validation, `.env` export and a diff mode that compares your storage with another tab using the BroadcastChannel API.
+The UI now includes a debounced search box to quickly filter keys and values.
 
 ## Header Scanner
 

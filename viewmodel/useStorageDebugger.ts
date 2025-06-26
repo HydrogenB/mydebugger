@@ -16,12 +16,19 @@ export type StorageArea = 'localStorage' | 'sessionStorage';
 export const useStorageDebugger = () => {
   const [entries, setEntries] = useState<StorageEntry[]>([]);
   const [tab, setTab] = useState<StorageArea>('localStorage');
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('');
   const [events, setEvents] = useState<string[]>([]);
   const [highlights, setHighlights] = useState<Record<string, 'changed' | 'removed'>>({});
   const [diff, setDiff] = useState<DiffResult | null>(null);
   const pending = useRef<Record<string, { value: string; area: StorageArea }>>({});
   const timer = useRef<number>();
   const channelRef = useRef<BroadcastChannel | null>(null);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setFilter(search), 300);
+    return () => window.clearTimeout(id);
+  }, [search]);
 
   const refresh = () => {
     setEntries(getStorageSnapshot());
@@ -133,7 +140,16 @@ export const useStorageDebugger = () => {
   return {
     tab,
     setTab,
-    entries: entries.filter((e) => e.area === tab),
+    search,
+    setSearch,
+    entries: entries
+      .filter((e) => e.area === tab)
+      .filter(
+        (e) =>
+          !filter ||
+          e.key.toLowerCase().includes(filter.toLowerCase()) ||
+          e.value.toLowerCase().includes(filter.toLowerCase()),
+      ),
     editEntry,
     removeEntry,
     exportJson,

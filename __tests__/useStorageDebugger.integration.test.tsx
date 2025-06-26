@@ -68,4 +68,24 @@ describe('useStorageDebugger', () => {
     });
     expect(result.current.events.length).toBeGreaterThan(0);
   });
+
+  it('filters entries by search query', () => {
+    const { result } = renderHook(() => useStorageDebugger());
+    act(() => {
+      result.current.editEntry('foo', '1', 'localStorage');
+      result.current.editEntry('bar', '2', 'localStorage');
+    });
+    act(() => {
+      jest.advanceTimersByTime(350);
+    });
+    expect(result.current.entries.length).toBe(2);
+    act(() => {
+      result.current.setSearch('foo');
+    });
+    act(() => {
+      jest.advanceTimersByTime(350);
+    });
+    expect(result.current.entries.length).toBe(1);
+    expect(result.current.entries[0].key).toBe('foo');
+  });
 });
