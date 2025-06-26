@@ -52,7 +52,7 @@ const VirtualCardHero = forwardRef<VirtualCardHeroHandle, Props>(({
   return (
     <div
       ref={rootRef}
-      className="relative mx-auto my-6 w-full max-w-sm aspect-[16/10] [perspective:1000px]"
+      className="relative mx-auto my-6 w-full max-w-sm [perspective:1000px]"
     >
       <div
         role="button"
