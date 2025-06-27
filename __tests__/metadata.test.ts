@@ -53,5 +53,22 @@ describe("getAdvancedMetadata", () => {
     expect(adv.battery?.level).toBe(0.5);
     expect(adv.geo?.latitude).toBe(1);
     expect(adv.gpu).toBe("GPU");
+    expect(adv.errors).toEqual({});
+  });
+
+  it("reports errors when APIs are unavailable", async () => {
+    const adv = await getAdvancedMetadata({
+      navigator: {} as any,
+      screen: {} as any,
+      location: {} as any,
+      document: {} as any,
+      window: {} as any,
+      canvas: { getContext: () => null } as any,
+    });
+    expect(adv.connectionType).toBeUndefined();
+    expect(adv.errors.connection).toBeDefined();
+    expect(adv.errors.battery).toBeDefined();
+    expect(adv.errors.geo).toBeDefined();
+    expect(adv.errors.gpu).toBeDefined();
   });
 });

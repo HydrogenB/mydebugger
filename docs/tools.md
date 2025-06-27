@@ -229,3 +229,4 @@ import MetadataEchoPage from "../src/tools/metadata-echo/page";
 ```
 
 Display client metadata such as user agent, platform, timezone and screen resolution. Optionally load advanced details like network connection, battery status or geolocation. Access it at `/metadata-echo`.
+Unavailable fields show a short error reason instead of being hidden.

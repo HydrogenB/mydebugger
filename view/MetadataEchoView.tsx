@@ -39,20 +39,33 @@ function MetadataEchoView({
             {row("Touch Support", String(basic.touchSupport))}
             {row("Referrer", basic.referrer || "N/A")}
             {row("Page URL", basic.pageUrl)}
-            {advanced?.connectionType &&
-              row("Connection", advanced.connectionType)}
-            {advanced?.downlink && row("Downlink", `${advanced.downlink} Mbps`)}
-            {advanced?.battery &&
+            {advanced &&
+              row(
+                "Connection",
+                advanced.connectionType ?? advanced.errors.connection ?? "N/A",
+              )}
+            {advanced &&
+              row(
+                "Downlink",
+                advanced.downlink !== undefined
+                  ? `${advanced.downlink} Mbps`
+                  : advanced.errors.connection ?? "N/A",
+              )}
+            {advanced &&
               row(
                 "Battery",
-                `${Math.round(advanced.battery.level * 100)}% ${advanced.battery.charging ? "charging" : "discharging"}`,
+                advanced.battery
+                  ? `${Math.round(advanced.battery.level * 100)}% ${advanced.battery.charging ? "charging" : "discharging"}`
+                  : advanced.errors.battery ?? "N/A",
               )}
-            {advanced?.geo &&
+            {advanced &&
               row(
                 "Location",
-                `${advanced.geo.latitude.toFixed(4)}, ${advanced.geo.longitude.toFixed(4)} ±${advanced.geo.accuracy}m`,
+                advanced.geo
+                  ? `${advanced.geo.latitude.toFixed(4)}, ${advanced.geo.longitude.toFixed(4)} ±${advanced.geo.accuracy}m`
+                  : advanced.errors.geo ?? "N/A",
               )}
-            {advanced?.gpu && row("GPU", advanced.gpu)}
+            {advanced && row("GPU", advanced.gpu ?? advanced.errors.gpu ?? "N/A")}
           </tbody>
         </table>
         {!advanced && (

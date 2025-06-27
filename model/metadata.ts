@@ -30,12 +30,20 @@ export interface GeoInfo {
   accuracy: number;
 }
 
+export interface AdvancedMetadataErrors {
+  connection?: string;
+  battery?: string;
+  geo?: string;
+  gpu?: string;
+}
+
 export interface AdvancedMetadata {
   connectionType?: string;
   downlink?: number;
   battery?: BatteryInfo;
   geo?: GeoInfo;
   gpu?: string;
+  errors: AdvancedMetadataErrors;
 }
 
 interface ConnectionLike {
@@ -85,21 +93,25 @@ export const getAdvancedMetadata = async (
   env: Partial<Env> = {},
 ): Promise<AdvancedMetadata> => {
   const e = { ...defaultEnv(), ...env } as Env;
-  const adv: AdvancedMetadata = {};
+  const adv: AdvancedMetadata = { errors: {} };
 
   const conn = e.navigator.connection;
   if (conn) {
     adv.connectionType = conn.effectiveType;
     adv.downlink = conn.downlink;
+  } else {
+    adv.errors.connection = "Network Information API unavailable";
   }
 
   if (typeof e.navigator.getBattery === "function") {
     try {
       const battery = await e.navigator.getBattery();
       adv.battery = { level: battery.level, charging: battery.charging };
-    } catch {
-      // ignore
+    } catch (err: unknown) {
+      adv.errors.battery = err instanceof Error ? err.message : "Battery API error";
     }
+  } else {
+    adv.errors.battery = "Battery API unsupported";
   }
 
   if (e.navigator.geolocation?.getCurrentPosition) {
@@ -112,9 +124,11 @@ export const getAdvancedMetadata = async (
         longitude: pos.coords.longitude,
         accuracy: pos.coords.accuracy,
       };
-    } catch {
-      // user denied
+    } catch (err: unknown) {
+      adv.errors.geo = err instanceof Error ? err.message : "Geolocation error";
     }
+  } else {
+    adv.errors.geo = "Geolocation API unsupported";
   }
 
   try {
@@ -131,9 +145,11 @@ export const getAdvancedMetadata = async (
       } else {
         adv.gpu = gl.getParameter((gl as WebGLRenderingContext).RENDERER);
       }
+    } else {
+      adv.errors.gpu = "WebGL not supported";
     }
-  } catch {
-    // ignore
+  } catch (err: unknown) {
+    adv.errors.gpu = err instanceof Error ? err.message : "WebGL error";
   }
 
   return adv;
