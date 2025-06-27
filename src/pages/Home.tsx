@@ -34,10 +34,21 @@ const Home: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [pinnedTools, setPinnedTools] = useState<Tool[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
-  
+
   const allTools = useMemo(() => getTools(), []);
   const categories = useMemo(() => getAllCategories(), []);
   const popularTools = useMemo(() => getPopularTools(), []);
+  const schemaData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "MyDebugger",
+    url: "https://mydebugger.vercel.app/",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://mydebugger.vercel.app/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
   const observerRef = useRef<IntersectionObserver | null>(null);
   const toolsContainerRef = useRef<HTMLDivElement>(null);
   
@@ -195,8 +206,16 @@ const Home: React.FC = () => {
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content="MyDebugger - Web Developer Tools" />
         <meta name="twitter:description" content="Essential developer toolkit for modern web development" />
+        <meta name="robots" content="index,follow" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        />
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
+        <h1 id="hero-heading" className="text-center text-3xl sm:text-4xl font-extrabold gradient-text mb-6">
+          Developer tools
+        </h1>
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <svg className="h-5 w-5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
