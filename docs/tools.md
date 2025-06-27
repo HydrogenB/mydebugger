@@ -31,6 +31,7 @@ Every section starts with an import snippet showing the component location so yo
 - [API Simulator](#api-simulator)
 - [Network Test Suite](#network-test-suite)
 - [Image Compressor](#image-compressor)
+- [Metadata Echo](#metadata-echo)
 
 ## Crypto Lab
 
@@ -161,10 +162,11 @@ import VirtualCardPage from "../src/tools/virtual-card/page";
 Create a shareable contact card completely in-browser. The tool generates a `.vcf` download, QR code, and URL with base64 encoded data that pre-fills the form when opened.
 It now supports organization, title, website and address fields, renders a preview business card and can download the card as a PNG image. Opening a link with `?data=` switches to view-only mode showing just the card.
 Access this tool at `/vcard`.
+
 ## Pre-rendering & SEO Meta Tester
 
 ```tsx
-import PreRenderingTesterPage from '../src/tools/pre-rendering-tester/page';
+import PreRenderingTesterPage from "../src/tools/pre-rendering-tester/page";
 ```
 
 Analyze how Googlebot, Bingbot, FacebookBot and real browsers render your page metadata. Fetch HTML snapshots, compare title, description and H1 consistency, then export results or raw markup for further debugging.
@@ -172,7 +174,7 @@ Analyze how Googlebot, Bingbot, FacebookBot and real browsers render your page m
 ## Fetch & Render Tool
 
 ```tsx
-import FetchRenderPage from '../src/tools/fetch-render/page';
+import FetchRenderPage from "../src/tools/fetch-render/page";
 ```
 
 Simulate JavaScript rendering in a sandboxed iframe. Set a timeout before capture, inspect console output and export the rendered DOM to clipboard or file for further analysis.
@@ -198,16 +200,15 @@ Quickly encode or decode URL components. Choose between `encodeURIComponent`, `e
 ## PWA Push Tester
 
 ```tsx
-import PushTesterPage from '../src/tools/push-tester/page';
+import PushTesterPage from "../src/tools/push-tester/page";
 ```
 
 Verify browser support for Service Workers and Web Push, create a push subscription with your own VAPID public key and send a test notification via an in-house edge function. Access this tool at `/push-tester`.
 
-
 ## Generate Large Image
 
 ```tsx
-import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
+import GenerateLargeImagePage from "../src/tools/generate-large-image/page";
 ```
 
 Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤1MB) and expand it right in the browser. Access this tool at `/generate-large-image`.
@@ -232,9 +233,18 @@ The UI integrates card components with progress bars and badges for a streamline
 ## Image Compressor
 
 ```tsx
-import ImageCompressorPage from '../src/tools/image-compressor/page';
+import ImageCompressorPage from "../src/tools/image-compressor/page";
 ```
 
 Compress JPG or PNG files entirely in the browser. Choose a target file size in kilobytes,
 resize the resolution or reduce color depth before downloading the optimized image.
 The tool also reveals the Base64 representation of the compressed output. Access it at `/image-compressor`.
+
+## Metadata Echo
+
+```tsx
+import MetadataEchoPage from "../src/tools/metadata-echo/page";
+```
+
+Display client metadata such as user agent, platform, timezone and screen resolution. Optionally load advanced details like network connection, battery status or geolocation. Access it at `/metadata-echo`.
+Unavailable fields show a short error reason instead of being hidden.

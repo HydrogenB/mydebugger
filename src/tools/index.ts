@@ -473,71 +473,80 @@ const toolRegistry: Tool[] = [
     uiOptions: { showExamples: false },
   },
   {
-    id: 'pre-rendering-tester',
-    route: '/pre-rendering-tester',
-    title: 'Pre-rendering & SEO Meta Tester',
+    id: "pre-rendering-tester",
+    route: "/pre-rendering-tester",
+    title: "Pre-rendering & SEO Meta Tester",
     description:
-      'Test how Googlebot, Bingbot, Facebook, and real users see your web content — including title, description and H1 rendering.',
+      "Test how Googlebot, Bingbot, Facebook, and real users see your web content — including title, description and H1 rendering.",
     icon: TestingIcon,
-    component: lazy(() => import('./pre-rendering-tester/page')),
-    category: 'Testing',
+    component: lazy(() => import("./pre-rendering-tester/page")),
+    category: "Testing",
     metadata: {
-      keywords: ['seo', 'prerender', 'crawler', 'meta description', 'user-agent'],
-      relatedTools: ['fetch-render'],
+      keywords: [
+        "seo",
+        "prerender",
+        "crawler",
+        "meta description",
+        "user-agent",
+      ],
+      relatedTools: ["fetch-render"],
     },
-    uiOptions: { showExamples: false }
-  },  {
-    id: 'fetch-render',
-    route: '/fetch-render',
-    title: 'Fetch & Render',
-    description: 'Emulate JS rendering and capture DOM.',
-    icon: TestingIcon,
-    component: lazy(() => import('./fetch-render/page')),
-    category: 'Testing',
-    metadata: {
-      keywords: ['seo', 'render', 'javascript', 'dom snapshot'],
-      relatedTools: ['pre-rendering-tester'],
-    },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
   },
   {
-    id: 'permission-tester',
-    route: '/permission-tester',
-    title: 'Web Permission Tester',
-    description: 'Request, inspect, and test browser permissions with live previews and code snippets.',
+    id: "fetch-render",
+    route: "/fetch-render",
+    title: "Fetch & Render",
+    description: "Emulate JS rendering and capture DOM.",
+    icon: TestingIcon,
+    component: lazy(() => import("./fetch-render/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["seo", "render", "javascript", "dom snapshot"],
+      relatedTools: ["pre-rendering-tester"],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "permission-tester",
+    route: "/permission-tester",
+    title: "Web Permission Tester",
+    description:
+      "Request, inspect, and test browser permissions with live previews and code snippets.",
     icon: SecurityIcon,
-    component: lazy(() => import('./permission-tester/page')),
-    category: 'Testing',
+    component: lazy(() => import("./permission-tester/page")),
+    category: "Testing",
     isNew: true,
     metadata: {
       keywords: [
-        'permissions',
-        'browser permissions',
-        'geolocation',
-        'camera',
-        'microphone',
-        'notifications',
-        'clipboard',
-        'api testing',
-        'web api',
-        'permission state'
+        "permissions",
+        "browser permissions",
+        "geolocation",
+        "camera",
+        "microphone",
+        "notifications",
+        "clipboard",
+        "api testing",
+        "web api",
+        "permission state",
       ],
-      learnMoreUrl: 'https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API',
-      relatedTools: ['headers-analyzer', 'cors-tester'],
+      learnMoreUrl:
+        "https://developer.mozilla.org/en-US/docs/Web/API/Permissions_API",
+      relatedTools: ["headers-analyzer", "cors-tester"],
     },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
   },
   {
-    id: 'push-tester',
-    route: '/push-tester',
-    title: 'PWA Push Tester',
-    description: 'Verify Web Push capability end-to-end.',
+    id: "push-tester",
+    route: "/push-tester",
+    title: "PWA Push Tester",
+    description: "Verify Web Push capability end-to-end.",
     icon: PushIcon,
-    component: lazy(() => import('./push-tester/page')),
-    category: 'Testing',
+    component: lazy(() => import("./push-tester/page")),
+    category: "Testing",
     metadata: {
-      keywords: ['push', 'notification', 'service worker'],
-      relatedTools: ['permission-tester'],
+      keywords: ["push", "notification", "service worker"],
+      relatedTools: ["permission-tester"],
     },
     uiOptions: { showExamples: false },
   },
@@ -551,9 +560,9 @@ const toolRegistry: Tool[] = [
     category: "Testing",
     metadata: {
       keywords: ["image", "upload", "test", "dummy"],
-      relatedTools: []
+      relatedTools: [],
     },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
   },
   {
     id: 'api-simulator',
@@ -593,9 +602,23 @@ const toolRegistry: Tool[] = [
     category: "Utilities",
     metadata: {
       keywords: ["image", "compress", "resize", "optimize"],
-      relatedTools: ["generate-large-image"]
+      relatedTools: ["generate-large-image"],
     },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "metadata-echo",
+    route: "/metadata-echo",
+    title: "Metadata Echo",
+    description: "Display browser metadata for debugging.",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./metadata-echo/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["browser", "metadata", "user agent", "device"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
   },
 ];
 
@@ -605,7 +628,7 @@ export default toolRegistry;
 // Returns the list of tools shown on the Home screen
 // JWT Toolkit remains available via direct route but is hidden from listings
 export const getTools = (): Tool[] =>
-  toolRegistry.filter((tool) => tool.id !== 'jwt-toolkit');
+  toolRegistry.filter((tool) => tool.id !== "jwt-toolkit");
 
 // Helper functions to work with the tool registry
 export const getToolByRoute = (route: string): Tool | undefined =>
@@ -630,9 +653,11 @@ export const getRelatedTools = (toolId: string): Tool[] => {
 export const getPopularTools = (): Tool[] =>
   getTools().filter((tool) => tool.isPopular);
 
-export const getNewTools = (): Tool[] => getTools().filter((tool) => tool.isNew);
+export const getNewTools = (): Tool[] =>
+  getTools().filter((tool) => tool.isNew);
 
-export const getBetaTools = (): Tool[] => getTools().filter((tool) => tool.isBeta);
+export const getBetaTools = (): Tool[] =>
+  getTools().filter((tool) => tool.isBeta);
 
 export const getAllTools = (): Tool[] => {
   return toolRegistry;
