@@ -129,3 +129,21 @@ export const ContactCardIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const ImageCompressIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M4 16l4-4 4 4m8-8l-4 4-4-4"
+    />
+    <rect width="16" height="12" x="4" y="6" rx="2" ry="2" />
+  </svg>
+);
+
