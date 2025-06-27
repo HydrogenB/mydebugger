@@ -29,6 +29,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Web Permission Tester](#web-permission-tester)
 - [Generate Large Image](#generate-large-image)
 - [Network Test Suite](#network-test-suite)
+- [Image Compressor](#image-compressor)
 
 ## Crypto Lab
 
@@ -219,3 +220,12 @@ import NetworkSuitePage from '../src/tools/networksuit/page';
 
 Run quick network diagnostics entirely in the browser. It detects your connection type and technology tier, measures round-trip ping latency and estimates download throughput using a small test file. Access this tool at `/networksuit`.
 The UI integrates card components with progress bars and badges for a streamlined experience.
+## Image Compressor
+
+```tsx
+import ImageCompressorPage from '../src/tools/image-compressor/page';
+```
+
+Compress JPG or PNG files entirely in the browser. Choose a target file size in kilobytes,
+resize the resolution or reduce color depth before downloading the optimized image.
+The tool also reveals the Base64 representation of the compressed output. Access it at `/image-compressor`.
