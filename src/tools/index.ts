@@ -64,6 +64,7 @@ import {
   CacheIcon,
   PushIcon,
   ContactCardIcon,
+  ImageCompressIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -551,6 +552,20 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ["image", "upload", "test", "dummy"],
       relatedTools: []
+    },
+    uiOptions: { showExamples: false }
+  },
+  {
+    id: "image-compressor",
+    route: "/image-compressor",
+    title: "Image Compressor",
+    description: "Resize and compress images client-side.",
+    icon: ImageCompressIcon,
+    component: lazy(() => import("./image-compressor/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["image", "compress", "resize", "optimize"],
+      relatedTools: ["generate-large-image"]
     },
     uiOptions: { showExamples: false }
   },
