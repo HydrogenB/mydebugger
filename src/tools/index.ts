@@ -64,6 +64,7 @@ import {
   CacheIcon,
   PushIcon,
   ContactCardIcon,
+  ImageCompressIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -565,6 +566,34 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ['api', 'testing', 'mock', 'delay', 'status'],
       relatedTools: ['headers-analyzer', 'cors-tester']
+    },
+  uiOptions: { showExamples: false }
+},
+  {
+    id: 'network-suit',
+    route: '/networksuit',
+    title: 'Network Test Suite',
+    description: 'Check connection type, ping and download speed.',
+    icon: TestingIcon,
+    component: lazy(() => import('./networksuit/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['network', 'ping', 'speed', 'connection'],
+      relatedTools: []
+    },
+  uiOptions: { showExamples: false }
+  },
+  {
+    id: "image-compressor",
+    route: "/image-compressor",
+    title: "Image Compressor",
+    description: "Resize and compress images client-side.",
+    icon: ImageCompressIcon,
+    component: lazy(() => import("./image-compressor/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["image", "compress", "resize", "optimize"],
+      relatedTools: ["generate-large-image"]
     },
     uiOptions: { showExamples: false }
   },
