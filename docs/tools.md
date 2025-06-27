@@ -28,6 +28,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Virtual Name Card](#virtual-name-card)
 - [Web Permission Tester](#web-permission-tester)
 - [Generate Large Image](#generate-large-image)
+- [Network Test Suite](#network-test-suite)
 - [Image Compressor](#image-compressor)
 
 ## Crypto Lab
@@ -211,6 +212,14 @@ import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
 Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤1MB) and expand it right in the browser. Access this tool at `/generate-large-image`.
 The interface now features a drag‑and‑drop upload area, a progress bar for generation and improved layout on larger screens.
 
+## Network Test Suite
+
+```tsx
+import NetworkSuitePage from '../src/tools/networksuit/page';
+```
+
+Run quick network diagnostics entirely in the browser. It detects your connection type and technology tier, measures round-trip ping latency and estimates download throughput using a small test file. Access this tool at `/networksuit`.
+The UI integrates card components with progress bars and badges for a streamlined experience.
 ## Image Compressor
 
 ```tsx
