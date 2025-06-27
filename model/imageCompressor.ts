@@ -99,7 +99,8 @@ export const compressImage = async (
   }
   /* eslint-enable no-await-in-loop */
   const base64 = await blobToBase64(blob);
-  const base64SizeKB = Math.round((base64.length / 4) * 3 / 1024);
+  const encoded = base64.split(',')[1] ?? '';
+  const base64SizeKB = Math.round((encoded.length * 3) / 4 / 1024);
   return {
     blob,
     base64,
