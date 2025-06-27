@@ -28,6 +28,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Virtual Name Card](#virtual-name-card)
 - [Web Permission Tester](#web-permission-tester)
 - [Generate Large Image](#generate-large-image)
+- [Image Compressor](#image-compressor)
 
 ## Crypto Lab
 
@@ -209,3 +210,13 @@ import GenerateLargeImagePage from '../src/tools/generate-large-image/page';
 
 Generate dummy image files of 1MB, 5MB or 10MB for testing upload limits. Upload any small JPG or PNG (≤1MB) and expand it right in the browser. Access this tool at `/generate-large-image`.
 The interface now features a drag‑and‑drop upload area, a progress bar for generation and improved layout on larger screens.
+
+## Image Compressor
+
+```tsx
+import ImageCompressorPage from '../src/tools/image-compressor/page';
+```
+
+Compress JPG or PNG files entirely in the browser. Choose a target file size in kilobytes,
+resize the resolution or reduce color depth before downloading the optimized image.
+The tool also reveals the Base64 representation of the compressed output. Access it at `/image-compressor`.
