@@ -7,8 +7,10 @@
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/api/simulate", "destination": "/pages/api/simulate.js" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
+    { "source": "/api-simulator", "destination": "/pages/index.html" },
     { "source": "/(.+\\.(?:js|css|ico|json|png|jpg|jpeg|svg|webp))", "destination": "/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
@@ -17,36 +19,21 @@
     {
       "source": "/(assets|_next|static)/(.*)\\.(js)",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
       "source": "/assets/(.*)\\.(js)",
       "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript; charset=utf-8"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" },
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
     }
   ]
