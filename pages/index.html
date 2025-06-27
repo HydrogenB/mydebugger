@@ -1,0 +1,309 @@
+<!-- © 2025 MyDebugger Contributors – MIT License -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API Simulator – Encode & Mock Base64 JSON</title>
+  <meta name="description" content="Simulate API responses by encoding JSON into Base64, setting HTTP status, and random delays. Test with cURL or live preview.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="canonical" href="https://mydebugger.com/api-simulator">
+  <style>
+    body {font-family: Arial, Helvetica, sans-serif; margin: 20px; line-height: 1.5; color: #222;}
+    label {font-weight: bold; margin-top: 12px; display: block;}
+    textarea, input[type="number"], select {width: 100%; margin-top: 4px; padding: 6px; box-sizing: border-box;}
+    textarea[readonly] {background: #f8f9fa;}
+    fieldset {border: 1px solid #ccc; padding: 12px; margin-top: 16px;}
+    fieldset legend {font-weight: bold;}
+    .grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;}
+    button {margin-top: 8px; padding: 8px 12px; cursor: pointer;}
+    button:disabled {opacity: 0.6; cursor: not-allowed;}
+    .toast {color: #fff; background: #333; padding: 4px 8px; border-radius: 4px; display: none; margin-left: 8px;}
+    .valid {color: #28a745;}
+    .invalid {color: #dc3545;}
+    pre {background: #f3f3f3; padding: 10px; border-radius: 4px; overflow: auto; max-height: 300px;}
+    @media (max-width: 768px) {button, textarea, input, select {width: 100%;}}
+  </style>
+</head>
+<body>
+  <h1>API Simulator</h1>
+  <label for="presetSelector">🧪 Test Case Preset:</label>
+  <select id="presetSelector">
+    <option value="">-- Select a preset --</option>
+  </select>
+  <label for="jsonInput">JSON Input</label>
+  <textarea id="jsonInput" placeholder='{"status":"success","data":{"user":"Jirad"}}'></textarea>
+  <div id="jsonStatus" role="status" aria-live="polite" class="invalid">Invalid JSON</div>
+  <button id="encodeBtn">Encode</button>
+  <label for="base64Output">Base64 Preview</label>
+  <textarea id="base64Output" readonly></textarea>
+  <button id="copyB64">📋 Copy Base64<span id="b64Toast" class="toast" role="status" aria-live="assertive">Copied!</span></button>
+
+  <fieldset>
+    <legend>Request Configuration</legend>
+    <div class="grid">
+      <div>
+        <label for="method">HTTP Method</label>
+        <select id="method">
+          <option value="POST">POST</option>
+          <option value="GET">GET</option>
+        </select>
+      </div>
+      <div>
+        <label for="delayMin">Delay Min (ms)</label>
+        <input type="number" id="delayMin" value="300" min="0">
+      </div>
+      <div>
+        <label for="delayMax">Delay Max (ms)</label>
+        <input type="number" id="delayMax" value="1500" min="0">
+      </div>
+      <div>
+        <label for="forceStatus">Force HTTP Status</label>
+        <input type="number" id="forceStatus" value="200" min="100" max="599">
+      </div>
+      <div>
+        <label><input type="checkbox" id="simulateError"> Enable 20% random 4xx/5xx errors</label>
+      </div>
+    </div>
+  </fieldset>
+  <button id="simulateBtn">🔄 Simulate Now</button>
+
+  <h2>Generated cURL</h2>
+  <pre id="curlCmd"></pre>
+  <button id="copyCurl">📋 Copy cURL<span id="curlToast" class="toast" role="status" aria-live="assertive">Copied!</span></button>
+
+  <h2>Response</h2>
+  <pre id="response" aria-live="polite"></pre>
+
+  <script>
+    const presetSelector = document.getElementById('presetSelector');
+    const jsonInput = document.getElementById('jsonInput');
+    const base64Output = document.getElementById('base64Output');
+    const methodEl = document.getElementById('method');
+    const delayMinEl = document.getElementById('delayMin');
+    const delayMaxEl = document.getElementById('delayMax');
+    const forceStatusEl = document.getElementById('forceStatus');
+    const simulateErrorEl = document.getElementById('simulateError');
+    const curlCmdEl = document.getElementById('curlCmd');
+    const responseEl = document.getElementById('response');
+    const jsonStatus = document.getElementById('jsonStatus');
+    const b64Toast = document.getElementById('b64Toast');
+    const curlToast = document.getElementById('curlToast');
+    const simulateBtn = document.getElementById('simulateBtn');
+    let jsonValid = false;
+
+    const presets = [
+      {
+        id: 'ok_basic',
+        label: '✅ 200 OK – Basic success',
+        json: '{"status":"ok","message":"Success"}',
+        method: 'POST',
+        delay_min: 300,
+        delay_max: 800,
+        force_status: 200,
+        simulate_error: false
+      },
+      {
+        id: 'unauthorized_401',
+        label: '🧑‍💻 401 Unauthorized',
+        json: '{"error":"Unauthorized","code":401}',
+        method: 'GET',
+        delay_min: 100,
+        delay_max: 300,
+        force_status: 401,
+        simulate_error: false
+      },
+      {
+        id: 'server_500',
+        label: '💥 500 Internal Server Error',
+        json: '{"error":"Internal Server Error","trace_id":"XYZ123"}',
+        method: 'POST',
+        delay_min: 1000,
+        delay_max: 2000,
+        force_status: 500,
+        simulate_error: false
+      },
+      {
+        id: 'delayed_user_data',
+        label: '⏳ Delayed 200 with user data',
+        json: '{"status":"success","data":{"user":{"id":1,"name":"Jirad"}}}',
+        method: 'POST',
+        delay_min: 2000,
+        delay_max: 3000,
+        force_status: 200,
+        simulate_error: false
+      },
+      {
+        id: 'random_error_sim',
+        label: '🎲 Randomized Error Sim',
+        json: '{"status":"maybe","note":"Simulate random 4xx/5xx ~20%"}',
+        method: 'POST',
+        delay_min: 500,
+        delay_max: 1500,
+        force_status: 200,
+        simulate_error: true
+      },
+      {
+        id: 'not_found_404',
+        label: '📭 404 Not Found',
+        json: '{"error":"Resource not found","status":404}',
+        method: 'GET',
+        delay_min: 300,
+        delay_max: 700,
+        force_status: 404,
+        simulate_error: false
+      },
+      {
+        id: 'slow_auth_timeout',
+        label: '🐢 Slow Timeout-like (200)',
+        json: '{"status":"auth_ok","load":"complete","duration_ms":4200}',
+        method: 'POST',
+        delay_min: 4000,
+        delay_max: 5000,
+        force_status: 200,
+        simulate_error: false
+      },
+      {
+        id: 'retry_later_503',
+        label: '📴 503 Retry Later',
+        json: '{"error":"Service Unavailable","retry_after":60}',
+        method: 'POST',
+        delay_min: 300,
+        delay_max: 500,
+        force_status: 503,
+        simulate_error: false
+      },
+      {
+        id: 'forbidden_403',
+        label: '🚫 403 Forbidden',
+        json: '{"error":"Forbidden access","reason":"no-permission"}',
+        method: 'GET',
+        delay_min: 200,
+        delay_max: 400,
+        force_status: 403,
+        simulate_error: false
+      }
+    ];
+
+    presets.forEach(p => {
+      const option = document.createElement('option');
+      option.value = p.id;
+      option.textContent = p.label;
+      presetSelector.appendChild(option);
+    });
+
+    function showToast(el) {
+      el.style.display = 'inline-block';
+      setTimeout(() => { el.style.display = 'none'; }, 2000);
+    }
+
+    function validateJson() {
+      try {
+        JSON.parse(jsonInput.value);
+        jsonStatus.textContent = '✅ Valid JSON';
+        jsonStatus.className = 'valid';
+        jsonValid = true;
+      } catch {
+        jsonStatus.textContent = '❌ Invalid JSON';
+        jsonStatus.className = 'invalid';
+        jsonValid = false;
+      }
+    }
+    validateJson();
+    jsonInput.addEventListener('input', validateJson);
+
+    function encodeBase64() {
+      if (!jsonValid) {
+        alert('Invalid JSON');
+        return;
+      }
+      base64Output.value = btoa(jsonInput.value);
+      updateCurl();
+    }
+
+    function updateCurl() {
+      const data = base64Output.value;
+      const params = new URLSearchParams({
+        data,
+        delay_min: delayMinEl.value,
+        delay_max: delayMaxEl.value,
+        force_status: forceStatusEl.value,
+        simulate_error: simulateErrorEl.checked
+      });
+      const url = methodEl.value === 'GET'
+        ? `/api/simulate?${params.toString()}`
+        : '/api/simulate';
+      const curl = methodEl.value === 'GET'
+        ? `curl \"${url}\"`
+        : `curl -X POST -H 'Content-Type: application/json' -d '${JSON.stringify({
+            data,
+            delay_min: Number(delayMinEl.value),
+            delay_max: Number(delayMaxEl.value),
+            force_status: forceStatusEl.value ? Number(forceStatusEl.value) : undefined,
+            simulate_error: simulateErrorEl.checked
+          })}' \"${url}\"`;
+      curlCmdEl.textContent = curl;
+    }
+
+    document.getElementById('encodeBtn').addEventListener('click', encodeBase64);
+
+    document.getElementById('copyB64').addEventListener('click', () => {
+      navigator.clipboard.writeText(base64Output.value);
+      showToast(b64Toast);
+    });
+
+    presetSelector.addEventListener('change', () => {
+      const selectedId = presetSelector.value;
+      const preset = presets.find(p => p.id === selectedId);
+      if (!preset) return;
+      jsonInput.value = preset.json;
+      methodEl.value = preset.method;
+      delayMinEl.value = preset.delay_min;
+      delayMaxEl.value = preset.delay_max;
+      forceStatusEl.value = preset.force_status;
+      simulateErrorEl.checked = preset.simulate_error;
+      validateJson();
+      encodeBase64();
+    });
+
+    ['change', 'input'].forEach(evt => {
+      methodEl.addEventListener(evt, updateCurl);
+      delayMinEl.addEventListener(evt, updateCurl);
+      delayMaxEl.addEventListener(evt, updateCurl);
+      forceStatusEl.addEventListener(evt, updateCurl);
+      simulateErrorEl.addEventListener(evt, updateCurl);
+      base64Output.addEventListener(evt, updateCurl);
+    });
+
+    document.getElementById('simulateBtn').addEventListener('click', async () => {
+      updateCurl();
+      simulateBtn.disabled = true;
+      const original = simulateBtn.textContent;
+      simulateBtn.textContent = '⏳ Sending request...';
+      const url = methodEl.value === 'GET' ? curlCmdEl.textContent.match(/"(.*)"$/)[1] : '/api/simulate';
+      const opts = methodEl.value === 'GET' ? {} : {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          data: base64Output.value,
+          delay_min: Number(delayMinEl.value),
+          delay_max: Number(delayMaxEl.value),
+          force_status: forceStatusEl.value ? Number(forceStatusEl.value) : undefined,
+          simulate_error: simulateErrorEl.checked
+        })
+      };
+      const res = await fetch(url, opts);
+      const data = await res.json();
+      responseEl.textContent = JSON.stringify(data, null, 2);
+      simulateBtn.textContent = original;
+      simulateBtn.disabled = false;
+    });
+
+    document.getElementById('copyCurl').addEventListener('click', () => {
+      navigator.clipboard.writeText(curlCmdEl.textContent);
+      showToast(curlToast);
+    });
+  </script>
+</body>
+</html>

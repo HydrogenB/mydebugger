@@ -554,6 +554,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false }
   },
+  {
+    id: 'api-simulator',
+    route: '/api-simulator',
+    title: 'API Simulator',
+    description: 'Encode JSON to Base64 and test API responses.',
+    icon: TestingIcon,
+    component: lazy(() => import('./api-simulator/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['api', 'testing', 'mock', 'delay', 'status'],
+      relatedTools: ['headers-analyzer', 'cors-tester']
+    },
+    uiOptions: { showExamples: false }
+  },
 ];
 
 export default toolRegistry;
