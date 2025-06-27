@@ -554,6 +554,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false }
   },
+  {
+    id: 'network-suit',
+    route: '/networksuit',
+    title: 'Network Test Suite',
+    description: 'Check connection type, ping and download speed.',
+    icon: TestingIcon,
+    component: lazy(() => import('./networksuit/page')),
+    category: 'Testing',
+    metadata: {
+      keywords: ['network', 'ping', 'speed', 'connection'],
+      relatedTools: []
+    },
+    uiOptions: { showExamples: false }
+  },
 ];
 
 export default toolRegistry;
