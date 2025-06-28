@@ -579,6 +579,21 @@ const toolRegistry: Tool[] = [
   uiOptions: { showExamples: false }
 },
   {
+    id: 'api-test',
+    route: '/api-test',
+    title: 'API Request Repeater',
+    description: 'Repeat HTTP requests from a curl command.',
+    icon: TestingIcon,
+    component: lazy(() => import('./api-test/page')),
+    category: 'Testing',
+    isNew: true,
+    metadata: {
+      keywords: ['curl', 'http', 'testing', 'repeater'],
+      relatedTools: ['api-simulator', 'websocket-simulator']
+    },
+    uiOptions: { showExamples: false }
+  },
+  {
     id: 'network-suit',
     route: '/networksuit',
     title: 'Network Test Suite',
