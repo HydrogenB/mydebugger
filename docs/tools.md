@@ -33,6 +33,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Image Compressor](#image-compressor)
 - [Metadata Echo](#metadata-echo)
 - [WebSocket Simulator](#websocket-simulator)
+- [CSV to Markdown Converter](#csv-to-markdown-converter)
 
 ## Crypto Lab
 
@@ -260,3 +261,14 @@ Paste a `curl wss://...` command and emulate NATS-style PUB messages in the brow
 Input payloads in text or HEX, queue multiple messages and transmit on a set interval. 
 Sent and received data are logged live and can be exported as a `.txt` file. 
 The last used profile is saved to `localStorage` for convenience.
+
+## CSV to Markdown Converter
+
+```tsx
+import CsvtomdPage from "../src/tools/csvtomd/page";
+```
+
+Upload or paste a CSV and convert it to a GitHub-flavored Markdown table. Each
+column's alignment can be toggled between left, center and right. The generated
+Markdown can be copied or downloaded as a `.md` file. Access this tool at
+`/csvtomd`.
