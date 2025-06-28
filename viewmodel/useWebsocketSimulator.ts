@@ -27,6 +27,7 @@ const useWebsocketSimulator = () => {
   const [hexMode, setHexMode] = useState(false);
   const [delay, setDelay] = useState(100);
   const [logs, setLogs] = useState<WsLogEntry[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const timerRef = useRef<number>();
   const indexRef = useRef(0);
@@ -53,9 +54,19 @@ const useWebsocketSimulator = () => {
     const parsed = parseCurl(curl);
     setUrl(parsed.url);
     setOrigin(parsed.origin);
-    if (!parsed.url) return;
+    if (!parsed.url) {
+      setError('Invalid curl command: missing WebSocket URL');
+      return;
+    }
+    setError(null);
     const ws = new WebSocket(parsed.url, []);
     wsRef.current = ws;
+    ws.onerror = () => {
+      setError(`Failed to connect to ${parsed.url}`);
+    };
+    ws.onopen = () => {
+      setError(null);
+    };
     ws.onmessage = (ev) => {
       const reader = new FileReader();
       reader.onload = () => {
@@ -66,14 +77,21 @@ const useWebsocketSimulator = () => {
       };
       reader.readAsText(ev.data);
     };
-    ws.onclose = () => {
+    ws.onclose = (ev) => {
       window.clearInterval(timerRef.current);
+      if (wsRef.current && wsRef.current !== ws) return;
+      if (!ev.wasClean) {
+        setError(`Connection closed (${ev.code}) ${ev.reason || ''}`.trim());
+      }
     };
   }, [curl]);
 
   const start = useCallback(() => {
     const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      setError('WebSocket is not connected');
+      return;
+    }
     window.clearInterval(timerRef.current);
     timerRef.current = window.setInterval(() => {
       if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
@@ -128,6 +146,7 @@ const useWebsocketSimulator = () => {
     delay,
     setDelay,
     logs,
+    error,
     connect,
     start,
     stop,

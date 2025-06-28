@@ -20,6 +20,7 @@ export function WebsocketSimulatorView({
   delay,
   setDelay,
   logs,
+  error,
   connect,
   start,
   stop,
@@ -32,6 +33,11 @@ export function WebsocketSimulatorView({
       <header className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">WebSocket PUB Simulator</h1>
       </header>
+      {error && (
+        <div role="alert" className="mb-2 rounded-md bg-red-50 p-2 text-red-600">
+          {error}
+        </div>
+      )}
       <textarea
         className="w-full border p-2 mb-2 rounded"
         rows={3}
