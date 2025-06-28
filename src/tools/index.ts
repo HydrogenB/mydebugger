@@ -620,6 +620,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: "websocket-simulator",
+    route: "/websocket-simulator",
+    title: "WebSocket Simulator",
+    description: "Send PUB messages over WebSocket at intervals.",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./websocket-simulator/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["websocket", "nats", "testing", "binary"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
 ];
 
 export default toolRegistry;
