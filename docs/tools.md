@@ -83,6 +83,14 @@ import CacheInspectorPage from "../src/tools/cache-inspector";
 
 Use the Cache Inspector to analyze caching behaviour for resources loaded in your session. It now shows cache freshness badges (`FRESH`, `STALE`, `EXPIRED`, `NO-CACHE`), lists matching Service Worker cache names, and annotates whether a resource came from the network or memory. A summary panel highlights totals per resource type and overall freshness. Results can be exported to JSON or CSV and you can copy a sharable link to revisit the inspection later.
 
+## Click Jacking Validator
+
+```tsx
+import ClickJackingValidator from "../src/tools/clickjacking";
+```
+
+Check whether a website can be safely embedded in an iframe. The tool fetches the target URL, evaluates `X-Frame-Options` and `Content-Security-Policy` headers and attempts to load the page in a sandboxed frame. Results highlight potential vulnerabilities and can be exported as JSON.
+
 ## Cookie Scope
 
 ```tsx
@@ -120,6 +128,22 @@ import HeaderScannerPage from "../src/tools/header-scanner/page";
 ```
 
 The Header Scanner fetches a URL and analyzes common security headers like CSP, X-Frame-Options and HSTS. Results are shown with status chips and quick fix tips. You can copy header values or export the full report as JSON for audits.
+
+## HTTP Headers Analyzer
+
+```tsx
+import HeadersAnalyzer from "../src/tools/headers";
+```
+
+Inspect request and response headers for any endpoint. The analyzer groups headers by category, lets you filter by name and provides quick descriptions of what each header does. Results can be copied or saved as JSON.
+
+## JWT Toolkit
+
+```tsx
+import JwtToolkit from "../src/tools/jwt/JwtToolkit";
+```
+
+Decode, build and verify JSON Web Tokens right in the browser. Load JWKS or secret keys, edit claims with a guided wizard and benchmark different algorithms. The toolkit is fully client side so no token data ever leaves your browser.
 
 ## CORS Tester
 
@@ -164,6 +188,14 @@ Create a shareable contact card completely in-browser. The tool generates a `.vc
 It now supports organization, title, website and address fields, renders a preview business card and can download the card as a PNG image. Opening a link with `?data=` switches to view-only mode showing just the card.
 Access this tool at `/vcard`.
 
+## Web Permission Tester
+
+```tsx
+import PermissionTesterPage from "../src/tools/permission-tester/page";
+```
+
+Request and inspect browser permissions such as geolocation, notifications or clipboard access. The tester logs permission state changes, generates copyable code snippets and allows retrying denied permissions.
+
 ## Pre-rendering & SEO Meta Tester
 
 ```tsx
@@ -171,6 +203,14 @@ import PreRenderingTesterPage from "../src/tools/pre-rendering-tester/page";
 ```
 
 Analyze how Googlebot, Bingbot, FacebookBot and real browsers render your page metadata. Fetch HTML snapshots, compare title, description and H1 consistency, then export results or raw markup for further debugging.
+
+## Regex Tester
+
+```tsx
+import RegexTester from "../src/tools/regex";
+```
+
+Test and debug regular expressions with instant feedback. Enter a pattern and sample text to see all matches with index positions and capture groups. Invalid patterns display clear error messages.
 
 ## Fetch & Render Tool
 
