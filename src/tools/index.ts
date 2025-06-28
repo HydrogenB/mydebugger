@@ -634,6 +634,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: "csv-to-markdown",
+    route: "/csvtomd",
+    title: "CSV to Markdown",
+    description: "Convert CSV tables to GitHub-flavored Markdown.",
+    icon: ConversionIcon,
+    component: lazy(() => import("./csvtomd/page")),
+    category: "Conversion",
+    metadata: {
+      keywords: ["csv", "markdown", "table", "convert"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
 ];
 
 export default toolRegistry;
