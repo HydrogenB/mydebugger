@@ -32,6 +32,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Network Test Suite](#network-test-suite)
 - [Image Compressor](#image-compressor)
 - [Metadata Echo](#metadata-echo)
+- [WebSocket Simulator](#websocket-simulator)
 
 ## Crypto Lab
 
@@ -248,3 +249,14 @@ import MetadataEchoPage from "../src/tools/metadata-echo/page";
 
 Display client metadata such as user agent, platform, timezone and screen resolution. Optionally load advanced details like network connection, battery status or geolocation. Access it at `/metadata-echo`.
 Unavailable fields show a short error reason instead of being hidden.
+
+## WebSocket Simulator
+
+```tsx
+import WebsocketSimulatorPage from "../src/tools/websocket-simulator";
+```
+
+Paste a `curl wss://...` command and emulate NATS-style PUB messages in the browser. 
+Input payloads in text or HEX, queue multiple messages and transmit on a set interval. 
+Sent and received data are logged live and can be exported as a `.txt` file. 
+The last used profile is saved to `localStorage` for convenience.
