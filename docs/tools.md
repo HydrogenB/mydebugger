@@ -34,6 +34,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Metadata Echo](#metadata-echo)
 - [WebSocket Simulator](#websocket-simulator)
 - [CSV to Markdown Converter](#csv-to-markdown-converter)
+- [Human Tracker](#human-tracker)
 
 ## Crypto Lab
 
@@ -312,3 +313,11 @@ Upload or paste a CSV and convert it to a GitHub-flavored Markdown table. Each
 column's alignment can be toggled between left, center and right. The generated
 Markdown can be copied or downloaded as a `.md` file. Access this tool at
 `/csvtomd`.
+
+## Human Tracker
+
+```tsx
+import HumanTrackerPage from "../src/tools/human-tracker/page";
+```
+
+Use your webcam to detect people, body pose and hands in real time directly in the browser. Toggle each detector individually. No video data leaves the device. Access this tool at `/human-tracker`.

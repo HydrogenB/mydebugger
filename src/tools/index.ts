@@ -648,6 +648,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: "human-tracker",
+    route: "/human-tracker",
+    title: "Human Tracker",
+    description: "Track people, pose and hands via your webcam.",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./human-tracker/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["webcam", "pose", "tensorflow", "hands"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
 ];
 
 export default toolRegistry;
