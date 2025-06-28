@@ -1,6 +1,8 @@
-# MyDebugger
+# MyDebugger – Free Online Developer Tools
 
-**MyDebugger** is a collection of free browser‑based debugging tools for developers, QA engineers and DevOps. Every utility runs entirely client side and is deployed statelessly to Vercel.
+**MyDebugger** bundles dozens of browser‑based utilities for debugging, QA and DevOps workflows. From JWT decoding and URL encoding to HTTP header analysis and regex testing, every tool runs fully client side. The site is statelessly deployed on Vercel so you can debug faster without installing anything.
+
+Explore **25+ free debugging tools** right in your browser to troubleshoot web apps, harden security and boost your SEO performance.
 
 ## Table of Contents
 - [Feature Highlights](#feature-highlights)
