@@ -15,6 +15,7 @@ import { QR_PRESETS, getPresetByName } from "../../../model/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
 import { qrStylePresets } from "../../../model/qrStylePresets";
 import { convertPngToPdf, QRDownloadFormat } from "../../../model/qrcode";
+import { generateICalEvent } from "../../../model/ical";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -72,6 +73,17 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [geoLat, setGeoLat] = useState('');
   const [geoLng, setGeoLng] = useState('');
 
+  // Calendar state
+  const [calTitle, setCalTitle] = useState('');
+  const [calLocation, setCalLocation] = useState('');
+  const [calDescription, setCalDescription] = useState('');
+  const [calStart, setCalStart] = useState('');
+  const [calEnd, setCalEnd] = useState('');
+  const [calTimezone, setCalTimezone] = useState('UTC');
+  const [calUid, setCalUid] = useState('');
+  const [calAlarm, setCalAlarm] = useState('None');
+  const [icalText, setIcalText] = useState('');
+
 
   // Collection related state
   const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
@@ -98,7 +110,7 @@ const DeepLinkQRGenerator: React.FC = () => {
       case 'geo':
         return `geo:${geoLat},${geoLng}`;
       case 'calendar':
-        return input;
+        return icalText;
       default:
         return autoEncode ? encodeUrlQueryParams(input) : input;
     }
@@ -111,6 +123,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     wifiPassword,
     geoLat,
     geoLng,
+    icalText,
   ]);
 
   // Check if device is mobile and load saved QR codes
@@ -221,6 +234,47 @@ const DeepLinkQRGenerator: React.FC = () => {
     showCosmeticOptions,
     autoEncode,
     downloadFormat,
+  ]);
+
+  // Build iCal text when calendar fields change
+  useEffect(() => {
+    if (qrType !== 'calendar') return;
+    let uid = calUid;
+    if (!uid) {
+      uid = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : Date.now().toString();
+      setCalUid(uid);
+    }
+    try {
+      const alarmMap: Record<string, number | undefined> = {
+        None: undefined,
+        '5 minutes before': 5,
+        '15 minutes before': 15,
+        '1 hour before': 60,
+      };
+      const txt = generateICalEvent({
+        summary: calTitle,
+        location: calLocation,
+        description: calDescription,
+        start: calStart,
+        end: calEnd,
+        timezone: calTimezone,
+        uid,
+        alarmMinutes: alarmMap[calAlarm],
+      });
+      setIcalText(txt);
+    } catch {
+      setIcalText('');
+    }
+  }, [
+    qrType,
+    calTitle,
+    calLocation,
+    calDescription,
+    calStart,
+    calEnd,
+    calTimezone,
+    calUid,
+    calAlarm,
   ]);
 
   // Generate QR code when input or properties change
@@ -837,17 +891,112 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'calendar' && (
                 <>
-                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
-                    Calendar iCal
-                  </label>
-                  <textarea
-                    id="input"
-                    rows={4}
+                  <label className="block font-medium text-gray-700 mb-2">Event Title</label>
+                  <input
+                    type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="BEGIN:VEVENT...END:VEVENT"
+                    value={calTitle}
+                    onChange={(e) => setCalTitle(e.target.value)}
+                    placeholder="Team Meeting"
                   />
+                  <label className="block font-medium text-gray-700 mb-2">Location</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={calLocation}
+                    onChange={(e) => setCalLocation(e.target.value)}
+                    placeholder="Room 5B"
+                  />
+                  <label className="block font-medium text-gray-700 mb-2">Description</label>
+                  <textarea
+                    rows={2}
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={calDescription}
+                    onChange={(e) => setCalDescription(e.target.value)}
+                    placeholder="Meeting agenda and notes"
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-medium text-gray-700 mb-2">Start Date &amp; Time</label>
+                      <input
+                        type="datetime-local"
+                        className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                        value={calStart}
+                        onChange={(e) => setCalStart(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-medium text-gray-700 mb-2">End Date &amp; Time</label>
+                      <input
+                        type="datetime-local"
+                        className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                        value={calEnd}
+                        onChange={(e) => setCalEnd(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <label className="block font-medium text-gray-700 mb-2">Timezone</label>
+                  <select
+                    className="w-full rounded-md border-gray-300 mb-2"
+                    value={calTimezone}
+                    onChange={(e) => setCalTimezone(e.target.value)}
+                  >
+                    <option value="UTC">UTC</option>
+                    <option value="Asia/Bangkok">Asia/Bangkok</option>
+                    <option value="America/New_York">America/New_York</option>
+                  </select>
+                  <label className="block font-medium text-gray-700 mb-2">UID (optional)</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-md border-gray-300 shadow-sm mb-2"
+                    value={calUid}
+                    onChange={(e) => setCalUid(e.target.value)}
+                    placeholder="auto-generated if blank"
+                  />
+                  <label className="block font-medium text-gray-700 mb-2">Alarm Reminder</label>
+                  <select
+                    className="w-full rounded-md border-gray-300 mb-2"
+                    value={calAlarm}
+                    onChange={(e) => setCalAlarm(e.target.value)}
+                  >
+                    <option>None</option>
+                    <option>5 minutes before</option>
+                    <option>15 minutes before</option>
+                    <option>1 hour before</option>
+                  </select>
+                  <div className="mt-4">
+                    <h3 className="font-semibold mb-1">iCal Output</h3>
+                    <textarea
+                      readOnly
+                      value={icalText}
+                      rows={6}
+                      className="w-full rounded-md border-gray-300 shadow-sm"
+                    />
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        type="button"
+                        className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300"
+                        onClick={() => copyToClipboard(icalText, 'iCal copied!')}
+                      >
+                        📋 Copy
+                      </button>
+                      <button
+                        type="button"
+                        className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300"
+                        onClick={() => {
+                          const blob = new Blob([icalText], { type: 'text/calendar' });
+                          const url = URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = 'event.ics';
+                          link.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                      >
+                        💾 Download .ics
+                      </button>
+                    </div>
+                  </div>
                 </>
               )}
 
