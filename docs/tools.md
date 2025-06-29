@@ -29,6 +29,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Web Permission Tester](#web-permission-tester)
 - [Generate Large Image](#generate-large-image)
 - [API Simulator](#api-simulator)
+- [API Request Repeater](#api-request-repeater)
 - [Network Test Suite](#network-test-suite)
 - [Image Compressor](#image-compressor)
 - [Metadata Echo](#metadata-echo)
@@ -263,6 +264,14 @@ The interface now features a drag‑and‑drop upload area, a progress bar for g
 ```
 
 Simulate API responses entirely in the browser. Encode JSON to Base64, adjust delay and status codes, or enable random error injection. A preset dropdown lets you instantly load common scenarios. The page also generates a ready-to-run cURL command. Access it at `/api-simulator` when deployed to Vercel or served locally.
+
+## API Request Repeater
+
+```tsx
+import ApiTestPage from "../src/tools/api-test/page";
+```
+
+Paste a full HTTP `curl` command, set a delay and repeatedly send the request using `fetch` in the browser. Requests and responses are logged live and can be exported to a `.txt` file. Access this tool at `/api-test`.
 
 ## Network Test Suite
 
