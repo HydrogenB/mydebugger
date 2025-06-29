@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
+import { Button, SelectInput } from '../src/design-system/components/inputs';
+import { CodeBlock } from '../src/design-system/components/display/CodeBlock';
 
 interface Props {
   csv: string;
@@ -34,71 +36,70 @@ export function CsvtomdView({
   error,
 }: Props) {
   return (
-    <div className={`${TOOL_PANEL_CLASS.replace('p-6', 'p-4')} space-y-4`}>
-      <textarea
-        value={csv}
-        onChange={(e) => setCsv(e.target.value)}
-        rows={6}
-        className="w-full border px-2 py-1 rounded font-mono"
-        placeholder="Paste CSV here"
-      />
-      <div className="flex items-center gap-2 text-sm">
-        <input
-          type="file"
-          accept=".csv,text/csv"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) uploadFile(f);
-          }}
-        />
-        <label htmlFor="delimiter" className="flex items-center gap-1">
-          Delimiter
-          <select
-            id="delimiter"
-            className="border px-1 py-0.5 rounded"
-            value={delimiter}
-            onChange={(e) => setDelimiter(e.target.value)}
-          >
-            <option value=",">,</option>
-            <option value=";">;</option>
-            <option value="\t">Tab</option>
-            <option value="|">|</option>
-          </select>
-        </label>
-      </div>
-      {alignment.length > 0 && (
-        <div className="flex flex-wrap gap-2 text-sm">
-          {alignment.map((a, i) => (
-            <button
-              key={headers[i] || i}
-              type="button"
-              className="border px-2 py-1 rounded"
-              onClick={() => toggleAlignment(i)}
-            >
-              {a}
-            </button>
-          ))}
-        </div>
-      )}
-      {error && <div className="text-red-600">{error}</div>}
-      {markdown && (
-        <>
+    <div className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className={`${TOOL_PANEL_CLASS.replace('p-6', 'p-4')} space-y-4`}>
           <textarea
-            readOnly
-            value={markdown}
-            rows={Math.min(10, markdown.split('\n').length + 2)}
-            className="w-full border px-2 py-1 rounded font-mono overflow-auto"
+            value={csv}
+            onChange={(e) => setCsv(e.target.value)}
+            rows={8}
+            className="w-full border px-2 py-1 rounded font-mono"
+            placeholder="Paste CSV here"
           />
-          <div className="flex gap-4 text-sm text-blue-600">
-            <button type="button" className="underline" onClick={copyMarkdown}>
-              Copy Markdown
-            </button>
-            <button type="button" className="underline" onClick={downloadMarkdown}>
-              Download .md
-            </button>
+          <div className="flex items-center gap-2 text-sm">
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadFile(f);
+              }}
+            />
+            <SelectInput
+              value={delimiter}
+              onChange={setDelimiter}
+              label="Delimiter"
+              options={[
+                { value: ',', label: ',' },
+                { value: ';', label: ';' },
+                { value: '\t', label: 'Tab' },
+                { value: '|', label: '|' },
+              ]}
+              className="w-28"
+            />
           </div>
-        </>
-      )}
+          {alignment.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-sm">
+              {alignment.map((a, i) => (
+                <Button
+                  key={headers[i] || i}
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => toggleAlignment(i)}
+                >
+                  {a}
+                </Button>
+              ))}
+            </div>
+          )}
+          {error && <div className="text-red-600 text-sm">{error}</div>}
+        </div>
+        <div className={`${TOOL_PANEL_CLASS.replace('p-6', 'p-4')} space-y-2`}>
+          {markdown ? (
+            <>
+              <CodeBlock maxHeight="20rem">{markdown}</CodeBlock>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={copyMarkdown}>Copy</Button>
+                <Button size="sm" variant="secondary" onClick={downloadMarkdown}>
+                  Download
+                </Button>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-gray-500">Paste CSV to generate Markdown.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
