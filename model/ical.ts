@@ -17,10 +17,14 @@ const sanitize = (value: string): string => value.replace(/\n/g, "\\n");
 
 const formatDate = (isoLocal: string, tz: string): string => {
   const date = new Date(isoLocal);
-  const utc = tz && tz !== 'UTC'
-    ? new Date(date.toLocaleString('en-US', { timeZone: tz }))
-    : date;
-  return utc.toISOString().replace(/[-:]|\.\d{3}/g, '');
+  if (tz && tz !== 'UTC') {
+    const tzDate = new Date(date.toLocaleString('en-US', { timeZone: tz }));
+    const offsetMs = tzDate.getTime() - date.getTime();
+    return new Date(date.getTime() - offsetMs)
+      .toISOString()
+      .replace(/[-:]|\.\d{3}/g, '');
+  }
+  return date.toISOString().replace(/[-:]|\.\d{3}/g, '');
 };
 
 export const generateICalEvent = (evt: CalendarEvent): string => {

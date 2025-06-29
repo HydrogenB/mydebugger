@@ -318,6 +318,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     logoDataUrl,
     logoSize,
     autoEncode,
+    icalText,
   ]);
 
 
