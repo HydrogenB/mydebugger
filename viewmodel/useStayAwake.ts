@@ -13,7 +13,7 @@ export interface UseStayAwakeReturn {
 const useStayAwake = (): UseStayAwakeReturn => {
   const [enabled, setEnabled] = useState(true);
   const [sentinel, setSentinel] = useState<WakeLockSentinel | null>(null);
-  const supported = isWakeLockSupported();
+  const [supported, setSupported] = useState(false);
 
   const acquire = useCallback(async () => {
     if (!supported) return;
@@ -45,9 +45,14 @@ const useStayAwake = (): UseStayAwakeReturn => {
   }, [enabled, acquire, release]);
 
   useEffect(() => {
-    if (enabled) acquire();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setSupported(isWakeLockSupported());
   }, []);
+
+  useEffect(() => {
+    if (enabled && supported) {
+      acquire();
+    }
+  }, [enabled, supported, acquire]);
 
   useEffect(() => {
     const handleVisibility = () => {
