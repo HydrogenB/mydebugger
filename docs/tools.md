@@ -25,6 +25,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Pre-rendering & SEO Meta Tester](#pre-rendering--seo-meta-tester)
 - [Regex Tester](#regex-tester)
 - [Storage Sync Debugger](#storage-sync-debugger)
+- [Stay Awake Toggle](#stay-awake-toggle)
 - [URL Encoder / Decoder](#url-encoder--decoder)
 - [Virtual Name Card](#virtual-name-card)
 - [Web Permission Tester](#web-permission-tester)
@@ -123,6 +124,15 @@ Use the Storage Sync Debugger to inspect and modify `localStorage` and `sessionS
 
 Advanced features include a live sync monitor across tabs, inline JSON validation, `.env` export and a diff mode that compares your storage with another tab using the BroadcastChannel API.
 The UI now includes a debounced search box to quickly filter keys and values.
+
+## Stay Awake Toggle
+
+```tsx
+import StayAwakePage from "../src/tools/stayawake/page";
+```
+
+Prevent your screen from sleeping using the Wake Lock API. The toggle starts enabled and re-acquires the lock when you return to the tab. Access this tool at `/stayawake`.
+
 
 ## Header Scanner
 

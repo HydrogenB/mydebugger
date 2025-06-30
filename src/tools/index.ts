@@ -677,6 +677,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
+  {
+    id: "stayawake",
+    route: "/stayawake",
+    title: "Stay Awake Toggle",
+    description: "Prevent the screen from sleeping.",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./stayawake/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["wake lock", "screen", "sleep"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
 ];
 
 export default toolRegistry;
