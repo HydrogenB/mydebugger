@@ -33,7 +33,11 @@ export function QrscanView({
       </h2>
     <div className="flex flex-col lg:flex-row gap-4">
       <div className="flex flex-col items-center">
-        <video ref={videoRef} className="w-64 h-64 border rounded-md">
+        <video
+          ref={videoRef}
+          className="w-64 h-64 border rounded-md"
+          aria-label="QR code scanner feed"
+        >
           <track kind="captions" className="sr-only" />
         </video>
         <div className="flex gap-2 mt-2">
