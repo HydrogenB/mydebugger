@@ -147,7 +147,7 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
       );
       if (!state) return;
 
-      const { permission, data } = state;
+      const { data } = state;
 
       if (data instanceof MediaStream) {
         data.getTracks().forEach((track) => track.stop());
@@ -161,70 +161,9 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
         ),
       );
 
-      setLoading(permissionName, true);
-      addEvent(
-        createPermissionEvent(
-          permissionName,
-          'request',
-          `Retrying ${permission.displayName}`,
-        ),
-      );
-
-      try {
-        const result = await permission.requestFn();
-        if (result instanceof MediaStream) {
-          result.getTracks().forEach((track) => track.stop());
-        }
-
-        let newStatus = await checkPermissionStatus(permissionName);
-        if (newStatus === 'unsupported' || newStatus === 'prompt') {
-          newStatus = 'granted';
-        }
-
-        setPermissions((prev) =>
-          prev.map((p) =>
-            p.permission.name === permissionName
-              ? {
-                  ...p,
-                  status: newStatus,
-                  lastRequested: Date.now(),
-                  data: undefined,
-                  error: undefined,
-                }
-              : p,
-          ),
-        );
-
-        addEvent(
-          createPermissionEvent(
-            permissionName,
-            newStatus === 'granted' ? 'grant' : 'deny',
-            `${permission.displayName} access ${newStatus}`,
-          ),
-        );
-      } catch (error) {
-        const message =
-          error instanceof Error ? error.message : 'Permission denied';
-        setPermissions((prev) =>
-          prev.map((p) =>
-            p.permission.name === permissionName
-              ? {
-                  ...p,
-                  status: 'denied',
-                  error: message,
-                  data: undefined,
-                  lastRequested: Date.now(),
-                }
-              : p,
-          ),
-        );
-
-        addEvent(createPermissionEvent(permissionName, 'error', message));
-      } finally {
-        setLoading(permissionName, false);
-      }
+      await requestPermission(permissionName);
     },
-    [permissions, addEvent, setLoading],
+    [permissions, requestPermission],
   );
 
   const copyCodeSnippet = useCallback(async (permissionName: string) => {

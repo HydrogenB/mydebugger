@@ -139,8 +139,9 @@ describe('usePermissionTester', () => {
     });
 
     expect(track1.stop).toHaveBeenCalled();
-    expect(track2.stop).toHaveBeenCalled();
+    expect(track2.stop).not.toHaveBeenCalled();
     expect(permission.requestFn).toHaveBeenCalledTimes(2);
     expect(result.current.permissions[0].status).toBe('granted');
+    expect(result.current.permissions[0].data).toBe(stream2);
   });
 });
