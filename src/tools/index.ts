@@ -218,6 +218,20 @@ const toolRegistry: Tool[] = [
     },
   },
   {
+    id: "qrscan",
+    route: "/qrscan",
+    title: "QR Scanner",
+    description: "Scan QR codes using your device camera.",
+    icon: QrCodeIcon,
+    component: lazy(() => import("./qrscan")),
+    category: "Utilities",
+    metadata: {
+      keywords: ["qr", "scanner", "camera", "qr code"],
+      relatedTools: ["qrcode-generator"],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
     id: "clickjacking-validator",
     route: "/clickjacking",
     title: "Click Jacking Validator",

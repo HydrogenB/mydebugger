@@ -18,6 +18,7 @@ const useStayAwake = (): UseStayAwakeReturn => {
 
   const acquire = useCallback(async () => {
     if (!supported || !isClient) return;
+
     try {
       const s = await requestWakeLock();
       s.addEventListener('release', () => setEnabled(false));
@@ -40,6 +41,7 @@ const useStayAwake = (): UseStayAwakeReturn => {
 
   const toggle = useCallback(async () => {
     if (!isClient) return;
+
     if (enabled) {
       await release();
     } else {
@@ -61,6 +63,7 @@ const useStayAwake = (): UseStayAwakeReturn => {
 
   useEffect(() => {
     if (!isClient) return undefined;
+
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && enabled) {
         acquire();
@@ -69,6 +72,7 @@ const useStayAwake = (): UseStayAwakeReturn => {
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [enabled, acquire, isClient]);
+
 
   return { enabled, supported, toggle };
 };

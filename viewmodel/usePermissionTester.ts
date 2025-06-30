@@ -10,7 +10,8 @@ import {
   PermissionEvent,
   checkPermissionStatus,
   generateCodeSnippet,
-  createPermissionEvent
+  createPermissionEvent,
+  IdleDetectorConstructor
 } from '../model/permissions';
 
 export interface UsePermissionTesterReturn {
@@ -141,8 +142,128 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
   }, [permissions, addEvent, setLoading]);
 
   const retryPermission = useCallback(async (permissionName: string) => {
-    await requestPermission(permissionName);
-  }, [requestPermission]);
+    const permissionState = permissions.find(p => p.permission.name === permissionName);
+    if (!permissionState) return;
+
+    const { permission } = permissionState;
+
+    setLoading(permissionName, true);
+    addEvent(
+      createPermissionEvent(
+        permissionName,
+        'request',
+        `Retrying ${permission.displayName}`
+      )
+    );
+
+    try {
+      let result: unknown;
+      switch (permissionName) {
+        case 'camera':
+          result = await navigator.mediaDevices.getUserMedia({ video: true });
+          break;
+        case 'microphone':
+          result = await navigator.mediaDevices.getUserMedia({ audio: true });
+          break;
+        case 'geolocation':
+          result = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          break;
+        case 'notifications':
+          result = await Notification.requestPermission();
+          break;
+        case 'clipboard-read':
+          result = await navigator.clipboard.readText();
+          break;
+        case 'clipboard-write':
+          result = await navigator.clipboard.writeText('test');
+          break;
+        case 'bluetooth':
+          result = await (navigator as Navigator & {
+            bluetooth?: { requestDevice(o?: unknown): Promise<unknown> };
+          }).bluetooth?.requestDevice({ acceptAllDevices: true });
+          break;
+        case 'midi':
+          result = await navigator.requestMIDIAccess?.();
+          break;
+        case 'persistent-storage':
+          result = await navigator.storage?.persist();
+          break;
+        case 'screen-capture':
+          result = await navigator.mediaDevices.getDisplayMedia({ video: true });
+          break;
+        case 'idle-detection': {
+          const Idle = (window as Window & { IdleDetector?: IdleDetectorConstructor }).IdleDetector;
+          if (!Idle) throw new Error('IdleDetector not supported');
+          const perm = await Idle.requestPermission();
+          if (perm !== 'granted') throw new Error('Permission denied');
+          const detector = new Idle();
+          await detector.start({ threshold: 60000 });
+          result = detector;
+          break;
+        }
+        case 'background-sync':
+          result = await navigator.permissions.query({
+            name: 'background-sync' as PermissionDescriptor['name']
+          });
+          break;
+        default:
+          result = await permission.requestFn();
+      }
+
+      if (result instanceof MediaStream) {
+        result.getTracks().forEach(track => track.stop());
+      }
+
+      let newStatus = await checkPermissionStatus(permissionName);
+      if (newStatus === 'prompt' || newStatus === 'unsupported') {
+        newStatus = 'granted';
+      }
+
+      setPermissions(prev =>
+        prev.map(p =>
+          p.permission.name === permissionName
+            ? {
+                ...p,
+                status: newStatus,
+                data: newStatus === 'granted' ? result : undefined,
+                error: undefined,
+                lastRequested: Date.now()
+              }
+            : p
+        )
+      );
+
+      addEvent(
+        createPermissionEvent(
+          permissionName,
+          newStatus === 'granted' ? 'grant' : 'deny',
+          `${permission.displayName} access ${newStatus}`
+        )
+      );
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Permission denied';
+
+      setPermissions(prev =>
+        prev.map(p =>
+          p.permission.name === permissionName
+            ? {
+                ...p,
+                status: 'denied',
+                data: undefined,
+                error: errorMessage,
+                lastRequested: Date.now()
+              }
+            : p
+        )
+      );
+
+      addEvent(createPermissionEvent(permissionName, 'error', errorMessage));
+    } finally {
+      setLoading(permissionName, false);
+    }
+  }, [permissions, addEvent, setLoading]);
 
   const copyCodeSnippet = useCallback(async (permissionName: string) => {
     const permission = PERMISSIONS.find(p => p.name === permissionName);

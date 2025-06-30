@@ -14,6 +14,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Crypto Lab](#crypto-lab)
 - [Deep Link Chain](#deep-link-chain)
 - [Deep-Link QR Generator](#deep-link-qr-generator)
+- [QR Scanner](#qr-scanner)
 - [Dynamic Link Tracker](#dynamic-link-tracker)
 - [Dynamic-Link Probe](#dynamic-link-probe)
 - [Fetch & Render Tool](#fetch--render-tool)
@@ -241,6 +242,14 @@ import QRCodeGeneratorPage from "../src/tools/qrcode/QRCodeGenerator";
 Generate QR codes for links or other data types like plain text, phone numbers, Wi-Fi credentials, geographic coordinates and calendar events. The tool auto-encodes URLs, shows a real-time preview and lets you open or share the link instantly. Choose from ten visual presets, tweak dot/eye styles, gradients and upload a center logo. Export your QR in **PNG**, **SVG** or **PDF**. Access it at `/qrcode`.
 
 This generator now ships with **40 curated style presets** for instant visual theming. Choose a preset to apply matching colors in one click.
+
+## QR Scanner
+
+```tsx
+import QrscanPage from "../src/tools/qrscan/page";
+```
+
+Use your device camera to scan QR codes directly in the browser. The scanner works offline and supports flipping between available cameras. Access it at `/qrscan`.
 
 ## URL Encoder / Decoder
 
