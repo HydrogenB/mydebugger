@@ -2,6 +2,17 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import usePermissionTester from '../viewmodel/usePermissionTester';
 import * as perms from '../model/permissions';
 
+class DummyMediaStream {
+  tracks: { stop: jest.Mock }[];
+  constructor(tracks: { stop: jest.Mock }[]) {
+    this.tracks = tracks;
+  }
+  getTracks() {
+    return this.tracks;
+  }
+}
+(global as any).MediaStream = DummyMediaStream;
+
 const originalPermissions = perms.PERMISSIONS.map(p => ({ ...p }));
 
 afterEach(() => {
@@ -97,5 +108,39 @@ describe('usePermissionTester', () => {
     });
 
     expect(result.current.getPermissionData('window-management')).toBeUndefined();
+  });
+
+  it('retries permission and stops streams', async () => {
+    const track1 = { stop: jest.fn() };
+    const track2 = { stop: jest.fn() };
+    const stream1 = new DummyMediaStream([track1]) as unknown as MediaStream;
+    const stream2 = new DummyMediaStream([track2]) as unknown as MediaStream;
+    const permission = {
+      ...originalPermissions[0],
+      name: 'camera',
+      requestFn: jest
+        .fn()
+        .mockResolvedValueOnce(stream1)
+        .mockResolvedValueOnce(stream2),
+    };
+    perms.PERMISSIONS.splice(0, perms.PERMISSIONS.length, permission);
+    jest.spyOn(perms, 'checkPermissionStatus').mockResolvedValue('granted');
+
+    const { result } = renderHook(() => usePermissionTester());
+    await act(async () => { await Promise.resolve(); });
+    await waitFor(() => result.current.permissions.length > 0);
+
+    await act(async () => {
+      await result.current.requestPermission('camera');
+    });
+
+    await act(async () => {
+      await result.current.retryPermission('camera');
+    });
+
+    expect(track1.stop).toHaveBeenCalled();
+    expect(track2.stop).toHaveBeenCalled();
+    expect(permission.requestFn).toHaveBeenCalledTimes(2);
+    expect(result.current.permissions[0].status).toBe('granted');
   });
 });

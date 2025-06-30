@@ -140,9 +140,92 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     }
   }, [permissions, addEvent, setLoading]);
 
-  const retryPermission = useCallback(async (permissionName: string) => {
-    await requestPermission(permissionName);
-  }, [requestPermission]);
+  const retryPermission = useCallback(
+    async (permissionName: string) => {
+      const state = permissions.find(
+        (p) => p.permission.name === permissionName,
+      );
+      if (!state) return;
+
+      const { permission, data } = state;
+
+      if (data instanceof MediaStream) {
+        data.getTracks().forEach((track) => track.stop());
+      }
+
+      setPermissions((prev) =>
+        prev.map((p) =>
+          p.permission.name === permissionName
+            ? { ...p, data: undefined }
+            : p,
+        ),
+      );
+
+      setLoading(permissionName, true);
+      addEvent(
+        createPermissionEvent(
+          permissionName,
+          'request',
+          `Retrying ${permission.displayName}`,
+        ),
+      );
+
+      try {
+        const result = await permission.requestFn();
+        if (result instanceof MediaStream) {
+          result.getTracks().forEach((track) => track.stop());
+        }
+
+        let newStatus = await checkPermissionStatus(permissionName);
+        if (newStatus === 'unsupported' || newStatus === 'prompt') {
+          newStatus = 'granted';
+        }
+
+        setPermissions((prev) =>
+          prev.map((p) =>
+            p.permission.name === permissionName
+              ? {
+                  ...p,
+                  status: newStatus,
+                  lastRequested: Date.now(),
+                  data: undefined,
+                  error: undefined,
+                }
+              : p,
+          ),
+        );
+
+        addEvent(
+          createPermissionEvent(
+            permissionName,
+            newStatus === 'granted' ? 'grant' : 'deny',
+            `${permission.displayName} access ${newStatus}`,
+          ),
+        );
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Permission denied';
+        setPermissions((prev) =>
+          prev.map((p) =>
+            p.permission.name === permissionName
+              ? {
+                  ...p,
+                  status: 'denied',
+                  error: message,
+                  data: undefined,
+                  lastRequested: Date.now(),
+                }
+              : p,
+          ),
+        );
+
+        addEvent(createPermissionEvent(permissionName, 'error', message));
+      } finally {
+        setLoading(permissionName, false);
+      }
+    },
+    [permissions, addEvent, setLoading],
+  );
 
   const copyCodeSnippet = useCallback(async (permissionName: string) => {
     const permission = PERMISSIONS.find(p => p.name === permissionName);
