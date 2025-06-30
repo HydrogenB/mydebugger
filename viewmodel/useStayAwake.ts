@@ -14,9 +14,11 @@ const useStayAwake = (): UseStayAwakeReturn => {
   const [enabled, setEnabled] = useState(true);
   const [sentinel, setSentinel] = useState<WakeLockSentinel | null>(null);
   const [supported, setSupported] = useState(false);
+  const isClient = typeof navigator !== 'undefined';
 
   const acquire = useCallback(async () => {
-    if (!supported) return;
+    if (!supported || !isClient) return;
+
     try {
       const s = await requestWakeLock();
       s.addEventListener('release', () => setEnabled(false));
@@ -28,33 +30,40 @@ const useStayAwake = (): UseStayAwakeReturn => {
       setEnabled(false);
       setSentinel(null);
     }
-  }, [supported]);
+  }, [supported, isClient]);
 
   const release = useCallback(async () => {
+    if (!isClient) return;
     await releaseWakeLock(sentinel);
     setSentinel(null);
     setEnabled(false);
-  }, [sentinel]);
+  }, [sentinel, isClient]);
 
   const toggle = useCallback(async () => {
+    if (!isClient) return;
+
     if (enabled) {
       await release();
     } else {
       await acquire();
     }
-  }, [enabled, acquire, release]);
+  }, [enabled, acquire, release, isClient]);
 
   useEffect(() => {
-    setSupported(isWakeLockSupported());
-  }, []);
+    if (isClient) {
+      setSupported(isWakeLockSupported());
+    }
+  }, [isClient]);
 
   useEffect(() => {
-    if (enabled && supported) {
+    if (enabled && supported && isClient) {
       acquire();
     }
-  }, [enabled, supported, acquire]);
+  }, [enabled, supported, isClient, acquire]);
 
   useEffect(() => {
+    if (!isClient) return undefined;
+
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && enabled) {
         acquire();
@@ -62,7 +71,8 @@ const useStayAwake = (): UseStayAwakeReturn => {
     };
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [enabled, acquire]);
+  }, [enabled, acquire, isClient]);
+
 
   return { enabled, supported, toggle };
 };
