@@ -50,7 +50,7 @@ export const useQrscan = () => {
     setDeviceId(next.deviceId);
     if (scanning) {
       stop();
-      await start(next.deviceId);
+      await start();
     }
   };
 

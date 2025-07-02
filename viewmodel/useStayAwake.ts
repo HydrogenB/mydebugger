@@ -1,33 +1,40 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { isWakeLockSupported, requestWakeLock, releaseWakeLock } from '../model/stayAwake';
+import { addAwakeTime, loadStats, resetStats as resetStatsModel } from '../model/stayAwakeStats';
 
 export interface UseStayAwakeReturn {
-  enabled: boolean;
   supported: boolean;
+  running: boolean;
+  timeLeft: number;
+  duration: number;
+  stats: { todayMin: number; weekHr: number; weekMin: number };
+  start: (ms: number) => Promise<void>;
   toggle: () => Promise<void>;
+  resetStats: () => void;
 }
 
 const useStayAwake = (): UseStayAwakeReturn => {
-  const [enabled, setEnabled] = useState(true);
-  const [sentinel, setSentinel] = useState<WakeLockSentinel | null>(null);
   const [supported, setSupported] = useState(false);
+  const [sentinel, setSentinel] = useState<WakeLockSentinel | null>(null);
+  const [running, setRunning] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [stats, setStats] = useState(loadStats());
+  const intervalRef = useRef<number>();
   const isClient = typeof navigator !== 'undefined';
 
   const acquire = useCallback(async () => {
     if (!supported || !isClient) return;
-
     try {
       const s = await requestWakeLock();
-      s.addEventListener('release', () => setEnabled(false));
+      s.addEventListener('release', () => setRunning(false));
       setSentinel(s);
-      setEnabled(true);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
-      setEnabled(false);
       setSentinel(null);
     }
   }, [supported, isClient]);
@@ -36,18 +43,54 @@ const useStayAwake = (): UseStayAwakeReturn => {
     if (!isClient) return;
     await releaseWakeLock(sentinel);
     setSentinel(null);
-    setEnabled(false);
   }, [sentinel, isClient]);
 
-  const toggle = useCallback(async () => {
-    if (!isClient) return;
+  const stop = useCallback(async () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = undefined;
+    setRunning(false);
+    setTimeLeft(0);
+    await release();
+  }, [release]);
 
-    if (enabled) {
-      await release();
-    } else {
+  const tick = useCallback(async () => {
+    setTimeLeft((prev) => {
+      const next = prev - 1000;
+      if (next <= 0) {
+        stop();
+        return 0;
+      }
+      const updated = addAwakeTime(1000);
+      setStats(updated);
+      return next;
+    });
+  }, [stop]);
+
+  const start = useCallback(
+    async (ms: number) => {
+      if (!isClient || ms <= 0) return;
+      clearInterval(intervalRef.current);
+      setDuration(ms);
+      setTimeLeft(ms);
+      setRunning(true);
       await acquire();
+      intervalRef.current = window.setInterval(tick, 1000);
+    },
+    [acquire, tick, isClient],
+  );
+
+  const toggle = useCallback(async () => {
+    if (running) {
+      await stop();
+    } else {
+      await start(duration || 30 * 60 * 1000);
     }
-  }, [enabled, acquire, release, isClient]);
+  }, [running, start, stop, duration]);
+
+  const resetStats = useCallback(() => {
+    resetStatsModel();
+    setStats(loadStats());
+  }, []);
 
   useEffect(() => {
     if (isClient) {
@@ -55,26 +98,15 @@ const useStayAwake = (): UseStayAwakeReturn => {
     }
   }, [isClient]);
 
-  useEffect(() => {
-    if (enabled && supported && isClient) {
-      acquire();
-    }
-  }, [enabled, supported, isClient, acquire]);
+  useEffect(() => () => clearInterval(intervalRef.current), []);
 
-  useEffect(() => {
-    if (!isClient) return undefined;
+  const statsView = {
+    todayMin: Math.round(stats.todayMs / 60000),
+    weekHr: Math.floor(stats.weekMs / 3600000),
+    weekMin: Math.round((stats.weekMs % 3600000) / 60000),
+  };
 
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible' && enabled) {
-        acquire();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [enabled, acquire, isClient]);
-
-
-  return { enabled, supported, toggle };
+  return { supported, running, timeLeft, duration, start, toggle, stats: statsView, resetStats };
 };
 
 export default useStayAwake;
