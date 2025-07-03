@@ -131,7 +131,7 @@ The UI now includes a debounced search box to quickly filter keys and values.
 import StayAwakePage from "../src/tools/stayawake/page";
 ```
 
-Prevent your screen from sleeping using the Wake Lock API. The toggle starts enabled and re-acquires the lock when you return to the tab. Access this tool at `/stayawake`.
+Prevent your screen from sleeping using the Wake Lock API. Set a timer from quick presets or a custom duration and watch the progress ring count down. Awake minutes are tracked in local storage so you can review today's and this week's totals. Access this tool at `/stayawake`.
 
 
 ## Header Scanner
