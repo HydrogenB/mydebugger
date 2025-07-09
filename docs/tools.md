@@ -37,6 +37,7 @@ Every section starts with an import snippet showing the component location so yo
 - [Metadata Echo](#metadata-echo)
 - [WebSocket Simulator](#websocket-simulator)
 - [CSV to Markdown Converter](#csv-to-markdown-converter)
+- [JSON to CSV / Excel Converter](#json-to-csv--excel-converter)
 
 ## Crypto Lab
 
@@ -340,3 +341,13 @@ Upload or paste a CSV and convert it to a GitHub-flavored Markdown table. Each
 column's alignment can be toggled between left, center and right. The generated
 Markdown can be copied or downloaded as a `.md` file. Access this tool at
 `/csvtomd`.
+
+## JSON to CSV / Excel Converter
+
+```tsx
+import JsonConverterPage from "../src/tools/json-converter/page";
+```
+
+Paste or upload JSON data and convert it into CSV or Excel. You can flatten
+nested objects, include a header row and choose LF or CRLF line endings. Copy
+the output or download it as `.csv` or `.xlsx` at `/json-converter`.
