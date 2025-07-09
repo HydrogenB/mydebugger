@@ -4,6 +4,7 @@
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { Button } from '../src/design-system/components/inputs';
+import { LoadingSpinner } from '../src/design-system/components/feedback/LoadingSpinner';
 
 interface Props {
   input: string;
@@ -11,6 +12,7 @@ interface Props {
   url: string;
   setUrl: (v: string) => void;
   output: string;
+  previewNotice: string;
   flatten: boolean;
   setFlatten: (v: boolean) => void;
   header: boolean;
@@ -20,6 +22,8 @@ interface Props {
   filename: string;
   setFilename: (v: string) => void;
   error: string;
+  fileInfo: string;
+  loading: boolean;
   format: () => void;
   clear: () => void;
   loadExample: () => void;
@@ -37,6 +41,7 @@ export function JsonConverterView({
   url,
   setUrl,
   output,
+  previewNotice,
   flatten,
   setFlatten,
   header,
@@ -46,6 +51,8 @@ export function JsonConverterView({
   filename,
   setFilename,
   error,
+  fileInfo,
+  loading,
   format,
   clear,
   loadExample,
@@ -74,6 +81,7 @@ export function JsonConverterView({
               if (f) uploadFile(f);
             }}
           />
+          {fileInfo && <div className="text-xs text-gray-500">{fileInfo}</div>}
           <div className="flex gap-2">
             <input
               type="url"
@@ -82,13 +90,13 @@ export function JsonConverterView({
               value={url}
               onChange={(e) => setUrl(e.target.value)}
             />
-            <Button size="sm" onClick={fetchUrl}>Fetch</Button>
+            <Button size="sm" onClick={fetchUrl} isLoading={loading} disabled={loading}>Fetch</Button>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={format}>Format</Button>
-            <Button size="sm" variant="secondary" onClick={clear}>Clear</Button>
-            <Button size="sm" variant="outline" onClick={loadExample}>Example</Button>
-            <Button size="sm" onClick={convert}>Convert</Button>
+            <Button size="sm" onClick={format} disabled={loading}>Format</Button>
+            <Button size="sm" variant="secondary" onClick={clear} disabled={loading}>Clear</Button>
+            <Button size="sm" variant="outline" onClick={loadExample} disabled={loading}>Example</Button>
+            <Button size="sm" onClick={convert} isLoading={loading} disabled={loading}>Convert</Button>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <label htmlFor="flatten" className="inline-flex items-center">
@@ -120,7 +128,17 @@ export function JsonConverterView({
               <option value="CRLF">CRLF</option>
             </select>
           </div>
-          {error && <div className="text-red-600 text-sm">{error}</div>}
+          {loading && (
+            <div className="flex items-center gap-2 text-gray-500">
+              <LoadingSpinner size="sm" /> Processing large file...
+            </div>
+          )}
+          {error && (
+            <div className="text-red-600 text-sm flex items-center gap-2">
+              {error}
+              <Button size="xs" variant="outline" onClick={clear} className="ml-auto">Clear & Try Again</Button>
+            </div>
+          )}
         </div>
         <div className={`${TOOL_PANEL_CLASS.replace('p-6', 'p-4')} space-y-2`}>
           <textarea
@@ -128,6 +146,9 @@ export function JsonConverterView({
             readOnly
             value={output}
           />
+          {previewNotice && (
+            <div className="text-xs text-gray-500">{previewNotice}</div>
+          )}
           <div className="flex flex-wrap gap-2 items-center">
             <Button size="sm" onClick={copyOutput}>Copy</Button>
             <input

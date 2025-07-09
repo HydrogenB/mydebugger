@@ -351,3 +351,6 @@ import JsonConverterPage from "../src/tools/json-converter/page";
 Paste or upload JSON data and convert it into CSV or Excel. You can flatten
 nested objects, include a header row and choose LF or CRLF line endings. Copy
 the output or download it as `.csv` or `.xlsx` at `/json-converter`.
+Large files over 10MB are rejected with an error. While parsing big JSON you
+will see a spinner, and only the first 50 rows are previewed when data exceeds
+10k entries.
