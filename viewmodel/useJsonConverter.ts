@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { fetchJsonFromUrl, parseJson } from '../model/jsonConverter';
 import { convertToCSV } from '../src/utils/convertToCSV';
 import { exportToExcel } from '../src/utils/exportToExcel';
+import type { OutputOptions } from '../model/jsonConverterTypes';
 
 const EXAMPLE = [
   { name: 'Alice', age: 30, city: 'NY' },
@@ -15,22 +16,41 @@ export const useJsonConverter = () => {
   const [input, setInput] = useState('');
   const [url, setUrl] = useState('');
   const [output, setOutput] = useState('');
-  const [flatten, setFlatten] = useState(false);
-  const [header, setHeader] = useState(true);
-  const [eol, setEol] = useState<'LF' | 'CRLF'>('LF');
+  const [outputOptions, setOptions] = useState<OutputOptions>({
+    delimiter: ',',
+    includeHeader: true,
+    suppressNewlines: false,
+    flatten: true,
+    pivot: false,
+    dateFormat: '',
+    forceQuotes: false,
+    objectPath: '',
+    upgradeToArray: true,
+    useAltMode: false,
+    eol: 'LF',
+  });
   const [filename, setFilename] = useState('data');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [fileInfo, setFileInfo] = useState('');
   const [previewNotice, setPreviewNotice] = useState('');
 
-  const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_SIZE = 20 * 1024 * 1024; // 20MB
 
-  const options = { flatten, header, eol: eol === 'LF' ? '\n' : '\r\n' } as const;
+  const csvOptions = {
+    delimiter: outputOptions.delimiter === '\t' ? '\t' : outputOptions.delimiter,
+    includeHeader: outputOptions.includeHeader,
+    suppressNewlines: outputOptions.suppressNewlines,
+    flatten: outputOptions.flatten,
+    forceQuotes: outputOptions.forceQuotes,
+    eol: outputOptions.eol === 'CRLF' ? '\r\n' : '\n',
+    dateFormat: outputOptions.dateFormat || undefined,
+    objectPath: outputOptions.objectPath || undefined,
+  } as const;
 
   const validateSize = (size: number) => {
     if (size > MAX_SIZE) {
-      setError('File too large! Limit = 10MB');
+      setError('File too large. Limit is 20MB.');
       setLoading(false);
       return false;
     }
@@ -96,11 +116,11 @@ export const useJsonConverter = () => {
   const convert = () => {
     parseAsync(input, (data) => {
       if (data.length > 10000) {
-        const csvPreview = convertToCSV(data.slice(0, 50), options);
+        const csvPreview = convertToCSV(data.slice(0, 50), csvOptions);
         setOutput(csvPreview);
         setPreviewNotice('Showing first 50 rows');
       } else {
-        setOutput(convertToCSV(data, options));
+        setOutput(convertToCSV(data, csvOptions));
         setPreviewNotice('');
       }
     });
@@ -113,7 +133,7 @@ export const useJsonConverter = () => {
 
   const downloadCsv = () => {
     parseAsync(input, (data) => {
-      const csv = convertToCSV(data, options);
+      const csv = convertToCSV(data, csvOptions);
       const blob = new Blob([csv], { type: 'text/csv' });
       const urlObj = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -126,7 +146,10 @@ export const useJsonConverter = () => {
 
   const downloadExcel = () => {
     parseAsync(input, (data) => {
-      exportToExcel(data, `${filename || 'data'}.xlsx`, { flatten });
+      exportToExcel(data, `${filename || 'data'}.xlsx`, {
+        flatten: outputOptions.flatten,
+        dateFormat: outputOptions.dateFormat || undefined,
+      });
     });
   };
 
@@ -137,12 +160,8 @@ export const useJsonConverter = () => {
     setUrl,
     output,
     previewNotice,
-    flatten,
-    setFlatten,
-    header,
-    setHeader,
-    eol,
-    setEol,
+    outputOptions,
+    setOptions,
     filename,
     setFilename,
     error,

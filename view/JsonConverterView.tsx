@@ -5,6 +5,8 @@ import React from 'react';
 import { TOOL_PANEL_CLASS } from '../src/design-system/foundations/layout';
 import { Button } from '../src/design-system/components/inputs';
 import { LoadingSpinner } from '../src/design-system/components/feedback/LoadingSpinner';
+import OutputOptionsPanel from './OutputOptionsPanel';
+import type { OutputOptions } from '../model/jsonConverterTypes';
 
 interface Props {
   input: string;
@@ -13,14 +15,10 @@ interface Props {
   setUrl: (v: string) => void;
   output: string;
   previewNotice: string;
-  flatten: boolean;
-  setFlatten: (v: boolean) => void;
-  header: boolean;
-  setHeader: (v: boolean) => void;
-  eol: 'LF' | 'CRLF';
-  setEol: (v: 'LF' | 'CRLF') => void;
   filename: string;
   setFilename: (v: string) => void;
+  outputOptions: OutputOptions;
+  setOptions: (opts: OutputOptions) => void;
   error: string;
   fileInfo: string;
   loading: boolean;
@@ -42,14 +40,10 @@ export function JsonConverterView({
   setUrl,
   output,
   previewNotice,
-  flatten,
-  setFlatten,
-  header,
-  setHeader,
-  eol,
-  setEol,
   filename,
   setFilename,
+  outputOptions,
+  setOptions,
   error,
   fileInfo,
   loading,
@@ -104,8 +98,8 @@ export function JsonConverterView({
                 id="flatten"
                 type="checkbox"
                 className="form-checkbox h-4 w-4"
-                checked={flatten}
-                onChange={(e) => setFlatten(e.target.checked)}
+                checked={outputOptions.flatten}
+                onChange={(e) => setOptions({ ...outputOptions, flatten: e.target.checked })}
               />
               <span className="ml-1">Flatten</span>
             </label>
@@ -114,25 +108,26 @@ export function JsonConverterView({
                 id="header"
                 type="checkbox"
                 className="form-checkbox h-4 w-4"
-                checked={header}
-                onChange={(e) => setHeader(e.target.checked)}
+                checked={outputOptions.includeHeader}
+                onChange={(e) => setOptions({ ...outputOptions, includeHeader: e.target.checked })}
               />
               <span className="ml-1">Header</span>
             </label>
             <select
               className="border px-1 py-0.5 rounded dark:bg-gray-700 dark:text-gray-200"
-              value={eol}
-              onChange={(e) => setEol(e.target.value as 'LF' | 'CRLF')}
+              value={outputOptions.eol}
+              onChange={(e) => setOptions({ ...outputOptions, eol: e.target.value as 'LF' | 'CRLF' })}
             >
               <option value="LF">LF</option>
               <option value="CRLF">CRLF</option>
             </select>
+        </div>
+        <OutputOptionsPanel options={outputOptions} onChange={setOptions} />
+        {loading && (
+          <div className="flex items-center gap-2 text-gray-500">
+            <LoadingSpinner size="sm" /> Processing large file...
           </div>
-          {loading && (
-            <div className="flex items-center gap-2 text-gray-500">
-              <LoadingSpinner size="sm" /> Processing large file...
-            </div>
-          )}
+        )}
           {error && (
             <div className="text-red-600 text-sm flex items-center gap-2">
               {error}
