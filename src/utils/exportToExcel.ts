@@ -1,7 +1,6 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import * as XLSX from 'xlsx';
 import flattenJSON from './flattenJSON';
 
 export interface ExcelOptions {
@@ -9,11 +8,12 @@ export interface ExcelOptions {
   dateFormat?: string;
 }
 
-export const exportToExcel = (
+export const exportToExcel = async (
   data: unknown,
   fileName: string,
   options: ExcelOptions = {},
-): void => {
+): Promise<void> => {
+  const { default: XLSX } = await import('xlsx');
   const { flatten = false, dateFormat } = options;
   const arr = Array.isArray(data) ? data : [data];
   const rows = arr.map((d) =>

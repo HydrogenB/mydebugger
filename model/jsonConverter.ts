@@ -33,11 +33,11 @@ export const convertJsonToCsv = (
   return convertToCSV(data, options);
 };
 
-export const convertJsonToExcel = (
+export const convertJsonToExcel = async (
   text: string,
   fileName: string,
   options: ExcelOptions,
-): void => {
+): Promise<void> => {
   const data = parseJson(text);
-  exportToExcel(data, fileName, options);
+  await exportToExcel(data, fileName, options);
 };

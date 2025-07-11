@@ -7,7 +7,7 @@ test('parseJson returns array', () => {
 });
 
 test('convertJsonToCsv flattens when enabled', () => {
-  const csv = convertJsonToCsv(sample, { flatten: true, header: true, eol: '\n' });
+  const csv = convertJsonToCsv(sample, { flatten: true, includeHeader: true, eol: '\n' });
   expect(csv.trim()).toBe('a,b.c\n1,2');
 });
 

@@ -57,13 +57,16 @@ export const useJsonConverter = () => {
     return true;
   };
 
-  const parseAsync = (text: string, cb: (data: Record<string, unknown>[]) => void) => {
+  const parseAsync = (
+    text: string,
+    cb: (data: Record<string, unknown>[]) => void | Promise<void>,
+  ) => {
     if (!validateSize(text.length)) return;
     setLoading(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const data = parseJson(text);
-        cb(data);
+        await cb(data);
         setError('');
       } catch (e: unknown) {
         setError(e instanceof Error ? e.message : String(e));
@@ -145,8 +148,8 @@ export const useJsonConverter = () => {
   };
 
   const downloadExcel = () => {
-    parseAsync(input, (data) => {
-      exportToExcel(data, `${filename || 'data'}.xlsx`, {
+    parseAsync(input, async (data) => {
+      await exportToExcel(data, `${filename || 'data'}.xlsx`, {
         flatten: outputOptions.flatten,
         dateFormat: outputOptions.dateFormat || undefined,
       });
