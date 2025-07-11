@@ -678,6 +678,20 @@ const toolRegistry: Tool[] = [
     uiOptions: { showExamples: false },
   },
   {
+    id: "json-converter",
+    route: "/json-converter",
+    title: "JSON to CSV / Excel Converter",
+    description: "Convert JSON data to CSV or Excel spreadsheets.",
+    icon: ConversionIcon,
+    component: lazy(() => import("./json-converter/page")),
+    category: "Conversion",
+    metadata: {
+      keywords: ["json", "csv", "excel", "convert"],
+      relatedTools: ["csv-to-markdown"],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
     id: "stayawake",
     route: "/stayawake",
     title: "Stay Awake Toggle",
