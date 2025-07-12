@@ -74,6 +74,7 @@ function PermissionCard({
 
   useEffect(() => {
     if (permission.status === 'granted' && permission.permission.hasLivePreview) {
+      // Automatically show preview when permission is granted
       setShowPreview(true);
     } else if (permission.status !== 'granted') {
       setShowPreview(false);
@@ -88,7 +89,6 @@ function PermissionCard({
   };
 
   const handleStopPreview = () => {
-    // Stop media streams
     if (permissionData instanceof MediaStream) {
       permissionData.getTracks().forEach(track => track.stop());
     }
@@ -98,9 +98,8 @@ function PermissionCard({
       if (!win.closed) win.close();
     }
 
-    // For sensors, they should be stopped by the parent component
     setShowPreview(false);
-    onClearData?.();
+    onClearData();
   };
 
   // Clean up active streams or sensors when component unmounts
@@ -116,10 +115,9 @@ function PermissionCard({
         const win = permissionData as Window;
         if (!win.closed) win.close();
       }
-      if (showPreview) setShowPreview(false);
-      onClearData?.();
+      onClearData();
     },
-    [permissionData, showPreview, permissionInfo.name, onClearData]
+    [permissionData, permissionInfo.name, onClearData]
   );
 
   const renderLivePreview = () => {
@@ -127,10 +125,7 @@ function PermissionCard({
 
     switch (permissionInfo.name) {
       case 'camera':
-        if (permissionData instanceof MediaStream) {
-          return <CameraPreview stream={permissionData} onStop={handleStopPreview} />;
-        }
-        break;
+        return <CameraPreview stream={permissionData as MediaStream} onStop={handleStopPreview} />;
 
       case 'display-capture':
         if (permissionData instanceof MediaStream) {
@@ -139,10 +134,7 @@ function PermissionCard({
         break;
         
       case 'microphone':
-        if (permissionData instanceof MediaStream) {
-          return <MicMeter stream={permissionData} onStop={handleStopPreview} />;
-        }
-        break;
+        return <MicMeter stream={permissionData as MediaStream} onStop={handleStopPreview} />;
         
       case 'geolocation':
         if (permissionData && typeof permissionData === 'object' && 'coords' in permissionData) {

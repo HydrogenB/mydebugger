@@ -213,7 +213,7 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
       }
 
       if (result instanceof MediaStream) {
-        result.getTracks().forEach(track => track.stop());
+        // Don't stop tracks here, let the preview component handle it
       }
 
       let newStatus = await checkPermissionStatus(permissionName);
