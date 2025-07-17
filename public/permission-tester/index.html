@@ -1,0 +1,116 @@
+<!-- © 2025 MyDebugger Contributors – MIT License -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geolocation Permission Tester</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    button { margin-right: 8px; }
+    .error { color: #b91c1c; margin-top: 10px; }
+    pre { background:#f3f4f6; padding:10px; border-radius:4px; overflow:auto; }
+    #location { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Geolocation Permission Tester</h1>
+  <p id="status">Detecting permission...</p>
+  <div id="location" style="display:none;">
+    <div>Latitude: <span id="lat"></span></div>
+    <div>Longitude: <span id="lng"></span></div>
+  </div>
+  <pre><code id="snippet"></code></pre>
+  <button id="request">Request</button>
+  <button id="retry" style="display:none;">Retry</button>
+  <button id="reset" style="display:none;">Reset</button>
+  <div id="error" class="error"></div>
+  <script>
+    (function() {
+      const statusEl = document.getElementById('status');
+      const latEl = document.getElementById('lat');
+      const lngEl = document.getElementById('lng');
+      const locDiv = document.getElementById('location');
+      const reqBtn = document.getElementById('request');
+      const retryBtn = document.getElementById('retry');
+      const resetBtn = document.getElementById('reset');
+      const errorEl = document.getElementById('error');
+      const snippetEl = document.getElementById('snippet');
+
+      const snippet = 'navigator.geolocation.getCurrentPosition(success, error, { enableHighAccuracy: true, timeout: 10000 });';
+      snippetEl.textContent = snippet;
+
+      function updateStatus(text) { statusEl.textContent = 'Status: ' + text; }
+      function showError(msg) { errorEl.textContent = msg; }
+      function clearError() { errorEl.textContent = ''; }
+
+      async function detectPermission() {
+        if (!('geolocation' in navigator) || !window.isSecureContext) {
+          updateStatus('unsupported');
+          reqBtn.disabled = true;
+          return;
+        }
+        try {
+          if (navigator.permissions && navigator.permissions.query) {
+            const { state } = await navigator.permissions.query({ name: 'geolocation' });
+            updateStatus(state);
+            if (state === 'granted') {
+              getLocation();
+            }
+          } else {
+            updateStatus('prompt');
+          }
+        } catch {
+          updateStatus('unsupported');
+          reqBtn.disabled = true;
+        }
+      }
+
+      function getLocation() {
+        clearError();
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            updateStatus('granted');
+            latEl.textContent = pos.coords.latitude.toFixed(6);
+            lngEl.textContent = pos.coords.longitude.toFixed(6);
+            locDiv.style.display = 'block';
+            retryBtn.style.display = 'inline';
+            resetBtn.style.display = 'inline';
+          },
+          (err) => {
+            if (err.code === err.PERMISSION_DENIED) {
+              updateStatus('denied');
+              showError('User denied geolocation request.');
+            } else if (err.code === err.TIMEOUT) {
+              showError('Request timed out.');
+            } else {
+              showError(err.message);
+            }
+            retryBtn.style.display = 'inline';
+            resetBtn.style.display = 'inline';
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+
+      reqBtn.addEventListener('click', getLocation);
+      retryBtn.addEventListener('click', () => { locDiv.style.display = 'none'; getLocation(); });
+      resetBtn.addEventListener('click', () => {
+        locDiv.style.display = 'none';
+        clearError();
+        updateStatus('prompt');
+        retryBtn.style.display = 'none';
+        resetBtn.style.display = 'none';
+      });
+
+      detectPermission();
+    })();
+  </script>
+</body>
+</html>
