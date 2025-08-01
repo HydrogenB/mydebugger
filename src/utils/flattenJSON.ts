@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import * as moment from 'moment';
+import moment from 'moment';
 
 export const flattenJSON = (
   obj: Record<string, unknown>,

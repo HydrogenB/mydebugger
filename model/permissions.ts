@@ -202,18 +202,23 @@ const requestFunctions = {
   },
 
   'window-management': async () => {
-    const win = window.open('', '_blank', 'noopener');
-    if (!win) throw new Error('Window failed to open');
+    const win = window.open('', '_blank', 'noopener,noreferrer,width=400,height=300');
+    if (!win) throw new Error('Window failed to open - popup blocked or not supported');
     return win;
   },
 
 
 
   nfc: async () => {
-    const ReaderClass = (window as Window & { NDEFReader?: new () => { scan(): Promise<unknown> } }).NDEFReader;
+    const ReaderClass = (window as Window & { NDEFReader?: new () => { 
+      scan(): Promise<unknown>;
+      addEventListener: (event: string, handler: (event: { message: { records: Array<{ recordType: string; data: ArrayBuffer; mediaType?: string }> } }) => void) => void;
+      removeEventListener: (event: string, handler: (event: { message: { records: Array<{ recordType: string; data: ArrayBuffer; mediaType?: string }> } }) => void) => void;
+    } }).NDEFReader;
     if (!ReaderClass) throw new Error('NFC not supported');
     const reader = new ReaderClass();
-    return reader.scan();
+    // Return the reader object so the preview component can manage scanning
+    return reader;
   },
 
   'payment-handler': async () => {
@@ -619,10 +624,40 @@ export const checkPermissionStatus = async (permissionName: string): Promise<Per
   if (!navigator.permissions) return 'unsupported';
   
   try {
-    const result = await navigator.permissions.query({ name: permissionName as unknown as PermissionDescriptor['name'] });
+    // Handle special cases where permission name doesn't match query name
+    let queryName = permissionName;
+    if (permissionName === 'display-capture') {
+      queryName = 'screen-capture';
+    }
+    
+    const result = await navigator.permissions.query({ 
+      name: queryName as unknown as PermissionDescriptor['name'] 
+    });
     return result.state as PermissionStatus;
-  } catch {
-    return 'unsupported';
+  } catch (error) {
+    // Check if the error is because the permission is not supported
+    if (error instanceof Error && error.message.includes('not supported')) {
+      return 'unsupported';
+    }
+    
+    // For some permissions, we need to check alternative ways
+    switch (permissionName) {
+      case 'clipboard-read':
+      case 'clipboard-write':
+        return navigator.clipboard ? 'prompt' : 'unsupported';
+      case 'bluetooth':
+        return (navigator as Navigator & { bluetooth?: unknown }).bluetooth ? 'prompt' : 'unsupported';
+      case 'usb':
+        return (navigator as Navigator & { usb?: unknown }).usb ? 'prompt' : 'unsupported';
+      case 'serial':
+        return (navigator as Navigator & { serial?: unknown }).serial ? 'prompt' : 'unsupported';
+      case 'hid':
+        return (navigator as Navigator & { hid?: unknown }).hid ? 'prompt' : 'unsupported';
+      case 'web-share':
+        return (navigator as Navigator & { share?: unknown }).share ? 'prompt' : 'unsupported';
+      default:
+        return 'unsupported';
+    }
   }
 };
 
@@ -650,3 +685,144 @@ export const createPermissionEvent = (
   action,
   details
 });
+
+// Resource cleanup utilities
+export const cleanupPermissionData = (permissionName: string, data: unknown): void => {
+  if (!data) return;
+
+  try {
+    switch (permissionName) {
+      case 'camera':
+      case 'microphone':
+      case 'display-capture':
+        if (data instanceof MediaStream) {
+          data.getTracks().forEach(track => {
+            if (track.readyState === 'live') {
+              track.stop();
+            }
+          });
+        }
+        break;
+        
+      case 'screen-wake-lock':
+        if (data && typeof data === 'object' && 'release' in data) {
+          (data as { release: () => Promise<void> }).release().catch(() => {
+            // Ignore cleanup errors
+          });
+        }
+        break;
+        
+      case 'window-management':
+        if (data && typeof data === 'object' && 'close' in data) {
+          const win = data as Window;
+          if (!win.closed) {
+            win.close();
+          }
+        }
+        break;
+        
+      case 'accelerometer':
+      case 'gyroscope':
+      case 'magnetometer':
+      case 'ambient-light-sensor':
+        if (data && typeof data === 'object' && 'stop' in data) {
+          (data as { stop: () => void }).stop();
+        }
+        break;
+        
+      case 'compute-pressure':
+        if (data && typeof data === 'object' && 'observer' in data) {
+          const { observer } = data as { observer: { disconnect(): void } };
+          observer.disconnect();
+        }
+        break;
+        
+      case 'idle-detection':
+        if (data && typeof data === 'object' && 'stop' in data) {
+          (data as { stop?: () => void }).stop?.();
+        }
+        break;
+        
+      default:
+        // No specific cleanup needed for other permissions
+        break;
+    }
+  } catch (error) {
+    // Silent cleanup failure - don't log in production
+  }
+};
+
+// Enhanced permission request with timeout and proper error handling
+export const requestPermissionWithTimeout = async (
+  permission: Permission,
+  timeoutMs: number = 15000
+): Promise<unknown> => 
+  new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error(`Permission request timed out after ${timeoutMs/1000}s. Please try again or check your browser settings.`));
+    }, timeoutMs);
+
+    permission.requestFn()
+      .then(result => {
+        clearTimeout(timeout);
+        resolve(result);
+      })
+      .catch(error => {
+        clearTimeout(timeout);
+        // Enhanced error messaging for better user understanding
+        let enhancedError = error;
+        if (error instanceof Error) {
+          const errorMessage = error.message.toLowerCase();
+          if (errorMessage.includes('denied') || errorMessage.includes('permission')) {
+            enhancedError = new Error(`Permission denied. To grant access: 1) Click the permission icon in your browser's address bar, 2) Choose "Allow", 3) Refresh the page, or 4) Check browser settings.`);
+          } else if (errorMessage.includes('not supported') || errorMessage.includes('unsupported')) {
+            enhancedError = new Error(`This feature is not supported in your current browser. Try using a recent version of Chrome, Firefox, or Edge.`);
+          } else if (errorMessage.includes('popup') || errorMessage.includes('blocked')) {
+            enhancedError = new Error(`Popup blocked. Please allow popups for this site in your browser settings and try again.`);
+          } else if (errorMessage.includes('secure') || errorMessage.includes('https')) {
+            enhancedError = new Error(`This feature requires a secure connection (HTTPS). Please access this page over HTTPS.`);
+          }
+        }
+        reject(enhancedError);
+      });
+  });
+
+// Permission removal/revocation helper
+export const revokePermissionGuidance = (permissionName: string): string => {
+  const browserDetection = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('chrome')) return 'chrome';
+    if (userAgent.includes('firefox')) return 'firefox';
+    if (userAgent.includes('safari')) return 'safari';
+    if (userAgent.includes('edge')) return 'edge';
+    return 'browser';
+  };
+
+  const browser = browserDetection();
+  
+  const instructions: Record<string, string> = {
+    chrome: `1. Click the lock/info icon in the address bar
+2. Find "${permissionName}" and click the dropdown
+3. Select "Block" or "Ask"
+4. Refresh the page`,
+    firefox: `1. Click the shield/lock icon in the address bar  
+2. Click "Connection secure" > "More information"
+3. Go to "Permissions" tab
+4. Find "${permissionName}" and change to "Block"
+5. Refresh the page`,
+    safari: `1. Go to Safari > Settings > Websites
+2. Find "${permissionName}" in the left sidebar
+3. Change setting for this site to "Deny"
+4. Refresh the page`,
+    edge: `1. Click the lock icon in the address bar
+2. Click "Permissions for this site"  
+3. Find "${permissionName}" and change to "Block"
+4. Refresh the page`,
+    browser: `1. Look for the lock/shield icon in your address bar
+2. Click it and find permissions settings
+3. Block or reset the "${permissionName}" permission
+4. Refresh the page`
+  };
+
+  return instructions[browser] || instructions.browser;
+};

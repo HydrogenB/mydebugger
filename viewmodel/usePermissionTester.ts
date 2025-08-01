@@ -3,7 +3,7 @@
  * 
  * Permission Tester ViewModel Hook
  */
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   PERMISSIONS,
   PermissionState,
@@ -11,6 +11,8 @@ import {
   checkPermissionStatus,
   generateCodeSnippet,
   createPermissionEvent,
+  cleanupPermissionData,
+  requestPermissionWithTimeout,
   IdleDetectorConstructor
 } from '../model/permissions';
 
@@ -30,6 +32,21 @@ export interface UsePermissionTesterReturn {
   isLoading: (permissionName: string) => boolean;
   getPermissionData: (permissionName: string) => unknown;
   clearPermissionData: (permissionName: string) => void;
+  activePreview: string | null;
+  setActivePreview: (permissionName: string | null) => void;
+  previewStates: Record<string, any>;
+  updatePreviewState: (permissionName: string, data: any) => void;
+  isPreviewActive: (permissionName: string) => boolean;
+  startPreview: (permissionName: string) => Promise<void>;
+  stopPreview: (permissionName: string) => void;
+  exportResults: () => Promise<void>;
+  runBatchTest: (permissionNames: string[]) => Promise<void>;
+  permissionStats: {
+    granted: number;
+    denied: number;
+    unsupported: number;
+    total: number;
+  };
 }
 
 const usePermissionTester = (): UsePermissionTesterReturn => {
@@ -37,6 +54,11 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
   const [events, setEvents] = useState<PermissionEvent[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loadingStates, setLoadingStates] = useState<Set<string>>(new Set());
+  const [activePreview, setActivePreview] = useState<string | null>(null);
+  const [previewStates, setPreviewStates] = useState<Record<string, unknown>>({});
+  
+  // Use ref to track cleanup and prevent memory leaks
+  const cleanupRefs = useRef<Map<string, () => void>>(new Map());
 
   const addEvent = useCallback((event: PermissionEvent) => {
     setEvents(prev => [event, ...prev.slice(0, 99)]); // Keep last 100 events
@@ -47,14 +69,24 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     const initializePermissions = async () => {
       const initialStates: PermissionState[] = await Promise.all(
         PERMISSIONS.map(async (permission) => {
-          const status = await checkPermissionStatus(permission.name);
-          return {
-            permission,
-            status,
-            lastRequested: undefined,
-            data: undefined,
-            error: undefined
-          };
+          try {
+            const status = await checkPermissionStatus(permission.name);
+            return {
+              permission,
+              status,
+              lastRequested: undefined,
+              data: undefined,
+              error: undefined
+            };
+          } catch (error) {
+            return {
+              permission,
+              status: 'unsupported' as const,
+              lastRequested: undefined,
+              data: undefined,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            };
+          }
         })
       );
       
@@ -63,6 +95,21 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
 
     initializePermissions();
   }, []);
+
+  // Cleanup all resources on unmount
+  useEffect(() => () => {
+    // Cleanup all active resources
+    permissions.forEach(({ permission, data }) => {
+      if (data) {
+        cleanupPermissionData(permission.name, data);
+      }
+    });
+    
+    // Run any additional cleanup functions
+    const cleanupMap = cleanupRefs.current;
+    cleanupMap.forEach(cleanup => cleanup());
+    cleanupMap.clear();
+  }, [permissions]); // Include permissions dependency
 
   const setLoading = useCallback((permissionName: string, loading: boolean) => {
     setLoadingStates(prev => {
@@ -82,14 +129,25 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
 
     const { permission } = permissionState;
     
+    // Cleanup any existing data first
+    if (permissionState.data) {
+      cleanupPermissionData(permission.name, permissionState.data);
+    }
+    
     setLoading(permissionName, true);
     addEvent(createPermissionEvent(permissionName, 'request', `Requesting ${permission.displayName}`));
 
     try {
-      const result = await permission.requestFn();
-      let status = await checkPermissionStatus(permissionName);
-      if (status === 'unsupported' || status === 'prompt') {
-        status = 'granted';
+      // Use timeout-enhanced request function
+      const result = await requestPermissionWithTimeout(permission, 15000);
+
+      // Check the actual permission status after request
+      let newStatus = await checkPermissionStatus(permissionName);
+      
+      // For some permissions, if the request succeeds but status is still 'prompt' or 'unsupported',
+      // we can assume it's granted
+      if ((newStatus === 'prompt' || newStatus === 'unsupported') && result) {
+        newStatus = 'granted';
       }
 
       setPermissions(prev =>
@@ -97,8 +155,8 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
           p.permission.name === permissionName
             ? {
                 ...p,
-                status,
-                data: status === 'granted' ? result : undefined,
+                status: newStatus,
+                data: newStatus === 'granted' ? result : undefined,
                 error: undefined,
                 lastRequested: Date.now()
               }
@@ -109,8 +167,8 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
       addEvent(
         createPermissionEvent(
           permissionName,
-          status === 'granted' ? 'grant' : 'deny',
-          `${permission.displayName} access ${status}`
+          newStatus === 'granted' ? 'grant' : 'deny',
+          `${permission.displayName} access ${newStatus}`
         )
       );
 
@@ -351,12 +409,17 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
   }, [permissions]);
 
   const clearPermissionData = useCallback((permissionName: string) => {
+    const permissionState = permissions.find(p => p.permission.name === permissionName);
+    if (permissionState?.data) {
+      cleanupPermissionData(permissionName, permissionState.data);
+    }
+    
     setPermissions(prev =>
       prev.map(p =>
         p.permission.name === permissionName ? { ...p, data: undefined } : p
       )
     );
-  }, []);
+  }, [permissions]);
 
   // Filter permissions based on search query
   const filteredPermissions = useMemo(() => {
@@ -370,6 +433,242 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
       permission.category.toLowerCase().includes(query)
     );
   }, [permissions, searchQuery]);
+
+  // Enhanced Preview management functions with comprehensive preview support
+  const updatePreviewState = useCallback((permissionName: string, data: unknown) => {
+    setPreviewStates(prev => ({
+      ...prev,
+      [permissionName]: data
+    }));
+  }, []);
+
+  // Check if preview is active for a permission
+  const isPreviewActive = useCallback((permissionName: string): boolean => 
+    activePreview === permissionName, [activePreview]);
+
+  // Enhanced preview starter with comprehensive coverage
+  const startPreview = useCallback(async (permissionName: string) => {
+    const permissionState = permissions.find(p => p.permission.name === permissionName);
+    if (!permissionState || permissionState.status !== 'granted') return;
+
+    setActivePreview(permissionName);
+
+    try {
+      switch (permissionName) {
+        case 'camera': {
+          const stream = permissionState.data as MediaStream;
+          if (stream) {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            updatePreviewState(permissionName, { stream, video, type: 'camera' });
+          }
+          break;
+        }
+        case 'microphone': {
+          const stream = permissionState.data as MediaStream;
+          if (stream) {
+            const audioContext = new AudioContext();
+            const analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 256;
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+            
+            updatePreviewState(permissionName, { 
+              stream, 
+              audioContext, 
+              analyser, 
+              dataArray, 
+              type: 'microphone' 
+            });
+          }
+          break;
+        }
+        case 'screen-capture': {
+          const stream = permissionState.data as MediaStream;
+          if (stream) {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            updatePreviewState(permissionName, { stream, video, type: 'screen' });
+          }
+          break;
+        }
+        case 'geolocation': {
+          const position = permissionState.data as GeolocationPosition;
+          if (position) {
+            updatePreviewState(permissionName, {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              type: 'location',
+              mapUrl: `https://www.openstreetmap.org/?mlat=${position.coords.latitude}&mlon=${position.coords.longitude}&zoom=15`
+            });
+          }
+          break;
+        }
+        case 'bluetooth': {
+          const device = permissionState.data as { name?: string; id?: string };
+          if (device) {
+            updatePreviewState(permissionName, {
+              device,
+              type: 'bluetooth',
+              name: device.name || 'Unknown Device',
+              id: device.id || 'Unknown ID'
+            });
+          }
+          break;
+        }
+        case 'usb': {
+          const device = permissionState.data as { productName?: string; manufacturerName?: string };
+          if (device) {
+            updatePreviewState(permissionName, {
+              device,
+              type: 'usb',
+              productName: device.productName || 'Unknown Device',
+              manufacturerName: device.manufacturerName || 'Unknown Manufacturer'
+            });
+          }
+          break;
+        }
+        case 'midi': {
+          const access = permissionState.data as { inputs: Map<string, unknown>; outputs: Map<string, unknown> };
+          if (access) {
+            const inputs = Array.from(access.inputs.values());
+            const outputs = Array.from(access.outputs.values());
+            updatePreviewState(permissionName, {
+              access,
+              inputs,
+              outputs,
+              type: 'midi'
+            });
+          }
+          break;
+        }
+        case 'storage-access': {
+          updatePreviewState(permissionName, {
+            type: 'storage',
+            hasAccess: true,
+            timestamp: Date.now()
+          });
+          break;
+        }
+        case 'persistent-storage': {
+          const persisted = permissionState.data;
+          if (navigator.storage && navigator.storage.estimate) {
+            const estimate = await navigator.storage.estimate();
+            updatePreviewState(permissionName, {
+              persisted,
+              quota: estimate.quota,
+              usage: estimate.usage,
+              type: 'storage-persistent'
+            });
+          }
+          break;
+        }
+        default:
+          updatePreviewState(permissionName, {
+            type: 'generic',
+            data: permissionState.data,
+            timestamp: Date.now()
+          });
+      }
+    } catch (error) {
+      // Log error for debugging but don't throw
+      updatePreviewState(permissionName, {
+        type: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }, [permissions, updatePreviewState]);
+
+  // Stop preview for a permission
+  const stopPreview = useCallback((permissionName: string) => {
+    if (activePreview === permissionName) {
+      setActivePreview(null);
+    }
+    // Clean up any resources associated with this preview
+    const cleanup = cleanupRefs.current.get(permissionName);
+    if (cleanup) {
+      cleanup();
+      cleanupRefs.current.delete(permissionName);
+    }
+    // Clear preview state
+    setPreviewStates(prev => {
+      const { [permissionName]: unused, ...rest } = prev;
+      return rest;
+    });
+  }, [activePreview]);
+
+  // Export test results
+  const exportResults = useCallback(async () => {
+    const results = {
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      permissions: permissions.map(({ permission, status, error, lastRequested }) => ({
+        name: permission.name,
+        displayName: permission.displayName,
+        category: permission.category,
+        status,
+        error,
+        lastRequested,
+        supported: status !== 'unsupported'
+      })),
+      events: events.slice(0, 50), // Last 50 events
+      summary: {
+        total: permissions.length,
+        granted: permissions.filter(p => p.status === 'granted').length,
+        denied: permissions.filter(p => p.status === 'denied').length,
+        unsupported: permissions.filter(p => p.status === 'unsupported').length
+      }
+    };
+
+    const dataStr = JSON.stringify(results, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `permission-test-results-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    addEvent(createPermissionEvent('system', 'grant', 'Test results exported'));
+  }, [permissions, events, addEvent]);
+
+  // Run batch test on multiple permissions
+  const runBatchTest = useCallback(async (permissionNames: string[]) => {
+    addEvent(createPermissionEvent('system', 'request', `Starting batch test for ${permissionNames.length} permissions`));
+    
+    // Process permissions sequentially using reduce to avoid for...await
+    await permissionNames.reduce(async (previousPromise, permissionName) => {
+      await previousPromise;
+      await requestPermission(permissionName);
+      // Small delay between requests to avoid overwhelming the browser
+      return new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 500);
+      });
+    }, Promise.resolve());
+    
+    addEvent(createPermissionEvent('system', 'grant', 'Batch test completed'));
+  }, [requestPermission, addEvent]);
+
+  // Permission statistics
+  const permissionStats = useMemo(() => {
+    const granted = permissions.filter(p => p.status === 'granted').length;
+    const denied = permissions.filter(p => p.status === 'denied').length;
+    const unsupported = permissions.filter(p => p.status === 'unsupported').length;
+    
+    return {
+      granted,
+      denied,
+      unsupported,
+      total: permissions.length
+    };
+  }, [permissions]);
 
   return {
     permissions,
@@ -386,7 +685,17 @@ const usePermissionTester = (): UsePermissionTesterReturn => {
     getCodeSnippet,
     isLoading,
     getPermissionData,
-    clearPermissionData
+    clearPermissionData,
+    activePreview,
+    setActivePreview,
+    previewStates,
+    updatePreviewState,
+    isPreviewActive,
+    startPreview,
+    stopPreview,
+    exportResults,
+    runBatchTest,
+    permissionStats
   };
 };
 

@@ -223,7 +223,7 @@ const toolRegistry: Tool[] = [
     title: "QR Scanner",
     description: "Scan QR codes using your device camera.",
     icon: QrCodeIcon,
-    component: lazy(() => import("./qrscan")),
+    component: lazy(() => import("./qrscan/index")),
     category: "Utilities",
     metadata: {
       keywords: ["qr", "scanner", "camera", "qr code"],
