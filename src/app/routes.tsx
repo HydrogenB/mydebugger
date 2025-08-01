@@ -34,7 +34,11 @@ export const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/privacy-policy" element={<MainLayout><PrivacyPolicy /></MainLayout>} />
-      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />      {/* Dynamic routes for all tools */}      {toolRegistry.map((tool) => (
+      <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />
+      
+      {/* Dashboard routes can be added here in the future */}
+      
+      {/* Dynamic routes for all tools */}      {toolRegistry.map((tool) => (
         <Route 
           key={tool.id} 
           path={`${tool.route}/*`} 
