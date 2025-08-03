@@ -6,7 +6,7 @@ module.exports = {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: [
-    '<rootDir>/__tests__/jest.comprehensive.setup.ts',
+    '<rootDir>/__tests__/setupTests.ts',
     '@testing-library/jest-dom'
   ],
   testMatch: [

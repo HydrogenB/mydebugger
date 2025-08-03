@@ -5,6 +5,7 @@
  */
 
 export { default as CameraPreview } from './CameraPreview';
+export { default as MicrophonePreview } from './MicrophonePreview';
 export { default as MicMeter } from './MicMeter';
 export { default as GeoPanel } from './GeoPanel';
 export { default as SensorTable } from './SensorTable';
