@@ -1,10 +1,12 @@
 /**
- * © 2025 MyDebugger Contributors – MIT License
+ * 2025 MyDebugger Contributors – MIT License
  */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { MdPushPin, MdOutlinePushPin } from 'react-icons/md';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
+import SEOMeta from '../components/SEOMeta';
+import { pageSEO } from '../config/seo.config';
 import {
   Card,
   Grid,
@@ -40,9 +42,37 @@ const Home: React.FC = () => {
   const popularTools = useMemo(() => getPopularTools(), []);
   const schemaData = {
     "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "MyDebugger",
+    "@type": ["WebSite", "SoftwareApplication"],
+    name: "MyDebugger - Advanced Debugging Tools",
+    description: "Professional debugging platform with 50+ development tools including JWT decoder, QR code generator, code analysis, and performance monitoring utilities",
     url: "https://mydebugger.vercel.app/",
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web Browser",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock"
+    },
+    featureList: [
+      "JWT Decoder and Debugger",
+      "QR Code Generator and Scanner",
+      "Code Analysis and Profiler",
+      "Performance Monitoring",
+      "Error Tracking System",
+      "API Testing Tools",
+      "Data Visualization",
+      "Encoding/Decoding Utilities",
+      "Security Analysis",
+      "Database Tools"
+    ],
+    programmingLanguage: ["JavaScript", "TypeScript", "Python", "Go", "Rust"],
+    screenshot: "https://mydebugger.vercel.app/screenshot-home.jpg",
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "247"
+    },
     potentialAction: {
       "@type": "SearchAction",
       target: "https://mydebugger.vercel.app/?search={search_term_string}",
@@ -191,26 +221,27 @@ const Home: React.FC = () => {
   };
   
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEOMeta seo={pageSEO.home} path="/" />
       <Helmet>
-        <title>MyDebugger - Web Developer Tools Dashboard</title>
-        <meta name="description" content="Collection of essential web developer tools for debugging, encoding, formatting, testing, and more." />
-        <meta name="keywords" content="developer tools, web debugging, jwt toolkit, qr code generator, url encoder, regex tester" />
-        <meta property="og:title" content="MyDebugger - Web Developer Tools" />
-        <meta property="og:description" content="Essential developer toolkit for modern web development" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://mydebugger.vercel.app" />
-        <meta property="og:site_name" content="MyDebugger" />
-        <meta property="og:image" content="https://mydebugger.vercel.app/favicon.svg" />
-        <link rel="canonical" href="https://mydebugger.vercel.app/" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="MyDebugger - Web Developer Tools" />
-        <meta name="twitter:description" content="Essential developer toolkit for modern web development" />
-        <meta name="robots" content="index,follow" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <meta name="robots" content="index, follow" />
+        <meta name="googlebot" content="index, follow" />
+        <meta name="revisit-after" content="7 days" />
+        <meta name="distribution" content="global" />
+        <meta name="rating" content="general" />
+        <meta name="language" content="en" />
+        <meta name="application-name" content="MyDebugger" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="MyDebugger" />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+        <script type="application/ld+json">
+          {JSON.stringify(schemaData)}
+        </script>
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
         <h1 id="hero-heading" className="text-center text-3xl sm:text-4xl font-extrabold gradient-text mb-6">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../design-system/components/inputs';
-
+import LanguageToggle from '../components/LanguageToggle';
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -78,11 +78,13 @@ const Header: React.FC = () => {
               <span className="w-5 h-5 block">{getIconHelper('github')}</span>
             </a>
             
+            <LanguageToggle />
             <ThemeToggle />
           </nav>
           
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
+            <LanguageToggle />
             <ThemeToggle />
             <button 
               onClick={toggleMobileMenu}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../context/TranslationContext';
 import TrustBanner from '../../view/TrustBanner';
 
 // Helper function for icons
@@ -21,6 +22,7 @@ const getIconHelper = (name: string) => {
 };
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
     // Function to handle LinkedIn navigation
   const handleLinkedInNavigation = () => {
@@ -136,15 +138,19 @@ const Footer: React.FC = () => {
 
         {/* Bottom section */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            © {currentYear} MyDebugger. All rights reserved.
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {t('footer.copyright', ` ${currentYear} MyDebugger. All rights reserved.`)}
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
-            <Link to="/privacy-policy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300">
-              Privacy Policy
+            <Link to="/privacy-policy" className="hover:underline transition-colors">
+              <span className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                {t('footer.privacy', 'Privacy Policy')}
+              </span>
             </Link>
-            <Link to="/terms-of-service" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300">
-              Terms of Service
+            <Link to="/terms-of-service" className="hover:underline transition-colors">
+              <span className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
+                {t('footer.terms', 'Terms of Service')}
+              </span>
             </Link>
           </div>
         </div>

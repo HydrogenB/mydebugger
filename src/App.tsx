@@ -5,6 +5,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import "./App.css";
 
 import { ThemeProvider } from "./design-system/context/ThemeContext";
+import { TranslationProvider } from "./context/TranslationContext";
 import Header from "./layout/Header";
 import { AppRoutes } from "./app/routes";
 import Footer from "./layout/Footer";
@@ -15,16 +16,18 @@ function App() {
     // Remove HelmetProvider
     // <HelmetProvider>
     <ThemeProvider>
-      <Router>
-        <DynamicLinkProbeProvider />
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">
-            <AppRoutes />
-          </main>
-          <Footer />
-        </div>
-      </Router>
+      <TranslationProvider>
+        <Router>
+          <DynamicLinkProbeProvider />
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow">
+              <AppRoutes />
+            </main>
+            <Footer />
+          </div>
+        </Router>
+      </TranslationProvider>
     </ThemeProvider>
     // </HelmetProvider>
   );

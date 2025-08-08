@@ -1,0 +1,106 @@
+{
+  "en": {
+    "app": {
+      "title": "MyDebugger",
+      "subtitle": "Advanced debugging tools",
+      "description": "A comprehensive debugging platform"
+    },
+    "navigation": {
+      "home": "Home",
+      "features": "Features",
+      "tools": "Tools",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "common": {
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "cancel": "Cancel",
+      "save": "Save",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "search": "Search",
+      "filter": "Filter",
+      "clear": "Clear",
+      "close": "Close",
+      "open": "Open"
+    },
+    "header": {
+      "language": "Language",
+      "theme": "Theme",
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "footer": {
+      "copyright": "© 2025 MyDebugger. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service"
+    },
+    "features": {
+      "debug_tools": "Debugging Tools",
+      "code_analysis": "Code Analysis",
+      "performance": "Performance Monitoring",
+      "error_tracking": "Error Tracking"
+    },
+    "tools": {
+      "debugger": "Interactive Debugger",
+      "profiler": "Code Profiler",
+      "inspector": "Code Inspector",
+      "analyzer": "Static Analyzer"
+    }
+  },
+  "th": {
+    "app": {
+      "title": "ดีบักเกอร์ของฉัน",
+      "subtitle": "เครื่องมือดีบักขั้นสูง",
+      "description": "แพลตฟอร์มดีบักแบบครบวงจร"
+    },
+    "navigation": {
+      "home": "หน้าแรก",
+      "features": "คุณสมบัติ",
+      "tools": "เครื่องมือ",
+      "about": "เกี่ยวกับ",
+      "contact": "ติดต่อ"
+    },
+    "common": {
+      "loading": "กำลังโหลด...",
+      "error": "ข้อผิดพลาด",
+      "success": "สำเร็จ",
+      "cancel": "ยกเลิก",
+      "save": "บันทึก",
+      "delete": "ลบ",
+      "edit": "แก้ไข",
+      "add": "เพิ่ม",
+      "search": "ค้นหา",
+      "filter": "กรอง",
+      "clear": "ล้าง",
+      "close": "ปิด",
+      "open": "เปิด"
+    },
+    "header": {
+      "language": "ภาษา",
+      "theme": "ธีม",
+      "profile": "โปรไฟล์",
+      "settings": "การตั้งค่า"
+    },
+    "footer": {
+      "copyright": "© 2025 ดีบักเกอร์ของฉัน. สงวนลิขสิทธิ์",
+      "privacy": "นโยบายความเป็นส่วนตัว",
+      "terms": "เงื่อนไขการให้บริการ"
+    },
+    "features": {
+      "debug_tools": "เครื่องมือดีบัก",
+      "code_analysis": "การวิเคราะห์โค้ด",
+      "performance": "การตรวจสอบประสิทธิภาพ",
+      "error_tracking": "การติดตามข้อผิดพลาด"
+    },
+    "tools": {
+      "debugger": "ดีบักแบบโต้ตอบ",
+      "profiler": "โปรไฟล์โค้ด",
+      "inspector": "ตัวตรวจสอบโค้ด",
+      "analyzer": "ตัววิเคราะห์แบบคงที่"
+    }
+  }
+}
