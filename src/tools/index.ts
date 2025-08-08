@@ -579,47 +579,47 @@ const toolRegistry: Tool[] = [
     uiOptions: { showExamples: false },
   },
   {
-    id: 'api-simulator',
-    route: '/api-simulator',
-    title: 'API Simulator',
-    description: 'Encode JSON to Base64 and test API responses.',
+    id: "api-simulator",
+    route: "/api-simulator",
+    title: "API Simulator",
+    description: "Encode JSON to Base64 and test API responses.",
     icon: TestingIcon,
-    component: lazy(() => import('./api-simulator/page')),
-    category: 'Testing',
+    component: lazy(() => import("./api-simulator/page")),
+    category: "Testing",
     metadata: {
-      keywords: ['api', 'testing', 'mock', 'delay', 'status'],
-      relatedTools: ['headers-analyzer', 'cors-tester']
+      keywords: ["api", "testing", "mock", "delay", "status"],
+      relatedTools: ["headers-analyzer", "cors-tester"],
     },
-  uiOptions: { showExamples: false }
-},
-  {
-    id: 'api-test',
-    route: '/api-test',
-    title: 'API Request Repeater',
-    description: 'Repeat HTTP requests from a curl command.',
-    icon: TestingIcon,
-    component: lazy(() => import('./api-test/page')),
-    category: 'Testing',
-    isNew: true,
-    metadata: {
-      keywords: ['curl', 'http', 'testing', 'repeater'],
-      relatedTools: ['api-simulator', 'websocket-simulator']
-    },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
   },
   {
-    id: 'network-suit',
-    route: '/networksuit',
-    title: 'Network Test Suite',
-    description: 'Check connection type, ping and download speed.',
+    id: "api-test",
+    route: "/api-test",
+    title: "API Request Repeater",
+    description: "Repeat HTTP requests from a curl command.",
     icon: TestingIcon,
-    component: lazy(() => import('./networksuit/page')),
-    category: 'Testing',
+    component: lazy(() => import("./api-test/page")),
+    category: "Testing",
+    isNew: true,
     metadata: {
-      keywords: ['network', 'ping', 'speed', 'connection'],
-      relatedTools: []
+      keywords: ["curl", "http", "testing", "repeater"],
+      relatedTools: ["api-simulator", "websocket-simulator"],
     },
-  uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "network-suit",
+    route: "/networksuit",
+    title: "Network Test Suite",
+    description: "Check connection type, ping and download speed.",
+    icon: TestingIcon,
+    component: lazy(() => import("./networksuit/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["network", "ping", "speed", "connection"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
   },
   {
     id: "image-compressor",
@@ -701,6 +701,26 @@ const toolRegistry: Tool[] = [
     category: "Utilities",
     metadata: {
       keywords: ["wake lock", "screen", "sleep"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "thai-flag",
+    route: "/thong-thai",
+    title: "Thai Flag Generator",
+    description:
+      "สร้างธงชาติไทยขนาดตามต้องการ พร้อมดาวน์โหลดเป็น PNG, SVG, JPEG หรือ GIF แบบเคลื่อนไหว",
+    icon: UtilitiesIcon,
+    component: lazy(() => import("./thong-thai/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: [
+        "ธงชาติไทย",
+        "thai flag",
+        "flag generator",
+        "thai national flag",
+      ],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },
