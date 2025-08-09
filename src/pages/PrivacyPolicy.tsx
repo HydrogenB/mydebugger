@@ -42,6 +42,7 @@ const PrivacyPolicy: React.FC = () => {
         <script type="application/ld+json">
           {JSON.stringify(privacySchema)}
         </script>
+      </Helmet>
       <ResponsiveContainer maxWidth="4xl" className="py-12">
         <div className="prose dark:prose-invert prose-a:text-primary-600 dark:prose-a:text-primary-400 max-w-none">
           <h1>Privacy Policy - MyDebugger Data Protection & Privacy Rights</h1>
@@ -203,7 +204,7 @@ const PrivacyPolicy: React.FC = () => {
             <li><strong>Cookie Settings:</strong> Granular cookie management options</li>
             <li><strong>Contact Us:</strong> Direct privacy requests via email</li>
           </ul>
-          </p>
+          
           
           <h2>Links to Other Websites</h2>
           <p>

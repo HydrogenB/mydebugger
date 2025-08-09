@@ -129,6 +129,35 @@ export const ContactCardIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const ThongThaiIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 4v16"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 6h11c1.5 0 3 1 3 2s-1.5 2-3 2H5z"
+    />
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M5 11h11c1.5 0 3 1 3 2s-1.5 2-3 2H5z"
+    />
+  </svg>
+);
+
 export const ImageCompressIcon: React.FC<IconProps> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

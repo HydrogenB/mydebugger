@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "@sandstreamdev/react-swipeable-list": "^1.0.2",
     "@vitejs/plugin-react": "^4.0.3",
     "@zxing/browser": "^0.1.5",
     "@zxing/library": "^0.21.0",
@@ -36,6 +37,8 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",

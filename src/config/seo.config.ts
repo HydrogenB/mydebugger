@@ -95,16 +95,25 @@ export const pageSEO = {
     keywords: [...baseSEO.keywords, "home", "main page", "developer dashboard"]
   },
   tools: {
+    ...baseSEO,
     title: "MyDebugger Tools - Professional Development Utilities",
     description: "Explore 50+ professional debugging and development tools including JWT decoder, QR code generator, code analysis, and performance monitoring utilities.",
     keywords: [...baseSEO.keywords, "tools", "utilities", "development tools"]
   },
+  thongThai: {
+    ...baseSEO,
+    title: "Thong Thai Flag Creator - Create & Animate the Thai Flag",
+    description: "Create, customize, animate, and export the Thai national flag as PNG or WebM with the Thong Thai Flag Creator.",
+    keywords: [...baseSEO.keywords, "thai flag", "thailand", "flag creator", "animation", "export", "webm", "png"]
+  },
   privacy: {
+    ...baseSEO,
     title: "Privacy Policy - MyDebugger Data Protection",
     description: "Learn how MyDebugger protects your privacy and handles data collection, usage, and protection in compliance with GDPR and privacy standards.",
     keywords: [...baseSEO.keywords, "privacy", "data protection", "GDPR"]
   },
   terms: {
+    ...baseSEO,
     title: "Terms of Service - MyDebugger Usage Agreement",
     description: "Read the complete terms of service for using MyDebugger debugging platform, including usage rights, limitations, and service agreements.",
     keywords: [...baseSEO.keywords, "terms", "service agreement", "usage policy"]

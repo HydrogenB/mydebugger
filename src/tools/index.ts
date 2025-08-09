@@ -65,6 +65,7 @@ import {
   PushIcon,
   ContactCardIcon,
   ImageCompressIcon,
+  ThongThaiIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -632,6 +633,31 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ["image", "compress", "resize", "optimize"],
       relatedTools: ["generate-large-image"],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "thong-thai",
+    route: "/thong-thai",
+    title: "Thong Thai Flag Creator",
+    description: "Create, animate, and export the Thai national flag.",
+    icon: ThongThaiIcon,
+    component: lazy(() => import("./thong-thai/page")),
+    category: "Utilities",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "thai",
+        "flag",
+        "animation",
+        "canvas",
+        "webm",
+        "png",
+        "export",
+        "wave",
+        "thai flag",
+      ],
+      relatedTools: ["image-compressor", "generate-large-image", "qrcode-generator"],
     },
     uiOptions: { showExamples: false },
   },
