@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
+import animate from 'tailwindcss-animate';
 
 export default {
   content: [
@@ -307,6 +308,6 @@ export default {
       }
       addUtilities(newUtilities)
     },
-      require("tailwindcss-animate")
-],
+    animate
+  ],
 }
