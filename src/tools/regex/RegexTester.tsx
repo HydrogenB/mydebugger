@@ -102,29 +102,37 @@ const RegexTester: React.FC = () => {
   }, [pattern, input, flags]);
   
   // Highlighted output with matched sections
-  const highlightedOutput = useMemo(() => {
+  const highlightedNodes = useMemo<React.ReactNode>(() => {
     if (!regexResults || !regexResults.matches.length) {
       return input;
     }
     
-    let result = '';
+    const nodes: React.ReactNode[] = [];
     let lastIndex = 0;
     
     // Sort matches by index to ensure proper rendering
     const sortedMatches = [...regexResults.matches].sort((a, b) => a.index - b.index);
     
-    sortedMatches.forEach((match) => {
+    sortedMatches.forEach((match, idx) => {
       // Add text before match
-      result += input.substring(lastIndex, match.index);
-      // Add highlighted match
-      result += `<mark class="bg-green-200 dark:bg-green-800 px-1 rounded">${match.match}</mark>`;
+      if (lastIndex < match.index) {
+        nodes.push(input.substring(lastIndex, match.index));
+      }
+      // Add highlighted match as a real element (no innerHTML)
+      nodes.push(
+        <mark key={`m-${idx}-${match.index}`} className="bg-green-200 dark:bg-green-800 px-1 rounded">
+          {match.match}
+        </mark>
+      );
       lastIndex = match.index + match.match.length;
     });
     
     // Add remaining text
-    result += input.substring(lastIndex);
+    if (lastIndex < input.length) {
+      nodes.push(input.substring(lastIndex));
+    }
     
-    return result;
+    return nodes;
   }, [input, regexResults]);
   
   const applyExample = (example: typeof examples[0]) => {
@@ -244,7 +252,8 @@ const RegexTester: React.FC = () => {
                     <>
                       <div 
                         className="font-mono text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap" 
-                        dangerouslySetInnerHTML={{ __html: highlightedOutput }}
+                        // Render safe nodes instead of using dangerouslySetInnerHTML
+                        children={highlightedNodes}
                       />
                       
                       {showDebugInfo && (
