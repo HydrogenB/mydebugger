@@ -177,6 +177,12 @@ const ThaiFlagStudio: React.FC = () => {
 
   const colors: FlagColors = colorScheme === "custom" ? customColors : OFFICIAL;
 
+  // Cache fabric texture to avoid recreating every frame
+  const fabricTexture = useMemo<HTMLCanvasElement | null>(() => {
+    if (fabric === "none") return null;
+    return createFabricTexture(fabric);
+  }, [fabric]);
+
   // ---- Draw ------------------------------------------------------------------
   const drawFlag = useCallback(
     (ctx: CanvasRenderingContext2D, time: number, drawWidth: number, drawHeight: number) => {
@@ -262,8 +268,8 @@ const ThaiFlagStudio: React.FC = () => {
         ctx.fill();
 
         // fabric texture overlay
-        if (fabric !== "none") {
-          const pattern = ctx.createPattern(createFabricTexture(fabric), "repeat");
+        if (fabricTexture) {
+          const pattern = ctx.createPattern(fabricTexture, "repeat");
           if (pattern) {
             ctx.save();
             ctx.globalAlpha = 0.15;
@@ -336,7 +342,8 @@ const ThaiFlagStudio: React.FC = () => {
       showGrid,
       bgColor,
       viewMode,
-      theme
+      theme,
+      fabricTexture
     ]
   );
 
@@ -353,9 +360,9 @@ const ThaiFlagStudio: React.FC = () => {
       last = now;
       timeRef.current += dt;
 
-      const rect = container.getBoundingClientRect();
-      const cssW = rect.width || width;
-      const cssH = rect.height || height;
+      // Use actual rendered canvas size to avoid padding/border mismatches
+      const cssW = canvas.clientWidth || width;
+      const cssH = canvas.clientHeight || height;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const bw = Math.round(cssW * dpr);
@@ -364,8 +371,6 @@ const ThaiFlagStudio: React.FC = () => {
       if (canvas.width !== bw || canvas.height !== bh) {
         canvas.width = bw;
         canvas.height = bh;
-        canvas.style.width = `${cssW}px`;
-        canvas.style.height = `${cssH}px`;
       }
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -387,11 +392,13 @@ const ThaiFlagStudio: React.FC = () => {
     if (!el) return;
     if (document.fullscreenElement) {
       try {
-        await document.exitFullscreen();
+        const exit = (document.exitFullscreen || (document as any).webkitExitFullscreen)?.bind(document);
+        if (exit) await exit();
       } catch {}
     } else {
       try {
-        await el.requestFullscreen();
+        const req = (el.requestFullscreen || (el as any).webkitRequestFullscreen)?.bind(el);
+        if (req) await req();
       } catch {}
     }
   }, []);
