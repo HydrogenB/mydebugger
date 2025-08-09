@@ -1,11 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
+import animate from 'tailwindcss-animate';
 
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    "./view/**/*.{js,ts,jsx,tsx}",
+    "./viewmodel/**/*.{js,ts,jsx,tsx}",
+    "./model/**/*.{js,ts,jsx,tsx}",
+    "./api/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ['class', "class"], // Enable dark mode with class strategy
   theme: {
@@ -307,6 +312,6 @@ export default {
       }
       addUtilities(newUtilities)
     },
-      require("tailwindcss-animate")
-],
+    animate
+  ],
 }
