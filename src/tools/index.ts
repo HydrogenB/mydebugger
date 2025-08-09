@@ -659,7 +659,7 @@ const toolRegistry: Tool[] = [
       ],
       relatedTools: ["image-compressor", "generate-large-image", "qrcode-generator"],
     },
-    uiOptions: { showExamples: false },
+    uiOptions: { showExamples: false, fullWidth: true },
   },
   {
     id: "metadata-echo",
@@ -675,20 +675,20 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: { showExamples: false },
   },
-  {
+  /*{
     id: "websocket-simulator",
     route: "/websocket-simulator",
     title: "WebSocket Simulator",
     description: "Send PUB messages over WebSocket at intervals.",
     icon: UtilitiesIcon,
-    component: lazy(() => import("./websocket-simulator/page")),
+    component: lazy(() => import("./websocket-simulator/page.tsx")),
     category: "Utilities",
     metadata: {
       keywords: ["websocket", "nats", "testing", "binary"],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },
-  },
+  },*/
   {
     id: "csv-to-markdown",
     route: "/csvtomd",
