@@ -144,6 +144,11 @@ const ThaiFlagStudio: React.FC = () => {
   const [gifQuality, setGifQuality] = useState(12); // gif.js quality (lower = better)
   const [isEncoding, setIsEncoding] = useState(false);
   const [encodeProgress, setEncodeProgress] = useState(0);
+  // Animation controls
+  const [isPaused, setIsPaused] = useState(false);
+  // Export DPI toggle
+  const [exportHighDpr, setExportHighDpr] = useState(false);
+  const exportDpr = useMemo(() => (exportHighDpr ? Math.max(2, Math.min(window.devicePixelRatio || 1, 4)) : 1), [exportHighDpr]);
 
   // Refs / canvas
   const containerRef = useRef<HTMLDivElement>(null);
@@ -176,6 +181,12 @@ const ThaiFlagStudio: React.FC = () => {
   }, []);
 
   const colors: FlagColors = colorScheme === "custom" ? customColors : OFFICIAL;
+
+  // Cache fabric texture to avoid recreating every frame
+  const fabricTexture = useMemo<HTMLCanvasElement | null>(() => {
+    if (fabric === "none") return null;
+    return createFabricTexture(fabric);
+  }, [fabric]);
 
   // ---- Draw ------------------------------------------------------------------
   const drawFlag = useCallback(
@@ -262,8 +273,8 @@ const ThaiFlagStudio: React.FC = () => {
         ctx.fill();
 
         // fabric texture overlay
-        if (fabric !== "none") {
-          const pattern = ctx.createPattern(createFabricTexture(fabric), "repeat");
+        if (fabricTexture) {
+          const pattern = ctx.createPattern(fabricTexture, "repeat");
           if (pattern) {
             ctx.save();
             ctx.globalAlpha = 0.15;
@@ -336,7 +347,8 @@ const ThaiFlagStudio: React.FC = () => {
       showGrid,
       bgColor,
       viewMode,
-      theme
+      theme,
+      fabricTexture
     ]
   );
 
@@ -351,11 +363,13 @@ const ThaiFlagStudio: React.FC = () => {
     const render = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      timeRef.current += dt;
+      if (!isPaused) {
+        timeRef.current += dt;
+      }
 
-      const rect = container.getBoundingClientRect();
-      const cssW = rect.width || width;
-      const cssH = rect.height || height;
+      // Use actual rendered canvas size to avoid padding/border mismatches
+      const cssW = canvas.clientWidth || width;
+      const cssH = canvas.clientHeight || height;
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const bw = Math.round(cssW * dpr);
@@ -364,22 +378,40 @@ const ThaiFlagStudio: React.FC = () => {
       if (canvas.width !== bw || canvas.height !== bh) {
         canvas.width = bw;
         canvas.height = bh;
-        canvas.style.width = `${cssW}px`;
-        canvas.style.height = `${cssH}px`;
       }
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.scale(dpr, dpr);
 
       drawFlag(ctx, timeRef.current, cssW, cssH);
-      rafRef.current = requestAnimationFrame(render);
+      if (!isPaused) {
+        rafRef.current = requestAnimationFrame(render);
+      } else {
+        rafRef.current = null;
+      }
     };
 
-    rafRef.current = requestAnimationFrame(render);
+    // If paused, draw a single frame and skip scheduling
+    if (isPaused) {
+      const cssW = canvas.clientWidth || width;
+      const cssH = canvas.clientHeight || height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const bw = Math.round(cssW * dpr);
+      const bh = Math.round(cssH * dpr);
+      if (canvas.width !== bw || canvas.height !== bh) {
+        canvas.width = bw;
+        canvas.height = bh;
+      }
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      drawFlag(ctx, timeRef.current, cssW, cssH);
+    } else {
+      rafRef.current = requestAnimationFrame(render);
+    }
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [width, height, drawFlag]);
+  }, [width, height, drawFlag, isPaused]);
 
   // ---- Fullscreen ------------------------------------------------------------
   const toggleFullscreen = useCallback(async () => {
@@ -387,21 +419,26 @@ const ThaiFlagStudio: React.FC = () => {
     if (!el) return;
     if (document.fullscreenElement) {
       try {
-        await document.exitFullscreen();
+        const exit = (document.exitFullscreen || (document as any).webkitExitFullscreen)?.bind(document);
+        if (exit) await exit();
       } catch {}
     } else {
       try {
-        await el.requestFullscreen();
+        const req = (el.requestFullscreen || (el as any).webkitRequestFullscreen)?.bind(el);
+        if (req) await req();
       } catch {}
     }
   }, []);
 
   // ---- Export: PNG -----------------------------------------------------------
   const downloadPNG = useCallback(() => {
+    const dpr = exportDpr;
     const temp = document.createElement("canvas");
-    temp.width = exportWidth;
-    temp.height = exportHeight;
+    temp.width = Math.round(exportWidth * dpr);
+    temp.height = Math.round(exportHeight * dpr);
     const tctx = temp.getContext("2d")!;
+    tctx.setTransform(1, 0, 0, 1, 0, 0);
+    tctx.scale(dpr, dpr);
     drawFlag(tctx, timeRef.current, exportWidth, exportHeight);
     temp.toBlob((b) => {
       if (!b) return;
@@ -412,7 +449,7 @@ const ThaiFlagStudio: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
     }, "image/png", 1);
-  }, [drawFlag, exportWidth, exportHeight]);
+  }, [drawFlag, exportWidth, exportHeight, exportDpr]);
 
   // ---- Export: GIF (gif.js) --------------------------------------------------
   const downloadGIF = useCallback(async () => {
@@ -424,17 +461,20 @@ const ThaiFlagStudio: React.FC = () => {
       const frames = Math.max(1, Math.floor(gifDuration * gifFps));
       const delay = Math.round(1000 / gifFps);
 
+      const dpr = exportDpr;
       const temp = document.createElement("canvas");
-      temp.width = exportWidth;
-      temp.height = exportHeight;
+      temp.width = Math.round(exportWidth * dpr);
+      temp.height = Math.round(exportHeight * dpr);
       const tctx = temp.getContext("2d")!;
+      tctx.setTransform(1, 0, 0, 1, 0, 0);
+      tctx.scale(dpr, dpr);
 
       const gif = new window.GIF({
         workers: 2,
         workerScript: GIF_CDN + "gif.worker.js",
         quality: gifQuality, // lower is better quality
-        width: exportWidth,
-        height: exportHeight
+        width: temp.width,
+        height: temp.height
       });
 
       gif.on("progress", (p: number) => setEncodeProgress(Math.round(p * 100)));
@@ -464,7 +504,7 @@ const ThaiFlagStudio: React.FC = () => {
       setIsEncoding(false);
       alert("GIF encoding failed. Check console for details.");
     }
-  }, [gifDuration, gifFps, gifQuality, exportWidth, exportHeight, drawFlag]);
+  }, [gifDuration, gifFps, gifQuality, exportWidth, exportHeight, drawFlag, exportDpr]);
 
   // ---- UI --------------------------------------------------------------------
   const textColor = theme === "dark" ? "#f0f0f0" : "#333";
@@ -838,6 +878,9 @@ const ThaiFlagStudio: React.FC = () => {
                     {isEncoding ? "Encoding…" : "🎞️ Download GIF"}
                   </button>
                 </div>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}>
+                  <input type="checkbox" checked={exportHighDpr} onChange={(e) => setExportHighDpr(e.target.checked)} /> High-DPR export (uses device DPR &gt; 2x)
+                </label>
               </div>
 
               {/* Theme toggle */}
@@ -887,6 +930,25 @@ const ThaiFlagStudio: React.FC = () => {
                 onDoubleClick={toggleFullscreen}
                 title="Double-click to toggle fullscreen"
               />
+              <button
+                onClick={() => setIsPaused((p) => !p)}
+                style={{
+                  position: "absolute",
+                  top: "0.8rem",
+                  left: "0.8rem",
+                  padding: "0.45rem 0.55rem",
+                  background: "rgba(0,0,0,0.5)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  cursor: "pointer",
+                  fontSize: "0.95rem",
+                  lineHeight: 1
+                }}
+                title="Pause/resume animation"
+              >
+                {isPaused ? "▶" : "⏸"}
+              </button>
               <button
                 onClick={toggleFullscreen}
                 style={{

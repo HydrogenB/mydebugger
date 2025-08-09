@@ -136,20 +136,37 @@ const useStayAwake = (): UseStayAwakeReturn => {
           setBatteryLevel(Math.round(battery.level * 100));
           setIsCharging(battery.charging);
           
-          battery.addEventListener('levelchange', () => {
+          const onLevelChange = () => {
             setBatteryLevel(Math.round(battery.level * 100));
-          });
-          
-          battery.addEventListener('chargingchange', () => {
+          };
+          const onChargingChange = () => {
             setIsCharging(battery.charging);
-          });
+          };
+          
+          battery.addEventListener('levelchange', onLevelChange);
+          battery.addEventListener('chargingchange', onChargingChange);
+          
+          // Cleanup listeners when component unmounts
+          return () => {
+            try {
+              battery.removeEventListener('levelchange', onLevelChange);
+              battery.removeEventListener('chargingchange', onChargingChange);
+            } catch {}
+          };
         } catch (err) {
           console.log('Battery API not available');
         }
       }
     };
     
-    checkBattery();
+    let cleanup: (() => void) | undefined;
+    checkBattery().then((fn) => {
+      if (typeof fn === 'function') cleanup = fn;
+    });
+    
+    return () => {
+      if (cleanup) cleanup();
+    };
   }, []);
 
   // Handle visibility change

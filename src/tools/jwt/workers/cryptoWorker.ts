@@ -453,8 +453,10 @@ const tryMultipleKeyFormats = async (
         return true;
       }
     } catch (e) {
-      // Continue trying other formats
-      console.log(`Key format ${format.keyFormat} (base64: ${format.isBase64}) failed:`, e);
+      // Continue trying other formats without leaking sensitive key material in logs
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`Key format ${format.keyFormat} (base64: ${format.isBase64}) failed`);
+      }
     }
   }
   
