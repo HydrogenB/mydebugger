@@ -473,13 +473,13 @@ export const verifyToken = async (token: string, key: string): Promise<boolean> 
   try {
     // Handle empty token
     if (!token || token.trim() === '') {
-      throw new Error('Token is empty');
+      return false;
     }
 
     // Handle malformed tokens (not 3 parts)
     const parts = token.split('.');
     if (parts.length !== 3) {
-      throw new Error('Invalid token format (should have 3 parts)');
+      return false;
     }
 
     const [headerBase64, payloadBase64, signatureBase64] = parts;
@@ -491,11 +491,7 @@ export const verifyToken = async (token: string, key: string): Promise<boolean> 
 
     // Attempt to parse header JSON
     let header;
-    try {
-      header = tryParseJson(headerBase64);
-    } catch (e) {
-      throw new Error('Invalid token header (not valid base64 or JSON)');
-    }
+    header = tryParseJson(headerBase64);
 
     // Handle missing algorithm
     if (!header || !header.alg) {

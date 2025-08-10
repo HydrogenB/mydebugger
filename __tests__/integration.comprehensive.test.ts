@@ -504,6 +504,8 @@ describe('Performance Monitoring Tests', () => {
       };
 
       // Mock performance entries
+      // Ensure performance API exists
+      (window as any).performance = (window as any).performance || { getEntriesByType: () => [], getEntriesByName: () => [], now: () => Date.now() } as any;
       jest.spyOn(performance, 'getEntriesByType').mockReturnValue([
         {
           fetchStart: 100,

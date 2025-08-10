@@ -8,7 +8,7 @@ import useMetadataEcho from '../src/tools/metadata-echo/hooks/useMetadataEcho.ts
 import { useHeaderScanner } from '../src/tools/header-scanner/hooks/useHeaderScanner.ts';
 import { useGenerateLargeImage } from '../src/tools/generate-large-image/hooks/useGenerateLargeImage.ts';
 import useFetchRender from '../src/tools/fetch-render/hooks/useFetchRender.ts';
-import useDynamicLinkProbe from '../viewmodel/useDynamicLinkProbe';
+import useDynamicLinkProbe from '../src/tools/dynamic-link-probe/hooks/useDynamicLinkProbe.ts';
 import useDeviceTrace from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
 import useDeepLinkChain from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';
 

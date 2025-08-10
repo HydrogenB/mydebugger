@@ -3,6 +3,7 @@
  */
 
 // Mock window.matchMedia
+if (typeof (window as any).matchMedia === 'undefined') {
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
@@ -16,6 +17,7 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: jest.fn(),
   })),
 });
+}
 
 // Mock window.AudioContext
 class MockAudioContext {
@@ -51,7 +53,7 @@ class MockMediaStream {
 }
 
 // Set up global mocks
-global.AudioContext = MockAudioContext as any;
+global.AudioContext = (global as any).AudioContext || (MockAudioContext as any);
 global.MediaStream = MockMediaStream as any;
 
 // Mock requestAnimationFrame
