@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React, { useState } from 'react';
-import ProgressRing from '../src/design-system/components/feedback/ProgressRing';
+import ProgressRing from '../../../design-system/components/feedback/ProgressRing';
 
 export interface StayAwakeViewProps {
   supported: boolean;

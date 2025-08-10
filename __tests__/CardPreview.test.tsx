@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CardPreview from '../src/view/CardPreview';
+// Fall back to legacy path under root view
+import CardPreview from '../view/CardPreview';
 
 // Debug: Log the component import
 console.log('CardPreview component:', CardPreview);

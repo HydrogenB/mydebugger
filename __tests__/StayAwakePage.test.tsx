@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, waitFor } from '../src/test-utils/test-utils';
 import StayAwakePage from '../src/tools/stayawake/page';
 
-jest.mock('../view/StayAwakeView', () => ({
+jest.mock('../src/tools/stayawake/components/StayAwakePanel', () => ({
   __esModule: true,
   default: function DummyView() {
     return <div role="switch" />;

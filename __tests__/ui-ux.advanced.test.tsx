@@ -35,6 +35,16 @@ jest.mock('../view/DataPreview', () => ({
   GeoPanel: () => null,
   SensorTable: () => null,
 }));
+jest.mock('../view/DataPreview/BluetoothPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/ClipboardPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/HIDPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/MIDIPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/NFCPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/NotificationPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/ScreenWakeLockPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/SerialPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/SpeakerSelectionPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/USBPreview', () => ({ __esModule: true, default: () => null }));
 
 // Mock complex APIs and services
 const mockWebCrypto = {
