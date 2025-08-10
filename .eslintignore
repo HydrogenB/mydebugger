@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+*.min.js
+public/sw.js
+public/sw/
+

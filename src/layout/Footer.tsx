@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
               <span className="text-lg font-bold text-gray-900 dark:text-white">MyDebugger</span>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              A platform for debugging, encoding, decoding & demonstrating your technical work.
+              {t('footer.description', 'A platform for debugging, encoding, decoding & demonstrating your technical work.')}
             </p>
             <div className="flex space-x-4 mt-4">              <a
                 href="https://github.com/HydrogenB/mydebugger"
@@ -70,7 +70,7 @@ const Footer: React.FC = () => {
           {/* Quick Links */}
           <div>
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Resources
+              {t('footer.resources', 'Resources')}
             </h2>
             <ul className="space-y-2">
               <li>
@@ -80,7 +80,7 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
-                  Documentation
+                  {t('footer.documentation', 'Documentation')}
                 </a>
               </li>
               <li>
@@ -90,7 +90,7 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
-                  Support
+                  {t('footer.support', 'Support')}
                 </a>
               </li>
               <li>
@@ -100,7 +100,7 @@ const Footer: React.FC = () => {
                   rel="noopener noreferrer"
                   className="text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition"
                 >
-                  Contributing
+                  {t('footer.contributing', 'Contributing')}
                 </a>
               </li>
             </ul>
@@ -109,7 +109,7 @@ const Footer: React.FC = () => {
           {/* Contact info */}
           <div>
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Developer
+              {t('footer.developer', 'Developer')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-2">              <button 
                 onClick={handleLinkedInNavigation}
@@ -119,14 +119,14 @@ const Footer: React.FC = () => {
               </button>
             </p>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Product Owner (built with GenAI assistance)
+              {t('footer.roleDescription', 'Product Owner (built with GenAI assistance)')}
             </p>            <a 
               href="https://github.com/HydrogenB/mydebugger"
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
             >
-              Contribute
+              {t('footer.contribute', 'Contribute')}
               <svg className="ml-2 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -139,7 +139,8 @@ const Footer: React.FC = () => {
         {/* Bottom section */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-6 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {t('footer.copyright', ` ${currentYear} MyDebugger. All rights reserved.`)}
+            {t('footer.copyright', `© ${currentYear} MyDebugger. All rights reserved.`)
+              .replace('{year}', String(currentYear))}
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <Link to="/privacy-policy" className="hover:underline transition-colors">

@@ -24,8 +24,10 @@ import { TOOL_PANEL_CLASS } from '../design-system/foundations/layout';
 import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory, categories as categoryInfo } from '../tools';
 import { excludeById } from '../utils/toolFilters';
 import './Home.css';
+import { useTranslation } from '../context/TranslationContext';
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('all');
   const [visibleTools, setVisibleTools] = useState<Tool[]>([]);
@@ -245,7 +247,7 @@ const Home: React.FC = () => {
       </Helmet>
         <ResponsiveContainer maxWidth="7xl" className="py-6 px-4 sm:px-6">
         <h1 id="hero-heading" className="text-center text-3xl sm:text-4xl font-extrabold gradient-text mb-6">
-          Developer tools
+          {t('home.title', 'Developer tools')}
         </h1>
         <div className="relative max-w-2xl mx-auto mb-8">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -255,17 +257,17 @@ const Home: React.FC = () => {
           </div>
           <input
             type="text"
-            placeholder="Search tools, keywords, functionality..."
+            placeholder={t('home.search.placeholder', 'Search tools, keywords, functionality...')}
             className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-full leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition shadow-sm hover:shadow-md"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            aria-label="Search tools"
+            aria-label={t('home.search.aria', 'Search tools')}
           />
           {searchTerm && (
             <button
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
               onClick={() => setSearchTerm('')}
-              aria-label="Clear search"
+              aria-label={t('home.search.clearAria', 'Clear search')}
             >
               <svg className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -276,7 +278,7 @@ const Home: React.FC = () => {
 
         {pinnedTools.length > 0 && (
           <section className="mb-8 mt-6 bg-gray-50 dark:bg-gray-800/50 rounded-md px-4 py-3">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Pinned Tools</h2>
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">{t('home.pinned.title', 'Pinned Tools')}</h2>
             <div className="flex flex-wrap gap-3">
               {pinnedTools.map((tool, idx) => (
                 <div
@@ -303,14 +305,14 @@ const Home: React.FC = () => {
         <section className="mb-8">
           <div className="flex flex-wrap items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 gradient-text">
-              Browse Tools
+              {t('home.browse.title', 'Browse Tools')}
             </h2>
             
             <div className="flex items-center space-x-3 mt-3 md:mt-0">
               {/* Filter indicators */}
               {searchTerm && (
                 <div className="flex items-center bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-300 py-1 px-3 rounded-full text-sm">
-                  <span>Search: {searchTerm}</span>
+                  <span>{t('home.search.active', 'Search')}: {searchTerm}</span>
                   <button
                     onClick={() => setSearchTerm('')}
                     className="ml-2 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
@@ -328,7 +330,7 @@ const Home: React.FC = () => {
                 <button
                   className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow' : ''}`}
                   onClick={() => setViewMode('grid')}
-                  aria-label="Grid view"
+                  aria-label={t('home.view.grid', 'Grid view')}
                 >
                   <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -337,7 +339,7 @@ const Home: React.FC = () => {
                 <button
                   className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white dark:bg-gray-600 shadow' : ''}`}
                   onClick={() => setViewMode('list')}
-                  aria-label="List view"
+                  aria-label={t('home.view.list', 'List view')}
                 >
                   <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -355,7 +357,7 @@ const Home: React.FC = () => {
                 ? 'bg-primary-500 text-white font-medium shadow-md' 
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              All
+              {t('home.tabs.all', 'All Tools')}
             </button>
             <button
               onClick={() => setActiveTab('popular')}
@@ -363,7 +365,7 @@ const Home: React.FC = () => {
                 ? 'bg-primary-500 text-white font-medium shadow-md' 
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              Popular
+              {t('home.tabs.popular', 'Popular')}
             </button>
             <button
               onClick={() => setActiveTab('new')}
@@ -371,7 +373,7 @@ const Home: React.FC = () => {
                 ? 'bg-primary-500 text-white font-medium shadow-md' 
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              New
+              {t('home.tabs.new', 'New')}
             </button>
             <button
               onClick={() => setActiveTab('recent')}
@@ -379,9 +381,9 @@ const Home: React.FC = () => {
                 ? 'bg-primary-500 text-white font-medium shadow-md' 
                 : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
             >
-              Recent
+              {t('home.tabs.recent', 'Recently Used')}
             </button>
-            {categories.slice(0, 5).map(category => (
+              {categories.slice(0, 5).map(category => (
               <button
                 key={category}
                 onClick={() => setActiveTab(category)}
@@ -389,7 +391,7 @@ const Home: React.FC = () => {
                   ? 'bg-primary-500 text-white font-medium shadow-md' 
                   : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
               >
-                {category}
+                {t(`categories.${category}.name`, category)}
               </button>
             ))}
             {categories.length > 5 && (
@@ -397,7 +399,7 @@ const Home: React.FC = () => {
                 className="category-chip px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                 onClick={() => {/* Show more categories modal */}}
               >
-                +{categories.length - 5} more
+                +{categories.length - 5} {t('home.more', 'more')}
               </button>
             )}
           </div>
@@ -409,12 +411,12 @@ const Home: React.FC = () => {
               onChange={setActiveTab}
               variant="underlined"
             >
-              <Tab id="all">All Tools</Tab>
-              <Tab id="popular">Popular</Tab>
-              <Tab id="new">New</Tab>
-              <Tab id="recent">Recently Used</Tab>
+              <Tab id="all">{t('home.tabs.all', 'All Tools')}</Tab>
+              <Tab id="popular">{t('home.tabs.popular', 'Popular')}</Tab>
+              <Tab id="new">{t('home.tabs.new', 'New')}</Tab>
+              <Tab id="recent">{t('home.tabs.recent', 'Recently Used')}</Tab>
               {categories.map(category => (
-                <Tab key={category} id={category}>{category}</Tab>
+                <Tab key={category} id={category}>{t(`categories.${category}.name`, category)}</Tab>
               ))}
             </TabGroup>
           </div>
@@ -425,13 +427,13 @@ const Home: React.FC = () => {
         {!searchTerm && activeTab !== 'recent' && recentTools.length > 0 && (
           <section className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Recently Used Tools</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{t('home.recent.title', 'Recently Used Tools')}</h2>
               <Button 
                 variant="light" 
                 size="sm" 
                 onClick={() => setActiveTab('recent')}
               >
-                View All
+                {t('home.recent.viewAll', 'View All')}
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -459,11 +461,13 @@ const Home: React.FC = () => {
 
         {/* Tools Grid */}
         <section className="mb-12" ref={toolsContainerRef}>
-          <div className="mb-4 flex justify-between items-center">
+                  <div className="mb-4 flex justify-between items-center">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {visibleTools.length > 0 ? (
                 <p className="mt-4 mb-4 text-sm text-gray-500 pl-1">
-                  Showing {visibleTools.length} tool{visibleTools.length !== 1 ? 's' : ''}
+                          {t('home.results.showing', 'Showing {count} tool{plural}')
+                            .replace('{count}', String(visibleTools.length))
+                            .replace('{plural}', visibleTools.length !== 1 ? 's' : '')}
                 </p>
               ) : null}
             </div>
@@ -474,7 +478,7 @@ const Home: React.FC = () => {
                 onClick={() => {setSearchTerm(''); setActiveTab('all');}}
                 disabled={!searchTerm && activeTab === 'all'}
               >
-                Clear Filters
+                        {t('home.filters.clear', 'Clear Filters')}
               </Button>
             </div>
           </div>
@@ -579,7 +583,7 @@ const Home: React.FC = () => {
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {tool.isPopular ? 'Popular choice' : 'Recently updated'}
+                        {tool.isPopular ? t('home.card.popular', 'Popular choice') : t('home.card.recentlyUpdated', 'Recently updated')}
                       </div>
                     </Card>
                   </Link>
@@ -639,16 +643,16 @@ const Home: React.FC = () => {
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">No tools found</h3>
+              <h3 className="mt-2 text-lg font-medium text-gray-900 dark:text-gray-100">{t('home.empty.title', 'No tools found')}</h3>
               <p className="mt-1 text-gray-600 dark:text-gray-400">
-                No tools found matching your search criteria.
+                {t('home.empty.subtitle', 'No tools found matching your search criteria.')}
               </p>
               <div className="mt-6">
                 <Button 
                   onClick={() => {setSearchTerm(''); setActiveTab('all');}} 
                   variant="primary"
                 >
-                  Reset Filters
+                  {t('home.empty.reset', 'Reset Filters')}
                 </Button>
               </div>
             </div>
@@ -656,7 +660,7 @@ const Home: React.FC = () => {
         </section>
           {/* Categories Navigation */}
         <section className="mb-12">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-5">Browse by Category</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-5">{t('home.category.title', 'Browse by Category')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {categories.map(category => {
               const meta = categoryInfo[category as ToolCategory];
@@ -675,9 +679,9 @@ const Home: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {getToolsByCategory(category as ToolCategory).length} tools
-                  </p>
+                     <p className="text-sm text-gray-500 dark:text-gray-400">
+                     {t('home.category.count', '{count} tools').replace('{count}', String(getToolsByCategory(category as ToolCategory).length))}
+                     </p>
                 </div>
               );
             })}
@@ -690,13 +694,12 @@ const Home: React.FC = () => {
           
           <div className="md:flex md:items-center md:justify-between relative z-10">
             <div className="mb-6 md:mb-0 md:pr-12">
-              <Badge color="primary" className="mb-2">OPEN SOURCE</Badge>
+              <Badge color="primary" className="mb-2">{t('home.cta.badge', 'OPEN SOURCE')}</Badge>
               <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">
-                Need a custom tool?
+                {t('home.cta.title', 'Need a custom tool?')}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mb-6">
-                Can't find what you're looking for? MyDebugger is open source and continually evolving. 
-                Suggest new features, report bugs, or contribute directly to our GitHub repository.
+                {t('home.cta.desc', "Can't find what you're looking for? MyDebugger is open source and continually evolving. Suggest new features, report bugs, or contribute directly to our GitHub repository.")}
               </p>
               
               <div className="flex flex-wrap gap-6">
@@ -709,7 +712,7 @@ const Home: React.FC = () => {
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                   </svg>
-                  Request Feature
+                  {t('home.cta.request', 'Request Feature')}
                 </a>
                 <a
                   href="https://github.com/HydrogenB/mydebugger"
@@ -720,7 +723,7 @@ const Home: React.FC = () => {
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
                   </svg>
-                  Visit GitHub
+                  {t('home.cta.github', 'Visit GitHub')}
                 </a>
               </div>
             </div>

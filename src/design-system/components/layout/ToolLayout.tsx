@@ -5,6 +5,7 @@ import { ResponsiveContainer } from './ResponsiveContainer';
 import { LoadingSpinner } from '../feedback';
 import { TOOL_PANEL_CLASS } from '../../foundations/layout';
 import { Tag } from '../display/Tag';
+import { useTranslation } from '../../../context/TranslationContext';
 
 // Import RelatedTools component dynamically
 const RelatedTools = lazy(() => 
@@ -50,10 +51,11 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
   description: descriptionProp
 }) => {
   const { title: toolTitle, description: toolDescription, metadata, id } = tool;
+  const { t } = useTranslation();
   
   // Use provided props if available, otherwise use values from tool
-  const finalTitle = titleProp || toolTitle;
-  const finalDescription = descriptionProp || toolDescription;
+  const finalTitle = titleProp || t(`tools.${id}.title`, toolTitle);
+  const finalDescription = descriptionProp || t(`tools.${id}.description`, toolDescription);
   
   const pageTitle = `${finalTitle} | MyDebugger`;
   const pageDescription = finalDescription;
@@ -109,7 +111,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
         
         {metadata.learnMoreUrl && (
           <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Learn More</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{t('toolLayout.learnMore', 'Learn More')}</h2>
             <div className={`border border-gray-200 dark:border-gray-700 ${TOOL_PANEL_CLASS.replace('p-6', 'p-4')}`}> 
               <a 
                 href={metadata.learnMoreUrl} 
@@ -117,7 +119,7 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
                 rel="noopener noreferrer"
                 className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium inline-flex items-center"
               >
-                Read more about {finalTitle}
+                {t('toolLayout.readMore', 'Read more about {title}').replace('{title}', finalTitle)}
                 <svg className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>

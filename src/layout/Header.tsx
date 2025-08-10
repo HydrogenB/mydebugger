@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '../design-system/components/inputs';
 import LanguageToggle from '../components/LanguageToggle';
+import { useTranslation } from '../context/TranslationContext';
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -24,6 +25,7 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   // Close mobile menu when route changes
   useEffect(() => {
@@ -64,7 +66,7 @@ const Header: React.FC = () => {
               aria-current={isActive('/') && !location.search.includes('category=') ? 'page' : undefined}
             >
               <span className="w-4 h-4">{getIconHelper('tool')}</span>
-              <span>All Tools</span>
+              <span>{t('header.nav.allTools', 'All Tools')}</span>
             </Link>
             
               <a
@@ -72,9 +74,9 @@ const Header: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition"
-              aria-label="GitHub repository"
+              aria-label={t('header.nav.github', 'GitHub')}
             >
-              <span className="sr-only">GitHub</span>
+              <span className="sr-only">{t('header.nav.github', 'GitHub')}</span>
               <span className="w-5 h-5 block">{getIconHelper('github')}</span>
             </a>
             
@@ -89,11 +91,11 @@ const Header: React.FC = () => {
             <button 
               onClick={toggleMobileMenu}
               className="ml-2 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400"
-              aria-label="Toggle mobile menu"
+              aria-label={t('header.menu.toggleMobileMenu', 'Toggle mobile menu')}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
             >
-              <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
+              <span className="sr-only">{mobileMenuOpen ? t('header.menu.close', 'Close menu') : t('header.menu.open', 'Open menu')}</span>
               {mobileMenuOpen ? (
                 <span aria-hidden="true">{getIconHelper('close')}</span>
               ) : (
@@ -119,7 +121,7 @@ const Header: React.FC = () => {
               aria-current={isActive('/') && !location.search.includes('category=') ? 'page' : undefined}
             >
               <span className="w-5 h-5">{getIconHelper('tool')}</span>
-              <span>All Tools</span>
+              <span>{t('header.nav.allTools', 'All Tools')}</span>
             </Link>
             
             <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
@@ -131,7 +133,7 @@ const Header: React.FC = () => {
               onClick={() => setMobileMenuOpen(false)}
             >
               <span className="w-5 h-5">{getIconHelper('github')}</span>
-              <span>GitHub</span>
+              <span>{t('header.nav.github', 'GitHub')}</span>
             </a>
           </nav>
         </div>
