@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { getRelatedTools, Tool } from './index';
+import { useTranslation } from '../context/TranslationContext';
 import { Card } from '../design-system/components/layout';
 
 /**
@@ -15,6 +16,7 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({
   toolId, 
   maxItems = 3 
 }) => {
+  const { t } = useTranslation();
   const relatedTools = getRelatedTools(toolId);
   
   if (!relatedTools.length) {
@@ -25,7 +27,7 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({
   
   return (
     <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Related Tools</h2>
+      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">{t('relatedTools.title', 'Related Tools')}</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {displayedTools.map((tool: Tool) => (
@@ -43,10 +45,10 @@ const RelatedTools: React.FC<RelatedToolsProps> = ({
                 <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
                   <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                 </div>
-                <h3 className="font-medium text-gray-900 dark:text-white text-lg">{tool.title}</h3>
+                <h3 className="font-medium text-gray-900 dark:text-white text-lg">{t(`tools.${tool.id}.title`, tool.title)}</h3>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                {tool.description}
+                {t(`tools.${tool.id}.description`, tool.description)}
               </p>
             </Card>
           </Link>

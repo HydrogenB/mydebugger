@@ -293,7 +293,7 @@ const Home: React.FC = () => {
                 >
                   <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400 mr-2" />
                   <Link to={tool.route} className="mr-2 text-sm text-gray-900 dark:text-white">
-                    {tool.title}
+                    {t(`tools.${tool.id}.title`, tool.title)}
                   </Link>
                   <button onClick={() => togglePin(tool)} aria-label="Unpin" title="Unpin Tool" className="text-gray-500 hover:text-red-600">
                     <MdPushPin className="w-4 h-4" />
@@ -491,19 +491,19 @@ const Home: React.FC = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 id={`tool-title-${tool.id}`} className="tool-title truncate">
-                          {tool.title}
+                          {t(`tools.${tool.id}.title`, tool.title)}
                           <span className="tool-inline-badges">
-                            {tool.isPopular && <span className="tool-badge popular">POPULAR</span>}
-                            {tool.isBeta && <span className="tool-badge beta">BETA</span>}
+                            {tool.isPopular && <span className="tool-badge popular">{t('badges.popular', 'POPULAR')}</span>}
+                            {tool.isBeta && <span className="tool-badge beta">{t('badges.beta', 'BETA')}</span>}
                           </span>
                         </h2>
-                        <p className="tool-category truncate">{tool.category}</p>
+                        <p className="tool-category truncate">{t(`categories.${tool.category}.name`, tool.category)}</p>
                       </div>
                     </div>
 
                     {/* Body */}
                     <div className="tool-card-body">
-                      <p className="tool-description">{tool.description}</p>
+                      <p className="tool-description">{t(`tools.${tool.id}.description`, tool.description)}</p>
                     </div>
 
                     {/* Footer meta removed per request */}
@@ -527,11 +527,11 @@ const Home: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center">
                           <h3 className="font-medium text-gray-900 dark:text-white mr-2 truncate">
-                            {tool.title}
+                            {t(`tools.${tool.id}.title`, tool.title)}
                           </h3>
                           <div className="flex-shrink-0 flex space-x-1">
-                            {tool.isBeta && <Tag variant="warning" size="sm">BETA</Tag>}
-                            {tool.isPopular && <Tag size="sm">POPULAR</Tag>}
+                            {tool.isBeta && <Tag variant="warning" size="sm">{t('badges.beta', 'BETA')}</Tag>}
+                            {tool.isPopular && <Tag size="sm">{t('badges.popular', 'POPULAR')}</Tag>}
                             <button
                               onClick={(e) => { e.preventDefault(); togglePin(tool); }}
                               aria-label="Pin tool"
@@ -546,12 +546,12 @@ const Home: React.FC = () => {
                           </div>
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                          {tool.description}
+                          {t(`tools.${tool.id}.description`, tool.description)}
                         </p>
                       </div>
                       <div className="ml-4 flex-shrink-0">
                         <span className="text-xs text-gray-500 dark:text-gray-400 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
-                          {tool.category}
+                          {t(`categories.${tool.category}.name`, tool.category)}
                         </span>
                       </div>
                     </div>

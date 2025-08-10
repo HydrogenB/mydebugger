@@ -34,6 +34,7 @@
       "more": "more",
       "cta": { "badge": "OPEN SOURCE", "title": "Need a custom tool?", "desc": "Can't find what you're looking for? MyDebugger is open source and continually evolving. Suggest new features, report bugs, or contribute directly to our GitHub repository.", "request": "Request Feature", "github": "Visit GitHub" }
     },
+    "badges": { "popular": "POPULAR", "beta": "BETA" },
     "relatedTools": { "title": "Related Tools" },
     "toolLayout": { "learnMore": "Learn More", "readMore": "Read more about {title}" },
     "tools": {
@@ -115,6 +116,7 @@
       "more": "เพิ่มเติม",
       "cta": { "badge": "โอเพนซอร์ส", "title": "ต้องการเครื่องมือเฉพาะใช่ไหม?", "desc": "หาไม่เจอสิ่งที่คุณต้องการ? MyDebugger เป็นโอเพนซอร์สและพัฒนาอย่างต่อเนื่อง แนะนำฟีเจอร์ใหม่ รายงานบั๊ก หรือมีส่วนร่วมได้ที่ GitHub", "request": "ขอฟีเจอร์", "github": "ไปที่ GitHub" }
     },
+    "badges": { "popular": "ยอดนิยม", "beta": "เวอร์ชันทดลอง" },
     "relatedTools": { "title": "เครื่องมือที่เกี่ยวข้อง" },
     "toolLayout": { "learnMore": "เรียนรู้เพิ่มเติม", "readMore": "อ่านเพิ่มเติมเกี่ยวกับ {title}" },
     "tools": {

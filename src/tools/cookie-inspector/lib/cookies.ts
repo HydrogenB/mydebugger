@@ -49,7 +49,7 @@ export const formatExportFilename = (
   host: string,
   date: Date = new Date(),
 ): string => {
-  const safeHost = host || 'site';
+  const safeHost = (host || 'site').replace(/[^a-zA-Z0-9.-]/g, '-');
   const ts = date.toISOString().replace(/[:T]/g, '-').split('.')[0];
   return `${safeHost}_${ts}.json`;
 };

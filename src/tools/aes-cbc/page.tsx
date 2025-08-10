@@ -27,6 +27,7 @@ const AesCbcPage: React.FC = () => {
       setExampleIndex={vm.setExampleIndex}
       setAlgorithm={vm.setAlgorithm}
       generateKeyPair={vm.generateKeyPair}
+      generateDemo={vm.generateDemo}
       saveCurrentKey={vm.saveCurrentKey}
       selectSavedKey={vm.selectSavedKey}
       discardSavedKey={vm.discardSavedKey}

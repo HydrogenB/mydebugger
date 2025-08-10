@@ -76,16 +76,12 @@ export const useAesCbc = () => {
         let result = '';
         if (algorithm === 'aes-cbc') {
           if (!key) throw new Error('Key must not be empty');
-          if (![16, 24, 32].includes(key.length))
-            throw new Error('Key must be 16, 24, or 32 characters');
           result =
             mode === 'encrypt'
               ? await aes256CbcEncryptRandomIV(key, input)
               : await aes256CbcDecryptRandomIV(key, input);
         } else if (algorithm === 'aes-gcm') {
           if (!key) throw new Error('Key must not be empty');
-          if (![16, 24, 32].includes(key.length))
-            throw new Error('Key must be 16, 24, or 32 characters');
           result =
             mode === 'encrypt'
               ? await aes256GcmEncryptRandomIV(key, input)
