@@ -1,4 +1,4 @@
-import { decodeVapidKey, detectPushSupport } from '../model/pushTester';
+import { decodeVapidKey, detectPushSupport } from '../src/tools/push-tester/lib/pushTester';
 
 describe('decodeVapidKey', () => {
   it('decodes base64url string', () => {

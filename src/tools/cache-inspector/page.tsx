@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import { getToolByRoute } from '../index';
-import useCacheInspector from '../../../viewmodel/useCacheInspector';
-import CacheInspectorView from '../../../view/CacheInspectorView';
+import useCacheInspector from './hooks/useCacheInspector';
+import CacheInspectorView from './components/CacheInspectorPanel';
 import { ToolLayout } from '../../design-system/components/layout';
 
 const CacheInspectorPage: React.FC = () => {

@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { render } from '@testing-library/react';
-import CookieScopeView from '../view/CookieScopeView';
-import { ParsedCookie } from '../model/cookieScope';
+import CookieScopeView from '../src/tools/cookie-scope/components/CookieScopePanel';
+import { ParsedCookie } from '../src/tools/cookie-scope/lib/cookieScope';
 
 const baseCookie: ParsedCookie = {
   name: 'foo',

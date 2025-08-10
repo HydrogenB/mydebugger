@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useHeaderScanner from '../../../viewmodel/useHeaderScanner';
-import HeaderScannerView from '../../../view/HeaderScannerView';
+import useHeaderScanner from './hooks/useHeaderScanner';
+import HeaderScannerView from './components/HeaderScannerPanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

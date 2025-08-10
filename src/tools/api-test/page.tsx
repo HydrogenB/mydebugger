@@ -4,8 +4,8 @@
 import React from 'react';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
-import useApiRepeater from '../../../viewmodel/useApiRepeater';
-import ApiRepeaterView from '../../../view/ApiRepeaterView';
+import useApiRepeater from './hooks/useApiRepeater';
+import ApiRepeaterView from './components/ApiRepeaterPanel';
 
 const ApiTestPage: React.FC = () => {
   const vm = useApiRepeater();

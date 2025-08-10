@@ -1,4 +1,4 @@
-import { runCorsPreflight, analyzeCors, generateCurlCommand } from '../model/cors';
+import { runCorsPreflight, analyzeCors, generateCurlCommand } from '../src/tools/cors-tester/lib/cors';
 
 describe('runCorsPreflight', () => {
   it('parses CORS headers', async () => {

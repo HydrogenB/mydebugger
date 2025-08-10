@@ -4,8 +4,8 @@
 import React from "react";
 import { getToolByRoute } from "../index";
 import { ToolLayout } from "../../design-system/components/layout";
-import MetadataEchoView from "../../../view/MetadataEchoView";
-import useMetadataEcho from "../../../viewmodel/useMetadataEcho";
+import MetadataEchoView from './components/MetadataEchoPanel';
+import useMetadataEcho from './hooks/useMetadataEcho';
 
 const MetadataEchoPage: React.FC = () => {
   const vm = useMetadataEcho();

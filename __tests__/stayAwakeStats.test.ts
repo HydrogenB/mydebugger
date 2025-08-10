@@ -1,4 +1,4 @@
-import { addAwakeTime, loadStats, resetStats } from '../model/stayAwakeStats';
+import { addAwakeTime, loadStats, resetStats } from '../src/tools/stayawake/lib/stayAwakeStats';
 
 describe('stayAwakeStats', () => {
   beforeEach(() => {

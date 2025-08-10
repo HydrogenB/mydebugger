@@ -9,7 +9,7 @@ import React from 'react';
 import { toolPageFactory } from '../../shared/hoc/withToolPage';
 import { useBaseTool } from '../../shared/hooks/useBaseTool';
 import { exportData, copyToClipboard } from '../../shared/utils';
-import HeaderScannerView from '../../../view/HeaderScannerView';
+import HeaderScannerView from './components/HeaderScannerPanel';
 import { analyzeHeaders, HeaderAuditResult } from '../../../model/headerScanner';
 
 /**

@@ -1,4 +1,4 @@
-import { getBasicMetadata, getAdvancedMetadata } from "../model/metadata";
+import { getBasicMetadata, getAdvancedMetadata } from "../src/tools/metadata-echo/lib/metadata";
 
 describe("getBasicMetadata", () => {
   it("returns core fields", () => {

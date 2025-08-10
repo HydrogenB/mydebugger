@@ -1,4 +1,4 @@
-import { generateICalEvent } from '../model/ical';
+import { generateICalEvent } from '../src/tools/qrcode/lib/ical';
 
 describe('generateICalEvent', () => {
   it('builds VEVENT with timezone and alarm', () => {

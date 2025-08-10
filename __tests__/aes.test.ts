@@ -6,7 +6,7 @@ import {
   generateRsaKeyPair,
   rsaOaepEncrypt,
   rsaOaepDecrypt,
-} from '../model/aes';
+} from '../src/tools/aes-cbc/lib/aes';
 
 // Polyfill TextEncoder/TextDecoder for Jest
 // eslint-disable-next-line @typescript-eslint/no-var-requires

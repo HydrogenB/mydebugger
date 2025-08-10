@@ -1,4 +1,4 @@
-import { detectDelimiter, parseCsv, generateMarkdownTable } from '../model/csvtomd';
+import { detectDelimiter, parseCsv, generateMarkdownTable } from '../src/tools/csvtomd/lib/csvtomd';
 
 describe('detectDelimiter', () => {
   it('detects comma vs semicolon', () => {

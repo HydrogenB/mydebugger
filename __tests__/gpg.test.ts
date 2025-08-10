@@ -1,5 +1,5 @@
 /** @jest-environment node */
-import { generateGpgKeyPair, gpgEncrypt, gpgDecrypt } from '../model/aes';
+import { generateGpgKeyPair, gpgEncrypt, gpgDecrypt } from '../src/tools/aes-cbc/lib/aes';
 
 test('GPG RSA-2048 roundtrip', async () => {
   const { publicKey, privateKey } = await generateGpgKeyPair();

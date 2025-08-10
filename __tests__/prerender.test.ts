@@ -1,4 +1,4 @@
-import { parseMetadata, fetchSnapshot } from '../model/prerender';
+import { parseMetadata, fetchSnapshot } from '../src/tools/pre-rendering-tester/lib/prerender';
 
 describe('parseMetadata', () => {
   it('extracts title, meta description and h1', () => {

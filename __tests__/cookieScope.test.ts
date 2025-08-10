@@ -1,4 +1,4 @@
-import { parseCookies } from '../model/cookieScope';
+import { parseCookies } from '../src/tools/cookie-scope/lib/cookieScope';
 
 describe('parseCookies', () => {
   it('parses cookies from document.cookie', async () => {

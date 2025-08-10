@@ -3,7 +3,7 @@ import {
   entriesToEnv,
   diffSnapshots,
   isJsonValid,
-} from '../model/storage';
+} from '../src/tools/storage-sync/lib/storage';
 
 describe('getStorageSnapshot', () => {
   beforeEach(() => {

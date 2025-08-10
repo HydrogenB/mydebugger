@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useCookieInspector from '../../../viewmodel/useCookieInspector';
-import CookieInspectorView from '../../../view/CookieInspectorView';
+import useCookieInspector from './hooks/useCookieInspector';
+import CookieInspectorView from './components/CookieInspectorPanel';
 
 const CookieInspectorPage: React.FC = () => {
   const vm = useCookieInspector();

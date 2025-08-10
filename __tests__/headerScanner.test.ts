@@ -1,4 +1,4 @@
-import { analyzeHeaders } from '../model/headerScanner';
+import { analyzeHeaders } from '../src/tools/header-scanner/lib/headerScanner';
 
 describe('analyzeHeaders', () => {
   it('marks headers as ok when values are secure', async () => {

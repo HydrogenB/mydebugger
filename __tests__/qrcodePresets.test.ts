@@ -1,4 +1,4 @@
-import { QR_PRESETS, getPresetByName } from '../model/qrcodePresets';
+import { QR_PRESETS, getPresetByName } from '../src/tools/qrcode/lib/qrcodePresets';
 
 describe('QR presets', () => {
   it('contains 10 presets', () => {

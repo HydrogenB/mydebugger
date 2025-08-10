@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import useStorageDebugger from '../viewmodel/useStorageDebugger';
+import useStorageDebugger from '../src/tools/storage-sync/hooks/useStorageDebugger.ts';
 
 class FakeBC {
   handlers: ((e: { data: any }) => void)[] = [];

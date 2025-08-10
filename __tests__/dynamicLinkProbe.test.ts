@@ -1,4 +1,4 @@
-import { parseQueryParams, storeTrace, loadTrace } from "../model/dynamicLink";
+import { parseQueryParams, storeTrace, loadTrace } from "../src/tools/dynamic-link-probe/lib/dynamicLink";
 
 describe("dynamic link utilities", () => {
   it("parses query parameters", () => {

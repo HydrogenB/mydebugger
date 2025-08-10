@@ -1,4 +1,4 @@
-import { parseJson, convertJsonToCsv } from '../model/jsonConverter';
+import { parseJson, convertJsonToCsv } from '../src/tools/json-converter/lib/jsonConverter';
 
 const sample = '[{"a":1,"b":{"c":2}}]';
 

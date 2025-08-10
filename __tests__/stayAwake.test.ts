@@ -1,4 +1,4 @@
-import { requestWakeLock, releaseWakeLock, isWakeLockSupported } from '../model/stayAwake';
+import { requestWakeLock, releaseWakeLock, isWakeLockSupported } from '../src/tools/stayawake/lib/stayAwake';
 
 describe('stayAwake model', () => {
   beforeEach(() => {

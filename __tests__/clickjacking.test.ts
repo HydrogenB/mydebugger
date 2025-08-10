@@ -1,4 +1,4 @@
-import { formatReportFilename, generateReport, ClickjackingReport } from '../model/clickjacking';
+import { formatReportFilename, generateReport, ClickjackingReport } from '../src/tools/clickjacking/lib/clickjacking';
 
 describe('formatReportFilename', () => {
   it('creates filename with host and timestamp', () => {

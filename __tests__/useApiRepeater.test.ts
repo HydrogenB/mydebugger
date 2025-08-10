@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import useApiRepeater from '../viewmodel/useApiRepeater';
-import * as model from '../model/apiRepeater';
+import useApiRepeater from '../src/tools/api-test/hooks/useApiRepeater';
+import * as model from '../src/tools/api-test/lib/apiRepeater';
 
 beforeEach(() => {
   jest.useFakeTimers();

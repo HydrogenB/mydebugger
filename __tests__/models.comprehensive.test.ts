@@ -3,14 +3,14 @@
  * Comprehensive Model Tests
  */
 
-import { normalizeUrl, validateUrl, extractDomain, sanitizeInput } from '../model/url';
-import { analyzeHeaders, HeaderAuditResult, getSecurityScore } from '../model/headerScanner';
-import { getBasicMetadata, getAdvancedMetadata } from '../model/metadata';
-import { generateLargeImage, calculateImageSize } from '../model/generateLargeImage';
-import { compressImage, resizeImage } from '../model/imageCompressor';
-import { parseVCardString, generateVCard, formatContact } from '../model/virtualCard';
-import { detectBrowser, getDeviceInfo, getNetworkInfo } from '../model/deviceTrace';
-import { validateChain, resolveRedirects, analyzeDeepLink } from '../model/deepLinkChain';
+import { normalizeUrl, validateUrl, extractDomain, sanitizeInput } from '../src/tools/url/lib/url';
+import { analyzeHeaders, HeaderAuditResult, getSecurityScore } from '../src/tools/header-scanner/lib/headerScanner';
+import { getBasicMetadata, getAdvancedMetadata } from '../src/tools/metadata-echo/lib/metadata';
+import { generateLargeImage, calculateImageSize } from '../src/tools/generate-large-image/lib/generateLargeImage';
+import { compressImage, resizeImage } from '../src/tools/image-compressor/lib/imageCompressor';
+import { parseVCardString, generateVCard, formatContact } from '../src/tools/virtual-card/lib/virtualCard';
+import { detectBrowser, getDeviceInfo, getNetworkInfo } from '../src/tools/device-trace/lib/deviceTrace';
+import { validateChain, resolveRedirects, analyzeDeepLink } from '../src/tools/deep-link-chain/lib/deepLinkChain';
 
 describe('URL Model Functions', () => {
   describe('normalizeUrl', () => {

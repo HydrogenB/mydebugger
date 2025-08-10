@@ -1,4 +1,4 @@
-import qrStylePresets from '../model/qrStylePresets';
+import qrStylePresets from '../src/tools/qrcode/lib/qrStylePresets';
 
 describe('qrStylePresets', () => {
   it('contains 40 presets', () => {

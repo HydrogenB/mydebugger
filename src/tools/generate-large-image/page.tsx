@@ -4,8 +4,8 @@
 import React from 'react';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
-import GenerateLargeImageView from '../../../view/GenerateLargeImageView';
-import { useGenerateLargeImage } from '../../../viewmodel/useGenerateLargeImage';
+import GenerateLargeImageView from './components/GenerateLargeImagePanel';
+import { useGenerateLargeImage } from './hooks/useGenerateLargeImage';
 
 const GenerateLargeImagePage: React.FC = () => {
   const vm = useGenerateLargeImage();

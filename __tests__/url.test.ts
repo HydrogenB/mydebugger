@@ -1,4 +1,4 @@
-import { encodeUrlQueryParams } from "../model/url";
+import { encodeUrlQueryParams } from "../src/tools/url/lib/url";
 
 describe("encodeUrlQueryParams", () => {
   it("encodes query values", () => {

@@ -4,18 +4,18 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TOOL_PANEL_CLASS } from "../../design-system/foundations/layout";
-import { encodeUrlQueryParams } from "../../../model/url";
+import { encodeUrlQueryParams } from "../../url/lib/url";
 import { Helmet } from "react-helmet";
 import QRCodeStyling, {
   DotType,
   CornerSquareType,
   ErrorCorrectionLevel,
 } from "qr-code-styling";
-import { QR_PRESETS, getPresetByName } from "../../../model/qrcodePresets";
+import { QR_PRESETS, getPresetByName } from "../lib/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
-import { qrStylePresets } from "../../../model/qrStylePresets";
-import { convertPngToPdf, QRDownloadFormat } from "../../../model/qrcode";
-import { generateICalEvent } from "../../../model/ical";
+import { qrStylePresets } from "../lib/qrStylePresets";
+import { convertPngToPdf, QRDownloadFormat } from "../lib/qrcode";
+import { generateICalEvent } from "../lib/ical";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {

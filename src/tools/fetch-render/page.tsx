@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useFetchRender from '../../../viewmodel/useFetchRender';
-import FetchRenderView from '../../../view/FetchRenderView';
+import useFetchRender from './hooks/useFetchRender';
+import FetchRenderView from './components/FetchRenderPanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

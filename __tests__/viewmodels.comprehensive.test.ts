@@ -4,13 +4,13 @@
  */
 
 import { renderHook, act } from '@testing-library/react';
-import useMetadataEcho from '../viewmodel/useMetadataEcho';
-import useHeaderScanner from '../viewmodel/useHeaderScanner';
-import useGenerateLargeImage from '../viewmodel/useGenerateLargeImage';
-import useFetchRender from '../viewmodel/useFetchRender';
+import useMetadataEcho from '../src/tools/metadata-echo/hooks/useMetadataEcho.ts';
+import useHeaderScanner from '../src/tools/header-scanner/hooks/useHeaderScanner.ts';
+import useGenerateLargeImage from '../src/tools/generate-large-image/hooks/useGenerateLargeImage.ts';
+import useFetchRender from '../src/tools/fetch-render/hooks/useFetchRender.ts';
 import useDynamicLinkProbe from '../viewmodel/useDynamicLinkProbe';
-import useDeviceTrace from '../viewmodel/useDeviceTrace';
-import useDeepLinkChain from '../viewmodel/useDeepLinkChain';
+import useDeviceTrace from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
+import useDeepLinkChain from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';
 
 // Mock fetch globally
 global.fetch = jest.fn();

@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useAesCbc from '../../../viewmodel/useAesCbc';
-import AesCbcView from '../../../view/AesCbcView';
+import useAesCbc from './hooks/useAesCbc';
+import AesCbcView from './components/AesCbcPanel';
 
 const AesCbcPage: React.FC = () => {
   const vm = useAesCbc();

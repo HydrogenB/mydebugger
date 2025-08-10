@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import { getToolByRoute } from '../index';
-import useQrscan from '../../../viewmodel/useQrscan';
-import QrscanView from '../../../view/QrscanView';
+import useQrscan from './hooks/useQrscan';
+import QrscanView from './components/QrscanPanel';
 import { ToolLayout } from '../../design-system/components/layout';
 
 const QrscanPage: React.FC = () => {

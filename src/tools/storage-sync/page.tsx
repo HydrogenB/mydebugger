@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useStorageDebugger from '../../../viewmodel/useStorageDebugger';
-import StorageDebuggerView from '../../../view/StorageDebuggerView';
+import useStorageDebugger from './hooks/useStorageDebugger';
+import StorageDebuggerView from './components/StorageDebuggerPanel';
 
 const StorageSyncPage: React.FC = () => {
   const vm = useStorageDebugger();

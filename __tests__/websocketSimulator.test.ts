@@ -1,5 +1,5 @@
 import { TextDecoder, TextEncoder } from 'util';
-import { parseCurl, textToHex, hexToText } from '../model/websocketSimulator';
+import { parseCurl, textToHex, hexToText } from '../src/tools/api-simulator/lib/websocketSimulator';
 
 // Node <19 lacks TextEncoder/TextDecoder globally
 (global as any).TextEncoder = TextEncoder;

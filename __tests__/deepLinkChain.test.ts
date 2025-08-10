@@ -1,4 +1,4 @@
-import { followRedirectChain, followRedirectChainRemote, parseUtmParams, fetchOpenGraph } from '../model/deepLinkChain';
+import { followRedirectChain, followRedirectChainRemote, parseUtmParams, fetchOpenGraph } from '../src/tools/deep-link-chain/lib/deepLinkChain';
 
 describe('parseUtmParams', () => {
   it('extracts utm parameters', () => {

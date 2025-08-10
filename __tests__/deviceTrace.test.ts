@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import { runDeviceTrace } from '../model/deviceTrace';
-import useDeviceTrace from '../viewmodel/useDeviceTrace';
+import { runDeviceTrace } from '../src/tools/device-trace/lib/deviceTrace';
+import useDeviceTrace from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
 
 describe('runDeviceTrace', () => {
   it('posts to the API and returns result', async () => {

@@ -3,7 +3,7 @@ import {
   parseCacheControl,
   formatCacheControl,
   exportCacheResults,
-} from '../model/cacheInspector';
+} from '../src/tools/cache-inspector/lib/cacheInspector';
 
 describe('analyzeCacheFor', () => {
   beforeEach(() => {

@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useJsonConverter from '../../../viewmodel/useJsonConverter';
-import JsonConverterView from '../../../view/JsonConverterView';
+import useJsonConverter from './hooks/useJsonConverter';
+import JsonConverterView from './components/JsonConverterPanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

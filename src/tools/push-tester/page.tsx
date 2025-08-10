@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import PushTester from '../../../view/PushTester';
+import PushTester from './components/PushTesterPanel';
 
 function PushTesterPage() {
   return <PushTester />;

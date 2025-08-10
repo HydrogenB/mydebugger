@@ -1,7 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { BrowserQRCodeReader } from '@zxing/browser';
-import { startQrScan, stopQrScan, listVideoInputDevices } from '../model/qrscan';
-import useQrscan from '../viewmodel/useQrscan';
+import { startQrScan, stopQrScan, listVideoInputDevices } from '../src/tools/qrscan/lib/qrscan';
+import useQrscan from '../src/tools/qrscan/hooks/useQrscan.ts';
 
 const mockControls = { stop: jest.fn() };
 

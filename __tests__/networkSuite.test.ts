@@ -4,7 +4,7 @@ import {
   pingSamples,
   measureDownloadSpeed,
   isConnectionApiSupported,
-} from '../model/networkSuite';
+} from '../src/tools/networksuit/lib/networkSuite';
 
 describe('getTechTier', () => {
   it('maps tiers correctly', () => {

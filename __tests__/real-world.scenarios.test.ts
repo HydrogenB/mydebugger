@@ -8,26 +8,26 @@ import { describe, test, expect, beforeAll, afterAll, beforeEach, jest } from '@
 
 // Import all viewmodel hooks for comprehensive testing
 import { usePermissionTester } from '../viewmodel/usePermissionTester';
-import { useHeaderScanner } from '../viewmodel/useHeaderScanner';
-import { useCorsTester } from '../viewmodel/useCorsTester';
-import { useImageCompressor } from '../viewmodel/useImageCompressor';
-import { useJsonConverter } from '../viewmodel/useJsonConverter';
-import { useCsvtomd } from '../viewmodel/useCsvtomd';
+import { useHeaderScanner } from '../src/tools/header-scanner/hooks/useHeaderScanner.ts';
+import { useCorsTester } from '../src/tools/cors-tester/hooks/useCorsTester.ts';
+import { useImageCompressor } from '../src/tools/image-compressor/hooks/useImageCompressor.ts';
+import { useJsonConverter } from '../src/tools/json-converter/hooks/useJsonConverter.ts';
+import { useCsvtomd } from '../src/tools/csvtomd/hooks/useCsvtomd.ts';
 import { useVirtualCard } from '../viewmodel/useVirtualCard';
 import { useStayAwake } from '../viewmodel/useStayAwake';
 import { useWebsocketSimulator } from '../viewmodel/useWebsocketSimulator';
-import { useStorageDebugger } from '../viewmodel/useStorageDebugger';
-import { useQrscan } from '../viewmodel/useQrscan';
+import { useStorageDebugger } from '../src/tools/storage-sync/hooks/useStorageDebugger.ts';
+import { useQrscan } from '../src/tools/qrscan/hooks/useQrscan.ts';
 import { usePushTester } from '../viewmodel/usePushTester';
-import { useNetworkSuite } from '../viewmodel/useNetworkSuite';
-import { usePentestSuite } from '../viewmodel/usePentestSuite';
-import { useDeepLinkChain } from '../viewmodel/useDeepLinkChain';
-import { useDeviceTrace } from '../viewmodel/useDeviceTrace';
+import { useNetworkSuite } from '../src/tools/networksuit/hooks/useNetworkSuite.ts';
+import { usePentestSuite } from '../src/tools/pentest/hooks/usePentestSuite.ts';
+import { useDeepLinkChain } from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';
+import { useDeviceTrace } from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
 import { useDynamicLinkProbe } from '../viewmodel/useDynamicLinkProbe';
-import { useFetchRender } from '../viewmodel/useFetchRender';
-import { useGenerateLargeImage } from '../viewmodel/useGenerateLargeImage';
-import { useMetadataEcho } from '../viewmodel/useMetadataEcho';
-import { usePreRenderingTester } from '../viewmodel/usePreRenderingTester';
+import { useFetchRender } from '../src/tools/fetch-render/hooks/useFetchRender.ts';
+import { useGenerateLargeImage } from '../src/tools/generate-large-image/hooks/useGenerateLargeImage.ts';
+import { useMetadataEcho } from '../src/tools/metadata-echo/hooks/useMetadataEcho.ts';
+import { usePreRenderingTester } from '../src/tools/pre-rendering-tester/hooks/usePreRenderingTester.ts';
 
 // Import utility functions
 import * as toolFilters from '../src/utils/toolFilters';

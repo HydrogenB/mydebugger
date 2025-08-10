@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useDeepLinkChain from '../../../viewmodel/useDeepLinkChain';
-import DeepLinkChainView from '../../../view/DeepLinkChainView';
+import useDeepLinkChain from './hooks/useDeepLinkChain';
+import DeepLinkChainView from './components/DeepLinkChainPanel';
 
 const DeepLinkChainPage: React.FC = () => {
   const vm = useDeepLinkChain();

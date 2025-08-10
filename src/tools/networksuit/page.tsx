@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useNetworkSuite from '../../../viewmodel/useNetworkSuite';
-import NetworkSuiteView from '../../../view/NetworkSuiteView';
+import useNetworkSuite from './hooks/useNetworkSuite';
+import NetworkSuiteView from './components/NetworkSuitePanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useCsvtomd from '../../../viewmodel/useCsvtomd';
-import CsvtomdView from '../../../view/CsvtomdView';
+import useCsvtomd from './hooks/useCsvtomd';
+import CsvtomdView from './components/CsvtomdPanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

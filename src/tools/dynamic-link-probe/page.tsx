@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from "react";
-import DynamicLinkProbeProvider from "../../../view/DynamicLinkProbeProvider";
+import DynamicLinkProbeProvider from './components/DynamicLinkProbeProviderPanel';
 
 const DynamicLinkProbePage: React.FC = () => (
   <div className="p-4 space-y-4">

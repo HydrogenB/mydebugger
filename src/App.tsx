@@ -9,7 +9,7 @@ import { TranslationProvider } from "./context/TranslationContext";
 import Header from "./layout/Header";
 import { AppRoutes } from "./app/routes";
 import Footer from "./layout/Footer";
-import DynamicLinkProbeProvider from "../view/DynamicLinkProbeProvider";
+import DynamicLinkProbeProvider from "./tools/dynamic-link-probe/components/DynamicLinkProbeProviderPanel";
 
 function App() {
   return (

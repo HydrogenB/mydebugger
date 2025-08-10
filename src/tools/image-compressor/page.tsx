@@ -4,8 +4,8 @@
 import React from 'react';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
-import ImageCompressorView from '../../../view/ImageCompressorView';
-import { useImageCompressor } from '../../../viewmodel/useImageCompressor';
+import ImageCompressorView from './components/ImageCompressorPanel';
+import { useImageCompressor } from './hooks/useImageCompressor';
 
 const ImageCompressorPage: React.FC = () => {
   const vm = useImageCompressor();

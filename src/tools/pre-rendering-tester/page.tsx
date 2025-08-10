@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import usePreRenderingTester from '../../../viewmodel/usePreRenderingTester';
-import PreRenderingTesterView from '../../../view/PreRenderingTesterView';
+import usePreRenderingTester from './hooks/usePreRenderingTester';
+import PreRenderingTesterView from './components/PreRenderingTesterPanel';
 import { getToolByRoute } from '../index';
 import { ToolLayout } from '../../design-system/components/layout';
 

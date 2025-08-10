@@ -2,8 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import useDeviceTrace from '../../../viewmodel/useDeviceTrace';
-import DeviceTraceView from '../../../view/DeviceTraceView';
+import useDeviceTrace from './hooks/useDeviceTrace';
+import DeviceTraceView from './components/DeviceTracePanel';
 
 const DeviceTracePage: React.FC = () => {
   const vm = useDeviceTrace();

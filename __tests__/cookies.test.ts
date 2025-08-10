@@ -2,7 +2,7 @@ import {
   parseCookieString,
   mergeCookies,
   formatExportFilename,
-} from '../model/cookies';
+} from '../src/tools/cookie-inspector/lib/cookies';
 
 describe('parseCookieString', () => {
   it('parses name=value pairs', () => {

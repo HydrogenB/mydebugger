@@ -1,4 +1,4 @@
-import { generateVCard, encodeContactData, decodeContactData, getInitials } from '../model/virtualCard';
+import { generateVCard, encodeContactData, decodeContactData, getInitials } from '../src/tools/virtual-card/lib/virtualCard';
 
 describe('generateVCard', () => {
   it('creates a minimal vcard', () => {
