@@ -1,7 +1,8 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { DeviceTraceResult } from '../src/tools/linktracer/types';
+// Use local relative path to shared types
+import { DeviceTraceResult } from '../../linktracer/types';
 
 export interface DeviceTraceOptions {
   maxHops?: number;

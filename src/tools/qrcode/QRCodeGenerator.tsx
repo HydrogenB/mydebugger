@@ -738,9 +738,9 @@ const DeepLinkQRGenerator: React.FC = () => {
         </h1>
         <p className="text-gray-600 mb-8">
           Generate QR codes for any URL or mobile deep link (e.g,
-          <code>trueapp://</code>, <code>myapp://</code>, or
-          <code>https://</code>). This tool auto-encodes query parameters,
-          previews safe links, and lets you test instantly on your own device.
+          <code>myapp://</code> or <code>https://</code>). This tool auto-encodes
+          query parameters, previews safe links, and lets you test instantly on
+          your own device.
         </p>
 
         {/* Toast Message */}
@@ -1152,11 +1152,11 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {/* Collapsible Cosmetic Options */}
               <details
-                className="mt-6 border-t border-gray-200 pt-4"
+                className="mt-6 group"
                 open={showCosmeticOptions}
               >
                 <summary
-                  className="text-md font-medium text-gray-700 cursor-pointer"
+                  className="summary-no-marker flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition text-md font-medium text-gray-700"
                   onClick={(e) => {
                     e.preventDefault();
                     setShowCosmeticOptions(!showCosmeticOptions);
@@ -1180,7 +1180,8 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </span>
                 </summary>
 
-                <div className="pt-4 grid grid-cols-1 gap-4">
+                <div className="pt-4 rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm">
+                  <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label
                       htmlFor="stylePreset"
@@ -1190,7 +1191,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </label>
                     <select
                       id="stylePreset"
-                      className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                       value={presetIndex}
                       onChange={(e) => handlePresetChange(parseInt(e.target.value, 10))}
                     >
@@ -1214,7 +1215,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       <input
                         type="range"
                         id="size"
-                        className="flex-1 mr-3"
+                        className="flex-1 mr-3 accent-blue-500"
                         min="128"
                         max="512"
                         step="8"
@@ -1227,7 +1228,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label
                         htmlFor="errorCorrection"
@@ -1237,7 +1238,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       </label>
                       <select
                         id="errorCorrection"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                         value={errorCorrection}
                         onChange={(e) =>
                           setErrorCorrection(e.target.value as ErrorCorrectionLevel)
@@ -1254,11 +1255,11 @@ const DeepLinkQRGenerator: React.FC = () => {
                         htmlFor="preset"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Style Preset
+                        Quick Style Preset
                       </label>
                       <select
                         id="preset"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                         value={selectedPreset || ""}
                         onChange={(e) => {
                           const val = e.target.value;
@@ -1283,7 +1284,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label
                         htmlFor="darkColor"
@@ -1295,13 +1296,13 @@ const DeepLinkQRGenerator: React.FC = () => {
                         <input
                           type="color"
                           id="darkColor"
-                          className="h-8 w-8 rounded mr-2"
+                          className="h-9 w-9 rounded-md mr-2 border border-gray-300 dark:border-gray-700"
                           value={darkColor}
                           onChange={(e) => setDarkColor(e.target.value)}
                         />
                         <input
                           type="text"
-                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                          className="flex-1 rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                           value={darkColor}
                           onChange={(e) => setDarkColor(e.target.value)}
                           maxLength={7}
@@ -1319,13 +1320,13 @@ const DeepLinkQRGenerator: React.FC = () => {
                         <input
                           type="color"
                           id="lightColor"
-                          className="h-8 w-8 rounded mr-2"
+                          className="h-9 w-9 rounded-md mr-2 border border-gray-300 dark:border-gray-700"
                           value={lightColor}
                           onChange={(e) => setLightColor(e.target.value)}
                         />
                         <input
                           type="text"
-                          className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                          className="flex-1 rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                           value={lightColor}
                           onChange={(e) => setLightColor(e.target.value)}
                           maxLength={7}
@@ -1334,12 +1335,12 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div>
                       <label htmlFor="dotStyle" className="block text-sm font-medium text-gray-700 mb-1">Dot Style</label>
                       <select
                         id="dotStyle"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                        className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
                         value={dotStyle}
                         onChange={(e) => setDotStyle(e.target.value as DotType)}
                       >
@@ -1368,28 +1369,32 @@ const DeepLinkQRGenerator: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                    <div>
-                      <label htmlFor="gradientStart" className="block text-sm font-medium text-gray-700 mb-1">Gradient Start</label>
-                      <input type="color" id="gradientStart" className="h-8 w-8 rounded" value={gradientStart} onChange={(e) => setGradientStart(e.target.value)} />
+                  <div className="mt-3 rounded-lg border border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-900/30">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Gradient</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="gradientStart" className="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                        <input type="color" id="gradientStart" className="h-9 w-9 rounded-md border border-gray-300 dark:border-gray-700" value={gradientStart} onChange={(e) => setGradientStart(e.target.value)} />
+                      </div>
+                      <div>
+                        <label htmlFor="gradientEnd" className="block text-sm font-medium text-gray-700 mb-1">End</label>
+                        <input type="color" id="gradientEnd" className="h-9 w-9 rounded-md border border-gray-300 dark:border-gray-700" value={gradientEnd} onChange={(e) => setGradientEnd(e.target.value)} />
+                      </div>
                     </div>
-                    <div>
-                      <label htmlFor="gradientEnd" className="block text-sm font-medium text-gray-700 mb-1">Gradient End</label>
-                      <input type="color" id="gradientEnd" className="h-8 w-8 rounded" value={gradientEnd} onChange={(e) => setGradientEnd(e.target.value)} />
+                    <div className="mt-3">
+                      <label htmlFor="gradientAngle" className="block text-sm font-medium text-gray-700 mb-1">Angle ({gradientAngle}°)</label>
+                      <input type="range" id="gradientAngle" min="0" max="360" value={gradientAngle} onChange={(e) => setGradientAngle(parseInt(e.target.value))} className="w-full accent-blue-500" />
                     </div>
-                  </div>
-                  <div>
-                    <label htmlFor="gradientAngle" className="block text-sm font-medium text-gray-700 mb-1">Gradient Angle ({gradientAngle}°)</label>
-                    <input type="range" id="gradientAngle" min="0" max="360" value={gradientAngle} onChange={(e) => setGradientAngle(parseInt(e.target.value))} className="w-full" />
                   </div>
 
                   <div>
                     <label htmlFor="logoUpload" className="block text-sm font-medium text-gray-700 mb-1">Center Logo</label>
-                    <input type="file" id="logoUpload" accept="image/*" onChange={handleLogoUpload} />
+                    <input type="file" id="logoUpload" accept="image/*" onChange={handleLogoUpload} className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer" />
                   </div>
                   <div>
                     <label htmlFor="logoSize" className="block text-sm font-medium text-gray-700 mb-1">Logo Size ({logoSize}%)</label>
-                    <input type="range" id="logoSize" min="0" max="30" value={logoSize} onChange={(e) => setLogoSize(parseInt(e.target.value))} className="w-full" />
+                    <input type="range" id="logoSize" min="0" max="30" value={logoSize} onChange={(e) => setLogoSize(parseInt(e.target.value))} className="w-full accent-blue-500" />
+                  </div>
                   </div>
                 </div>
               </details>

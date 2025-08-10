@@ -62,6 +62,10 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Remove default marker from summary when we render our own chevron */
+.summary-no-marker::-webkit-details-marker { display: none; }
+.summary-no-marker::marker { content: none; }
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

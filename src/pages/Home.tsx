@@ -301,125 +301,86 @@ const Home: React.FC = () => {
             </div>
           </section>
         )}
-          {/* Category Tabs and Tools Header */}
+          {/* New Browse Tools section header */}
         <section className="mb-8">
-          <div className="flex flex-wrap items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 gradient-text">
-              {t('home.browse.title', 'Browse Tools')}
-            </h2>
-            
-            <div className="flex items-center space-x-3 mt-3 md:mt-0">
-              {/* Filter indicators */}
-              {searchTerm && (
-                <div className="flex items-center bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-300 py-1 px-3 rounded-full text-sm">
-                  <span>{t('home.search.active', 'Search')}: {searchTerm}</span>
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="ml-2 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
-                    aria-label="Clear search"
-                  >
-                    <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-              
-              {/* View Mode toggle */}
-              <div className="bg-gray-100 dark:bg-gray-700 rounded-xl p-1 flex">
-                <button
-                  className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow' : ''}`}
-                  onClick={() => setViewMode('grid')}
-                  aria-label={t('home.view.grid', 'Grid view')}
-                >
-                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button
-                  className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white dark:bg-gray-600 shadow' : ''}`}
-                  onClick={() => setViewMode('list')}
-                  aria-label={t('home.view.list', 'List view')}
-                >
-                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-bold heading-gradient">{t('home.browse.title', 'Browse Tools')}</h2>
+            <div className="bg-white/70 dark:bg-gray-800/60 rounded-xl p-1 shadow-sm flex">
+              <button
+                className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
+                onClick={() => setViewMode('grid')}
+                aria-pressed={viewMode === 'grid'}
+                aria-label={t('home.view.grid', 'Grid view')}
+              >
+                <svg className="w-4 h-4 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </button>
+              <button
+                className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
+                onClick={() => setViewMode('list')}
+                aria-pressed={viewMode === 'list'}
+                aria-label={t('home.view.list', 'List view')}
+              >
+                <svg className="w-4 h-4 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+              </button>
             </div>
           </div>
-          
-          {/* Categories as chips for mobile */}
-          <div className="md:hidden mb-4 flex flex-wrap gap-2">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`category-chip px-3 py-1 rounded-full text-sm ${activeTab === 'all' 
-                ? 'bg-primary-500 text-white font-medium shadow-md' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
-            >
-              {t('home.tabs.all', 'All Tools')}
-            </button>
-            <button
-              onClick={() => setActiveTab('popular')}
-              className={`category-chip px-3 py-1 rounded-full text-sm ${activeTab === 'popular' 
-                ? 'bg-primary-500 text-white font-medium shadow-md' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
-            >
-              {t('home.tabs.popular', 'Popular')}
-            </button>
-            <button
-              onClick={() => setActiveTab('new')}
-              className={`category-chip px-3 py-1 rounded-full text-sm ${activeTab === 'new' 
-                ? 'bg-primary-500 text-white font-medium shadow-md' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
-            >
-              {t('home.tabs.new', 'New')}
-            </button>
-            <button
-              onClick={() => setActiveTab('recent')}
-              className={`category-chip px-3 py-1 rounded-full text-sm ${activeTab === 'recent' 
-                ? 'bg-primary-500 text-white font-medium shadow-md' 
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
-            >
-              {t('home.tabs.recent', 'Recently Used')}
-            </button>
-              {categories.slice(0, 5).map(category => (
-              <button
-                key={category}
-                onClick={() => setActiveTab(category)}
-                className={`category-chip px-3 py-1 rounded-full text-sm ${activeTab === category 
-                  ? 'bg-primary-500 text-white font-medium shadow-md' 
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
-              >
-                {t(`categories.${category}.name`, category)}
-              </button>
-            ))}
-            {categories.length > 5 && (
-              <button
-                className="category-chip px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-                onClick={() => {/* Show more categories modal */}}
-              >
-                +{categories.length - 5} {t('home.more', 'more')}
-              </button>
-            )}
-          </div>
-          
-          {/* Desktop tabs */}
-          <div className="hidden md:block">
-            <TabGroup
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              variant="underlined"
-            >
-              <Tab id="all">{t('home.tabs.all', 'All Tools')}</Tab>
-              <Tab id="popular">{t('home.tabs.popular', 'Popular')}</Tab>
-              <Tab id="new">{t('home.tabs.new', 'New')}</Tab>
-              <Tab id="recent">{t('home.tabs.recent', 'Recently Used')}</Tab>
-              {categories.map(category => (
-                <Tab key={category} id={category}>{t(`categories.${category}.name`, category)}</Tab>
+
+          {/* Unified horizontal chip tabs */}
+          <div className="relative">
+            <div className="flex items-center gap-2 overflow-x-auto py-2">
+              {[
+                { id: 'all', label: t('home.tabs.all', 'All Tools') },
+                { id: 'popular', label: t('home.tabs.popular', 'Popular') },
+                { id: 'new', label: t('home.tabs.new', 'New') },
+                { id: 'recent', label: t('home.tabs.recent', 'Recently Used') },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow ring-1 ring-primary-300/50'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
               ))}
-            </TabGroup>
+              {categories.map(category => (
+                <button
+                  key={category}
+                  onClick={() => setActiveTab(category)}
+                  className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors ${
+                    activeTab === category
+                      ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow ring-1 ring-primary-300/50'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  {t(`categories.${category}.name`, category)}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Active filters */}
+          {searchTerm && (
+            <div className="mt-2 flex items-center bg-primary-50 dark:bg-gray-700 text-primary-700 dark:text-primary-300 py-1 px-3 rounded-full text-sm w-max">
+              <span>{t('home.search.active', 'Search')}: {searchTerm}</span>
+              <button
+                onClick={() => setSearchTerm('')}
+                className="ml-2 text-primary-500 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-200"
+                aria-label="Clear search"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          )}
         </section>
 
         
@@ -512,83 +473,41 @@ const Home: React.FC = () => {
             </div>
           ) : visibleTools.length > 0 ? (
             viewMode === 'grid' ? (
-              <Grid columns={{ base: 1, sm: 2, md: 3 }} gap="lg">
+              <div className="tool-cards-container">
                 {visibleTools.map(tool => (
                   <Link
                     key={tool.id}
                     to={tool.route}
                     onClick={() => handleToolClick(tool)}
-                    className="no-underline tool-card"
+                    className="no-underline tool-card glass-card"
                     aria-labelledby={`tool-title-${tool.id}`}
                   >
-                    <Card
-                      isInteractive
-                      className="h-full hover:border-primary-300 dark:hover:border-primary-700 glass-card relative"
-                    >
-                      {/* Interactive elements overlay on hover */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/30 via-transparent opacity-0 hover:opacity-100 transition-opacity rounded-xl flex items-end justify-end p-3 overflow-hidden gap-2">
-                        <Tooltip content="Quick preview">
-                          <button
-                            className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg"
-                            aria-label="Preview tool"
-                            title="Preview Tool"
-                          >
-                            <svg className="w-4 h-4 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                          </button>
-                        </Tooltip>
-                        <Tooltip content={pinnedTools.find(t => t.id === tool.id) ? 'Unpin' : 'Pin'}>
-                          <button
-                            onClick={(e) => { e.preventDefault(); togglePin(tool); }}
-                            className="p-2 bg-white dark:bg-gray-700 rounded-full shadow-lg"
-                            aria-label="Pin tool"
-                            title={pinnedTools.find(t => t.id === tool.id) ? 'Unpin Tool' : 'Pin Tool'}
-                          >
-                            {pinnedTools.find(t => t.id === tool.id) ? (
-                              <MdPushPin className="w-4 h-4 text-primary-600" />
-                            ) : (
-                              <MdOutlinePushPin className="w-4 h-4 text-gray-600" />
-                            )}
-                          </button>
-                        </Tooltip>
+                    {/* Header */}
+                    <div className="tool-card-header">
+                      <div className="tool-icon-container">
+                        <tool.icon className="h-6 w-6 text-primary-600 dark:text-primary-400 tool-icon" />
                       </div>
-                      
-                      <div className="flex items-start mb-3">
-                        <div className="mr-3 p-2.5 bg-primary-100 dark:bg-primary-900 rounded-xl tool-icon-container">
-                          <tool.icon className="h-6 w-6 text-primary-600 dark:text-primary-400 tool-icon" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center flex-wrap gap-1">
-                            <h2 id={`tool-title-${tool.id}`} className="text-lg font-medium text-gray-900 dark:text-white mr-2">
-                              {tool.title}
-                            </h2>
-                            <div className="flex space-x-1">
-                              {tool.isBeta && <Tag variant="warning" size="sm">BETA</Tag>}
-                              {tool.isPopular && <Tag size="sm">POPULAR</Tag>}
-                            </div>
-                          </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {tool.category}
-                          </p>
-                        </div>
+                      <div className="flex-1 min-w-0">
+                        <h2 id={`tool-title-${tool.id}`} className="tool-title truncate">
+                          {tool.title}
+                          <span className="tool-inline-badges">
+                            {tool.isPopular && <span className="tool-badge popular">POPULAR</span>}
+                            {tool.isBeta && <span className="tool-badge beta">BETA</span>}
+                          </span>
+                        </h2>
+                        <p className="tool-category truncate">{tool.category}</p>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-                        {tool.description}
-                      </p>
-                      
-                      {/* Usage indicator */}
-                      <div className="mt-auto flex items-center text-xs text-gray-500 dark:text-gray-400">
-                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {tool.isPopular ? t('home.card.popular', 'Popular choice') : t('home.card.recentlyUpdated', 'Recently updated')}
-                      </div>
-                    </Card>
+                    </div>
+
+                    {/* Body */}
+                    <div className="tool-card-body">
+                      <p className="tool-description">{tool.description}</p>
+                    </div>
+
+                    {/* Footer meta removed per request */}
                   </Link>
                 ))}
-              </Grid>
+              </div>
             ) : (
               // List view
               <div className="space-y-2">

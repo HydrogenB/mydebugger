@@ -295,42 +295,30 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
   } = props;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '2rem' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ textAlign: 'center', color: 'white', marginBottom: '2rem', fontSize: '2.5rem' }}>
+    <div className="app-ambient-bg py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        <h1 className="text-center text-3xl md:text-4xl font-extrabold heading-gradient mb-6">
           นามบัตรดิจิทัล 💳 Virtual Business Card
         </h1>
         
-        <div style={{ display: 'grid', gridTemplateColumns: viewOnly ? '1fr' : '1fr 1fr', gap: '2rem' }}>
+        <div className={`grid gap-6 ${viewOnly ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
           {/* Form Section */}
           {!viewOnly && (
-            <div style={{ background: 'rgba(255,255,255,0.95)', borderRadius: '20px', padding: '2rem' }}>
-              <h2 style={{ marginBottom: '1.5rem', color: '#333' }}>ข้อมูลส่วนตัว / Personal Info</h2>
+            <div className="card-ambient rounded-2xl p-6">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">ข้อมูลส่วนตัว / Personal Info</h2>
               
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div className="mb-3">
+                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">
                   ชื่อ-นามสกุล / Full Name
                 </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="สมชาย ใจดี / Somchai Jaidee"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
-                />
+                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="สมชาย ใจดี / Somchai Jaidee" className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div className="mb-3">
+                <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">
                   โทรศัพท์ / Phone
                 </label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+66 81 234 5678 / 081-234-5678"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
-                />
+                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+66 81 234 5678 / 081-234-5678" className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
@@ -415,31 +403,11 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                 </small>
               </div>
 
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <button 
-                  onClick={download}
-                  style={{ padding: '0.75rem 1.5rem', background: '#667eea', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  📥 ดาวน์โหลด vCard
-                </button>
-                <button 
-                  onClick={copyLink}
-                  style={{ padding: '0.75rem 1.5rem', background: '#764ba2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  🔗 คัดลอกลิงก์
-                </button>
-                <button 
-                  onClick={shareCard}
-                  style={{ padding: '0.75rem 1.5rem', background: '#f472b6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  📤 แชร์นามบัตร
-                </button>
-                <button 
-                  onClick={toggleRaw}
-                  style={{ padding: '0.75rem 1.5rem', background: '#94a3b8', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                >
-                  {showRaw ? '🙈 ซ่อน vCard' : '👁️ ดู vCard'}
-                </button>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={download} className="btn-gradient rounded-md px-4 py-2 text-white">📥 ดาวน์โหลด vCard</button>
+                <button onClick={copyLink} className="rounded-md px-4 py-2 bg-primary-600 text-white">🔗 คัดลอกลิงก์</button>
+                <button onClick={shareCard} className="rounded-md px-4 py-2 bg-pink-500 text-white">📤 แชร์นามบัตร</button>
+                <button onClick={toggleRaw} className="rounded-md px-4 py-2 bg-gray-500 text-white">{showRaw ? '🙈 ซ่อน vCard' : '👁️ ดู vCard'}</button>
               </div>
 
               {showRaw && (
@@ -451,16 +419,11 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
           )}
 
           {/* Card Preview */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="flex flex-col items-center">
             <div 
               onClick={() => flip()}
-              style={{
-                width: '350px',
-                height: '200px',
-                perspective: '1000px',
-                cursor: 'pointer',
-                marginBottom: '2rem'
-              }}
+              className="mb-6"
+              style={{ width: '350px', height: '200px', perspective: '1000px', cursor: 'pointer' }}
             >
               <div style={{
                 width: '100%',
@@ -471,7 +434,7 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                 transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)'
               }}>
                 {/* Front */}
-                <div style={{
+                <div className="card-ambient" style={{
                   position: 'absolute',
                   width: '100%',
                   height: '100%',
@@ -501,7 +464,7 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                 </div>
                 
                 {/* Back */}
-                <div style={{
+                <div className="card-ambient" style={{
                   position: 'absolute',
                   width: '100%',
                   height: '100%',
@@ -525,18 +488,13 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', color: 'white' }}>
-              <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+            <div className="text-center text-white">
+              <p className="mb-4 opacity-90">
                 👆 คลิกการ์ดเพื่อพลิกดู QR Code
               </p>
               {viewOnly && (
-                <div style={{ marginTop: '2rem' }}>
-                  <button 
-                    onClick={download}
-                    style={{ padding: '1rem 2rem', background: 'white', color: '#667eea', border: 'none', borderRadius: '10px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer' }}
-                  >
-                    💾 บันทึกรายชื่อติดต่อนี้
-                  </button>
+                <div className="mt-6">
+                  <button onClick={download} className="rounded-xl bg-white text-primary-600 px-6 py-3 font-semibold shadow">💾 บันทึกรายชื่อติดต่อนี้</button>
                 </div>
               )}
             </div>
@@ -545,18 +503,7 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
 
         {/* Toast */}
         {toastMessage && (
-          <div style={{
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            background: 'rgba(0,0,0,0.8)',
-            color: 'white',
-            padding: '1rem 1.5rem',
-            borderRadius: '10px',
-            animation: 'slideIn 0.3s ease'
-          }}>
-            {toastMessage}
-          </div>
+          <div className="fixed bottom-8 right-8 bg-black/80 text-white px-4 py-3 rounded-lg shadow animate-fade-in">{toastMessage}</div>
         )}
       </div>
     </div>
