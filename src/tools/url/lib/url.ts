@@ -11,9 +11,15 @@
  */
 export const encodeUrlQueryParams = (url: string): string => {
   try {
-    const urlObj = new URL(url);
+    const normalized = url.startsWith('//') ? `https:${url}` : url;
+    const urlObj = new URL(normalized);
     const base = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
-    const params = Array.from(urlObj.searchParams.entries())
+    // Preserve duplicate keys and their order by re-parsing the raw query
+    const rawQuery = urlObj.search.startsWith('?') ? urlObj.search.slice(1) : '';
+    const params = (rawQuery ? rawQuery.split('&').filter(Boolean).map(p => {
+      const [k, v = ''] = p.split('=');
+      return [decodeURIComponent(k), v] as const;
+    }) : Array.from(urlObj.searchParams.entries()))
       .map(([k, v]) => {
         try {
           const decoded = decodeURIComponent(v);
@@ -23,7 +29,8 @@ export const encodeUrlQueryParams = (url: string): string => {
         }
       })
       .join("&");
-    return params ? `${base}?${params}${urlObj.hash}` : `${base}${urlObj.hash}`;
+    const hash = urlObj.hash || (normalized.includes('#') ? `#${normalized.split('#').slice(1).join('#')}` : '');
+    return params ? `${base}?${params}${hash}` : `${base}${hash}`;
   } catch {
     // Fallback for URLs without scheme or other parsing issues
     try {

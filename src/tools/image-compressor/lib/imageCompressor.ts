@@ -62,7 +62,19 @@ const canvasToBlob = (
   quality: number,
 ): Promise<Blob> =>
   new Promise((resolve) => {
-    canvas.toBlob((b) => resolve(b as Blob), type, quality);
+    canvas.toBlob((b) => {
+      if (b) return resolve(b);
+      // Fallback for environments where toBlob may return null
+      try {
+        const dataUrl = canvas.toDataURL(type, quality);
+        const byteString = atob(dataUrl.split(',')[1] || '');
+        const bytes = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+        resolve(new Blob([bytes], { type }));
+      } catch {
+        resolve(new Blob([new Uint8Array()], { type }));
+      }
+    }, type, quality);
   });
 
 export const compressImage = async (

@@ -22,8 +22,8 @@ const rules: Record<string, Rule> = {
     fix: 'Set X-Frame-Options to "DENY" or "SAMEORIGIN"',
   },
   'content-security-policy': {
-    check: (v) => !!v,
-    fix: 'Define a strong Content-Security-Policy',
+    check: (v) => !!v && !/unsafe-inline|unsafe-eval/i.test(v),
+    fix: 'Define a strong Content-Security-Policy without unsafe-inline/unsafe-eval',
   },
   'x-content-type-options': {
     check: (v) => (v ?? '').toLowerCase() === 'nosniff',
