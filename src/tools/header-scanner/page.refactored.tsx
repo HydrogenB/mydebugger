@@ -10,7 +10,7 @@ import { toolPageFactory } from '../../shared/hoc/withToolPage';
 import { useBaseTool } from '../../shared/hooks/useBaseTool';
 import { exportData, copyToClipboard } from '../../shared/utils';
 import HeaderScannerView from './components/HeaderScannerPanel';
-import { analyzeHeaders, HeaderAuditResult } from '../../../model/headerScanner';
+import { analyzeHeaders, HeaderAuditResult } from '../lib/headerScanner';
 
 /**
  * Refactored Header Scanner viewmodel using shared utilities

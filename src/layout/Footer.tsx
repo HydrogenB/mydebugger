@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
-import TrustBanner from '../../view/TrustBanner';
+import TrustBanner from '../../view/TrustBanner'; // TODO: migrate to design-system or a tool-local component
 
 // Helper function for icons
 const getIconHelper = (name: string) => {

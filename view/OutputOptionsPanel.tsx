@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import type { OutputOptions } from '../model/jsonConverterTypes';
+import type { OutputOptions } from '../src/tools/json-converter/types';
 
 interface Props {
   options: OutputOptions;

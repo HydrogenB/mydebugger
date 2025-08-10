@@ -7,7 +7,7 @@ import { Button, TextInput } from '../src/design-system/components/inputs';
 import { InfoBox } from '../src/design-system/components/display';
 // eslint-disable-next-line import/no-named-as-default
 import Card from '../src/design-system/components/layout/Card';
-import type useApiRepeater from '../viewmodel/useApiRepeater';
+import type useApiRepeater from '../hooks/useApiRepeater';
 
 interface Props extends ReturnType<typeof useApiRepeater> {}
 

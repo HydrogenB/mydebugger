@@ -16,7 +16,7 @@ import { useCsvtomd } from '../src/tools/csvtomd/hooks/useCsvtomd.ts';
 // Legacy hooks not present; skip sections that depend on them
 import { useStorageDebugger } from '../src/tools/storage-sync/hooks/useStorageDebugger.ts';
 import { useQrscan } from '../src/tools/qrscan/hooks/useQrscan.ts';
-import { usePushTester } from '../viewmodel/usePushTester';
+// usePushTester moved under tools; skip or replace with tool hook if available
 import { useNetworkSuite } from '../src/tools/networksuit/hooks/useNetworkSuite.ts';
 import { usePentestSuite } from '../src/tools/pentest/hooks/usePentestSuite.ts';
 import { useDeepLinkChain } from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';

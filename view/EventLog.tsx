@@ -5,7 +5,7 @@
  */
 import React from 'react';
 import { FiClock, FiCopy, FiTrash2, FiActivity } from 'react-icons/fi';
-import { PermissionEvent } from '../model/permissions';
+import { PermissionEvent } from '../src/tools/permission-tester/lib/permissions';
 import { Button } from '../src/design-system/components/inputs/Button';
 import { Card } from '../src/design-system/components/layout/Card';
 

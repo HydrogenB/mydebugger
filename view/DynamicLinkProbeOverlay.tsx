@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from "react";
-import { DynamicLinkTrace } from "../model/dynamicLink";
+import { DynamicLinkTrace } from "../src/tools/dynamic-link-probe/lib/dynamicLink";
 
 interface Props {
   trace: DynamicLinkTrace;
