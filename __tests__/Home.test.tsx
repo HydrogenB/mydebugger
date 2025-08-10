@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Home from '../src/pages/Home';
+import { TranslationProvider } from '../src/context/TranslationContext';
 // Stub CSS import for Jest
 jest.mock('../src/pages/Home.css', () => ({}), { virtual: true });
 // Simplify navigation components to avoid complex hooks in tests
@@ -36,7 +37,11 @@ beforeAll(() => {
 
 describe('Home page', () => {
   it('renders hero heading', () => {
-    render(<Home />);
+    render(
+      <TranslationProvider>
+        <Home />
+      </TranslationProvider>
+    );
     const heading = screen.getByRole('heading', { name: /developer tools/i });
     expect(heading).toBeInTheDocument();
   });
