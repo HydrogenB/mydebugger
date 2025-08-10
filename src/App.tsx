@@ -19,7 +19,7 @@ function App() {
       <TranslationProvider>
         <Router>
           <DynamicLinkProbeProvider />
-          <div className="flex flex-col min-h-screen">
+          <div className="app-ambient-bg flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">
               <AppRoutes />

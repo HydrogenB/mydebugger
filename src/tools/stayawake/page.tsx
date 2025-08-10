@@ -493,16 +493,7 @@ const StayAwakeView: React.FC<UseStayAwakeReturn> = ({
         }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <h1 style={{ 
-              fontSize: '2.5rem', 
-              fontWeight: 'bold',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              marginBottom: '0.5rem'
-            }}>
-              Stay Awake
-            </h1>
+            <h1 className="heading-gradient" style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Stay Awake</h1>
             <p style={{ color: mutedText, fontSize: '1.1rem' }}>
               Keep your screen on while you need it
             </p>
@@ -535,13 +526,13 @@ const StayAwakeView: React.FC<UseStayAwakeReturn> = ({
           )}
 
           {/* Main Card */}
-          <div style={{
-            background: cardBg,
-            borderRadius: '1.5rem',
-            padding: '2rem',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-            marginBottom: '2rem'
-          }}>
+            <div className="card-ambient" style={{
+              background: cardBg,
+              borderRadius: '1.5rem',
+              padding: '2rem',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+              marginBottom: '2rem'
+            }}>
             {/* Timer Circle */}
             <div style={{ 
               display: 'flex', 
@@ -783,12 +774,12 @@ const StayAwakeView: React.FC<UseStayAwakeReturn> = ({
           </div>
 
           {/* Statistics */}
-          <div style={{
-            background: cardBg,
-            borderRadius: '1rem',
-            padding: '1.5rem',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
-          }}>
+            <div className="card-ambient" style={{
+              background: cardBg,
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+            }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between',
@@ -846,7 +837,7 @@ const StayAwakeView: React.FC<UseStayAwakeReturn> = ({
           </div>
 
           {/* Info Section */}
-          <div style={{
+          <div className="card-ambient" style={{
             marginTop: '2rem',
             padding: '1rem',
             background: cardBg,

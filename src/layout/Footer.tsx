@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-inner transition-colors duration-200 mt-auto pt-8 pb-6">
+    <footer className="bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md text-gray-700 dark:text-gray-300 shadow-inner transition-colors duration-200 mt-auto pt-8 pb-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-x-12 mb-8">
           {/* Company info */}

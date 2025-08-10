@@ -5,6 +5,8 @@ import { HelmetProvider } from 'react-helmet-async';
 import './index.css';
 // Import the enhanced dark mode styles
 import './design-system/styles/darkMode.css';
+// Ambient global mood (gradient background, blobs, utilities)
+import './design-system/styles/ambient.css';
 // Import enhanced component styles
 import './design-system/styles/components/searchBar.css';
 import './design-system/styles/components/toolCard.css';

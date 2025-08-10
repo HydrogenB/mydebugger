@@ -45,13 +45,13 @@ const Header: React.FC = () => {
   
   
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
+    <header className="bg-white/70 dark:bg-gray-900/60 backdrop-blur supports-[backdrop-filter]:backdrop-blur-md shadow-sm border-b border-gray-200/60 dark:border-gray-800/60 sticky top-0 z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
+          <div className="flex justify-between items-center h-14">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 font-bold text-lg hover:text-primary-700 dark:hover:text-primary-300 transition">
               <span className="text-xl">{getIconHelper('code')}</span>
-              <span>MyDebugger</span>
+              <span className="heading-gradient">MyDebugger</span>
             </Link>
           </div>
           

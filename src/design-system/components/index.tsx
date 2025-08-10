@@ -26,7 +26,7 @@ export const Button: React.FC<ButtonProps> = ({
   className = '',
 }) => {
   // Base styles
-  let baseStyles = 'inline-flex items-center justify-center rounded font-medium';
+  let baseStyles = 'inline-flex items-center justify-center rounded font-medium transition-colors';
   
   // Size styles
   const sizeStyles = {
@@ -37,9 +37,9 @@ export const Button: React.FC<ButtonProps> = ({
   
   // Variant styles
   const variantStyles = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    primary: 'btn-gradient',
     secondary: 'bg-gray-600 text-white hover:bg-gray-700',
-    outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50',
+    outline: 'chip-outline bg-transparent text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800/40',
     link: 'bg-transparent text-blue-600 hover:underline p-0',
   };
   

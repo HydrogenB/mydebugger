@@ -80,12 +80,12 @@ export const ToolLayout: React.FC<ToolLayoutProps> = ({
       
       <ResponsiveContainer maxWidth="6xl" padding="md" className="transition-colors duration-200">
         {showHeader && (
-          <div className="flex items-center mb-2">
+              <div className="flex items-center mb-2">
             <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
               <tool.icon className="h-8 w-8 text-primary-600 dark:text-primary-400" />
             </div>
             <div className="flex items-center flex-wrap">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mr-2">{finalTitle}</h1>
+                  <h1 className="text-3xl font-bold heading-gradient mr-2">{finalTitle}</h1>
               {tool.isBeta && (
                 <Tag variant="warning" size="sm" className="ml-1">BETA</Tag>
               )}
