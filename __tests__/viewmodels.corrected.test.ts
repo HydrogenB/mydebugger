@@ -13,7 +13,7 @@ import useDeviceTrace from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
 import useDeepLinkChain from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';
 
 // Mock implementations
-jest.mock('../model/metadata', () => ({
+jest.mock('../src/tools/metadata-echo/lib/metadata', () => ({
   getBasicMetadata: jest.fn(() => ({
     url: 'http://localhost',
     userAgent: 'Test Agent',

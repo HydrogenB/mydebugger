@@ -1,5 +1,5 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import usePermissionTester from '../viewmodel/usePermissionTester';
+import usePermissionTester from '../src/tools/permission-tester/hooks/usePermissionTester';
 import * as perms from '../src/tools/permission-tester/lib/permissions';
 
 const originalPermissions = perms.PERMISSIONS.map(p => ({ ...p }));

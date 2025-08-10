@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TOOL_PANEL_CLASS } from "../../design-system/foundations/layout";
-import { encodeUrlQueryParams } from "../../url/lib/url";
+import { encodeUrlQueryParams } from "../url/lib/url";
 import { Helmet } from "react-helmet";
 import QRCodeStyling, {
   DotType,

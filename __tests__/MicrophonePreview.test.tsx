@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import MicrophonePreview from '../view/DataPreview/MicrophonePreview';
+// Skipping migration: legacy preview component not ported into per-tool. Adjust path to src if present.
+import MicrophonePreview from '../src/view/DataPreview/MicrophonePreview';
 
 // Mock the Web Audio API
 class MockAudioContext {

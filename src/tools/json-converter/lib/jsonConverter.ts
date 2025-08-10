@@ -1,10 +1,10 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { convertToCSV } from '../src/utils/convertToCSV';
-import { exportToExcel } from '../src/utils/exportToExcel';
-import type { CsvOptions } from '../src/utils/convertToCSV';
-import type { ExcelOptions } from '../src/utils/exportToExcel';
+import { convertToCSV } from '../../../utils/convertToCSV';
+import { exportToExcel } from '../../../utils/exportToExcel';
+import type { CsvOptions } from '../../../utils/convertToCSV';
+import type { ExcelOptions } from '../../../utils/exportToExcel';
 
 export const parseJson = (
   text: string,

@@ -2,7 +2,8 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useState } from 'react';
-import { runDeviceTrace, DeviceTraceOptions } from '../lib/deviceTrace';
+// Linktracer reuses device-trace lib
+import { runDeviceTrace, DeviceTraceOptions } from '../../device-trace/lib/deviceTrace';
 import { DeviceTraceResult } from '../types';
 
 export const useDeviceTrace = () => {

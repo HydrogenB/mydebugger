@@ -9,15 +9,15 @@ import '@testing-library/jest-dom';
 import { BrowserRouter } from 'react-router-dom';
 
 // Import components that exist based on file structure
-import PermissionTesterView from '../view/PermissionTesterView';
-import HeaderScannerView from '../view/HeaderScannerView';
-import CorsTesterView from '../view/CorsTesterView';
-import ImageCompressorView from '../view/ImageCompressorView';
-import CsvToMarkdownView from '../view/CsvToMarkdownView';
-import QRCodeGeneratorView from '../view/QRCodeGeneratorView';
-import StayAwakeView from '../view/StayAwakeView';
-import NetworkSuiteView from '../view/NetworkSuiteView';
-import PentestSuiteView from '../view/PentestSuiteView';
+import PermissionTesterView from '../src/tools/permission-tester/components/PermissionTesterPanel';
+import HeaderScannerView from '../src/tools/header-scanner/components/HeaderScannerPanel';
+import CorsTesterView from '../src/tools/cors-tester/components/CorsTesterPanel';
+import ImageCompressorView from '../src/tools/image-compressor/components/ImageCompressorPanel';
+import CsvToMarkdownView from '../src/tools/csvtomd/components/CsvtomdPanel';
+import QRCodeGeneratorView from '../src/tools/qrcode/QRCodeGenerator';
+import StayAwakeView from '../src/tools/stayawake/components/StayAwakePanel';
+import NetworkSuiteView from '../src/tools/networksuit/components/NetworkSuitePanel';
+import PentestSuiteView from '../src/tools/pentest/components/PentestSuitePanel';
 
 // Mock global APIs
 const mockGeolocation = {

@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import StayAwakeView from '../view/StayAwakeView';
+import StayAwakeView from '../src/tools/stayawake/components/StayAwakePanel';
 
 test('renders timer and quick buttons when supported', () => {
   render(

@@ -7,7 +7,7 @@
 import { describe, test, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
 
 // Import all viewmodel hooks for comprehensive testing
-import { usePermissionTester } from '../viewmodel/usePermissionTester';
+import { usePermissionTester } from '../src/tools/permission-tester/hooks/usePermissionTester';
 import { useHeaderScanner } from '../src/tools/header-scanner/hooks/useHeaderScanner.ts';
 import { useCorsTester } from '../src/tools/cors-tester/hooks/useCorsTester.ts';
 import { useImageCompressor } from '../src/tools/image-compressor/hooks/useImageCompressor.ts';

@@ -6,11 +6,12 @@
 import React, { useState } from 'react';
 import { FiSearch, FiFilter, FiDownload, FiPlay } from 'react-icons/fi';
 
-import type { UsePermissionTesterReturn } from '../viewmodel/usePermissionTester';
+import type { UsePermissionTesterReturn } from '../hooks/usePermissionTester';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
 import PermissionCardEnhanced from './PermissionCardEnhanced';
-import EventLog from './EventLog';
-import { StageWrapper, StageIndicator } from '../src/shared/components/StageWrapper';
+// EventLog lives under src/view; keep compatibility by importing directly
+import EventLog from '../../../view/EventLog';
+import { StageWrapper, StageIndicator } from '../../../shared/components/StageWrapper';
 
 type PermissionTesterViewProps = UsePermissionTesterReturn;
 

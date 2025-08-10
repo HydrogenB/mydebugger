@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import CardPreview from '../view/CardPreview';
+import CardPreview from '../src/view/CardPreview';
 
 // Debug: Log the component import
 console.log('CardPreview component:', CardPreview);

@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { parseCookieString } from './cookies';
+import { parseCookieString } from '../../cookie-inspector/lib/cookies';
 
 interface CookieStoreItem {
   name: string;
