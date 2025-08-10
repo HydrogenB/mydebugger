@@ -212,7 +212,7 @@ describe('Edge Cases - Security Validation', () => {
       const threats: string[] = [];
       
       // Basic script injection
-      if (/<script[^>]*>.*?<\\/script>/gi.test(input)) {
+      if (/<script[^>]*>.*?<\/script>/gi.test(input)) {
         threats.push('Script injection');
       }
       

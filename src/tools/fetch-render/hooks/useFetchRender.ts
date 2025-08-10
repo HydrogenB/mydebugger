@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useEffect, useRef, useState } from 'react';
-import { fetchSnapshot, parseMetadata, Metadata } from '../lib/prerender';
+import { fetchSnapshot, parseMetadata, Metadata } from '../../pre-rendering-tester/lib/prerender';
 import { AGENTS } from './usePreRenderingTester';
 
 export type ExportFormat = 'html' | 'json';

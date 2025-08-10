@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, waitFor } from '../src/test-utils/test-utils';
+import { render, screen, waitFor } from '@testing-library/react';
 import StayAwakePage from '../src/tools/stayawake/page';
 
 jest.mock('../src/tools/stayawake/components/StayAwakePanel', () => ({

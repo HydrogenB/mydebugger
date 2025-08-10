@@ -274,7 +274,7 @@ describe('Utility Functions - Security & Validation', () => {
   // Test input sanitization
   const sanitizeHtml = (html: string): string => {
     const allowedTags = ['b', 'i', 'em', 'strong', 'p', 'br'];
-    const tagRegex = /<\\/?([a-zA-Z][a-zA-Z0-9]*)\\b[^>]*>/g;
+    const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*>/g;
     
     return html.replace(tagRegex, (match, tag) => {
       if (allowedTags.includes(tag.toLowerCase())) {

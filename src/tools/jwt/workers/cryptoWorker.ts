@@ -46,7 +46,9 @@ const supportsWorkers = typeof Worker !== 'undefined';
  * Base64Url encoding/decoding utilities with enhanced error handling
  */
 export const base64UrlEncode = (str: string): string => {
-  return btoa(str)
+  // Encode UTF-8 safely
+  const utf8 = unescape(encodeURIComponent(str));
+  return btoa(utf8)
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
@@ -63,6 +65,7 @@ export const base64UrlDecode = (str: string): string => {
   }
   
   try {
+    // Decode to UTF-8 string
     return decodeURIComponent(escape(atob(str)));
   } catch (e) {
     // Handle binary data that can't be decoded as UTF-8

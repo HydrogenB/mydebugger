@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen } from '../src/test-utils/test-utils';
+import { render, screen } from '@testing-library/react';
 import Home from '../src/pages/Home';
 // Stub CSS import for Jest
 jest.mock('../src/pages/Home.css', () => ({}), { virtual: true });

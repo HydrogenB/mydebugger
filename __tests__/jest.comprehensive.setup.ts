@@ -503,7 +503,7 @@ export const setupTestEnvironment = () => {
       now: jest.fn(() => Date.now()),
       mark: jest.fn(),
       measure: jest.fn(),
-      getEntriesByType: jest.fn(() => []),
+      getEntriesByType: jest.fn((type: string) => (type === 'navigation' ? [{ fetchStart: 0, loadEventEnd: 0, domContentLoadedEventEnd: 0 }] : [])),
       getEntriesByName: jest.fn(() => []),
       clearMarks: jest.fn(),
       clearMeasures: jest.fn(),
