@@ -53,6 +53,8 @@ const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 aria-label="GitHub"
                 className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition"
+                data-analytics-event="cta_github"
+                data-analytics-label="Footer GitHub"
               >
                 {getIconHelper('github')}
               </a>
@@ -123,6 +125,8 @@ const Footer: React.FC = () => {
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+              data-analytics-event="cta_contribute"
+              data-analytics-label="Footer Contribute"
             >
               {t('footer.contribute', 'Contribute')}
               <svg className="ml-2 -mr-0.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

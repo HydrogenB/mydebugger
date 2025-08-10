@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import PrivacyPolicy from '../pages/PrivacyPolicy';
 import TermsOfService from '../pages/TermsOfService';
 import toolRegistry from '../tools';
+import TrackedTool from './TrackedTool';
 import { LoadingSpinner } from '../design-system/components/feedback';
 
 // NotFound component
@@ -48,7 +49,7 @@ export const AppRoutes: React.FC = () => {
                 <LoadingSpinner size="lg" />
               </div>
             }>
-              <tool.component />
+              <TrackedTool tool={tool} />
             </Suspense>
           } 
         />

@@ -304,6 +304,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           rel={rel || "noopener noreferrer"}
           ref={ref as React.Ref<HTMLAnchorElement>}
           className={buttonClasses}
+          data-analytics-label={typeof children === 'string' ? children : undefined}
           {...(rest as any)} // Cast rest to any for anchor tag
         >
           {processedIcon && <span className="icon-left">{processedIcon}</span>}
@@ -321,6 +322,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         className={buttonClasses}
         disabled={disabled || isLoading}
         aria-busy={isLoading ? "true" : undefined}
+        data-analytics-label={typeof children === 'string' ? children : undefined}
         {...rest}
       >
         {isLoading ? (

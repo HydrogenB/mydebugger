@@ -1,13 +1,39 @@
-import { AppProps } from 'next/app'; // This might still cause issues if not a Next.js project.
-                                    // For Vite, this structure is different.
-                                    // This file might need to be removed or significantly changed.
-import '../styles/globals.css'; // Adjust path if needed
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { bindBasicWebVitals, bindCopyTracking, bindErrorTracking, bindGlobalClickTracking, bindScrollDepthTracking, captureAndStoreUtmParams, initAnalytics, trackPageView, updateUserProperties } from '../lib/analytics';
+import { useTheme } from '../design-system/context/ThemeContext';
+import { useTranslation } from '../context/TranslationContext';
 
-// This _app.tsx structure is Next.js specific.
-// For a Vite app, you typically have a main App component rendered by main.tsx.
+// Bridges analytics lifecycle into the app; must be mounted inside Router
+export default function AnalyticsBridge() {
+  const location = useLocation();
+  const { theme, colorScheme, isDarkMode } = useTheme();
+  const { language } = useTranslation();
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  useEffect(() => {
+    initAnalytics();
+    captureAndStoreUtmParams();
+    bindGlobalClickTracking();
+    bindErrorTracking();
+    bindCopyTracking();
+    bindBasicWebVitals();
+  }, []);
+
+  // Track route changes (SPA page_view)
+  useEffect(() => {
+    trackPageView(location.pathname + location.search, document.title);
+    bindScrollDepthTracking(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+
+  // Sync user properties (theme, language, color scheme)
+  useEffect(() => {
+    updateUserProperties({
+      theme_mode: theme,
+      is_dark_mode: isDarkMode,
+      color_scheme: colorScheme,
+      language,
+    });
+  }, [theme, isDarkMode, colorScheme, language]);
+
+  return null;
 }
-
-export default MyApp;

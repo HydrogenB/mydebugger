@@ -25,6 +25,7 @@ import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNew
 import { excludeById } from '../utils/toolFilters';
 import './Home.css';
 import { useTranslation } from '../context/TranslationContext';
+import { logEvent } from '../lib/analytics';
 
 const Home: React.FC = () => {
   const { t } = useTranslation();
@@ -38,6 +39,19 @@ const Home: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [pinnedTools, setPinnedTools] = useState<Tool[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const hasFiredSearchStartRef = useRef<boolean>(false);
+
+  const handleSetActiveTab = useCallback((tabId: string) => {
+    setActiveTab(tabId);
+    try {
+      logEvent('browse_tab_change', { tab: tabId, page_path: window.location.pathname + window.location.search });
+    } catch {}
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    try { logEvent('browse_view_mode', { mode }); } catch {}
+  }, []);
 
   const allTools = useMemo(() => getTools(), []);
   const categories = useMemo(() => getAllCategories(), []);
@@ -185,6 +199,20 @@ const Home: React.FC = () => {
     } catch (e) {
       console.error('Error saving recent tool:', e);
     }
+
+    // Track click in GA4 for funnel insights
+    try {
+      logEvent('tool_open_click', {
+        tool_id: tool.id,
+        tool_title: tool.title,
+        tool_category: tool.category,
+        page_path: window.location.pathname + window.location.search,
+        page_title: document.title,
+        page_location: window.location.href,
+      });
+    } catch (_e) {
+      // ignore
+    }
   }, []);
 
   const togglePin = useCallback((tool: Tool) => {
@@ -262,13 +290,25 @@ const Home: React.FC = () => {
             placeholder={t('home.search.placeholder', 'Search tools, keywords, functionality...')}
             className="block w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-full leading-6 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition shadow-sm hover:shadow-md"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (!hasFiredSearchStartRef.current && v.trim().length > 0) {
+                hasFiredSearchStartRef.current = true;
+                try { logEvent('search_start', { query: v }); } catch {}
+              }
+              setSearchTerm(v);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                try { logEvent('search_enter', { query: searchTerm }); } catch {}
+              }
+            }}
             aria-label={t('home.search.aria', 'Search tools')}
           />
           {searchTerm && (
             <button
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
-              onClick={() => setSearchTerm('')}
+              onClick={() => { setSearchTerm(''); hasFiredSearchStartRef.current = false; try { logEvent('search_clear'); } catch {} }}
               aria-label={t('home.search.clearAria', 'Clear search')}
             >
               <svg className="h-5 w-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -310,7 +350,7 @@ const Home: React.FC = () => {
             <div className="bg-white/70 dark:bg-gray-800/60 rounded-xl p-1 shadow-sm flex">
               <button
                 className={`p-1.5 rounded ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-                onClick={() => setViewMode('grid')}
+                onClick={() => handleViewModeChange('grid')}
                 aria-pressed={viewMode === 'grid'}
                 aria-label={t('home.view.grid', 'Grid view')}
               >
@@ -320,7 +360,7 @@ const Home: React.FC = () => {
               </button>
               <button
                 className={`p-1.5 rounded ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow' : ''}`}
-                onClick={() => setViewMode('list')}
+                onClick={() => handleViewModeChange('list')}
                 aria-pressed={viewMode === 'list'}
                 aria-label={t('home.view.list', 'List view')}
               >
@@ -342,7 +382,7 @@ const Home: React.FC = () => {
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleSetActiveTab(tab.id)}
                   className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors ${
                     activeTab === tab.id
                       ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow ring-1 ring-primary-300/50'
@@ -355,7 +395,7 @@ const Home: React.FC = () => {
               {categories.map(category => (
                 <button
                   key={category}
-                  onClick={() => setActiveTab(category)}
+                  onClick={() => handleSetActiveTab(category)}
                   className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-colors ${
                     activeTab === category
                       ? 'bg-white dark:bg-gray-700 text-primary-600 dark:text-primary-300 shadow ring-1 ring-primary-300/50'
@@ -400,11 +440,11 @@ const Home: React.FC = () => {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {recentTools.map(tool => (
+              {recentTools.map((tool, idx) => (
                 <Link
                   key={`recent-${tool.id}`}
                   to={tool.route}
-                  onClick={() => handleToolClick(tool)}
+                  onClick={() => handleToolClick(tool, { index: idx, section: 'recent' })}
                   className="no-underline"
                 >
                   <div className={`flex items-center p-2 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow ${TOOL_PANEL_CLASS.replace('p-6', 'p-2')}`}> 
@@ -438,7 +478,7 @@ const Home: React.FC = () => {
               <Button 
                 variant="light" 
                 size="sm" 
-                onClick={() => {setSearchTerm(''); setActiveTab('all');}}
+                onClick={() => {setSearchTerm(''); hasFiredSearchStartRef.current = false; handleSetActiveTab('all');}}
                 disabled={!searchTerm && activeTab === 'all'}
               >
                         {t('home.filters.clear', 'Clear Filters')}
@@ -476,11 +516,11 @@ const Home: React.FC = () => {
           ) : visibleTools.length > 0 ? (
             viewMode === 'grid' ? (
               <div className="tool-cards-container">
-                {visibleTools.map(tool => (
+                {visibleTools.map((tool, idx) => (
                   <Link
                     key={tool.id}
                     to={tool.route}
-                    onClick={() => handleToolClick(tool)}
+                    onClick={() => handleToolClick(tool, { index: idx, section: 'grid' })}
                     className="no-underline tool-card glass-card"
                     aria-labelledby={`tool-title-${tool.id}`}
                   >
@@ -513,11 +553,11 @@ const Home: React.FC = () => {
             ) : (
               // List view
               <div className="space-y-2">
-                {visibleTools.map(tool => (
+                {visibleTools.map((tool, idx) => (
                   <Link
                     key={`list-${tool.id}`}
                     to={tool.route}
-                    onClick={() => handleToolClick(tool)}
+                    onClick={() => handleToolClick(tool, { index: idx, section: 'list' })}
                     className="no-underline block tool-card"
                   >
                     <div className={`p-3 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 flex items-center ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}> 
@@ -629,6 +669,8 @@ const Home: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+                  data-analytics-event="cta_request_feature"
+                  data-analytics-label="Home Request Feature"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
@@ -640,6 +682,8 @@ const Home: React.FC = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-primary-600 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-primary-400 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+                  data-analytics-event="cta_github"
+                  data-analytics-label="Home GitHub"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.268 2.75 1.026A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.026 2.747-1.026.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />

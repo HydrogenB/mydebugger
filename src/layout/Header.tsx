@@ -64,6 +64,8 @@ const Header: React.FC = () => {
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
               } transition`}
               aria-current={isActive('/') && !location.search.includes('category=') ? 'page' : undefined}
+              data-analytics-event="nav_all_tools"
+              data-analytics-label="Header All Tools"
             >
               <span className="w-4 h-4">{getIconHelper('tool')}</span>
               <span>{t('header.nav.allTools', 'All Tools')}</span>
@@ -75,6 +77,8 @@ const Header: React.FC = () => {
               rel="noopener noreferrer"
               className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition"
               aria-label={t('header.nav.github', 'GitHub')}
+              data-analytics-event="cta_github"
+              data-analytics-label="Header GitHub"
             >
               <span className="sr-only">{t('header.nav.github', 'GitHub')}</span>
               <span className="w-5 h-5 block">{getIconHelper('github')}</span>

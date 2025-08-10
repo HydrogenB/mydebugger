@@ -272,6 +272,14 @@ pnpm typecheck   # strict TypeScript checking
 pnpm test        # run unit tests with coverage
 ```
 
+### Analytics
+
+This project includes optional Google Analytics 4 (GA4) tracking for page views and clicks.
+
+- Set `VITE_GA_MEASUREMENT_ID` in your environment to enable GA4.
+- By default, analytics is disabled on `localhost`. To enable locally, set `VITE_GA_DISABLE_ON_LOCALHOST=false`.
+- Global click tracking uses a capturing listener; add `data-analytics-ignore="true"` to any element to opt out, or `data-analytics-label` to override the label.
+
 Targeted testing during migration:
 ```bash
 # run tests only for a specific tool by directory pattern

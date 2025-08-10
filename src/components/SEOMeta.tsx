@@ -58,6 +58,7 @@ const SEOMeta: React.FC<SEOMetaProps> = ({ seo, path = '' }) => {
       
       {/* DNS Prefetch */}
       <link rel="dns-prefetch" href="//www.google-analytics.com" />
+      <link rel="preconnect" href="https://www.googletagmanager.com" />
       <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     </Helmet>
   );

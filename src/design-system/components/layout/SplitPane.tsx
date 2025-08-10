@@ -104,13 +104,20 @@ const SplitPane: React.FC<SplitPaneProps> = ({
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
     
-    // Track drag completed in analytics
-    if (window.gtag) {
-      window.gtag('event', 'split_pane_resize', {
-        'split': Math.round(split),
-        'direction': direction
+    // Track drag completed in analytics (optional)
+    import('../../../lib/analytics')
+      .then(({ logEvent }) => {
+        logEvent('split_pane_resize', {
+          split: Math.round(split),
+          direction,
+          page_path: window.location.pathname + window.location.search,
+          page_title: document.title,
+          page_location: window.location.href,
+        });
+      })
+      .catch(() => {
+        // no-op
       });
-    }
   }, [split, direction]);
   
   // Set up and clean up event listeners
