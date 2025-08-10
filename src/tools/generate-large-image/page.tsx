@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 import GenerateLargeImageView from './components/GenerateLargeImagePanel';
 import { useGenerateLargeImage } from './hooks/useGenerateLargeImage';
 

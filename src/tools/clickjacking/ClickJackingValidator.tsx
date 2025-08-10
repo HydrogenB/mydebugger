@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
-import { LoadingSpinner } from '../../design-system/components/feedback';
+import { ToolLayout, Card, Button, LoadingSpinner } from '@design-system';
 
 interface ValidationResult {
   url: string;

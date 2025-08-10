@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import Card from '../../design-system/components/layout/Card';
-import Button from '../../design-system/components/inputs/Button';
-import { Alert } from '../../design-system/components/feedback/Alert';
-import { Badge } from '../../design-system/components/display';
-import { Tooltip } from '../../design-system/components/overlays';
-import { ACTIVE_TAB_CLASS } from '../../design-system/foundations/layout';
+import { Card, Button, Alert, Badge, Tooltip } from '@design-system';
+import { ACTIVE_TAB_CLASS } from '@design-system';
 import { useJwt } from './context/JwtContext';
-import { Text } from '../../design-system/components/typography';
+import { Text } from '@design-system';
 
 const JwtDecoder: React.FC = () => {
   // Use the enhanced context instead of local state

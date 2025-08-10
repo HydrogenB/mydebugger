@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { TOOL_PANEL_CLASS } from '../../design-system/foundations/layout';
-import { Tooltip } from '../../design-system/components/overlays/Tooltip';
+import { TOOL_PANEL_CLASS } from '@design-system';
+import { Tooltip } from '@design-system';
 
 const clsx = (...c: Array<string | false | null | undefined>) =>
   c.filter(Boolean).join(' ');

@@ -5,7 +5,7 @@ import React from 'react';
 import { getToolByRoute } from '../index';
 import useCacheInspector from './hooks/useCacheInspector';
 import CacheInspectorView from './components/CacheInspectorPanel';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const CacheInspectorPage: React.FC = () => {
   const vm = useCacheInspector();

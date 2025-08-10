@@ -7,8 +7,7 @@
 
 import React, { Suspense } from 'react';
 import { getToolByRoute, Tool } from '../../tools';
-import { ToolLayout } from '../../design-system/components/layout';
-import { LoadingSpinner } from '../../design-system/components/feedback';
+import { ToolLayout, LoadingSpinner } from '@design-system';
 
 export interface ToolPageConfig {
   route: string;

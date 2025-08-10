@@ -6,3 +6,5 @@ export { default as ResponsiveImage } from './ResponsiveImage';
 export { default as InfoBox } from './InfoBox';
 export { default as Tag } from './Tag';
 export { default as CodeBlock } from './CodeBlock';
+export * from './PentestResult';
+export { default as TrustBanner } from './TrustBanner';

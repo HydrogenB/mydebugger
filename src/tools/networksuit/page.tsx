@@ -5,7 +5,7 @@ import React from 'react';
 import useNetworkSuite from './hooks/useNetworkSuite';
 import NetworkSuiteView from './components/NetworkSuitePanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const NetworkSuitePage: React.FC = () => {
   const vm = useNetworkSuite();

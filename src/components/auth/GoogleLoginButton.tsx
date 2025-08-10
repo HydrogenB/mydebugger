@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '../../design-system/components/inputs';
+import { Button } from '@design-system';
 
 interface GoogleLoginButtonProps {
   className?: string;

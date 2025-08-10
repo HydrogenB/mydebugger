@@ -5,7 +5,7 @@ import React from 'react';
 import usePreRenderingTester from './hooks/usePreRenderingTester';
 import PreRenderingTesterView from './components/PreRenderingTesterPanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const PreRenderingTesterPage: React.FC = () => {
   const vm = usePreRenderingTester();

@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
-import { TabGroup, Tab, TabPanel } from '../../design-system/components/navigation';
+import { ToolLayout, Card, TabGroup, Tab, TabPanel } from '@design-system';
 import JwtDecoder from './JwtDecoder';
 import { BuilderWizard } from './components/BuilderWizard';
 import { InspectorPane } from './components/InspectorPane';

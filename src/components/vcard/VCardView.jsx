@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
-import { LoadingSpinner } from '../../design-system/components/feedback';
+import { Card, Button, LoadingSpinner } from '@design-system';
 
 const SOCIAL_ICONS = {
   linkedin: '/asset/icons/linkedin.svg',

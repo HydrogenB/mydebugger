@@ -12,7 +12,23 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@app/*": ["src/app/*"],
+      "@tools/*": ["src/tools/*"],
+      "@design-system": ["src/design-system/index.ts"],
+      "@design-system/*": ["src/design-system/*"],
+      "@layout/*": ["src/layout/*"],
+      "@pages/*": ["src/pages/*"],
+      "@components/*": ["src/components/*"],
+      "@services/*": ["src/services/*"],
+      "@types/*": ["src/types/*"],
+      "@shared/*": ["src/shared/*"],
+      "@features/*": ["src/features/*"],
+      "@api/*": ["api/*"]
+    }
   },
   "include": ["src", "view", "viewmodel", "__tests__", "public/translation.json"]
 }

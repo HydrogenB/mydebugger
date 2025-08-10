@@ -1,3 +1,4 @@
+export * from './TabGroup';
 // Navigation components export file
 // This file will export all navigation components
 

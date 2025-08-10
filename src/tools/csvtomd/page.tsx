@@ -5,7 +5,7 @@ import React from 'react';
 import useCsvtomd from './hooks/useCsvtomd';
 import CsvtomdView from './components/CsvtomdPanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const CsvtomdPage: React.FC = () => {
   const vm = useCsvtomd();

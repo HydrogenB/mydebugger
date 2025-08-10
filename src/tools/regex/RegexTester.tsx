@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
+import { ToolLayout, Card } from '@design-system';
+import { Button } from '@design-system';
 
 interface RegexMatch {
   index: number;

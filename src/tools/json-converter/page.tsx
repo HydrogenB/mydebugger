@@ -5,7 +5,7 @@ import React from 'react';
 import useJsonConverter from './hooks/useJsonConverter';
 import JsonConverterView from './components/JsonConverterPanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const JsonConverterPage: React.FC = () => {
   const vm = useJsonConverter();

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
-import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
-import { LoadingSpinner } from '../../design-system/components/feedback';
-import { ACTIVE_TAB_CLASS } from '../../design-system/foundations/layout';
+import { ToolLayout, Card, Button, LoadingSpinner } from '@design-system';
+import { ACTIVE_TAB_CLASS } from '@design-system';
 
 interface HeaderData {
   name: string;

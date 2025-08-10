@@ -5,7 +5,7 @@ import React from 'react';
 import useFetchRender from './hooks/useFetchRender';
 import FetchRenderView from './components/FetchRenderPanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const FetchRenderPage: React.FC = () => {
   const vm = useFetchRender();

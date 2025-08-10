@@ -21,7 +21,7 @@ import { useNetworkSuite } from '../src/tools/networksuit/hooks/useNetworkSuite.
 import { usePentestSuite } from '../src/tools/pentest/hooks/usePentestSuite.ts';
 import { useDeepLinkChain } from '../src/tools/deep-link-chain/hooks/useDeepLinkChain.ts';
 import { useDeviceTrace } from '../src/tools/linktracer/hooks/useDeviceTrace.ts';
-import { useDynamicLinkProbe } from '../viewmodel/useDynamicLinkProbe';
+import { useDynamicLinkProbe } from '../src/tools/dynamic-link-probe/hooks/useDynamicLinkProbe.ts';
 import { useFetchRender } from '../src/tools/fetch-render/hooks/useFetchRender.ts';
 import { useGenerateLargeImage } from '../src/tools/generate-large-image/hooks/useGenerateLargeImage.ts';
 import { useMetadataEcho } from '../src/tools/metadata-echo/hooks/useMetadataEcho.ts';

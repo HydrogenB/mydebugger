@@ -5,7 +5,7 @@ import React from 'react';
 import useHeaderScanner from './hooks/useHeaderScanner';
 import HeaderScannerView from './components/HeaderScannerPanel';
 import { getToolByRoute } from '../index';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const HeaderScannerPage: React.FC = () => {
   const vm = useHeaderScanner();

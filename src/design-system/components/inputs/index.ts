@@ -4,5 +4,6 @@
 export * from './Button';
 export * from './TextInput';
 export * from './SelectInput';
+export * from './ThemeToggle';
 export { ThemeToggle } from './ThemeToggle';
 export { Form, FormControl, useFormContext } from './Form';

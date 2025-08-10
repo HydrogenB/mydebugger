@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Card } from '../../design-system/components/layout';
-import { Button } from '../../design-system/components/inputs';
+import { Card, Button } from '@design-system';
 
 const VCardEditor = () => {
   return (

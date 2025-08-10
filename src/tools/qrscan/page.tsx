@@ -5,7 +5,7 @@ import React from 'react';
 import { getToolByRoute } from '../index';
 import useQrscan from './hooks/useQrscan';
 import QrscanView from './components/QrscanPanel';
-import { ToolLayout } from '../../design-system/components/layout';
+import { ToolLayout } from '@design-system';
 
 const QrscanPage: React.FC = () => {
   const vm = useQrscan();

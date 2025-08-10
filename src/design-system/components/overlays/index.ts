@@ -1,3 +1,6 @@
+export * from './Modal';
+export * from './Drawer';
+export * from './Tooltip';
 // Overlays components export file
 // This file will export all overlay components
 
