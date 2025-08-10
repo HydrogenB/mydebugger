@@ -2,7 +2,10 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 
-// Mock window.matchMedia
+// Mock window.matchMedia (guard for node env)
+if (typeof global !== 'undefined' && typeof (global as any).window === 'undefined') {
+  (global as any).window = {} as any;
+}
 if (typeof (window as any).matchMedia === 'undefined') {
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

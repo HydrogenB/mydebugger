@@ -505,8 +505,11 @@ describe('Performance Monitoring Tests', () => {
 
       // Mock performance entries
       // Ensure performance API exists
-      (window as any).performance = (window as any).performance || { getEntriesByType: () => [], getEntriesByName: () => [], now: () => Date.now() } as any;
-      jest.spyOn(performance, 'getEntriesByType').mockReturnValue([
+      (window as any).performance = (window as any).performance || { } as any;
+      (window as any).performance.getEntriesByType = (window as any).performance.getEntriesByType || (() => []);
+      (window as any).performance.getEntriesByName = (window as any).performance.getEntriesByName || (() => []);
+      (window as any).performance.now = (window as any).performance.now || (() => Date.now());
+      jest.spyOn(window.performance as any, 'getEntriesByType').mockReturnValue([
         {
           fetchStart: 100,
           loadEventEnd: 500,

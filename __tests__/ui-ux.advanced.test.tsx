@@ -44,7 +44,7 @@ jest.mock('../view/DataPreview/NotificationPreview', () => ({ __esModule: true, 
 jest.mock('../view/DataPreview/ScreenWakeLockPreview', () => ({ __esModule: true, default: () => null }), { virtual: true });
 jest.mock('../view/DataPreview/SerialPreview', () => ({ __esModule: true, default: () => null }), { virtual: true });
 jest.mock('../view/DataPreview/SpeakerSelectionPreview', () => ({ __esModule: true, default: () => null }), { virtual: true });
-jest.mock('../view/DataPreview/USBPreview', () => ({ __esModule: true, default: () => null }));
+jest.mock('../view/DataPreview/USBPreview', () => ({ __esModule: true, default: () => null }), { virtual: true });
 
 // Mock complex APIs and services
 const mockWebCrypto = {

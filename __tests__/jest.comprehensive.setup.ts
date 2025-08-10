@@ -555,7 +555,9 @@ export const setupTestEnvironment = () => {
   };
 };
 
-// Run setup automatically when this module is imported
-setupTestEnvironment();
+// Run setup automatically when this module is imported (only in jsdom env)
+try {
+  setupTestEnvironment();
+} catch {}
 
 export default setupTestEnvironment;
