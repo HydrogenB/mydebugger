@@ -11,10 +11,10 @@ import QRCodeStyling, {
   CornerSquareType,
   ErrorCorrectionLevel,
 } from "qr-code-styling";
-import { QR_PRESETS, getPresetByName } from "../lib/qrcodePresets";
+import { QR_PRESETS, getPresetByName } from "./lib/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
-import { qrStylePresets } from "../lib/qrStylePresets";
-import { convertPngToPdf, QRDownloadFormat } from "../lib/qrcode";
+import { qrStylePresets } from "./lib/qrStylePresets";
+import { convertPngToPdf, QRDownloadFormat } from "./lib/qrcode";
 import { generateICalEvent } from "../lib/ical";
 
 // Interface definitions for saved QR codes

@@ -3,7 +3,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { fetchSnapshot, parseMetadata, Metadata } from '../../pre-rendering-tester/lib/prerender';
-import { AGENTS } from './usePreRenderingTester';
+import { AGENTS } from '../../pre-rendering-tester/hooks/usePreRenderingTester';
 
 export type ExportFormat = 'html' | 'json';
 

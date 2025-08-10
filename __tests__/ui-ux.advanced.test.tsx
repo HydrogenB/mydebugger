@@ -34,7 +34,7 @@ jest.mock('../view/DataPreview', () => ({
   MicMeter: () => null,
   GeoPanel: () => null,
   SensorTable: () => null,
-}));
+}), { virtual: true });
 jest.mock('../view/DataPreview/BluetoothPreview', () => ({ __esModule: true, default: () => null }));
 jest.mock('../view/DataPreview/ClipboardPreview', () => ({ __esModule: true, default: () => null }));
 jest.mock('../view/DataPreview/HIDPreview', () => ({ __esModule: true, default: () => null }));

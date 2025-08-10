@@ -381,7 +381,8 @@ describe('Security Testing Integration', () => {
       const mockGetUserMedia = jest.fn().mockResolvedValue({
         getTracks: () => [{ stop: jest.fn() }]
       });
-      navigator.mediaDevices.getUserMedia = mockGetUserMedia;
+      (navigator as any).mediaDevices = (navigator as any).mediaDevices || {};
+      (navigator as any).mediaDevices.getUserMedia = mockGetUserMedia;
 
       const cameraResult = await permissionTester.testCamera();
       expect(cameraResult.status).toBe('granted');

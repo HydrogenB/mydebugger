@@ -4,7 +4,7 @@
  */
 
 import { encodeUrlQueryParams } from '../src/tools/url/lib/url';
-import { auditHeaders, HeaderAuditResult } from '../src/tools/header-scanner/lib/headerScanner';
+import { analyzeHeaders as auditHeaders, HeaderAuditResult } from '../src/tools/header-scanner/lib/headerScanner';
 import { generateVCard, ContactInfo } from '../src/tools/virtual-card/lib/virtualCard';
 import { compressImage } from '../src/tools/image-compressor/lib/imageCompressor';
 // Base64/Analytics/CORS legacy models are not present; provide minimal shims for validation tests
@@ -61,7 +61,7 @@ describe('URL Model - encodeUrlQueryParams', () => {
     const url = 'https://example.com/search?q=hello world&type=test+data';
     const encoded = encodeUrlQueryParams(url);
     expect(encoded).toContain('hello%20world');
-    expect(encoded).toContain('test%2Bdata');
+    expect(encoded).toContain('type=test%2Bdata');
   });
 
   it('should handle URLs without query parameters', () => {
