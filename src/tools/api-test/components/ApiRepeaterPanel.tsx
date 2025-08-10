@@ -3,10 +3,7 @@
  */
 import React from 'react';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
-import { Button, TextInput } from '../src/design-system/components/inputs';
-import { InfoBox } from '../src/design-system/components/display';
-// eslint-disable-next-line import/no-named-as-default
-import Card from '../src/design-system/components/layout/Card';
+import { Button, TextInput, InfoBox, Card } from '../../../design-system';
 import type useApiRepeater from '../hooks/useApiRepeater';
 
 interface Props extends ReturnType<typeof useApiRepeater> {}

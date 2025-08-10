@@ -6,9 +6,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
-import { Button } from '../src/design-system/components/inputs/Button';
-import { StageWrapper, StageIndicator } from '../src/shared/components/StageWrapper';
-import { useStageManager } from '../src/shared/hooks/useStageManager';
+import { Button } from '../../../design-system';
+import { StageWrapper, StageIndicator } from '../../../shared/components/StageWrapper';
+import { useStageManager } from '../../../shared/hooks/useStageManager';
 
 interface QRScanResult {
   id: string;

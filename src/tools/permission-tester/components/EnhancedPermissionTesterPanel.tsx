@@ -5,13 +5,9 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 
-import { Badge } from '../src/design-system/components/display/Badge';
-import { Button } from '../src/design-system/components/inputs/Button';
-import { Card } from '../src/design-system/components/layout/Card';
-import { InfoBox } from '../src/design-system/components/display/InfoBox';
-import { PermissionResult } from '../src/design-system/components/display/PermissionResult';
-import { StageWrapper, StageIndicator } from '../src/shared/components/StageWrapper';
-import { useStageManager } from '../src/shared/hooks/useStageManager';
+import { Badge, Button, Card, InfoBox, PermissionResult } from '../../../design-system';
+import { StageWrapper, StageIndicator } from '../../../shared/components/StageWrapper';
+import { useStageManager } from '../../../shared/hooks/useStageManager';
 import { Permission, PermissionState } from '../lib/permissions';
 
 interface PreviewMode {

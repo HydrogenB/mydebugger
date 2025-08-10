@@ -1,3 +1,5 @@
+// Centralized SEO configuration for pages
+
 export interface SEOConfig {
   title: string;
   description: string;
@@ -7,7 +9,6 @@ export interface SEOConfig {
     title: string;
     description: string;
     type: string;
-    url: string;
     image: string;
     siteName: string;
   };
@@ -18,104 +19,83 @@ export interface SEOConfig {
     image: string;
     creator: string;
   };
-  structuredData: any;
+  structuredData?: Record<string, unknown>;
 }
 
-export const baseSEO: SEOConfig = {
-  title: "MyDebugger - Advanced Debugging Tools & Technical Solutions",
-  description: "Professional debugging platform with JWT decoder, QR code generator, code analysis tools, and comprehensive technical utilities. Debug, decode, and analyze with precision.",
-  keywords: [
-    "debugging tools",
-    "JWT decoder",
-    "QR code generator",
-    "code analysis",
-    "technical utilities",
-    "developer tools",
-    "debug platform",
-    "encoding decoding",
-    "programming tools",
-    "web development",
-    "API testing",
-    "data visualization",
-    "performance monitoring",
-    "error tracking",
-    "code profiler"
-  ],
-  author: "Jirad Srirattana-arporn",
-  og: {
-    title: "MyDebugger - Professional Debugging & Development Tools",
-    description: "Advanced debugging platform with comprehensive technical utilities for developers",
-    type: "website",
-    url: "https://mydebugger.vercel.app",
-    image: "https://mydebugger.vercel.app/og-image.jpg",
-    siteName: "MyDebugger"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "MyDebugger - Advanced Debugging Tools",
-    description: "Professional debugging platform with comprehensive technical utilities",
-    image: "https://mydebugger.vercel.app/twitter-card.jpg",
-    creator: "@jirads"
-  },
-  structuredData: {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "MyDebugger",
-    "description": "Advanced debugging platform with comprehensive technical utilities",
-    "url": "https://mydebugger.vercel.app",
-    "applicationCategory": "DeveloperApplication",
-    "operatingSystem": "Web Browser",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
+const commonKeywords = [
+  'developer tools',
+  'debugging',
+  'utilities',
+  'jwt',
+  'qrcode',
+  'encoding',
+  'decoding',
+  'web tools',
+  'performance',
+  'security'
+];
+
+export const pageSEO: Record<string, SEOConfig> = {
+  home: {
+    title: 'Developer Tool Hub | MyDebugger',
+    description:
+      'MyDebugger is a developer tool hub with 50+ utilities for debugging, encoding/decoding, API testing, JWT, QR, and more. Fast, privacy-friendly, client-side.',
+    keywords: [...commonKeywords, 'tool hub', 'productivity'],
+    author: 'MyDebugger Team',
+    og: {
+      title: 'Developer Tool Hub | MyDebugger',
+      description:
+        'Explore 50+ developer tools for debugging, testing, and productivity. Privacy-first and fast.',
+      type: 'website',
+      image: 'https://mydebugger.vercel.app/og/home.jpg',
+      siteName: 'MyDebugger'
     },
-    "author": {
-      "@type": "Person",
-      "name": "Jirad Srirattana-arporn"
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Developer Tool Hub | MyDebugger',
+      description: '50+ developer tools. Privacy-first. Client-side.',
+      image: 'https://mydebugger.vercel.app/twitter/home.jpg',
+      creator: '@jirads'
     },
-    "featureList": [
-      "JWT Decoder",
-      "QR Code Generator",
-      "Code Analysis",
-      "Performance Monitoring",
-      "Error Tracking",
-      "Data Visualization",
-      "API Testing",
-      "Encoding/Decoding Tools"
-    ]
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': ['WebSite', 'SoftwareApplication'],
+      name: 'MyDebugger',
+      description:
+        'Developer tool hub with 50+ utilities for debugging, testing, and productivity',
+      url: 'https://mydebugger.vercel.app/'
+    }
+  },
+  privacy: {
+    title: 'Privacy Policy - MyDebugger',
+    description:
+      'Learn how MyDebugger protects your privacy. Client-side processing, no data leaves your device, GDPR-friendly.',
+    keywords: [...commonKeywords, 'privacy', 'gdpr', 'data protection'],
+    author: 'MyDebugger Team',
+    og: {
+      title: 'Privacy Policy - MyDebugger',
+      description:
+        'Comprehensive privacy policy. Client-side processing and no data collection.',
+      type: 'website',
+      image: 'https://mydebugger.vercel.app/og/privacy.jpg',
+      siteName: 'MyDebugger'
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Privacy Policy - MyDebugger',
+      description: 'Client-side processing. No tracking. GDPR-friendly.',
+      image: 'https://mydebugger.vercel.app/twitter/privacy.jpg',
+      creator: '@jirads'
+    },
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: 'Privacy Policy - MyDebugger',
+      url: 'https://mydebugger.vercel.app/privacy'
+    }
   }
 };
 
-export const pageSEO = {
-  home: {
-    ...baseSEO,
-    title: "MyDebugger - Advanced Debugging Tools for Developers",
-    description: "Comprehensive debugging platform with JWT decoder, QR code generator, code analysis tools, and 50+ technical utilities. Professional-grade debugging solutions.",
-    keywords: [...baseSEO.keywords, "home", "main page", "developer dashboard"]
-  },
-  tools: {
-    ...baseSEO,
-    title: "MyDebugger Tools - Professional Development Utilities",
-    description: "Explore 50+ professional debugging and development tools including JWT decoder, QR code generator, code analysis, and performance monitoring utilities.",
-    keywords: [...baseSEO.keywords, "tools", "utilities", "development tools"]
-  },
-  thongThai: {
-    ...baseSEO,
-    title: "Thong Thai Flag Creator - Create & Animate the Thai Flag",
-    description: "Create, customize, animate, and export the Thai national flag as PNG or WebM with the Thong Thai Flag Creator.",
-    keywords: [...baseSEO.keywords, "thai flag", "thailand", "flag creator", "animation", "export", "webm", "png"]
-  },
-  privacy: {
-    ...baseSEO,
-    title: "Privacy Policy - MyDebugger Data Protection",
-    description: "Learn how MyDebugger protects your privacy and handles data collection, usage, and protection in compliance with GDPR and privacy standards.",
-    keywords: [...baseSEO.keywords, "privacy", "data protection", "GDPR"]
-  },
-  terms: {
-    ...baseSEO,
-    title: "Terms of Service - MyDebugger Usage Agreement",
-    description: "Read the complete terms of service for using MyDebugger debugging platform, including usage rights, limitations, and service agreements.",
-    keywords: [...baseSEO.keywords, "terms", "service agreement", "usage policy"]
-  }
-};
+export type { SEOConfig as TSEOConfig };
+
+
