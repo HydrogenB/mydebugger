@@ -1,4 +1,4 @@
-import { parseCurl } from '../model/apiRepeater';
+import { parseCurl } from '../src/tools/api-test/lib/apiRepeater';
 
 describe('api repeater model', () => {
   it('parses curl command with single quotes', () => {

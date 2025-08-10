@@ -3,10 +3,10 @@
  * Correct Model Tests Based on Actual Implementations
  */
 
-import { encodeUrlQueryParams } from '../model/url';
-import { auditHeaders, HeaderAuditResult } from '../model/headerScanner';
-import { generateVCard, ContactInfo } from '../model/virtualCard';
-import { compressImage } from '../model/imageCompressor';
+import { encodeUrlQueryParams } from '../src/tools/url/lib/url';
+import { auditHeaders, HeaderAuditResult } from '../src/tools/header-scanner/lib/headerScanner';
+import { generateVCard, ContactInfo } from '../src/tools/virtual-card/lib/virtualCard';
+import { compressImage } from '../src/tools/image-compressor/lib/imageCompressor';
 import { encode as encodeBase64, decode as decodeBase64 } from '../model/base64';
 import { trackEvent, getAnalytics } from '../model/analytics';
 import { validateCors, checkPreflightRequest } from '../model/cors';
