@@ -5,8 +5,8 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 // Skipping migration: legacy preview component not ported into per-tool. Adjust path to src if present.
-// Legacy component not available; skip this suite
-describe.skip('MicrophonePreview (legacy)', () => {});
+// Legacy component not available; skip this entire file's tests
+it.skip('skipped legacy MicrophonePreview tests', () => {});
 
 // Mock the Web Audio API
 class MockAudioContext {

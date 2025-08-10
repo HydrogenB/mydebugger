@@ -42,9 +42,18 @@ const rules: Record<string, Rule> = {
 const securityHeaders = Object.keys(rules);
 
 export const analyzeHeaders = async (
-  url: string,
+  urlOrHeaders: string | Headers,
 ): Promise<HeaderAuditResult[]> => {
-  const target = url.startsWith('http') ? url : `https://${url}`;
+  if (typeof urlOrHeaders !== 'string') {
+    // Support tests passing Headers directly
+    const headers = urlOrHeaders;
+    return securityHeaders.map((name) => {
+      const value = headers.get(name);
+      if (!value) return { name, value: null, status: 'missing' as const, fix: rules[name].fix };
+      return { name, value, status: rules[name].check(value) ? 'ok' : 'warning', fix: rules[name].fix };
+    });
+  }
+  const target = urlOrHeaders.startsWith('http') ? urlOrHeaders : `https://${urlOrHeaders}`;
   try {
     const res = await fetch(target, { method: 'GET', redirect: 'manual' });
     if (res.type === 'opaque') {
