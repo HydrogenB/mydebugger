@@ -15,6 +15,7 @@ export const useQrscan = () => {
   const [devices, setDevices] = useState<VideoDevice[]>([]);
   const [deviceId, setDeviceId] = useState<string>();
   const [result, setResult] = useState('');
+  const [format, setFormat] = useState<string>('');
   const [error, setError] = useState('');
   const [scanning, setScanning] = useState(false);
   const [scanHistory, setScanHistory] = useState<Array<{id: string, text: string, timestamp: number, type: string}>>([]);
@@ -149,8 +150,9 @@ export const useQrscan = () => {
     setScanning(false);
   };
 
-  const handleScanResult = async (text: string) => {
+  const handleScanResult = async (text: string, fmt?: string) => {
     setResult(text);
+    if (fmt) setFormat(fmt);
     setScanCount(prev => prev + 1);
     setLastScanTime(Date.now());
     
@@ -177,7 +179,7 @@ export const useQrscan = () => {
   const start = async () => {
     if (!videoRef.current) return;
     try {
-      controls.current = await startQrScan(videoRef.current, handleScanResult, selectedCamera || deviceId);
+      controls.current = await startQrScan(videoRef.current, handleScanResult, selectedCamera || deviceId, true);
       setScanning(true);
       setError('');
     } catch (e) {
@@ -235,6 +237,7 @@ export const useQrscan = () => {
     stop,
     flip,
     result,
+      format,
     error,
     scanning,
     canFlip: devices.length > 1,

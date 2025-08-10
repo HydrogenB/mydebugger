@@ -88,3 +88,15 @@ export const analyzeHeaders = async (
   }
 };
 
+// Compute a simple security score based on results
+export const getSecurityScore = (results: HeaderAuditResult[]): number => {
+  if (!Array.isArray(results) || results.length === 0) return 0;
+  const total = results.length * 2; // ok=2, warning=1, missing=0
+  const scorePoints = results.reduce((acc, r) => {
+    if (r.status === 'ok') return acc + 2;
+    if (r.status === 'warning') return acc + 1;
+    return acc;
+  }, 0);
+  return Math.round((scorePoints / total) * 100);
+};
+

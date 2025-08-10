@@ -47,6 +47,20 @@ export const decodeContactData = (encoded: string): ContactInfo | null => {
   }
 };
 
+export const parseVCardString = (vcard: string): { name: string; email?: string; phone?: string } => {
+  try {
+    const lines = vcard.split(/\r?\n/);
+    const get = (prefix: string) => lines.find((l) => l.startsWith(prefix))?.split(':')[1];
+    return {
+      name: get('FN') || '',
+      email: get('EMAIL') || undefined,
+      phone: (get('TEL') || get('TEL;TYPE=CELL')) || undefined,
+    };
+  } catch {
+    return { name: '' };
+  }
+};
+
 export const getInitials = (fullName: string): string => {
   if (!fullName) return '';
   return fullName

@@ -72,7 +72,8 @@ export function PreRenderingTesterView({
             value={url}
             onChange={e => setUrl(e.target.value)}
             className="w-full border p-2 rounded dark:bg-gray-700 dark:text-gray-200"
-          />
+              />
+              <p className="text-xs text-gray-500 mt-1">Tip: include protocol, e.g. https://example.com</p>
         </div>
         <div className="space-y-3">
           {Object.entries(grouped).map(([cat, ags]) => (
@@ -119,10 +120,14 @@ export function PreRenderingTesterView({
                 title={<span className="font-medium">{r.userAgent}</span>}
                 actions={<Badge variant={r.status === 200 ? 'success' : 'danger'}>{r.status}</Badge>}
               />
-              <Card.Body className="space-y-1 text-sm break-words">
+            <Card.Body className="space-y-1 text-sm break-words">
                 <div><strong>Title:</strong> {r.title ?? '-'}</div>
                 <div><strong>Description:</strong> {r.description ?? '-'}</div>
                 <div><strong>H1 Tag:</strong> {r.h1 ?? '-'}</div>
+              <div className="mt-1"><strong>OG Title:</strong> {r.ogTitle ?? '-'}</div>
+              <div><strong>OG Description:</strong> {r.ogDescription ?? '-'}</div>
+              <div><strong>OG Image:</strong> {r.ogImage ? <a className="underline" href={r.ogImage} target="_blank" rel="noreferrer">open</a> : '-'}</div>
+              <div><strong>Canonical:</strong> {r.canonical ? <a className="underline" href={r.canonical} target="_blank" rel="noreferrer">{r.canonical}</a> : '-'}</div>
               </Card.Body>
               <Card.Footer align="between">
                 <Button size="sm" variant="secondary" onClick={() => copySnapshot(r)}>Copy JSON</Button>

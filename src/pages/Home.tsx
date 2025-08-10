@@ -90,13 +90,15 @@ const Home: React.FC = () => {
       setIsLoading(false);
     }, 300);
     
-    // Get recently used tools from localStorage
+    // Get recently used tools from localStorage (preserve order and cap at 5)
     try {
       const recent = localStorage.getItem('recentTools');
       if (recent) {
-        const recentIds = JSON.parse(recent) as string[];
-        const recentToolsData = allTools.filter(tool => recentIds.includes(tool.id));
-        setRecentTools(recentToolsData.slice(0, 3));
+        const recentIds = (JSON.parse(recent) as string[]).slice(0, 5);
+        const recentToolsData = recentIds
+          .map(id => allTools.find(t => t.id === id))
+          .filter((t): t is Tool => Boolean(t));
+        setRecentTools(recentToolsData);
       }
     } catch (e) {
       console.error('Error loading recent tools:', e);
@@ -397,7 +399,7 @@ const Home: React.FC = () => {
                 {t('home.recent.viewAll', 'View All')}
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               {recentTools.map(tool => (
                 <Link
                   key={`recent-${tool.id}`}
@@ -405,9 +407,9 @@ const Home: React.FC = () => {
                   onClick={() => handleToolClick(tool)}
                   className="no-underline"
                 >
-                  <div className={`flex items-center p-3 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}>
-                    <div className="mr-3 p-2 bg-primary-100 dark:bg-primary-900 rounded-xl">
-                      <tool.icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                  <div className={`flex items-center p-2 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow ${TOOL_PANEL_CLASS.replace('p-6', 'p-2')}`}> 
+                    <div className="mr-2 p-1.5 bg-primary-100 dark:bg-primary-900 rounded-xl">
+                      <tool.icon className="h-4 w-4 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-900 dark:text-white">{tool.title}</h3>

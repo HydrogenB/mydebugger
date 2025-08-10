@@ -109,18 +109,16 @@ const Footer: React.FC = () => {
           {/* Contact info */}
           <div>
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              {t('footer.developer', 'Developer')}
+              {t('footer.siteOwner', 'Site Owner')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-2">              <button 
                 onClick={handleLinkedInNavigation}
                 className="text-primary-600 dark:text-primary-400 hover:underline transition"
               >
-                Jirad Srirattana-arporn
+                JIrad Srirattana-arporn
               </button>
             </p>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {t('footer.roleDescription', 'Product Owner (built with GenAI assistance)')}
-            </p>            <a 
+            <a 
               href="https://github.com/HydrogenB/mydebugger"
               target="_blank" 
               rel="noopener noreferrer"

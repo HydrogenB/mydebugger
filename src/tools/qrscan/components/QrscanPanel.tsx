@@ -11,6 +11,7 @@ interface Props {
   stop: () => void;
   flip: () => void;
   result: string;
+  format?: string;
   error: string;
   scanning: boolean;
   canFlip: boolean;
@@ -48,6 +49,7 @@ export function QrscanView({
   stop,
   flip,
   result,
+  format,
   error,
   scanning,
   canFlip,
@@ -246,9 +248,12 @@ export function QrscanView({
           <div className="p-3 border rounded min-h-[4rem] break-all bg-gray-50 dark:bg-gray-800">
             {result ? (
               <div>
-                <div className="text-xs text-gray-500 mb-1">
-                  {getTypeIcon(scanHistory[0]?.type || 'text')} 
-                  {scanHistory[0]?.type?.toUpperCase() || 'TEXT'}
+                <div className="text-xs text-gray-500 mb-1 flex items-center gap-2">
+                  <span>
+                    {getTypeIcon(scanHistory[0]?.type || 'text')} 
+                    {scanHistory[0]?.type?.toUpperCase() || 'TEXT'}
+                  </span>
+                  {format && <span className="px-1.5 py-0.5 rounded bg-gray-200 dark:bg-gray-700">{format}</span>}
                 </div>
                 <div className="font-mono text-sm">{result}</div>
               </div>

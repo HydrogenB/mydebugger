@@ -51,8 +51,14 @@ export function CorsTesterView({
   };
 
   return (
-    <div className={`space-y-4 ${TOOL_PANEL_CLASS}`}>
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">CORS Tester</h2>
+    <div className={`space-y-5 ${TOOL_PANEL_CLASS}`}>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold heading-gradient">CORS Tester</h2>
+        <div className="flex gap-2">
+          <Button size="sm" variant="ghost" onClick={() => setHeaderJson('{}')}>Reset</Button>
+          <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(curlCommand)}>Copy cURL</Button>
+        </div>
+      </div>
       <div className="space-y-4">
         <TextInput
           id="cors-url"
@@ -62,7 +68,7 @@ export function CorsTesterView({
           onChange={(e) => setUrl(e.target.value)}
           fullWidth
         />
-        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 items-end">
           <SelectInput
             id="cors-method"
             label="Method"
@@ -148,17 +154,26 @@ export function CorsTesterView({
               />
             </div>
           ))}
-          <button
-            type="button"
-            className="px-2 py-1 text-sm bg-primary-500 text-white rounded"
-            onClick={() => {
-              const entries = Object.entries(parseHeaders());
-              entries.push(['', '']);
-              setHeaderJson(JSON.stringify(Object.fromEntries(entries), null, 2));
-            }}
-          >
-            Add header
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="px-2 py-1 text-sm bg-primary-500 text-white rounded"
+              onClick={() => {
+                const entries = Object.entries(parseHeaders());
+                entries.push(['', '']);
+                setHeaderJson(JSON.stringify(Object.fromEntries(entries), null, 2));
+              }}
+            >
+              Add header
+            </button>
+            <button
+              type="button"
+              className="px-2 py-1 text-sm bg-gray-200 dark:bg-gray-800 dark:text-gray-100 rounded"
+              onClick={() => setHeaderJson('{}')}
+            >
+              Clear
+            </button>
+          </div>
         </div>
       )}
       {error && (
@@ -210,7 +225,7 @@ export function CorsTesterView({
               Blocked browsers: {blockedBrowsers.join(', ')}
             </div>
           )}
-          <details className="mt-4">
+          <details className="mt-4 summary-no-marker">
             <summary className="cursor-pointer">Request Flow & cURL</summary>
             <CodeBlock className="mt-2 text-xs" maxHeight="16rem">
               {JSON.stringify(result, null, 2)}

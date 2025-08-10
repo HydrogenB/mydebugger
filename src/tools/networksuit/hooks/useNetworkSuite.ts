@@ -6,9 +6,11 @@ import {
   getConnectionInfo,
   getTechTier,
   isConnectionApiSupported,
-  pingSamples,
-  average,
-  measureDownloadSpeed,
+    pingSamples,
+    average,
+    measureDownloadSpeed,
+    measureUploadSpeed,
+    calcJitter,
   ConnectionInfo,
 } from '../lib/networkSuite';
 
@@ -26,6 +28,9 @@ export const useNetworkSuite = () => {
   const [speedProgress, setSpeedProgress] = useState(0);
   const [speedMbps, setSpeedMbps] = useState<number | null>(null);
   const [speedRunning, setSpeedRunning] = useState(false);
+  const [uploadUrl, setUploadUrl] = useState('https://www.google.com/generate_204');
+  const [uploadMbps, setUploadMbps] = useState<number | null>(null);
+  const [uploadRunning, setUploadRunning] = useState(false);
 
   useEffect(() => {
     const update = () => {
@@ -72,6 +77,42 @@ export const useNetworkSuite = () => {
     setSpeedRunning(false);
   };
 
+  const startUpload = async () => {
+    setUploadRunning(true);
+    try {
+      const up = await measureUploadSpeed(uploadUrl, 5 * 1024 * 1024);
+      setUploadMbps(up);
+    } catch {
+      setUploadMbps(null);
+    }
+    setUploadRunning(false);
+  };
+
+  const getReport = () => ({
+    timestamp: new Date().toISOString(),
+    connection,
+    tech,
+    offline,
+    ping: {
+      url: pingUrl,
+      results: pingResults,
+      averageMs: average(pingResults),
+      jitterMs: calcJitter(pingResults),
+    },
+    download: { url: speedUrl, mbps: speedMbps },
+    upload: { url: uploadUrl, mbps: uploadMbps },
+  });
+
+  const copyReport = async () => {
+    const json = JSON.stringify(getReport(), null, 2);
+    try {
+      await navigator.clipboard.writeText(json);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     connection,
     tech,
@@ -82,6 +123,7 @@ export const useNetworkSuite = () => {
     pingResults,
     pingRunning,
     avgPing: average(pingResults),
+    jitter: calcJitter(pingResults),
     startPing,
     speedUrl,
     setSpeedUrl,
@@ -89,6 +131,13 @@ export const useNetworkSuite = () => {
     speedMbps,
     speedRunning,
     startSpeed,
+    uploadUrl,
+    setUploadUrl,
+    uploadMbps,
+    uploadRunning,
+    startUpload,
+    getReport,
+    copyReport,
   };
 };
 

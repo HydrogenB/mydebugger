@@ -28,22 +28,18 @@ export function CookieInspectorView({
 }: Props) {
   return (
     <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Cookie Inspector</h2>
-      <div className="mb-4 flex justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <h2 className="text-2xl font-bold heading-gradient">Cookie Inspector</h2>
+        <button type="button" className="px-4 py-2 bg-primary-500 text-white rounded w-full sm:w-auto" onClick={exportJson}>Export JSON</button>
+      </div>
+      <div className="mb-3 flex flex-col sm:flex-row sm:items-center gap-2">
         <input
           type="text"
-          className="border px-3 py-2 rounded w-full mr-4 dark:bg-gray-700 dark:text-gray-200"
+          className="border px-3 py-2 rounded flex-1 dark:bg-gray-700 dark:text-gray-200"
           placeholder="Filter cookies"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
-        <button
-          type="button"
-          className="px-4 py-2 bg-primary-500 text-white rounded hover:bg-primary-600"
-          onClick={exportJson}
-        >
-          Export JSON
-        </button>
       </div>
       {toastMessage && (
         <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
@@ -51,7 +47,7 @@ export function CookieInspectorView({
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-left text-gray-700 dark:text-gray-200">
+        <table className="min-w-full text-xs sm:text-sm text-left text-gray-700 dark:text-gray-200">
           <thead>
             <tr>
               <th className="px-2 py-1">Name</th>
@@ -73,7 +69,7 @@ export function CookieInspectorView({
                     {c.name}
                   </button>
                 </td>
-                <td className="px-2 py-1 break-all">
+                <td className="px-2 py-1 break-all max-w-[18rem] sm:max-w-none">
                   {c.accessible ? (
                     (() => {
                       const truncated = c.value.length > 40 ? `${c.value.slice(0, 40)}…` : c.value;

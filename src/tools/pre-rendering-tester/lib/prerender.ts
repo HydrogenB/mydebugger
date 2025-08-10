@@ -6,6 +6,10 @@ export interface Metadata {
   title: string | null;
   description: string | null;
   h1: string | null;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  canonical?: string | null;
 }
 
 export const parseMetadata = (html: string): Metadata => {
@@ -13,7 +17,11 @@ export const parseMetadata = (html: string): Metadata => {
   const title = doc.querySelector('title')?.textContent ?? null;
   const description = doc.querySelector('meta[name="description"]')?.getAttribute('content') ?? null;
   const h1 = doc.querySelector('h1')?.textContent?.trim() ?? null;
-  return { title, description, h1 };
+  const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ?? null;
+  const ogDescription = doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ?? null;
+  const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ?? null;
+  const canonical = (doc.querySelector('link[rel="canonical"]') as HTMLLinkElement | null)?.href ?? null;
+  return { title, description, h1, ogTitle, ogDescription, ogImage, canonical };
 };
 
 export interface Snapshot extends Metadata {

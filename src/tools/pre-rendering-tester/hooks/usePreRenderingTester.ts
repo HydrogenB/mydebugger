@@ -89,7 +89,9 @@ export const usePreRenderingTester = () => {
     const descMatch = results.every(r => r.description === results[0].description);
     const missingH1 = results.some(r => !r.h1);
     const descLen = results[0].description?.length ?? 0;
-    return `${agentsTested} agents • ${titlesMatch ? '✅ Titles match' : '⚠️ Title mismatch'} • ${descMatch ? '✅ Descriptions match' : '⚠️ Description mismatch'} • ${missingH1 ? '⚠️ Missing H1' : '✅ H1 present'} • 📏 Description: ${descLen} chars`;
+    const ogMismatch = results.some(r => r.ogTitle !== results[0].ogTitle || r.ogDescription !== results[0].ogDescription);
+    const hasCanonical = results.some(r => !!r.canonical);
+    return `${agentsTested} agents • ${titlesMatch ? '✅ Titles match' : '⚠️ Title mismatch'} • ${descMatch ? '✅ Descriptions match' : '⚠️ Description mismatch'} • ${missingH1 ? '⚠️ Missing H1' : '✅ H1 present'} • ${ogMismatch ? '⚠️ OpenGraph mismatch' : '✅ OG consistent'} • ${hasCanonical ? '✅ Canonical' : '⚠️ No canonical'} • 📏 Description: ${descLen} chars`;
   }, [results]);
 
   const copySnapshot = async (snap: Snapshot) => {

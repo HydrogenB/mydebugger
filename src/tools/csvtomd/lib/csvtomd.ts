@@ -23,10 +23,14 @@ export interface CsvParseResult {
 }
 
 export function parseCsv(csvText: string, delimiter: string): CsvParseResult {
-  const res = Papa.parse<Record<string, string>>(csvText.trim(), {
+  const text = csvText.replace(/\r\n?/g, '\n').trim();
+  const hasHeader = /^[^\n]*[,;\t|].*\n/.test(text);
+  const res = Papa.parse<Record<string, string>>(text, {
     header: true,
     delimiter,
-    skipEmptyLines: true,
+    skipEmptyLines: 'greedy',
+    transformHeader: (h) => h.trim(),
+    transform: (v) => v === undefined ? '' : String(v).trim(),
   });
   return { data: res.data, errors: res.errors };
 }

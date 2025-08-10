@@ -14,6 +14,7 @@ export const useImageCompressor = () => {
   const [targetSize, setTargetSize] = useState(50);
   const [scale, setScale] = useState(1);
   const [colorDepth, setColorDepth] = useState(8);
+  const [mimeType, setMimeType] = useState<'image/jpeg' | 'image/png' | 'image/webp'>('image/webp');
   const [result, setResult] = useState<CompressedResult | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +33,7 @@ export const useImageCompressor = () => {
   const compress = async () => {
     if (!file) return;
     setLoading(true);
-    const opts: CompressOptions = { targetSizeKB: targetSize, scale, colorDepth };
+    const opts: CompressOptions = { targetSizeKB: targetSize, scale, colorDepth, mimeType };
     const res = await compressImageFn(file, opts);
     setResult(res);
     setLoading(false);
@@ -47,6 +48,8 @@ export const useImageCompressor = () => {
     setScale,
     colorDepth,
     setColorDepth,
+    mimeType,
+    setMimeType,
     result,
     onFile,
     compress,

@@ -29,6 +29,8 @@ interface Props {
   renderedHtml: string;
   metadata: { title: string | null; description: string | null; h1: string | null } | null;
   logs: string[];
+  status: number | null;
+  redirectChain: string[];
   copyOutput: () => void;
   exportOutput: () => void;
 }
@@ -52,6 +54,8 @@ export function FetchRenderView({
   renderedHtml,
   metadata,
   logs,
+  status,
+  redirectChain,
   copyOutput,
   exportOutput,
 }: Props) {
@@ -109,6 +113,15 @@ export function FetchRenderView({
 
           {srcDoc && (
             <iframe ref={iframeRef} srcDoc={srcDoc} title="render" className="w-full h-64 border" />
+          )}
+
+          {(status || redirectChain.length > 0) && (
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              {status !== null && <div><strong>Status:</strong> {status}</div>}
+              {redirectChain.length > 0 && (
+                <div className="truncate"><strong>Redirects:</strong> {redirectChain.join(' → ')}</div>
+              )}
+            </div>
           )}
 
           {(rawHtml || renderedHtml) && (

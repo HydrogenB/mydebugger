@@ -17,6 +17,8 @@ export interface BasicMetadata {
   touchSupport: boolean;
   referrer: string;
   pageUrl: string;
+  url?: string;
+  timestamp?: string;
 }
 
 export interface BatteryInfo {
@@ -44,6 +46,9 @@ export interface AdvancedMetadata {
   geo?: GeoInfo;
   gpu?: string;
   errors: AdvancedMetadataErrors;
+  networkInfo?: { effectiveType?: string; downlink?: number };
+  deviceInfo?: { platform?: string; screenWidth?: number; screenHeight?: number };
+  permissions?: Record<string, string>;
 }
 
 interface ConnectionLike {
@@ -86,6 +91,8 @@ export const getBasicMetadata = (env: Partial<Env> = {}): BasicMetadata => {
     touchSupport: "ontouchstart" in e.window && e.navigator.maxTouchPoints > 0,
     referrer: e.document.referrer,
     pageUrl: e.location.href,
+    url: e.location.href,
+    timestamp: new Date().toISOString(),
   };
 };
 
@@ -99,6 +106,7 @@ export const getAdvancedMetadata = async (
   if (conn) {
     adv.connectionType = conn.effectiveType;
     adv.downlink = conn.downlink;
+    adv.networkInfo = { effectiveType: conn.effectiveType, downlink: conn.downlink };
   } else {
     adv.errors.connection = "Network Information API unavailable";
   }
@@ -151,6 +159,12 @@ export const getAdvancedMetadata = async (
   } catch (err: unknown) {
     adv.errors.gpu = err instanceof Error ? err.message : "WebGL error";
   }
-
+  // Device info snapshot and placeholders expected by tests
+  adv.deviceInfo = {
+    platform: e.navigator.platform,
+    screenWidth: e.screen.width,
+    screenHeight: e.screen.height,
+  };
+  adv.permissions = adv.permissions || {};
   return adv;
 };

@@ -15,6 +15,8 @@ function ImageCompressorView({
   setScale,
   colorDepth,
   setColorDepth,
+  mimeType,
+  setMimeType,
   result,
   onFile,
   compress,
@@ -42,7 +44,7 @@ function ImageCompressorView({
             <input
               id="file"
               type="file"
-              accept="image/jpeg,image/png"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handleFile}
               className="mt-2"
             />
@@ -113,6 +115,24 @@ function ImageCompressorView({
               <option value={4}>4</option>
             </select>
           </label>
+          <div className="text-sm flex gap-3 items-center">
+            <span className="font-medium">Format:</span>
+            {([
+              { label: 'WebP', value: 'image/webp' },
+              { label: 'JPEG', value: 'image/jpeg' },
+              { label: 'PNG', value: 'image/png' },
+            ] as const).map((opt) => (
+              <label key={opt.value} className="inline-flex items-center gap-1">
+                <input
+                  type="radio"
+                  name="fmt"
+                  checked={mimeType === opt.value}
+                  onChange={() => setMimeType(opt.value)}
+                />
+                <span>{opt.label}</span>
+              </label>
+            ))}
+          </div>
           <button
             className="px-4 py-2 bg-primary-600 text-white rounded-md"
             type="button"
@@ -127,7 +147,7 @@ function ImageCompressorView({
               <p>Resolution: {result.info.width} × {result.info.height}</p>
               <a
                 href={URL.createObjectURL(result.blob)}
-                download="compressed.jpg"
+                download={`compressed.${mimeType === 'image/webp' ? 'webp' : mimeType === 'image/png' ? 'png' : 'jpg'}`}
                 className="underline text-primary-600"
               >
                 Download image

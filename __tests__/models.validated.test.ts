@@ -90,14 +90,14 @@ describe('URL Model - encodeUrlQueryParams', () => {
 });
 
 describe('Header Scanner Model', () => {
-  it('should audit security headers correctly', () => {
+  it('should audit security headers correctly', async () => {
     const headers = {
       'x-frame-options': 'SAMEORIGIN',
       'x-content-type-options': 'nosniff',
       'content-security-policy': "default-src 'self'",
     };
 
-    const results = auditHeaders(headers);
+    const results = await auditHeaders(headers as any);
     expect(results).toBeInstanceOf(Array);
     expect(results.length).toBeGreaterThan(0);
 
@@ -105,29 +105,29 @@ describe('Header Scanner Model', () => {
     expect(frameOptions?.status).toBe('ok');
   });
 
-  it('should detect missing security headers', () => {
+  it('should detect missing security headers', async () => {
     const headers = {
       'content-type': 'text/html'
     };
 
-    const results = auditHeaders(headers);
+    const results = await auditHeaders(headers as any);
     const missingHeaders = results.filter(r => r.status === 'missing');
     expect(missingHeaders.length).toBeGreaterThan(0);
   });
 
-  it('should detect weak CSP policies', () => {
+  it('should detect weak CSP policies', async () => {
     const headers = {
       'content-security-policy': "default-src 'unsafe-inline'"
     };
 
-    const results = auditHeaders(headers);
+    const results = await auditHeaders(headers as any);
     const cspResult = results.find(r => r.name === 'content-security-policy');
     expect(cspResult?.status).toBe('warning');
   });
 
-  it('should provide fix recommendations', () => {
+  it('should provide fix recommendations', async () => {
     const headers = {};
-    const results = auditHeaders(headers);
+    const results = await auditHeaders(headers as any);
     
     results.forEach(result => {
       expect(result.fix).toBeDefined();

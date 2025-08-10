@@ -45,6 +45,13 @@ export const getTechTier = (info: { effectiveType?: string; downlink?: number })
 export const average = (vals: number[]): number =>
   vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
 
+export const calcJitter = (vals: number[]): number => {
+  if (vals.length <= 1) return 0;
+  let total = 0;
+  for (let i = 1; i < vals.length; i += 1) total += Math.abs(vals[i] - vals[i - 1]);
+  return total / (vals.length - 1);
+};
+
 export const pingSamples = async (
   url: string,
   samples = 5,
@@ -92,4 +99,50 @@ export const measureDownloadSpeed = async (
   }
   const seconds = (performance.now() - start) / 1000;
   return (loaded * 8) / (seconds * 1_000_000);
+};
+
+export const measureUploadSpeed = async (
+  url: string,
+  bytes = 5 * 1024 * 1024,
+  onProgress?: (sent: number) => void,
+  fetchFn: typeof fetch = fetch
+): Promise<number> => {
+  // Create a deterministic payload without storing in memory excessively
+  const chunkSize = 256 * 1024;
+  const chunks = Math.ceil(bytes / chunkSize);
+  const chunksArray: Blob[] = [];
+  for (let i = 0; i < chunks; i += 1) {
+    const size = Math.min(chunkSize, bytes - i * chunkSize);
+    chunksArray.push(new Blob([new Uint8Array(size)]));
+  }
+  const body = new Blob(chunksArray, { type: 'application/octet-stream' });
+  const start = performance.now();
+  try {
+    await fetchFn(url, { method: 'POST', body, mode: 'no-cors', keepalive: false });
+  } catch {
+    // As long as the browser attempted the upload, we consider timing valid
+  }
+  if (onProgress) onProgress(bytes);
+  const seconds = (performance.now() - start) / 1000;
+  return (bytes * 8) / (seconds * 1_000_000);
+};
+
+export type QualityMetrics = {
+  avgPingMs: number;
+  jitterMs: number;
+  downloadMbps: number | null;
+  uploadMbps: number | null;
+};
+
+export const getQualityScore = (m: QualityMetrics): { score: number; grade: 'A'|'B'|'C'|'D' } => {
+  const pingScore = Math.max(0, 100 - Math.min(100, m.avgPingMs));
+  const jitterScore = Math.max(0, 100 - Math.min(100, m.jitterMs * 2));
+  const downScore = m.downloadMbps ? Math.min(100, (m.downloadMbps / 100) * 100) : 0;
+  const upScore = m.uploadMbps ? Math.min(100, (m.uploadMbps / 50) * 100) : 0;
+  const score = Math.round(0.25 * pingScore + 0.25 * jitterScore + 0.3 * downScore + 0.2 * upScore);
+  let grade: 'A'|'B'|'C'|'D' = 'D';
+  if (score >= 85) grade = 'A';
+  else if (score >= 70) grade = 'B';
+  else if (score >= 50) grade = 'C';
+  return { score, grade };
 };

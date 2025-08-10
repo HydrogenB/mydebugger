@@ -19,6 +19,8 @@ export const useFetchRender = () => {
   const [error, setError] = useState('');
   const [exportFormat, setExportFormat] = useState<ExportFormat>('html');
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [redirectChain, setRedirectChain] = useState<string[]>([]);
+  const [status, setStatus] = useState<number | null>(null);
 
   const agentIds = AGENTS.map(a => a.id);
 
@@ -31,7 +33,12 @@ export const useFetchRender = () => {
     setMetadata(null);
     try {
       const agent = AGENTS.find(a => a.id === userAgent);
+      // fetchSnapshot already goes through proxy; expand with basic redirect capture via headers if provided by API
       const snap = await fetchSnapshot(url, agent ? agent.ua : userAgent);
+      setStatus(snap.status);
+      // naive redirect hint from HTML meta refresh
+      const metaRefresh = /<meta[^>]*http-equiv=["']refresh["'][^>]*content=["'][0-9]+;\s*url=([^"']+)/i.exec(snap.html)?.[1];
+      setRedirectChain(metaRefresh ? [url, metaRefresh] : []);
       setRawHtml(snap.html);
       setMetadata(parseMetadata(snap.html));
     } catch (e) {
@@ -133,6 +140,8 @@ export const useFetchRender = () => {
     renderedHtml,
     metadata,
     logs,
+    status,
+    redirectChain,
     copyOutput,
     exportOutput,
   };

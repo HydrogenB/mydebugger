@@ -41,10 +41,14 @@ export const followRedirectChainRemote = async (
   initialUrl: string,
 ): Promise<RedirectHop[]> => {
   try {
+    // Normalize URL to include protocol; assume https if omitted
+    const normalized = (() => {
+      try { return new URL(initialUrl).toString(); } catch { return `https://${initialUrl}`; }
+    })();
     const res = await fetch('/api/deep-link-chain', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: initialUrl }),
+      body: JSON.stringify({ url: normalized }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();

@@ -89,7 +89,7 @@ export function DeepLinkChainView({
           </p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-col sm:flex-row">
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -100,7 +100,7 @@ export function DeepLinkChainView({
             type="button"
             onClick={run}
             disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg disabled:opacity-50 hover:bg-blue-700 transition-colors w-full sm:w-auto"
           >
             {loading ? 'Analyzing...' : '🔍 Trace Chain'}
           </button>
@@ -212,8 +212,8 @@ export function DeepLinkChainView({
             </div>
           )}
 
-          <div className="overflow-x-auto">
-          <table className="min-w-full text-sm border border-gray-200 dark:border-gray-700">
+           <div className="overflow-x-auto">
+          <table className="min-w-full text-xs sm:text-sm border border-gray-200 dark:border-gray-700">
             <thead>
               <tr className="border-b bg-gray-50 dark:bg-gray-900">
                 <th className="px-2 py-1 text-left">Hop</th>
@@ -230,7 +230,7 @@ export function DeepLinkChainView({
                     className={`border-b odd:bg-gray-50 dark:odd:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 ${realIndex === chain.length - 1 ? 'bg-green-50 dark:bg-green-900' : ''}`}
                   >
                     <td className="px-2 py-1">{realIndex + 1}</td>
-                    <td className="px-2 py-1 break-all font-mono text-xs">
+                    <td className="px-2 py-1 break-all font-mono text-[10px] sm:text-xs max-w-[18rem] sm:max-w-none">
                       <span title={h.url}>{truncateUrl(h.url)}</span>
                     </td>
                     <td className={`px-2 py-1 ${statusClass(h.status)}`}>{h.status ?? '—'}</td>

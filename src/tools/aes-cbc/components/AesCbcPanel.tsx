@@ -31,6 +31,7 @@ interface Props {
   setExampleIndex: (i: number | null) => void;
   setAlgorithm: (a: CryptoAlgorithm) => void;
   generateKeyPair: () => Promise<void>;
+  generateDemo: () => Promise<void>;
   saveCurrentKey: () => void;
   selectSavedKey: (index: number) => void;
   discardSavedKey: (index: number) => void;
@@ -65,6 +66,7 @@ export function AesCbcView({
   setExampleIndex,
   setAlgorithm,
   generateKeyPair,
+  generateDemo,
   saveCurrentKey,
   selectSavedKey,
   discardSavedKey,
@@ -81,7 +83,12 @@ export function AesCbcView({
 }: Props) {
   return (
     <div className={`${TOOL_PANEL_CLASS} space-y-4`}>
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Crypto Lab</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold heading-gradient">Crypto Lab</h2>
+        <div className="flex gap-2">
+          <Button size="sm" variant="secondary" onClick={generateDemo}>Generate Example</Button>
+        </div>
+      </div>
       {toastMessage && (
         <div
           role="status"

@@ -60,6 +60,7 @@ export const useAesCbc = () => {
   const [savedKeyPairs, setSavedKeyPairs] = useState<{ publicKey: string; privateKey: string }[]>([]);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('base64');
   const [toastMessage, setToastMessage] = useState('');
+  const [nonce, setNonce] = useState(0);
 
 
   useEffect(() => {
@@ -137,7 +138,7 @@ export const useAesCbc = () => {
     return () => {
       cancelled = true;
     };
-  }, [key, publicKey, privateKey, input, mode, algorithm, outputFormat]);
+  }, [key, publicKey, privateKey, input, mode, algorithm, outputFormat, nonce]);
 
   useEffect(() => {
     if (exampleIndex === null || algorithm !== 'aes-cbc') return;
@@ -179,6 +180,41 @@ export const useAesCbc = () => {
     } else {
       setKey(generateAesKey(32));
     }
+  };
+
+  // Generate a complete example scenario depending on algorithm and mode
+  const generateDemo = async () => {
+    setError('');
+    if (algorithm === 'aes-cbc' || algorithm === 'aes-gcm') {
+      const k = generateAesKey(32);
+      setKey(k);
+      const sample = `Hello ${Math.random().toString(36).slice(2, 8)}! ${new Date().toISOString()}`;
+      if (mode === 'encrypt') {
+        setInput(sample);
+      } else {
+        const enc = algorithm === 'aes-cbc'
+          ? await aes256CbcEncryptRandomIV(k, sample)
+          : await aes256GcmEncryptRandomIV(k, sample);
+        setInput(enc);
+      }
+    } else if (algorithm === 'rsa-oaep') {
+      const { publicKey: pub, privateKey: priv } = await generateRsaKeyPair();
+      setPublicKey(pub);
+      setPrivateKey(priv);
+      const sample = `Secret ${Math.random().toString(36).slice(2, 10)}`;
+      if (mode === 'encrypt') setInput(sample);
+      else setInput(await rsaOaepEncrypt(pub, sample));
+    } else if (algorithm === 'gpg-rsa-2048') {
+      const { publicKey: pub, privateKey: priv } = await generateGpgKeyPair();
+      setPublicKey(pub);
+      setPrivateKey(priv);
+      const sample = `GPG ${Math.random().toString(36).slice(2, 10)}`;
+      if (mode === 'encrypt') setInput(sample);
+      else setInput(await gpgEncrypt(pub, sample));
+    }
+    // Nudge effect to recompute immediately
+    setNonce(n => n + 1);
+    setToastMessage('Example generated');
   };
 
   const saveCurrentKey = () => {
@@ -254,6 +290,7 @@ export const useAesCbc = () => {
     setPublicKey,
     setPrivateKey,
     generateKeyPair,
+    generateDemo,
     saveCurrentKey,
     selectSavedKey,
     discardSavedKey,

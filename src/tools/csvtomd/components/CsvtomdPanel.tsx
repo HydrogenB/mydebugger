@@ -46,7 +46,7 @@ export function CsvtomdView({
             className="w-full border px-2 py-1 rounded font-mono"
             placeholder="Paste CSV here"
           />
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
             <input
               type="file"
               accept=".csv,text/csv"
@@ -67,6 +67,7 @@ export function CsvtomdView({
               ]}
               className="w-28"
             />
+            <span className="text-xs text-gray-500">Auto-detected when pasting.</span>
           </div>
           {alignment.length > 0 && (
             <div className="flex flex-wrap gap-2 text-sm">
@@ -88,7 +89,7 @@ export function CsvtomdView({
           {markdown ? (
             <>
               <CodeBlock maxHeight="20rem">{markdown}</CodeBlock>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <Button size="sm" onClick={copyMarkdown}>Copy</Button>
                 <Button size="sm" variant="secondary" onClick={downloadMarkdown}>
                   Download

@@ -44,7 +44,14 @@ export function CookieScopeView({
       .join(' ');
   return (
     <div className={TOOL_PANEL_CLASS}>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Cookie Scope</h2>
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+        <h2 className="text-2xl font-bold heading-gradient">Cookie Scope</h2>
+        <div className="flex gap-2 w-full sm:w-auto order-3 sm:order-none">
+          <button type="button" className="px-3 py-2 bg-primary-500 text-white rounded w-full sm:w-auto" onClick={exportJson}>Download JSON</button>
+          <button type="button" className="px-3 py-2 bg-primary-500 text-white rounded w-full sm:w-auto" onClick={exportHar}>Download HAR</button>
+          <button type="button" className="px-3 py-2 bg-primary-500 text-white rounded w-full sm:w-auto" onClick={() => copy(JSON.stringify(cookies, null, 2))}>Copy JSON</button>
+        </div>
+      </div>
       <div className="flex flex-col sm:flex-row sm:items-center mb-4 gap-2">
         <input
           type="text"
@@ -64,27 +71,6 @@ export function CookieScopeView({
           />
           Show HttpOnly
         </label>
-        <button
-          type="button"
-          className="px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 focus:ring"
-          onClick={exportJson}
-        >
-          Download JSON
-        </button>
-        <button
-          type="button"
-          className="px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 focus:ring"
-          onClick={exportHar}
-        >
-          Download HAR
-        </button>
-        <button
-          type="button"
-          className="px-3 py-2 bg-primary-500 text-white rounded hover:bg-primary-600 focus:ring"
-          onClick={() => copy(JSON.stringify(cookies, null, 2))}
-        >
-          Copy JSON
-        </button>
       </div>
       {toastMessage && (
         <div className="fixed top-20 right-4 z-50 bg-gray-800 text-white px-4 py-2 rounded-md shadow-lg animate-fade-in-out">
@@ -92,7 +78,7 @@ export function CookieScopeView({
         </div>
       )}
       <div className="overflow-x-auto max-h-96">
-        <table className="min-w-full text-sm text-left text-gray-700 dark:text-gray-200">
+        <table className="min-w-full text-xs sm:text-sm text-left text-gray-700 dark:text-gray-200">
           <thead className="sticky top-0 bg-gray-100 dark:bg-gray-700 z-10">
             <tr>
               <th className="px-2 py-1">Name</th>
@@ -111,8 +97,8 @@ export function CookieScopeView({
                 key={`${c.name}-${c.domain ?? 'd'}-${c.path ?? 'p'}`}
                 className={`border-b dark:border-gray-700 ${getRowClassName(c.name)}`}
               >
-                <td className="px-2 py-1 break-all">{c.name}</td>
-                <td className="px-2 py-1 break-all">{c.value}</td>
+                <td className="px-2 py-1 break-all max-w-[10rem] sm:max-w-none">{c.name}</td>
+                <td className="px-2 py-1 break-all max-w-[18rem] sm:max-w-none">{c.value}</td>
                 <td className="px-2 py-1">{c.domain ?? '-'}</td>
                 <td className="px-2 py-1">{c.path ?? '-'}</td>
                 <td className="px-2 py-1">{c.sameSite ?? '-'}</td>

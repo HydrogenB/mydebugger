@@ -99,3 +99,4 @@ export const pageSEO: Record<string, SEOConfig> = {
 export type { SEOConfig as TSEOConfig };
 
 
+
