@@ -46,9 +46,11 @@ export const analyzeHeaders = async (
 ): Promise<HeaderAuditResult[]> => {
   if (typeof urlOrHeaders !== 'string') {
     // Support tests passing Headers directly
-    const headers = urlOrHeaders;
+    const headersMap: Record<string, string> = urlOrHeaders instanceof Headers
+      ? Object.fromEntries(Array.from(urlOrHeaders.entries()))
+      : (urlOrHeaders as any);
     return securityHeaders.map((name) => {
-      const value = headers.get(name);
+      const value = (headersMap as any)[name] ?? (headersMap as any)[name.toLowerCase()] ?? null;
       if (!value) return { name, value: null, status: 'missing' as const, fix: rules[name].fix };
       return { name, value, status: rules[name].check(value) ? 'ok' : 'warning', fix: rules[name].fix };
     });

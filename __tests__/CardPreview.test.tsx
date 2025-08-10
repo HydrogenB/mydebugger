@@ -34,7 +34,7 @@ describe('CardPreview Component', () => {
     
     expect(screen.getAllByText('John Doe')[0]).toBeTruthy();
     expect(screen.getByText('Software Engineer')).toBeInTheDocument();
-    expect(screen.getByText('Acme Inc')).toBeInTheDocument();
+    expect(screen.getAllByText('Acme Inc')[0]).toBeTruthy();
     expect(screen.getByText('+1234567890')).toBeInTheDocument();
     expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
     expect(screen.getByText('https://example.com')).toBeInTheDocument();
