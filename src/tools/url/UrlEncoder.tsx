@@ -1,7 +1,9 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { TOOL_PANEL_CLASS } from '@design-system';
-import { Tooltip } from '@design-system';
+import { TOOL_PANEL_CLASS, Tooltip } from '@design-system';
 
 const clsx = (...c: Array<string | false | null | undefined>) =>
   c.filter(Boolean).join(' ');
@@ -104,10 +106,6 @@ const UrlEncoder: React.FC = () => {
   const handleReset = () => {
     setInput('');
     setOutput('');
-  };
-  
-  const toggleMode = () => {
-    setMode(prev => prev === 'encode' ? 'decode' : 'encode');
   };
   
   // SEO metadata
