@@ -13,9 +13,9 @@ import QRCodeStyling, {
 } from "qr-code-styling";
 import { QR_PRESETS, getPresetByName } from "./lib/qrcodePresets";
 import { useLocation, useNavigate } from "react-router-dom";
-import { qrStylePresets } from "./lib/qrStylePresets";
 import { convertPngToPdf, QRDownloadFormat } from "./lib/qrcode";
 import { generateICalEvent } from "./lib/ical";
+import { useTranslation } from "../../context/TranslationContext";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -55,7 +55,8 @@ const DeepLinkQRGenerator: React.FC = () => {
   const [logoSize, setLogoSize] = useState<number>(20); // percent
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [presetIndex, setPresetIndex] = useState<number>(-1);
+  // i18n
+  const { t, language } = useTranslation();
   const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [downloadFormat, setDownloadFormat] = useState<QRDownloadFormat>('png');
@@ -569,18 +570,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   };
 
-  const handlePresetChange = (index: number) => {
-    setPresetIndex(index);
-    const preset = qrStylePresets[index];
-    if (!preset) return;
-    if (preset.start && preset.end) {
-      setDarkColor(preset.start);
-      setLightColor(preset.end);
-    } else {
-      if (preset.darkColor) setDarkColor(preset.darkColor);
-      if (preset.lightColor) setLightColor(preset.lightColor);
-    }
-  };
+  // removed legacy style preset dropdown in favor of a single, modern preset selector
 
   const handleReset = () => {
     setInput("");
@@ -693,55 +683,66 @@ const DeepLinkQRGenerator: React.FC = () => {
   }, [modalRef]);
 
   // SEO metadata
-  const pageTitle = "Deep-Link Tester & QR Generator | MyDebugger";
-  const pageDescription =
-    "Generate QR codes for links & deeplinks, test them directly and share with your team.";
+  const pageTitle = t("tools.qrcode-generator.title", "Deep-Link Tester & QR Generator") + " | MyDebugger";
+  const pageDescription = t(
+    "tools.qrcode-generator.description",
+    "Generate QR codes for links & deeplinks, test them directly and share with your team."
+  );
 
   return (
     <>
       <Helmet>
-        <title>
-          Deep-Link Tester & QR Code Generator for iOS & Android Apps
-        </title>
+        <title>{t('tools.qrcode-generator.title', 'Deep-Link Tester & QR Generator')} – iOS & Android</title>
         <meta
           name="description"
-          content="Test mobile deep links instantly and generate QR codes for iOS/Android schemes like trueapp:// or custom URLs. Share encoded links with your team easily."
+          content={t('qrcode.meta.description', 'Test deep links instantly and generate beautiful, share-ready QR codes with gradients and logos. Works with custom schemes like myapp:// and https:// URLs.')}
         />
+        <meta name="keywords" content="qr, qr code, generator, deeplink, url, ios, android, gradient qr, logo qr, svg, pdf" />
         <meta
           property="og:title"
-          content="Deep-Link Tester & QR Generator – MyDebugger"
+          content={`${t('tools.qrcode-generator.title', 'Deep-Link Tester & QR Generator')} – MyDebugger`}
         />
         <meta
           property="og:description"
-          content="Create deep link QR codes, auto-encode safe URLs, and run links on devices. Built for mobile app teams."
+          content={t('qrcode.meta.og', 'Create deep link QR codes, auto-encode safe URLs, and run links on devices. Built for modern teams.')}
         />
         <meta property="og:image" content="/og-deeplink-preview.png" />
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href="https://mydebugger.vercel.app/qrcode" />
+        <link rel="alternate" href="https://mydebugger.vercel.app/qrcode" hrefLang="en" />
+        <link rel="alternate" href="https://mydebugger.vercel.app/qrcode" hrefLang="th" />
+        <meta property="og:locale" content={language === 'th' ? 'th_TH' : 'en_US'} />
+        <meta property="og:locale:alternate" content={language === 'th' ? 'en_US' : 'th_TH'} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "WebApplication",
-            name: "Deep-Link Tester & QR Generator",
+            "@type": ["WebApplication", "SoftwareApplication"],
+            name: t('tools.qrcode-generator.title', 'Deep-Link Tester & QR Generator'),
             url: "https://mydebugger.vercel.app/qrcode",
             applicationCategory: "DeveloperTool",
-            description:
-              "Test and share mobile deep links with QR code generation for iOS and Android apps.",
+            description: pageDescription,
             creator: { "@type": "Person", name: "Jirad Sreerattana-arporn" },
+            offers: { "@type": "Offer", price: 0, priceCurrency: "USD" },
+            operatingSystem: "Web"
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: t('qrcode.howto.title', 'How to generate a QR code'),
+            step: [
+              { "@type": "HowToStep", name: t('qrcode.howto.step1', 'Enter a URL or choose a type') },
+              { "@type": "HowToStep", name: t('qrcode.howto.step2', 'Pick a style preset or colors') },
+              { "@type": "HowToStep", name: t('qrcode.howto.step3', 'Download as PNG, SVG or PDF') }
+            ]
           })}
         </script>
       </Helmet>
 
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">
-          Deep-Link Tester & QR Generator
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Generate QR codes for any URL or mobile deep link (e.g,
-          <code>myapp://</code> or <code>https://</code>). This tool auto-encodes
-          query parameters, previews safe links, and lets you test instantly on
-          your own device.
-        </p>
+        <h1 className="text-3xl font-bold mb-2">{t('tools.qrcode-generator.title', 'Deep-Link Tester & QR Generator')}</h1>
+        <p className="text-gray-600 mb-8">{t('qrcode.lede', 'Generate QR codes for any URL or deeplink. Auto-encode queries, preview safe links, and test instantly on your device.')}</p>
 
         {/* Toast Message */}
         {toastMessage && (
@@ -757,7 +758,7 @@ const DeepLinkQRGenerator: React.FC = () => {
               className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
             >
               <label htmlFor="qrType" className="block font-medium text-gray-700 mb-2">
-                QR Code Type
+                {t('qrcode.type', 'QR Code Type')}
               </label>
               <select
                 id="qrType"
@@ -765,18 +766,18 @@ const DeepLinkQRGenerator: React.FC = () => {
                 value={qrType}
                 onChange={(e) => setQrType(e.target.value)}
               >
-                <option value="link">Link</option>
-                <option value="text">Text</option>
-                <option value="phone">Phone</option>
-                <option value="wifi">Wi-Fi</option>
-                <option value="geo">Geo</option>
-                <option value="calendar">Calendar</option>
+                <option value="link">{t('qrcode.types.link', 'Link')}</option>
+                <option value="text">{t('qrcode.types.text', 'Text')}</option>
+                <option value="phone">{t('qrcode.types.phone', 'Phone')}</option>
+                <option value="wifi">{t('qrcode.types.wifi', 'Wi‑Fi')}</option>
+                <option value="geo">{t('qrcode.types.geo', 'Geo')}</option>
+                <option value="calendar">{t('qrcode.types.calendar', 'Calendar')}</option>
               </select>
 
               {qrType === 'link' && (
                 <>
                   <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
-                    URL or Deeplink
+                    {t('qrcode.urlOrDeeplink', 'URL or Deeplink')}
                   </label>
                   <input
                     type="text"
@@ -800,9 +801,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       checked={autoEncode}
                       onChange={(e) => setAutoEncode(e.target.checked)}
                     />
-                    <span className="ml-2 text-sm text-gray-700">
-                      Auto-encode query params
-                    </span>
+                    <span className="ml-2 text-sm text-gray-700">{t('qrcode.autoEncode', 'Auto‑encode query params')}</span>
                   </label>
                 </>
               )}
@@ -1004,9 +1003,7 @@ const DeepLinkQRGenerator: React.FC = () => {
               {/* Encoded URL Display */}
               {qrType === 'link' && encodedLink && (
                 <div className="mt-2 mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Percent-Encoded (Safe for Sharing)
-                  </label>
+                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.encoded', 'Percent‑Encoded (Safe for Sharing)')}</label>
                   <div className="flex">
                     <input
                       type="text"
@@ -1063,7 +1060,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"
                     />
                   </svg>
-                  Copy Raw Link
+                  {t('qrcode.buttons.copyRawLink', 'Copy Raw Link')}
                 </button>
                 {qrType === 'link' && (
                 <button
@@ -1088,7 +1085,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                     />
                   </svg>
-                  Share Page with Link Pre-filled
+                  {t('qrcode.buttons.sharePage', 'Share Page with Link Pre‑filled')}
                 </button>
                 )}
               </div>
@@ -1123,10 +1120,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                     />
                   </svg>
                   {isRunningLink
-                    ? "Opening..."
+                    ? t('qrcode.buttons.opening', 'Opening...')
                     : isMobile
-                      ? `Open on ${mobileOS || "Device"}`
-                      : "Run on This Device"}
+                      ? `${t('qrcode.buttons.openOn', 'Open on')} ${mobileOS || t('qrcode.buttons.device','Device')}`
+                      : t('qrcode.buttons.runOnThisDevice', 'Run on This Device')}
                 </button>
                 )}
                 <button
@@ -1146,7 +1143,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                     />
                   </svg>
-                  Reset
+                  {t('qrcode.buttons.reset', 'Reset')}
                 </button>
               </div>
 
@@ -1176,33 +1173,13 @@ const DeepLinkQRGenerator: React.FC = () => {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                    Customize QR Code
+                    {t('qrcode.customize', 'Customize QR Code')}
                   </span>
                 </summary>
 
                 <div className="pt-4 rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm">
                   <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label
-                      htmlFor="stylePreset"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Style Preset
-                    </label>
-                    <select
-                      id="stylePreset"
-                      className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                      value={presetIndex}
-                      onChange={(e) => handlePresetChange(parseInt(e.target.value, 10))}
-                    >
-                      <option value={-1}>Custom</option>
-                      {qrStylePresets.map((p, i) => (
-                        <option key={p.name} value={i}>
-                          {`${p.group} – ${p.name}`}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* Legacy preset selector removed. The main preset selector below is now the primary control. */}
 
                   <div>
                     <label
@@ -1234,7 +1211,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         htmlFor="errorCorrection"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Error Correction
+                        {t('qrcode.errorCorrection', 'Error Correction')}
                       </label>
                       <select
                         id="errorCorrection"
@@ -1244,10 +1221,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                           setErrorCorrection(e.target.value as ErrorCorrectionLevel)
                         }
                       >
-                        <option value="L">Low (7%)</option>
-                        <option value="M">Medium (15%)</option>
-                        <option value="Q">Quartile (25%)</option>
-                        <option value="H">High (30%)</option>
+                        <option value="L">{t('qrcode.ec.low', 'Low (7%)')}</option>
+                        <option value="M">{t('qrcode.ec.medium', 'Medium (15%)')}</option>
+                        <option value="Q">{t('qrcode.ec.quartile', 'Quartile (25%)')}</option>
+                        <option value="H">{t('qrcode.ec.high', 'High (30%)')}</option>
                       </select>
                     </div>
                     <div>
@@ -1255,7 +1232,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         htmlFor="preset"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Quick Style Preset
+                        {t('qrcode.stylePreset', 'Style Preset')}
                       </label>
                       <select
                         id="preset"
@@ -1276,7 +1253,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                           }
                         }}
                       >
-                        <option value="">Custom...</option>
+                        <option value="">{t('qrcode.custom', 'Custom...')}</option>
                         {QR_PRESETS.map((p) => (
                           <option key={p.name} value={p.name}>{p.name}</option>
                         ))}
@@ -1290,7 +1267,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         htmlFor="darkColor"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Dark Color
+                        {t('qrcode.darkColor', 'Dark Color')}
                       </label>
                       <div className="flex items-center">
                         <input
@@ -1314,7 +1291,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         htmlFor="lightColor"
                         className="block text-sm font-medium text-gray-700 mb-1"
                       >
-                        Light Color
+                        {t('qrcode.lightColor', 'Light Color')}
                       </label>
                       <div className="flex items-center">
                         <input
@@ -1370,29 +1347,29 @@ const DeepLinkQRGenerator: React.FC = () => {
                   </div>
 
                   <div className="mt-3 rounded-lg border border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-900/30">
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">Gradient</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">{t('qrcode.gradient', 'Gradient')}</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="gradientStart" className="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                        <label htmlFor="gradientStart" className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.start', 'Start')}</label>
                         <input type="color" id="gradientStart" className="h-9 w-9 rounded-md border border-gray-300 dark:border-gray-700" value={gradientStart} onChange={(e) => setGradientStart(e.target.value)} />
                       </div>
                       <div>
-                        <label htmlFor="gradientEnd" className="block text-sm font-medium text-gray-700 mb-1">End</label>
+                        <label htmlFor="gradientEnd" className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.end', 'End')}</label>
                         <input type="color" id="gradientEnd" className="h-9 w-9 rounded-md border border-gray-300 dark:border-gray-700" value={gradientEnd} onChange={(e) => setGradientEnd(e.target.value)} />
                       </div>
                     </div>
                     <div className="mt-3">
-                      <label htmlFor="gradientAngle" className="block text-sm font-medium text-gray-700 mb-1">Angle ({gradientAngle}°)</label>
+                      <label htmlFor="gradientAngle" className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.angle', 'Angle')} ({gradientAngle}°)</label>
                       <input type="range" id="gradientAngle" min="0" max="360" value={gradientAngle} onChange={(e) => setGradientAngle(parseInt(e.target.value))} className="w-full accent-blue-500" />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="logoUpload" className="block text-sm font-medium text-gray-700 mb-1">Center Logo</label>
+                    <label htmlFor="logoUpload" className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.centerLogo', 'Center Logo')}</label>
                     <input type="file" id="logoUpload" accept="image/*" onChange={handleLogoUpload} className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer" />
                   </div>
                   <div>
-                    <label htmlFor="logoSize" className="block text-sm font-medium text-gray-700 mb-1">Logo Size ({logoSize}%)</label>
+                    <label htmlFor="logoSize" className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.logoSize', 'Logo Size')} ({logoSize}%)</label>
                     <input type="range" id="logoSize" min="0" max="30" value={logoSize} onChange={(e) => setLogoSize(parseInt(e.target.value))} className="w-full accent-blue-500" />
                   </div>
                   </div>
@@ -1407,7 +1384,7 @@ const DeepLinkQRGenerator: React.FC = () => {
               className={`border border-gray-200 h-full flex flex-col ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
             >
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">QR Code Preview</h2>
+                <h2 className="text-xl font-semibold">{t('qrcode.preview', 'QR Code Preview')}</h2>
               </div>
 
               <div className="flex-1 flex flex-col items-center justify-center p-4 rounded bg-gray-50 border border-gray-100 mb-4">
@@ -1440,7 +1417,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
                       />
                     </svg>
-                    <p>Enter a URL or deeplink to generate QR code</p>
+                    <p>{t('qrcode.empty', 'Enter a URL or deeplink to generate QR code')}</p>
                   </div>
                 )}
               </div>
@@ -1467,7 +1444,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    Copy QR Image
+                    {t('qrcode.buttons.copyImage', 'Copy QR Image')}
                   </button>
                   <div className="flex gap-2">
                     <select
@@ -1496,7 +1473,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                           d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                         />
                       </svg>
-                      Download
+                      {t('qrcode.buttons.download', 'Download')}
                     </button>
                   </div>
                   <button
@@ -1516,7 +1493,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
-                    Save to My Collection
+                    {t('qrcode.buttons.save', 'Save to My Collection')}
                   </button>
                 </div>
               )}
@@ -1526,7 +1503,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
         {/* Usage Tips */}
         <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">Deep-Link Testing Tips</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('qrcode.tips', 'Deep‑Link Testing Tips')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-md border border-gray-200">
               <div className="text-blue-500 mb-3">
