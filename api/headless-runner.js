@@ -2,7 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { puppeteerProbeHandler } from './probe-engine/puppeteerProbeLib.js';
-import { runSingleScenario, runMultipleScenarios } from './probe-engine/runScenario.js';
+import { runMultipleScenarios } from './probe-engine/runScenario.js';
 
 export default async function handler(req, res) {
   const { type } = req.body || {};
