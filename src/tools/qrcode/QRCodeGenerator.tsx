@@ -1147,6 +1147,40 @@ const DeepLinkQRGenerator: React.FC = () => {
                 </button>
               </div>
 
+              {/* Prominent Style Preset outside accordion */}
+              <div className="mt-6">
+                <label
+                  htmlFor="preset-main"
+                  className="block text-base font-semibold text-gray-800 dark:text-gray-100 mb-2"
+                >
+                  {t('qrcode.stylePreset', 'Style Preset')}
+                </label>
+                <select
+                  id="preset-main"
+                  className="w-full h-12 text-base rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                  value={selectedPreset || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setSelectedPreset(val || null);
+                    const preset = getPresetByName(val);
+                    if (preset) {
+                      setDarkColor(preset.darkColor);
+                      setLightColor(preset.lightColor);
+                      setDotStyle(preset.dotStyle);
+                      setEyeStyle(preset.eyeStyle);
+                      setGradientStart(preset.gradient?.start || preset.darkColor);
+                      setGradientEnd(preset.gradient?.end || preset.darkColor);
+                      setGradientAngle(preset.gradient?.angle || 0);
+                    }
+                  }}
+                >
+                  <option value="">{t('qrcode.custom', 'Custom...')}</option>
+                  {QR_PRESETS.map((p) => (
+                    <option key={p.name} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
               {/* Collapsible Cosmetic Options */}
               <details
                 className="mt-6 group"
@@ -1227,38 +1261,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                         <option value="H">{t('qrcode.ec.high', 'High (30%)')}</option>
                       </select>
                     </div>
-                    <div>
-                      <label
-                        htmlFor="preset"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        {t('qrcode.stylePreset', 'Style Preset')}
-                      </label>
-                      <select
-                        id="preset"
-                        className="w-full rounded-md border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                        value={selectedPreset || ""}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setSelectedPreset(val || null);
-                          const preset = getPresetByName(val);
-                          if (preset) {
-                            setDarkColor(preset.darkColor);
-                            setLightColor(preset.lightColor);
-                            setDotStyle(preset.dotStyle);
-                            setEyeStyle(preset.eyeStyle);
-                            setGradientStart(preset.gradient?.start || preset.darkColor);
-                            setGradientEnd(preset.gradient?.end || preset.darkColor);
-                            setGradientAngle(preset.gradient?.angle || 0);
-                          }
-                        }}
-                      >
-                        <option value="">{t('qrcode.custom', 'Custom...')}</option>
-                        {QR_PRESETS.map((p) => (
-                          <option key={p.name} value={p.name}>{p.name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
