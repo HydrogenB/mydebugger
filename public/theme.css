@@ -1,0 +1,50 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+:root[data-theme="dark"]{
+  /* Surfaces */
+  --bg: #0B1220;
+  --bg-muted: #0E1626;
+  --surface-1: #111A2B;
+  --surface-2: #152035;
+  --surface-3: #1B2946;
+
+  /* Text */
+  --text: #E6EDF7;
+  --text-muted: #A8B3C7;
+  --text-subtle: #7B8AA5;
+
+  /* Brand & status */
+  --primary: #8EA2FF;
+  --accent: #A78BFA;
+  --success: #34D399;
+  --warning: #FBBF24;
+  --danger:  #F87171;
+  --info:    #60A5FA;
+
+  /* UI chrome */
+  --border: #24324A;
+  --divider: #1E2A44;
+  --ring: #93C5FD;
+  --shadow-1: 0 1px 2px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03);
+  --shadow-2: 0 8px 24px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+
+  /* Component states (overlay lightening on dark) */
+  --hover-overlay: rgba(255,255,255,.03);
+  --active-overlay: rgba(255,255,255,.06);
+  --focus-overlay: rgba(147,197,253,.15);
+
+  /* Badges & chips (tinted on dark) */
+  --badge-bg: rgba(99,102,241,.16);
+  --beta-bg:  rgba(251,191,36,.16);
+  --testing-bg: rgba(96,165,250,.16);
+}
+
+body[data-theme="dark"]{
+  background:
+    radial-gradient(1200px 600px at 20% -10%, #0E1626 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #0D1528 0%, transparent 55%),
+    var(--bg);
+  color: var(--text);
+}
+
