@@ -1,8 +1,8 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Helmet } from 'react-helmet';
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Helmet } from "react-helmet";
 
 // Contact Info Interface
 interface ContactInfo {
@@ -18,13 +18,13 @@ interface ContactInfo {
 
 // VirtualCard Model Functions
 const generateVCard = (info: ContactInfo): string => {
-  let vcard = 'BEGIN:VCARD\nVERSION:3.0\n';
-  
+  let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
+
   if (info.fullName) {
     vcard += `FN:${info.fullName}\n`;
-    const names = info.fullName.split(' ');
-    const lastName = names.pop() || '';
-    const firstName = names.join(' ');
+    const names = info.fullName.split(" ");
+    const lastName = names.pop() || "";
+    const firstName = names.join(" ");
     vcard += `N:${lastName};${firstName};;;\n`;
   }
   if (info.organization) vcard += `ORG:${info.organization}\n`;
@@ -34,8 +34,8 @@ const generateVCard = (info: ContactInfo): string => {
   if (info.website) vcard += `URL:${info.website}\n`;
   if (info.address) vcard += `ADR:;;${info.address};;;;\n`;
   if (info.customEmoji) vcard += `NOTE:${info.customEmoji}\n`;
-  
-  vcard += 'END:VCARD';
+
+  vcard += "END:VCARD";
   return vcard;
 };
 
@@ -53,20 +53,20 @@ const decodeContactData = (data: string): ContactInfo | null => {
 
 // Main Hook - useVirtualCard
 const useVirtualCard = () => {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [organization, setOrganization] = useState('');
-  const [title, setTitle] = useState('');
-  const [website, setWebsite] = useState('');
-  const [address, setAddress] = useState('');
-  const [customEmoji, setCustomEmoji] = useState('💼');
-  const [vcard, setVcard] = useState('');
-  const [qrDataUrl, setQrDataUrl] = useState('');
-  const [shareUrl, setShareUrl] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [organization, setOrganization] = useState("");
+  const [title, setTitle] = useState("");
+  const [website, setWebsite] = useState("");
+  const [address, setAddress] = useState("");
+  const [customEmoji, setCustomEmoji] = useState("💼");
+  const [vcard, setVcard] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [shareUrl, setShareUrl] = useState("");
   const [showRaw, setShowRaw] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [viewOnly, setViewOnly] = useState(false);
   const heroRef = useRef<any>(null);
   const flipTimer = useRef<number>();
@@ -74,29 +74,29 @@ const useVirtualCard = () => {
   const updateOutputs = async (info: ContactInfo) => {
     const card = generateVCard(info);
     setVcard(card);
-    
+
     // Generate QR code using canvas (simple implementation)
     try {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = 200;
       canvas.height = 200;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (ctx) {
         // Simple QR placeholder - in production, use a proper QR library
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, 200, 200);
-        ctx.fillStyle = '#000000';
-        ctx.font = '12px monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('QR Code', 100, 100);
-        ctx.font = '10px monospace';
-        ctx.fillText('(Install qrcode lib)', 100, 120);
+        ctx.fillStyle = "#000000";
+        ctx.font = "12px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("QR Code", 100, 100);
+        ctx.font = "10px monospace";
+        ctx.fillText("(Install qrcode lib)", 100, 120);
         setQrDataUrl(canvas.toDataURL());
       }
     } catch {
-      setQrDataUrl('');
+      setQrDataUrl("");
     }
-    
+
     const encoded = encodeContactData(info);
     const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
     setShareUrl(url);
@@ -104,18 +104,18 @@ const useVirtualCard = () => {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const data = params.get('data');
+    const data = params.get("data");
     if (data) {
       const decoded = decodeContactData(data);
       if (decoded) {
-        setFullName(decoded.fullName || '');
-        setPhone(decoded.phone || '');
-        setEmail(decoded.email || '');
-        setOrganization(decoded.organization || '');
-        setTitle(decoded.title || '');
-        setWebsite(decoded.website || '');
-        setAddress(decoded.address || '');
-        setCustomEmoji(decoded.customEmoji || '💼');
+        setFullName(decoded.fullName || "");
+        setPhone(decoded.phone || "");
+        setEmail(decoded.email || "");
+        setOrganization(decoded.organization || "");
+        setTitle(decoded.title || "");
+        setWebsite(decoded.website || "");
+        setAddress(decoded.address || "");
+        setCustomEmoji(decoded.customEmoji || "💼");
         setViewOnly(true);
       }
     }
@@ -132,70 +132,87 @@ const useVirtualCard = () => {
       address,
       customEmoji,
     };
-    if (fullName || phone || email || organization || title || website || address) {
+    if (
+      fullName ||
+      phone ||
+      email ||
+      organization ||
+      title ||
+      website ||
+      address
+    ) {
       updateOutputs(info);
     } else {
-      setVcard('');
-      setQrDataUrl('');
-      setShareUrl('');
+      setVcard("");
+      setQrDataUrl("");
+      setShareUrl("");
     }
-  }, [fullName, phone, email, organization, title, website, address, customEmoji]);
+  }, [
+    fullName,
+    phone,
+    email,
+    organization,
+    title,
+    website,
+    address,
+    customEmoji,
+  ]);
 
   useEffect(() => {
     if (!toastMessage) return undefined;
-    const t = window.setTimeout(() => setToastMessage(''), 3000);
+    const t = window.setTimeout(() => setToastMessage(""), 3000);
     return () => clearTimeout(t);
   }, [toastMessage]);
 
   const download = () => {
-    const blob = new Blob([vcard], { type: 'text/vcard' });
+    const blob = new Blob([vcard], { type: "text/vcard" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `${fullName || 'contact'}.vcf`;
+    link.download = `${fullName || "contact"}.vcf`;
     link.click();
     URL.revokeObjectURL(url);
-    setToastMessage('บันทึกรายชื่อแล้ว! 📥 Contact saved!');
+    setToastMessage("บันทึกรายชื่อแล้ว! 📥 Contact saved!");
   };
 
   const downloadQr = () => {
     if (!qrDataUrl) return;
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = qrDataUrl;
-    link.download = 'qr.png';
+    link.download = "qr.png";
     link.click();
-    setToastMessage('บันทึก QR แล้ว! 📷 QR saved!');
+    setToastMessage("บันทึก QR แล้ว! 📷 QR saved!");
   };
 
   const downloadImage = async () => {
-    setToastMessage('กำลังบันทึกรูป... 🖼️ Saving image...');
+    setToastMessage("กำลังบันทึกรูป... 🖼️ Saving image...");
     // In production, use html-to-image library
     setTimeout(() => {
-      setToastMessage('บันทึกรูปสำเร็จ! ✅ Image saved!');
+      setToastMessage("บันทึกรูปสำเร็จ! ✅ Image saved!");
     }, 1000);
   };
 
   const copyLink = async () => {
     if (shareUrl) {
       await navigator.clipboard.writeText(shareUrl);
-      setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      setToastMessage("คัดลอกลิงก์แล้ว! 🔗 Link copied!");
     }
   };
 
   const copyVcard = async () => {
     if (vcard) {
       await navigator.clipboard.writeText(vcard);
-      setToastMessage('คัดลอกข้อมูลแล้ว! 📋 Info copied!');
+      setToastMessage("คัดลอกข้อมูลแล้ว! 📋 Info copied!");
     }
   };
 
   const shareCard = async () => {
     if (navigator.share && shareUrl) {
       try {
-        await navigator.share({ 
+        await navigator.share({
           url: shareUrl,
-          title: `นามบัตรของ ${fullName || 'Digital Card'}`,
-          text: `บันทึกข้อมูลติดต่อของ ${fullName || 'me'}`
+          title: `นามบัตรของ ${fullName || "Digital Card"}`,
+          text: `บันทึกข้อมูลติดต่อของ ${fullName || "me"}`,
         });
         return;
       } catch {
@@ -204,7 +221,7 @@ const useVirtualCard = () => {
     }
     if (shareUrl) {
       await navigator.clipboard.writeText(shareUrl);
-      setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      setToastMessage("คัดลอกลิงก์แล้ว! 🔗 Link copied!");
     }
   };
 
@@ -262,7 +279,9 @@ const useVirtualCard = () => {
 };
 
 // VirtualCardView Component (embedded for single file)
-const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => {
+const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (
+  props,
+) => {
   const {
     fullName,
     setFullName,
@@ -300,29 +319,52 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
         <h1 className="text-center text-3xl md:text-4xl font-extrabold heading-gradient mb-6">
           นามบัตรดิจิทัล 💳 Virtual Business Card
         </h1>
-        
-        <div className={`grid gap-6 ${viewOnly ? 'grid-cols-1' : 'md:grid-cols-2'}`}>
+
+        <div
+          className={`grid gap-6 ${viewOnly ? "grid-cols-1" : "md:grid-cols-2"}`}
+        >
           {/* Form Section */}
           {!viewOnly && (
             <div className="card-ambient rounded-2xl p-6">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">ข้อมูลส่วนตัว / Personal Info</h2>
-              
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                ข้อมูลส่วนตัว / Personal Info
+              </h2>
+
               <div className="mb-3">
                 <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">
                   ชื่อ-นามสกุล / Full Name
                 </label>
-                <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="สมชาย ใจดี / Somchai Jaidee" className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="สมชาย ใจดี / Somchai Jaidee"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
               </div>
 
               <div className="mb-3">
                 <label className="block mb-1 font-medium text-gray-700 dark:text-gray-300">
                   โทรศัพท์ / Phone
                 </label>
-                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+66 81 234 5678 / 081-234-5678" className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+66 81 234 5678 / 081-234-5678"
+                  className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   อีเมล / Email
                 </label>
                 <input
@@ -330,12 +372,24 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="somchai@example.co.th"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   บริษัท/องค์กร / Organization
                 </label>
                 <input
@@ -343,12 +397,24 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={organization}
                   onChange={(e) => setOrganization(e.target.value)}
                   placeholder="บริษัท ไทยเจริญ จำกัด / Thai Charoen Co., Ltd."
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   ตำแหน่ง / Job Title
                 </label>
                 <input
@@ -356,12 +422,24 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="ผู้จัดการฝ่ายขาย / Sales Manager"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   เว็บไซต์ / Website
                 </label>
                 <input
@@ -369,12 +447,24 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
                   placeholder="https://www.example.co.th"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   ที่อยู่ / Address
                 </label>
                 <input
@@ -382,12 +472,24 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="123 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold', color: '#555' }}>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: "bold",
+                    color: "#555",
+                  }}
+                >
                   อีโมจิประจำตัว / Custom Emoji
                 </label>
                 <input
@@ -395,23 +497,58 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
                   value={customEmoji}
                   onChange={(e) => setCustomEmoji(e.target.value)}
                   placeholder="💼 (ใส่อีโมจิที่ชอบ / Add your favorite emoji)"
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1.5rem' }}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: "8px",
+                    border: "1px solid #ddd",
+                    fontSize: "1.5rem",
+                  }}
                   maxLength={5}
                 />
-                <small style={{ color: '#888' }}>
+                <small style={{ color: "#888" }}>
                   ลองใส่: 🇹🇭 🙏 🐘 🌺 🥭 🍜 🏝️ 🛺 🎭 🏛️
                 </small>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                <button onClick={download} className="btn-gradient rounded-md px-4 py-2 text-white">📥 ดาวน์โหลด vCard</button>
-                <button onClick={copyLink} className="rounded-md px-4 py-2 bg-primary-600 text-white">🔗 คัดลอกลิงก์</button>
-                <button onClick={shareCard} className="rounded-md px-4 py-2 bg-pink-500 text-white">📤 แชร์นามบัตร</button>
-                <button onClick={toggleRaw} className="rounded-md px-4 py-2 bg-gray-500 text-white">{showRaw ? '🙈 ซ่อน vCard' : '👁️ ดู vCard'}</button>
+                <button
+                  onClick={download}
+                  className="btn-gradient rounded-md px-4 py-2 text-white"
+                >
+                  📥 ดาวน์โหลด vCard
+                </button>
+                <button
+                  onClick={copyLink}
+                  className="rounded-md px-4 py-2 bg-primary-600 text-white"
+                >
+                  🔗 คัดลอกลิงก์
+                </button>
+                <button
+                  onClick={shareCard}
+                  className="rounded-md px-4 py-2 bg-pink-500 text-white"
+                >
+                  📤 แชร์นามบัตร
+                </button>
+                <button
+                  onClick={toggleRaw}
+                  className="rounded-md px-4 py-2 bg-gray-500 text-white"
+                >
+                  {showRaw ? "🙈 ซ่อน vCard" : "👁️ ดู vCard"}
+                </button>
               </div>
 
               {showRaw && (
-                <pre style={{ marginTop: '1rem', padding: '1rem', background: '#f3f4f6', borderRadius: '8px', fontSize: '0.85rem', overflow: 'auto' }}>
+                <pre
+                  style={{
+                    marginTop: "1rem",
+                    padding: "1rem",
+                    background: "#f3f4f6",
+                    borderRadius: "8px",
+                    fontSize: "0.85rem",
+                    overflow: "auto",
+                  }}
+                >
                   {vcard}
                 </pre>
               )}
@@ -420,81 +557,123 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
 
           {/* Card Preview */}
           <div className="flex flex-col items-center">
-            <div 
+            <div
               onClick={() => flip()}
               className="mb-6"
-              style={{ width: '350px', height: '200px', perspective: '1000px', cursor: 'pointer' }}
+              style={{
+                width: "350px",
+                height: "200px",
+                perspective: "1000px",
+                cursor: "pointer",
+              }}
             >
-              <div style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative',
-                transformStyle: 'preserve-3d',
-                transition: 'transform 0.6s',
-                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)'
-              }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  position: "relative",
+                  transformStyle: "preserve-3d",
+                  transition: "transform 0.6s",
+                  transform: isFlipped ? "rotateY(180deg)" : "rotateY(0)",
+                }}
+              >
                 {/* Front */}
-                <div className="card-ambient" style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  backfaceVisibility: 'hidden',
-                  background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                  borderRadius: '15px',
-                  padding: '1.5rem',
-                  color: 'white',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-                }}>
-                  <div style={{ fontSize: '2rem' }}>{customEmoji}</div>
+                <div
+                  className="card-ambient"
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    backfaceVisibility: "hidden",
+                    background: "linear-gradient(135deg, #667eea, #764ba2)",
+                    borderRadius: "15px",
+                    padding: "1.5rem",
+                    color: "white",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  <div style={{ fontSize: "2rem" }}>{customEmoji}</div>
                   <div>
-                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
-                      {fullName || 'ชื่อของคุณ'}
+                    <div
+                      style={{
+                        fontSize: "1.5rem",
+                        fontWeight: "bold",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      {fullName || "ชื่อของคุณ"}
                     </div>
-                    <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
-                      {title && organization ? `${title} @ ${organization}` : 'ตำแหน่ง @ บริษัท'}
+                    <div style={{ fontSize: "0.9rem", opacity: 0.9 }}>
+                      {title && organization
+                        ? `${title} @ ${organization}`
+                        : "ตำแหน่ง @ บริษัท"}
                     </div>
-                    <div style={{ fontSize: '0.85rem', marginTop: '0.5rem', opacity: 0.8 }}>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        marginTop: "0.5rem",
+                        opacity: 0.8,
+                      }}
+                    >
                       {phone && `📱 ${phone}`}
                       {email && <div>✉️ {email}</div>}
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Back */}
-                <div className="card-ambient" style={{
-                  position: 'absolute',
-                  width: '100%',
-                  height: '100%',
-                  backfaceVisibility: 'hidden',
-                  background: 'white',
-                  borderRadius: '15px',
-                  transform: 'rotateY(180deg)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
-                }}>
+                <div
+                  className="card-ambient"
+                  style={{
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    backfaceVisibility: "hidden",
+                    background: "white",
+                    borderRadius: "15px",
+                    transform: "rotateY(180deg)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+                  }}
+                >
                   {qrDataUrl ? (
-                    <img src={qrDataUrl} alt="QR Code" style={{ width: '120px', height: '120px' }} />
+                    <img
+                      src={qrDataUrl}
+                      alt="QR Code"
+                      style={{ width: "120px", height: "120px" }}
+                    />
                   ) : (
-                    <div style={{ width: '120px', height: '120px', background: '#f0f0f0' }} />
+                    <div
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        background: "#f0f0f0",
+                      }}
+                    />
                   )}
-                  <p style={{ marginTop: '1rem', color: '#666' }}>สแกนเพื่อบันทึก</p>
+                  <p style={{ marginTop: "1rem", color: "#666" }}>
+                    สแกนเพื่อบันทึก
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="text-center text-white">
-              <p className="mb-4 opacity-90">
-                👆 คลิกการ์ดเพื่อพลิกดู QR Code
-              </p>
+              <p className="mb-4 opacity-90">👆 คลิกการ์ดเพื่อพลิกดู QR Code</p>
               {viewOnly && (
                 <div className="mt-6">
-                  <button onClick={download} className="rounded-xl bg-white text-primary-600 px-6 py-3 font-semibold shadow">💾 บันทึกรายชื่อติดต่อนี้</button>
+                  <button
+                    onClick={download}
+                    className="rounded-xl bg-white text-primary-600 px-6 py-3 font-semibold shadow"
+                  >
+                    💾 บันทึกรายชื่อติดต่อนี้
+                  </button>
                 </div>
               )}
             </div>
@@ -503,7 +682,9 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
 
         {/* Toast */}
         {toastMessage && (
-          <div className="fixed bottom-8 right-8 bg-black/80 text-white px-4 py-3 rounded-lg shadow animate-fade-in">{toastMessage}</div>
+          <div className="fixed bottom-8 right-8 bg-black/80 text-white px-4 py-3 rounded-lg shadow animate-fade-in">
+            {toastMessage}
+          </div>
         )}
       </div>
     </div>
@@ -513,26 +694,30 @@ const VirtualCardView: React.FC<ReturnType<typeof useVirtualCard>> = (props) => 
 // Main Page Component
 const VirtualCardPage: React.FC = () => {
   const vm = useVirtualCard();
-  
+
   return (
     <>
       <Helmet>
         <title>
-          {vm.fullName 
-            ? `${vm.fullName} – นามบัตรดิจิทัล | Digital Contact Card` 
-            : 'Virtual Business Card Generator | เครื่องมือสร้างนามบัตรดิจิทัล'}
+          {vm.fullName
+            ? `${vm.fullName} – นามบัตรดิจิทัล | Digital Contact Card`
+            : "Virtual Business Card Generator | เครื่องมือสร้างนามบัตรดิจิทัล"}
         </title>
-        <meta 
-          name="description" 
-          content="สร้างและแชร์นามบัตรดิจิทัลพร้อม QR Code และดาวน์โหลด vCard | Create and share digital contact card with QR and vCard download." 
+        <meta
+          name="description"
+          content="สร้างและแชร์นามบัตรดิจิทัลพร้อม QR Code และดาวน์โหลด vCard | Create and share digital contact card with QR and vCard download."
         />
-        <meta 
-          property="og:title" 
-          content={vm.fullName ? `${vm.fullName} – Digital vCard` : 'Virtual Business Card Generator'} 
+        <meta
+          property="og:title"
+          content={
+            vm.fullName
+              ? `${vm.fullName} – Digital vCard`
+              : "Virtual Business Card Generator"
+          }
         />
-        <meta 
-          property="og:description" 
-          content="บันทึกนามบัตรดิจิทัลนี้ | Save this digital business card." 
+        <meta
+          property="og:description"
+          content="บันทึกนามบัตรดิจิทัลนี้ | Save this digital business card."
         />
         <meta property="og:type" content="profile" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -542,7 +727,7 @@ const VirtualCardPage: React.FC = () => {
             to { transform: translateX(0); opacity: 1; }
           }
           * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+          body { font-family: var(--font-sans); }
           input:focus { outline: 2px solid #667eea; outline-offset: 2px; }
           button:hover { transform: translateY(-2px); transition: transform 0.2s; }
           button:active { transform: translateY(0); }
