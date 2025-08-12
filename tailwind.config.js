@@ -13,8 +13,12 @@ export default {
   ],
   darkMode: ['class', "class"], // Enable dark mode with class strategy
   theme: {
-  	extend: {
-  		colors: {
+        fontFamily: {
+                sans: ['Inter','Noto Sans Thai','system-ui','-apple-system','Segoe UI','Roboto','Helvetica Neue','Arial'],
+                mono: ['JetBrains Mono','ui-monospace','SFMono-Regular','Menlo','Consolas','monospace'],
+        },
+        extend: {
+                colors: {
   			primary: {
   				'50': '#eef2ff',
   				'100': '#e0e7ff',
@@ -88,6 +92,14 @@ export default {
                         textMuted: '#A8B3C7',
                         textSubtle: '#7B8AA5',
                         divider: '#1E2A44'
+                },
+                fontSize: {
+                        h1: ['32px', { lineHeight: '38px', letterSpacing: '-0.5px', fontWeight: '700' }],
+                        h2: ['24px', { lineHeight: '30px', letterSpacing: '-0.25px', fontWeight: '700' }],
+                        h3: ['20px', { lineHeight: '26px', fontWeight: '600' }],
+                        body: ['14px', { lineHeight: '20px' }],
+                        caption: ['12px', { lineHeight: '18px' }],
+                        badge: ['11px', { lineHeight: '16px', letterSpacing: '0.08em', fontWeight: '600' }],
                 },
                 spacing: {
   			'18': '4.5rem',
