@@ -1,0 +1,24 @@
+.copy-burst {
+  position: absolute;
+  right: 56px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.copy-burst span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 1px;
+  border-radius: 9999px;
+  background: #60a5fa;
+  animation: burst 600ms ease-out forwards;
+}
+
+@keyframes burst {
+  from { opacity: 1; transform: translate(0,0) scale(1); }
+  to { opacity: 0; transform: translate(var(--x, 0), var(--y, 0)) scale(0.5); }
+}
+
+

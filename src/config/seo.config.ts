@@ -93,6 +93,34 @@ export const pageSEO: Record<string, SEOConfig> = {
       name: 'Privacy Policy - MyDebugger',
       url: 'https://mydebugger.vercel.app/privacy'
     }
+  },
+  randomPassword: {
+    title: 'Random Password Generator | Create Strong, Secure Passwords',
+    description:
+      'Generate strong passwords, UUIDs, and cryptographic keys locally in your browser. Choose length and character sets; copy with one click. Nothing is stored or transmitted.',
+    keywords: [...commonKeywords, 'random password generator', 'strong password', 'uuid generator', 'key generator'],
+    author: 'MyDebugger Team',
+    og: {
+      title: 'Random Password Generator',
+      description: 'Generate strong passwords, UUIDs, and cryptographic keys locally in your browser.',
+      type: 'website',
+      image: 'https://mydebugger.vercel.app/og/password.jpg',
+      siteName: 'MyDebugger'
+    },
+    twitter: {
+      card: 'summary',
+      title: 'Random Password Generator',
+      description: 'Generate strong passwords, UUIDs, and cryptographic keys locally in your browser.',
+      image: 'https://mydebugger.vercel.app/twitter/password.jpg',
+      creator: '@jirads'
+    },
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Random Password Generator',
+      applicationCategory: 'SecurityApplication',
+      operatingSystem: 'Web Browser'
+    }
   }
 };
 
