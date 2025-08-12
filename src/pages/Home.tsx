@@ -22,7 +22,7 @@ import {
 } from '../design-system';
 import { TOOL_PANEL_CLASS } from '../design-system/foundations/layout';
 import { getTools, getAllCategories, getToolsByCategory, getPopularTools, getNewTools, Tool, ToolCategory, categories as categoryInfo } from '../tools';
-import { excludeById } from '../utils/toolFilters';
+import { excludeById, sortByTitle } from '../utils/toolFilters';
 import './Home.css';
 import { useTranslation } from '../context/TranslationContext';
 import { logEvent } from '../lib/analytics';
@@ -39,6 +39,7 @@ const Home: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [pinnedTools, setPinnedTools] = useState<Tool[]>([]);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const hasFiredSearchStartRef = useRef<boolean>(false);
 
   const handleSetActiveTab = useCallback((tabId: string) => {
@@ -170,17 +171,18 @@ const Home: React.FC = () => {
       
       if (searchTerm) {
         const lowerSearch = searchTerm.toLowerCase();
-        filtered = filtered.filter(tool => 
-          tool.title.toLowerCase().includes(lowerSearch) || 
+        filtered = filtered.filter(tool =>
+          tool.title.toLowerCase().includes(lowerSearch) ||
           tool.description.toLowerCase().includes(lowerSearch) ||
           tool.metadata.keywords.some(keyword => keyword.toLowerCase().includes(lowerSearch))
         );
       }
-      
+
+      filtered = sortByTitle(filtered, sortOrder);
       setVisibleTools(filtered);
       setIsLoading(false);
     }, 300);
-  }, [searchTerm, activeTab, allTools, popularTools, recentTools]);
+  }, [searchTerm, activeTab, sortOrder, allTools, popularTools, recentTools]);
   
   const handleToolClick = useCallback((tool: Tool) => {
     // Save to recent tools in localStorage
@@ -464,24 +466,36 @@ const Home: React.FC = () => {
 
         {/* Tools Grid */}
         <section className="mb-12" ref={toolsContainerRef}>
-                  <div className="mb-4 flex justify-between items-center">
+          <div className="mb-4 flex justify-between items-center">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {visibleTools.length > 0 ? (
                 <p className="mt-4 mb-4 text-sm text-gray-500 pl-1">
-                          {t('home.results.showing', 'Showing {count} tool{plural}')
-                            .replace('{count}', String(visibleTools.length))
-                            .replace('{plural}', visibleTools.length !== 1 ? 's' : '')}
+                  {t('home.results.showing', 'Showing {count} tool{plural}')
+                    .replace('{count}', String(visibleTools.length))
+                    .replace('{plural}', visibleTools.length !== 1 ? 's' : '')}
                 </p>
               ) : null}
             </div>
-            <div className="flex space-x-2">
-              <Button 
-                variant="light" 
-                size="sm" 
+            <div className="flex items-center space-x-2">
+              <label htmlFor="sortOrder" className="text-sm text-gray-600 dark:text-gray-400">
+                {t('home.sort.label', 'Sort by')}
+              </label>
+              <select
+                id="sortOrder"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                className="text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-1"
+              >
+                <option value="asc">{t('home.sort.az', 'A to Z')}</option>
+                <option value="desc">{t('home.sort.za', 'Z to A')}</option>
+              </select>
+              <Button
+                variant="light"
+                size="sm"
                 onClick={() => {setSearchTerm(''); hasFiredSearchStartRef.current = false; handleSetActiveTab('all');}}
                 disabled={!searchTerm && activeTab === 'all'}
               >
-                        {t('home.filters.clear', 'Clear Filters')}
+                {t('home.filters.clear', 'Clear Filters')}
               </Button>
             </div>
           </div>
