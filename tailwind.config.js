@@ -1,3 +1,6 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 /** @type {import('tailwindcss').Config} */
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
@@ -69,15 +72,24 @@ export default {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		spacing: {
+                        chart: {
+                                '1': 'hsl(var(--chart-1))',
+                                '2': 'hsl(var(--chart-2))',
+                                '3': 'hsl(var(--chart-3))',
+                                '4': 'hsl(var(--chart-4))',
+                                '5': 'hsl(var(--chart-5))'
+                        },
+                        bg: '#0B1220',
+                        bgMuted: '#0E1626',
+                        surface1: '#111A2B',
+                        surface2: '#152035',
+                        surface3: '#1B2946',
+                        text: '#E6EDF7',
+                        textMuted: '#A8B3C7',
+                        textSubtle: '#7B8AA5',
+                        divider: '#1E2A44'
+                },
+                spacing: {
   			'18': '4.5rem',
   			'72': '18rem',
   			'84': '21rem',
@@ -276,13 +288,14 @@ export default {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-  		boxShadow: {
-  			'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-  			soft: '0 2px 15px 0 rgba(0, 0, 0, 0.05)',
-  			card: '0 5px 15px rgba(0, 0, 0, 0.08)',
-  			interactive: '0 2px 10px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1)',
-  			elevated: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-  		}
+                boxShadow: {
+                        'inner-lg': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
+                        soft: '0 2px 15px 0 rgba(0, 0, 0, 0.05)',
+                        card: '0 1px 2px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.03)',
+                        'card-lg': '0 8px 24px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04)',
+                        interactive: '0 2px 10px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1)',
+                        elevated: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                }
   	}
   },
   plugins: [
