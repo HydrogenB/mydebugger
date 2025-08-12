@@ -77,6 +77,21 @@ export const categories: Record<
     icon: EncodingIcon,
     description: "Transform data between different encoding formats",
   },
+  {
+    id: "json-compare",
+    route: "/json-compare",
+    title: "JSON Compare",
+    description: "Compare two JSON documents and export a diff report.",
+    icon: FormattersIcon,
+    component: lazy(() => import("./json-compare/page")),
+    category: "Formatters",
+    isNew: true,
+    metadata: {
+      keywords: ["json", "diff", "compare", "delta", "added", "removed", "modified"],
+      relatedTools: ["json-converter", "csv-to-markdown"],
+    },
+    uiOptions: { showExamples: false, fullWidth: true },
+  },
   Security: {
     icon: SecurityIcon,
     description: "Tools for security testing, token validation, and encryption",
