@@ -1,3 +1,7 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
 import { lazy } from "react";
 
 // Tool category types - Expanded with more specific categories
@@ -27,7 +31,9 @@ export interface Tool {
   title: string; // Display title
   description: string; // Short description
   longDescription?: string; // Extended description for tool page
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
+  component: React.LazyExoticComponent<
+    React.ComponentType<Record<string, unknown>>
+  >;
   category: ToolCategory;
   icon: React.FC<IconProps>; // Icon component
   isNew?: boolean; // Flag for new tools
@@ -77,11 +83,38 @@ export const categories: Record<
     icon: EncodingIcon,
     description: "Transform data between different encoding formats",
   },
+  Security: {
+    icon: SecurityIcon,
+    description: "Tools for security testing, token validation, and encryption",
+  },
+  Testing: {
+    icon: TestingIcon,
+    description:
+      "Validate and test various network configurations and responses",
+  },
+  Utilities: {
+    icon: UtilitiesIcon,
+    description: "General purpose developer utilities",
+  },
+  Conversion: {
+    icon: ConversionIcon,
+    description: "Convert between different data formats",
+  },
+  Formatters: {
+    icon: FormattersIcon,
+    description: "Format and prettify code and data",
+  },
+};
+
+// Tool registry - central list of all available tools
+// This drives routes, homepage, SEO, and navigation
+const toolRegistry: Tool[] = [
   {
     id: "random-password-generator",
     route: "/random-password-generator",
     title: "Random Password Generator",
-    description: "Create strong passwords, UUIDs, and cryptographic keys locally.",
+    description:
+      "Create strong passwords, UUIDs, and cryptographic keys locally.",
     icon: SecurityIcon,
     component: lazy(() => import("./random-password-generator/page")),
     category: "Security",
@@ -111,37 +144,19 @@ export const categories: Record<
     category: "Formatters",
     isNew: true,
     metadata: {
-      keywords: ["json", "diff", "compare", "delta", "added", "removed", "modified"],
+      keywords: [
+        "json",
+        "diff",
+        "compare",
+        "delta",
+        "added",
+        "removed",
+        "modified",
+      ],
       relatedTools: ["json-converter", "csv-to-markdown"],
     },
     uiOptions: { showExamples: false, fullWidth: true },
   },
-  Security: {
-    icon: SecurityIcon,
-    description: "Tools for security testing, token validation, and encryption",
-  },
-  Testing: {
-    icon: TestingIcon,
-    description:
-      "Validate and test various network configurations and responses",
-  },
-  Utilities: {
-    icon: UtilitiesIcon,
-    description: "General purpose developer utilities",
-  },
-  Conversion: {
-    icon: ConversionIcon,
-    description: "Convert between different data formats",
-  },
-  Formatters: {
-    icon: FormattersIcon,
-    description: "Format and prettify code and data",
-  },
-};
-
-// Tool registry - central list of all available tools
-// This drives routes, homepage, SEO, and navigation
-const toolRegistry: Tool[] = [
   {
     id: "jwt-toolkit",
     route: "/jwt",
@@ -619,47 +634,47 @@ const toolRegistry: Tool[] = [
     uiOptions: { showExamples: false },
   },
   {
-    id: 'api-simulator',
-    route: '/api-simulator',
-    title: 'API Simulator',
-    description: 'Encode JSON to Base64 and test API responses.',
+    id: "api-simulator",
+    route: "/api-simulator",
+    title: "API Simulator",
+    description: "Encode JSON to Base64 and test API responses.",
     icon: TestingIcon,
-    component: lazy(() => import('./api-simulator/page')),
-    category: 'Testing',
+    component: lazy(() => import("./api-simulator/page")),
+    category: "Testing",
     metadata: {
-      keywords: ['api', 'testing', 'mock', 'delay', 'status'],
-      relatedTools: ['headers-analyzer', 'cors-tester']
+      keywords: ["api", "testing", "mock", "delay", "status"],
+      relatedTools: ["headers-analyzer", "cors-tester"],
     },
-  uiOptions: { showExamples: false }
-},
-  {
-    id: 'api-test',
-    route: '/api-test',
-    title: 'API Request Repeater',
-    description: 'Repeat HTTP requests from a curl command.',
-    icon: TestingIcon,
-    component: lazy(() => import('./api-test/page')),
-    category: 'Testing',
-    isNew: true,
-    metadata: {
-      keywords: ['curl', 'http', 'testing', 'repeater'],
-      relatedTools: ['api-simulator', 'websocket-simulator']
-    },
-    uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
   },
   {
-    id: 'network-suit',
-    route: '/networksuit',
-    title: 'Network Test Suite',
-    description: 'Check connection type, ping and download speed.',
+    id: "api-test",
+    route: "/api-test",
+    title: "API Request Repeater",
+    description: "Repeat HTTP requests from a curl command.",
     icon: TestingIcon,
-    component: lazy(() => import('./networksuit/page')),
-    category: 'Testing',
+    component: lazy(() => import("./api-test/page")),
+    category: "Testing",
+    isNew: true,
     metadata: {
-      keywords: ['network', 'ping', 'speed', 'connection'],
-      relatedTools: []
+      keywords: ["curl", "http", "testing", "repeater"],
+      relatedTools: ["api-simulator", "websocket-simulator"],
     },
-  uiOptions: { showExamples: false }
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "network-suit",
+    route: "/networksuit",
+    title: "Network Test Suite",
+    description: "Check connection type, ping and download speed.",
+    icon: TestingIcon,
+    component: lazy(() => import("./networksuit/page")),
+    category: "Testing",
+    metadata: {
+      keywords: ["network", "ping", "speed", "connection"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
   },
   {
     id: "image-compressor",
@@ -696,7 +711,11 @@ const toolRegistry: Tool[] = [
         "wave",
         "thai flag",
       ],
-      relatedTools: ["image-compressor", "generate-large-image", "qrcode-generator"],
+      relatedTools: [
+        "image-compressor",
+        "generate-large-image",
+        "qrcode-generator",
+      ],
     },
     uiOptions: { showExamples: false, fullWidth: true },
   },
