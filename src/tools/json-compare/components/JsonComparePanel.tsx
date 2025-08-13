@@ -1,3 +1,7 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+
 import React, { ChangeEvent } from 'react';
 import type { UseJsonCompareVM } from '../hooks/useJsonCompare';
 import { Button, Card, CodeEditor } from '@design-system';
@@ -122,11 +126,23 @@ const JsonComparePanel: React.FC<UseJsonCompareVM> = ({
               </button>
             }
           />
-          <TextArea value={leftText} onChange={setLeftText} placeholder="{"} Enter or upload JSON..." error={leftError} onSubmit={onCompare} />
+          <TextArea
+            value={leftText}
+            onChange={setLeftText}
+            placeholder="{} Enter or upload JSON..."
+            error={leftError}
+            onSubmit={onCompare}
+          />
         </Card>
         <Card className="p-3">
           <EditorHeader title="Comparison JSON" onUpload={onUploadRight} />
-          <TextArea value={rightText} onChange={setRightText} placeholder="{"} Enter or upload JSON..." error={rightError} onSubmit={onCompare} />
+          <TextArea
+            value={rightText}
+            onChange={setRightText}
+            placeholder="{} Enter or upload JSON..."
+            error={rightError}
+            onSubmit={onCompare}
+          />
         </Card>
       </div>
     </div>
