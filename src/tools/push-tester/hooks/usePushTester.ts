@@ -156,6 +156,35 @@ export const usePushTester = () => {
     }
   };
 
+  const sendTestNotification = async () => {
+    try {
+      if (!registration) throw new Error('Service worker not registered');
+      if (validationErrors.length > 0) throw new Error(`Validation errors: ${validationErrors.join(', ')}`);
+      
+      log('Sending test notification directly via service worker...');
+      
+      // Send message directly to service worker to show test notification
+      if (registration.active) {
+        registration.active.postMessage({
+          type: 'TEST_NOTIFICATION',
+          payload: payload
+        });
+        
+        setStatus('notified');
+        log('Test notification sent successfully!');
+        
+        if (platform.requiresClickForClose) {
+          log('Note: On Safari, you may need to click the notification to close it');
+        }
+      } else {
+        throw new Error('Service worker not active');
+      }
+    } catch (error: any) {
+      log(`Test notification failed: ${error.message}`);
+      throw error;
+    }
+  };
+
   const copySubscription = async () => {
     try {
       if (!subscription) return;
@@ -313,6 +342,7 @@ export const usePushTester = () => {
     register,
     subscribe,
     sendPush,
+    sendTestNotification,
     copySubscription,
     copyPayload,
     generateCurlExample,

@@ -204,10 +204,63 @@ self.addEventListener('message', event => {
     case 'CLAIM_CLIENTS':
       self.clients.claim();
       break;
+    case 'TEST_NOTIFICATION':
+      // Handle test notification from main thread
+      handleTestNotification(event.data.payload);
+      break;
     default:
       console.log('[Push Tester SW] Unknown message type:', event.data?.type);
   }
 });
+
+// Handle test notifications sent from main thread
+function handleTestNotification(payload) {
+  console.log('[Push Tester SW] Handling test notification:', payload);
+  
+  try {
+    // Build notification options with all supported fields
+    const notificationOptions = {
+      body: payload.body,
+      icon: payload.icon || '/favicon.svg',
+      badge: payload.badge || '/favicon.svg',
+      image: payload.image,
+      dir: payload.dir || 'auto',
+      lang: payload.lang || 'en',
+      vibrate: payload.vibrate,
+      tag: payload.tag || 'mydebugger-test-notification',
+      renotify: payload.renotify || false,
+      silent: payload.silent || false,
+      requireInteraction: payload.requireInteraction || false,
+      timestamp: payload.timestamp || Date.now(),
+      actions: payload.actions || [],
+      data: {
+        // Preserve original data and add service worker metadata
+        ...payload.data,
+        originalPayload: payload,
+        swTimestamp: Date.now(),
+        endpoint: self.registration.scope,
+        testMode: true
+      }
+    };
+
+    // Filter out undefined values to avoid browser warnings
+    Object.keys(notificationOptions).forEach(key => {
+      if (notificationOptions[key] === undefined) {
+        delete notificationOptions[key];
+      }
+    });
+
+    return self.registration.showNotification(payload.title || 'Test Notification', notificationOptions)
+      .then(() => {
+        console.log('[Push Tester SW] Test notification displayed successfully');
+      })
+      .catch(error => {
+        console.error('[Push Tester SW] Failed to show test notification:', error);
+      });
+  } catch (error) {
+    console.error('[Push Tester SW] Error handling test notification:', error);
+  }
+}
 
 // Service worker lifecycle events
 self.addEventListener('install', event => {

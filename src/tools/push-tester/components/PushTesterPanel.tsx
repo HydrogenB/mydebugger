@@ -28,6 +28,7 @@ export default function PushTester() {
     register,
     subscribe,
     sendPush,
+    sendTestNotification,
     copySubscription,
     copyPayload,
     generateCurlExample,
@@ -160,6 +161,8 @@ export default function PushTester() {
                   try {
                     const permission = await Notification.requestPermission();
                     console.log('Notification permission:', permission);
+                    // Force re-render by updating state
+                    window.location.reload();
                   } catch (error) {
                     console.error('Permission request failed:', error);
                   }
@@ -232,14 +235,26 @@ export default function PushTester() {
           
           <div className="flex gap-2">
             <Button
-              onClick={register}
+              onClick={async () => {
+                try {
+                  await register();
+                } catch (error: any) {
+                  alert(`Registration failed: ${error.message}`);
+                }
+              }}
               isDisabled={!support.serviceWorker || !!registration}
               variant={registration ? 'secondary' : 'primary'}
             >
               {registration ? '✅ Service Worker Registered' : 'Register Service Worker'}
             </Button>
             <Button
-              onClick={subscribe}
+              onClick={async () => {
+                try {
+                  await subscribe();
+                } catch (error: any) {
+                  alert(`Subscription failed: ${error.message}`);
+                }
+              }}
               isDisabled={!registration || !!subscription || !vapidKey.trim()}
               variant={subscription ? 'secondary' : 'primary'}
             >
@@ -620,13 +635,40 @@ export default function PushTester() {
             </div>
           )}
           
+          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+            <h5 className="font-medium text-blue-800 mb-2">📱 Send Options</h5>
+            <div className="text-sm text-blue-700 space-y-1">
+              <p><strong>🚀 Send Push Notification:</strong> Full Web Push via server API (requires VAPID configuration)</p>
+              <p><strong>🧪 Test Notification (Local):</strong> Direct service worker test (works without server setup)</p>
+            </div>
+          </div>
+          
           <div className="flex flex-wrap gap-2">
             <Button
-              onClick={sendPush}
+              onClick={async () => {
+                try {
+                  await sendPush();
+                } catch (error: any) {
+                  alert(`Send failed: ${error.message}`);
+                }
+              }}
               isDisabled={!subscription || validationErrors.length > 0}
               variant="primary"
             >
               🚀 Send Push Notification
+            </Button>
+            <Button
+              onClick={async () => {
+                try {
+                  await sendTestNotification();
+                } catch (error: any) {
+                  alert(`Test notification failed: ${error.message}`);
+                }
+              }}
+              isDisabled={!registration || validationErrors.length > 0}
+              variant="secondary"
+            >
+              🧪 Test Notification (Local)
             </Button>
             <Button
               onClick={copySubscription}
@@ -704,6 +746,28 @@ export default function PushTester() {
         <div className="flex gap-2">
           <Button variant="secondary" onClick={cleanup}>
             🗑️ Cleanup & Reset
+          </Button>
+          <Button 
+            variant="secondary" 
+            onClick={() => {
+              const debugInfo = {
+                timestamp: new Date().toISOString(),
+                support,
+                platform,
+                registration: !!registration,
+                subscription: !!subscription,
+                status,
+                validationErrors,
+                notificationPermission: typeof Notification !== 'undefined' ? Notification.permission : 'unavailable',
+                userAgent: navigator.userAgent,
+                href: window.location.href
+              };
+              navigator.clipboard.writeText(JSON.stringify(debugInfo, null, 2));
+              alert('Debug info copied to clipboard');
+            }}
+            size="sm"
+          >
+            📋 Copy Debug Info
           </Button>
         </div>
         
