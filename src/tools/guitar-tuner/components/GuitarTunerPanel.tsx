@@ -15,6 +15,7 @@ interface Props {
   tuningId: string;
   setTuning: (id: string) => void;
   tuning: TuningPreset;
+  detune: number;
 }
 
 const GuitarTunerPanel: React.FC<Props> = ({
@@ -27,6 +28,7 @@ const GuitarTunerPanel: React.FC<Props> = ({
   tuningId,
   setTuning,
   tuning,
+  detune,
 }) => (
   <section
     className="flex flex-col items-center gap-6"
@@ -68,6 +70,33 @@ const GuitarTunerPanel: React.FC<Props> = ({
         <p className="text-xl" aria-live="polite">
           {frequency.toFixed(2)} Hz
         </p>
+      )}
+      {frequency && (
+        <>
+          <div
+            className="mt-2 w-64 h-2 bg-gray-200 relative rounded" 
+            role="meter"
+            aria-valuemin={-50}
+            aria-valuemax={50}
+            aria-valuenow={detune}
+          >
+            <div className="absolute inset-y-0 left-1/2 w-0.5 bg-gray-500" />
+            <div
+              className="absolute -top-1 w-1 h-4 bg-blue-500"
+              style={{ left: `${detune + 50}%` }}
+            />
+          </div>
+          <p
+            className={`mt-1 text-sm ${Math.abs(detune) < 5 ? 'text-green-600' : Math.abs(detune) < 15 ? 'text-yellow-600' : 'text-red-600'}`}
+            aria-live="polite"
+          >
+            {Math.abs(detune) < 5
+              ? 'In tune'
+              : detune > 0
+                ? `${detune.toFixed(1)}¢ sharp`
+                : `${(-detune).toFixed(1)}¢ flat`}
+          </p>
+        </>
       )}
     </div>
     <button

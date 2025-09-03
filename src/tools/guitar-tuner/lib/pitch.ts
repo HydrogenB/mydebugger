@@ -58,5 +58,8 @@ export const noteToFrequency = (note: string): number => {
   return 440 * 2 ** ((midi - 69) / 12);
 };
 
+export const centsOff = (frequency: number, reference: number): number =>
+  1200 * Math.log2(frequency / reference);
+
 export default detectPitch;
 

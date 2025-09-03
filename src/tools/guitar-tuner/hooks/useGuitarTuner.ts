@@ -1,8 +1,8 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useCallback, useRef, useState } from 'react';
-import detectPitch, { frequencyToNote } from '../lib/pitch';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import detectPitch, { centsOff, frequencyToNote, noteToFrequency } from '../lib/pitch';
 import { tuningPresets } from '../lib/tunings';
 
 const useGuitarTuner = () => {
@@ -11,6 +11,7 @@ const useGuitarTuner = () => {
   const [active, setActive] = useState(false);
   const [error, setError] = useState('');
   const [tuningId, setTuningId] = useState('guitar-standard');
+  const [detune, setDetune] = useState(0);
   const audioCtx = useRef<AudioContext | null>(null);
   const analyser = useRef<AnalyserNode | null>(null);
   const raf = useRef<number>();
@@ -21,8 +22,12 @@ const useGuitarTuner = () => {
     analyser.current.getFloatTimeDomainData(buffer);
     const freq = detectPitch(buffer, audioCtx.current.sampleRate);
     if (freq) {
+      const noteName = frequencyToNote(freq);
       setFrequency(freq);
-      setNote(frequencyToNote(freq));
+      setNote(noteName);
+      const reference = noteToFrequency(noteName);
+      const diff = centsOff(freq, reference);
+      setDetune(Math.max(-50, Math.min(50, diff)));
     }
     raf.current = requestAnimationFrame(update);
   }, []);
@@ -55,7 +60,15 @@ const useGuitarTuner = () => {
     setNote('');
   }, [active]);
 
-  const setTuning = useCallback((id: string) => setTuningId(id), []);
+  useEffect(() => {
+    const saved = localStorage.getItem('guitar-tuner-tuning');
+    if (saved) setTuningId(saved);
+  }, []);
+
+  const setTuning = useCallback((id: string) => {
+    setTuningId(id);
+    localStorage.setItem('guitar-tuner-tuning', id);
+  }, []);
   const tuning = tuningPresets.find((t) => t.id === tuningId)!;
 
   return {
@@ -68,6 +81,7 @@ const useGuitarTuner = () => {
     tuningId,
     setTuning,
     tuning,
+    detune,
   };
 };
 
