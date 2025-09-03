@@ -72,6 +72,7 @@ import {
   ContactCardIcon,
   ImageCompressIcon,
   ThongThaiIcon,
+  TunerIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -785,6 +786,28 @@ const toolRegistry: Tool[] = [
     category: "Utilities",
     metadata: {
       keywords: ["wake lock", "screen", "sleep"],
+      relatedTools: [],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "guitar-tuner",
+    route: "/guitar-tuner",
+    title: "Guitar Tuner",
+    description: "Free online guitar tuner using your microphone for accurate pitch detection.",
+    icon: TunerIcon,
+    component: lazy(() => import("./guitar-tuner/page")),
+    category: "Utilities",
+    metadata: {
+      keywords: [
+        "guitar",
+        "bass",
+        "tuner",
+        "online",
+        "pitch",
+        "frequency",
+        "music",
+      ],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },

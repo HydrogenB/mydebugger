@@ -176,3 +176,20 @@ export const ImageCompressIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const TunerIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 19V6l12-2v13M9 9l12-2"
+    />
+  </svg>
+);
+
