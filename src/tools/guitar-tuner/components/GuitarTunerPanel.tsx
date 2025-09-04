@@ -1,9 +1,10 @@
 /**
- * © 2025 MyDebugger Contributors – MIT License
+ * 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
 import { noteToFrequency } from '../lib/pitch';
 import { tuningPresets, type TuningPreset } from '../lib/tunings';
+import TunerDial from './TunerDial';
 
 interface Props {
   frequency: number | null;
@@ -16,6 +17,11 @@ interface Props {
   setTuning: (id: string) => void;
   tuning: TuningPreset;
   detune: number;
+  confidence: number;
+  a4: number;
+  setA4: (v: number) => void;
+  customNotes: string[];
+  setCustomNotes: (notes: string[]) => void;
 }
 
 const GuitarTunerPanel: React.FC<Props> = ({
@@ -29,6 +35,11 @@ const GuitarTunerPanel: React.FC<Props> = ({
   setTuning,
   tuning,
   detune,
+  confidence,
+  a4,
+  setA4,
+  customNotes,
+  setCustomNotes,
 }) => (
   <section
     className="flex flex-col items-center gap-6"
@@ -42,26 +53,93 @@ const GuitarTunerPanel: React.FC<Props> = ({
       id="tuning"
       className="border rounded px-2 py-1"
       value={tuningId}
-      onChange={(e) => setTuning(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTuning(e.target.value)}
     >
+      <option value="custom">Custom (6-string)</option>
       {tuningPresets.map((preset) => (
         <option key={preset.id} value={preset.id}>
           {preset.label}
         </option>
       ))}
     </select>
-    <ul className="flex gap-2">
-      {tuning.notes.map((n) => (
-        <li key={n} className="text-sm">
-          {n} ({noteToFrequency(n).toFixed(1)} Hz)
-        </li>
-      ))}
+    <p className="text-xs text-zinc-600 dark:text-zinc-400 -mt-2">Choose a preset or select Custom to edit target notes.</p>
+
+    {/* Custom tuning editor */}
+    {tuningId === 'custom' && (
+      <div className="w-full max-w-md p-3 rounded border bg-white/50 dark:bg-zinc-900/40">
+        <p id="custom-help" className="text-sm mb-2">
+          Enter six target notes (e.g., E2, A2, D3, G3, B3, E4). Use # for sharps.
+        </p>
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6" role="group" aria-labelledby="custom-help">
+          {[0,1,2,3,4,5].map((i) => {
+            const val = customNotes[i] ?? '';
+            const isValid = /^([A-G]#?)(-?\d)$/.test(val);
+            const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+              const next = [...customNotes];
+              next[i] = e.target.value.trim();
+              setCustomNotes(next);
+            };
+            return (
+              <input
+                key={i}
+                inputMode="text"
+                aria-label={`String ${i+1} note`}
+                className={`px-2 py-1 rounded border text-center uppercase ${isValid || val === '' ? 'border-zinc-300 dark:border-zinc-700' : 'border-red-500'}`}
+                placeholder={["E2","A2","D3","G3","B3","E4"][i]}
+                value={val}
+                onChange={onChange}
+                maxLength={3}
+              />
+            );
+          })}
+        </div>
+        <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">Invalid entries are highlighted in red and ignored in frequency display.</p>
+      </div>
+    )}
+    <ul className="flex gap-2 flex-wrap justify-center">
+      {tuning.notes.map((n: string, idx: number) => {
+        let hz = '--';
+        try { hz = noteToFrequency(n).toFixed(1); } catch (_) { /* ignore invalid */ }
+        return (
+          <li key={`${n}-${idx}`} className="text-sm">
+            {n || '—'} ({hz} Hz)
+          </li>
+        );
+      })}
     </ul>
     {error && (
       <p role="alert" className="text-red-500">
         {error}
       </p>
     )}
+
+    {/* Animated dial */}
+    <TunerDial detune={detune} note={note} frequency={frequency} confidence={confidence} />
+
+    {/* Calibration control */}
+    <div className="w-full max-w-md">
+      <label htmlFor="a4" className="block text-sm font-medium">
+        Calibration A4: <span className="tabular-nums">{a4} Hz</span>
+      </label>
+      <input
+        id="a4"
+        type="range"
+        min={415}
+        max={466}
+        step={1}
+        value={a4}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setA4(Number(e.target.value))}
+        className="w-full"
+        aria-valuemin={415}
+        aria-valuemax={466}
+        aria-valuenow={a4}
+        aria-label="Calibration A4 frequency"
+      />
+      <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
+        Adjust reference pitch. Default is 440 Hz.
+      </p>
+    </div>
+
     <div className="text-center">
       <p className="text-5xl font-bold" aria-live="polite">
         {note || '--'}
@@ -71,34 +149,8 @@ const GuitarTunerPanel: React.FC<Props> = ({
           {frequency.toFixed(2)} Hz
         </p>
       )}
-      {frequency && (
-        <>
-          <div
-            className="mt-2 w-64 h-2 bg-gray-200 relative rounded" 
-            role="meter"
-            aria-valuemin={-50}
-            aria-valuemax={50}
-            aria-valuenow={detune}
-          >
-            <div className="absolute inset-y-0 left-1/2 w-0.5 bg-gray-500" />
-            <div
-              className="absolute -top-1 w-1 h-4 bg-blue-500"
-              style={{ left: `${detune + 50}%` }}
-            />
-          </div>
-          <p
-            className={`mt-1 text-sm ${Math.abs(detune) < 5 ? 'text-green-600' : Math.abs(detune) < 15 ? 'text-yellow-600' : 'text-red-600'}`}
-            aria-live="polite"
-          >
-            {Math.abs(detune) < 5
-              ? 'In tune'
-              : detune > 0
-                ? `${detune.toFixed(1)}¢ sharp`
-                : `${(-detune).toFixed(1)}¢ flat`}
-          </p>
-        </>
-      )}
     </div>
+
     <button
       type="button"
       className="px-4 py-2 rounded bg-blue-600 text-white"

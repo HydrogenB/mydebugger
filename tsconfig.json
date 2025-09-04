@@ -12,7 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["jest", "node"],
+    "types": ["jest", "node", "react", "react-dom", "vite/client"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
