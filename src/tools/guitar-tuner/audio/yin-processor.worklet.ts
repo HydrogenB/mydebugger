@@ -1,4 +1,6 @@
-// © 2025 MyDebugger Contributors – MIT License
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 
 // AudioWorklet global types are available from lib.dom.d.ts
 // Provide ambient declarations to satisfy TypeScript when compiling in app context.

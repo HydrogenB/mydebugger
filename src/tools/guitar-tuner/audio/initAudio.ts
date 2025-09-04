@@ -1,6 +1,15 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
+import yinWorkletUrl from './yin-processor.worklet.ts?url';
+
 export async function initAudioWorklet(ctx: AudioContext, stream: MediaStream) {
-  // Register the worklet module (Vite will bundle TS -> JS)
-  await ctx.audioWorklet.addModule(new URL('./yin-processor.worklet.ts', import.meta.url));
+  // Register the worklet module (bundler provides resolved URL)
+  try {
+    await ctx.audioWorklet.addModule(yinWorkletUrl);
+  } catch {
+    throw new Error('Unable to load audio worklet module');
+  }
 
   const src = ctx.createMediaStreamSource(stream);
   const yin = new AudioWorkletNode(ctx, 'yin-processor', {
