@@ -24,6 +24,12 @@ const TunerDial: React.FC<TunerDialProps> = ({ detune, note, frequency, confiden
   }, [targetDeg, rotate]);
 
   const inLock = Math.abs(detune) < 3 && confidence >= 0.6;
+  const needleColor = inLock
+    ? 'bg-green-500 dark:bg-green-400'
+    : 'bg-rose-500 dark:bg-rose-400';
+  const capColor = inLock
+    ? 'bg-green-600 dark:bg-green-300'
+    : 'bg-rose-600 dark:bg-rose-300';
 
   return (
     <div className="relative w-64 h-64 select-none" aria-label="Tuner dial">
@@ -44,8 +50,26 @@ const TunerDial: React.FC<TunerDialProps> = ({ detune, note, frequency, confiden
         <g transform="translate(50,50)">
           {/* Arc path (semi-circle) */}
           <path d="M -40 0 A 40 40 0 1 1 40 0" fill="none" stroke="url(#arcGradient)" strokeWidth="8" strokeLinecap="round" />
-          {/* Center mark */}
-          <line x1="0" y1="-42" x2="0" y2="-36" stroke="#475569" strokeWidth="2" />
+          {/* Tick marks every 10 cents */}
+          {Array.from({ length: 11 }).map((_, i) => {
+            const angle = (-45 + i * 9) * (Math.PI / 180);
+            const x1 = Math.cos(angle) * 36;
+            const y1 = Math.sin(angle) * 36;
+            const x2 = Math.cos(angle) * 40;
+            const y2 = Math.sin(angle) * 40;
+            return (
+              <line
+                // eslint-disable-next-line react/no-array-index-key
+                key={i}
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke="#475569"
+                strokeWidth={i === 5 ? 2 : 1}
+              />
+            );
+          })}
         </g>
       </svg>
 
@@ -67,8 +91,8 @@ const TunerDial: React.FC<TunerDialProps> = ({ detune, note, frequency, confiden
           aria-label="Needle"
           role="img"
         >
-          <div className="w-1 h-28 bg-sky-500 dark:bg-sky-400 rounded-t shadow" />
-          <div className="w-3 h-3 -mt-1 mx-auto rounded-full bg-sky-600 dark:bg-sky-300" />
+          <div className={`w-1 h-28 ${needleColor} rounded-t shadow`} />
+          <div className={`w-3 h-3 -mt-1 mx-auto rounded-full ${capColor}`} />
         </motion.div>
       </div>
 

@@ -34,6 +34,10 @@ const useGuitarTuner = () => {
 
   const start = useCallback(async () => {
     if (active) return;
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('Microphone access is not supported in this browser');
+      return;
+    }
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -55,7 +59,7 @@ const useGuitarTuner = () => {
     } catch (e) {
       setError((e as Error).message);
     }
-  }, [active, onWorkletMessage]);
+  }, [active, onWorkletMessage, a4]);
 
   const stop = useCallback(() => {
     if (!active) return;

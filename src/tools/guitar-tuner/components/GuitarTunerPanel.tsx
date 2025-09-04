@@ -1,7 +1,9 @@
 /**
- * 2025 MyDebugger Contributors – MIT License
+ * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
+import clsx from 'clsx';
+import { PlayIcon, StopIcon } from '@heroicons/react/24/solid';
 import { noteToFrequency } from '../lib/pitch';
 import { tuningPresets, type TuningPreset } from '../lib/tunings';
 import TunerDial from './TunerDial';
@@ -42,7 +44,7 @@ const GuitarTunerPanel: React.FC<Props> = ({
   setCustomNotes,
 }) => (
   <section
-    className="flex flex-col items-center gap-6"
+    className="flex flex-col items-center gap-6 w-full max-w-2xl p-6 border rounded-lg bg-white/70 dark:bg-zinc-900/40 shadow"
     aria-label="Online guitar tuner"
   >
     <h2 className="text-2xl font-semibold">Real-time Guitar Tuner</h2>
@@ -51,7 +53,7 @@ const GuitarTunerPanel: React.FC<Props> = ({
     </label>
     <select
       id="tuning"
-      className="border rounded px-2 py-1"
+      className="border rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
       value={tuningId}
       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTuning(e.target.value)}
     >
@@ -83,9 +85,15 @@ const GuitarTunerPanel: React.FC<Props> = ({
               <input
                 key={i}
                 inputMode="text"
-                aria-label={`String ${i+1} note`}
-                className={`px-2 py-1 rounded border text-center uppercase ${isValid || val === '' ? 'border-zinc-300 dark:border-zinc-700' : 'border-red-500'}`}
-                placeholder={["E2","A2","D3","G3","B3","E4"][i]}
+                aria-label={`String ${i + 1} note`}
+                aria-invalid={!isValid && val !== ''}
+                className={clsx(
+                  'px-2 py-1 rounded border text-center uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500',
+                  isValid || val === ''
+                    ? 'border-zinc-300 dark:border-zinc-700'
+                    : 'border-red-500',
+                )}
+                placeholder={["E2", "A2", "D3", "G3", "B3", "E4"][i]}
                 value={val}
                 onChange={onChange}
                 maxLength={3}
@@ -100,8 +108,15 @@ const GuitarTunerPanel: React.FC<Props> = ({
       {tuning.notes.map((n: string, idx: number) => {
         let hz = '--';
         try { hz = noteToFrequency(n).toFixed(1); } catch (_) { /* ignore invalid */ }
+        const isCurrent = n === note;
         return (
-          <li key={`${n}-${idx}`} className="text-sm">
+          <li
+            key={`${n}-${idx}`}
+            className={clsx(
+              'text-sm px-1 rounded',
+              isCurrent && 'bg-sky-100 dark:bg-sky-700/30 font-semibold',
+            )}
+          >
             {n || '—'} ({hz} Hz)
           </li>
         );
@@ -153,11 +168,24 @@ const GuitarTunerPanel: React.FC<Props> = ({
 
     <button
       type="button"
-      className="px-4 py-2 rounded bg-blue-600 text-white"
+      className={clsx(
+        'px-4 py-2 rounded text-white transition-colors flex items-center gap-2 shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-500',
+        active ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700',
+      )}
       onClick={active ? stop : start}
       aria-pressed={active}
     >
-      {active ? 'Stop Tuning' : 'Start Tuning'}
+      {active ? (
+        <>
+          <StopIcon className="h-5 w-5" />
+          Stop Tuning
+        </>
+      ) : (
+        <>
+          <PlayIcon className="h-5 w-5" />
+          Start Tuning
+        </>
+      )}
     </button>
   </section>
 );
