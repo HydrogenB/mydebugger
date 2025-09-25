@@ -72,7 +72,6 @@ import {
   ContactCardIcon,
   ImageCompressIcon,
   ThongThaiIcon,
-  TunerIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -157,6 +156,37 @@ const toolRegistry: Tool[] = [
       relatedTools: ["json-converter", "csv-to-markdown"],
     },
     uiOptions: { showExamples: false, fullWidth: true },
+  },
+  {
+    id: "bson-csv",
+    route: "/bson-csv",
+    title: "BSON/JSON → CSV Converter",
+    description:
+      "Flatten MongoDB BSON or JSON dumps into RFC4180-compliant CSV locally in your browser.",
+    longDescription:
+      "Convert BSON, NDJSON, and JSON array exports from MongoDB into deterministic, RFC4180-safe CSV entirely offline. Supports two-pass schema discovery, configurable flattening strategies, and chunked ZIP output for million-row datasets.",
+    icon: ConversionIcon,
+    component: lazy(() => import("./bson-csv/page")),
+    category: "Conversion",
+    isBeta: true,
+    metadata: {
+      keywords: [
+        "bson",
+        "json",
+        "csv",
+        "mongo",
+        "ndjson",
+        "converter",
+        "flatten",
+        "export",
+      ],
+      learnMoreUrl: "https://www.rfc-editor.org/rfc/rfc4180",
+      relatedTools: ["json-converter", "csvtomd"],
+    },
+    uiOptions: {
+      showExamples: true,
+      fullWidth: true,
+    },
   },
   {
     id: "jwt-toolkit",
@@ -786,28 +816,6 @@ const toolRegistry: Tool[] = [
     category: "Utilities",
     metadata: {
       keywords: ["wake lock", "screen", "sleep"],
-      relatedTools: [],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "guitar-tuner",
-    route: "/guitar-tuner",
-    title: "Guitar Tuner",
-    description: "Free online guitar tuner using your microphone for accurate pitch detection.",
-    icon: TunerIcon,
-    component: lazy(() => import("./guitar-tuner/page")),
-    category: "Utilities",
-    metadata: {
-      keywords: [
-        "guitar",
-        "bass",
-        "tuner",
-        "online",
-        "pitch",
-        "frequency",
-        "music",
-      ],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },

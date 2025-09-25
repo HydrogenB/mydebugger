@@ -627,7 +627,7 @@ export const checkPermissionStatus = async (permissionName: string): Promise<Per
     // Handle special cases where permission name doesn't match query name
     let queryName = permissionName;
     if (permissionName === 'display-capture') {
-      queryName = 'screen-capture';
+      queryName = 'display-capture';
     }
     
     const result = await navigator.permissions.query({ 

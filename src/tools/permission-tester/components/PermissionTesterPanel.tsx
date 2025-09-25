@@ -8,7 +8,7 @@ import { FiSearch, FiFilter, FiDownload, FiPlay } from 'react-icons/fi';
 
 import type { UsePermissionTesterReturn } from '../hooks/usePermissionTester';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
-import PermissionCardEnhanced from './PermissionCardEnhanced';
+import PermissionCard from './PermissionCard';
 // Use colocated EventLog under tool if available; fallback to legacy root
 // eslint-disable-next-line import/no-relative-packages
 import EventLog from './EventLog';
@@ -31,12 +31,6 @@ function PermissionTesterView({
   getPermissionData,
   clearPermissionData,
   testNotification,
-  activePreview,
-  setActivePreview,
-  previewStates,
-  updatePreviewState,
-  isPreviewActive,
-  stopPreview,
   exportResults,
   runBatchTest,
   permissionStats
