@@ -2,8 +2,8 @@
   "version": 2,
   "public": true,
   "framework": "vite",
-  "installCommand": "npm install --production=false",
-  "buildCommand": "npm run build:vercel",
+  "installCommand": "pnpm install --no-frozen-lockfile",
+  "buildCommand": "pnpm run build:vercel",
   "devCommand": "npm run dev",
   "outputDirectory": "dist",
   "rewrites": [
