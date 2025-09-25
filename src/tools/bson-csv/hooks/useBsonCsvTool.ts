@@ -43,17 +43,13 @@ export interface UseBsonCsvToolResult {
   logs: LogEntry[];
   outputs: OutputPart[];
   error: string | null;
-  isWorkerReady: boolean;
   hasFile: boolean;
   isRunning: boolean;
   onFileSelected: (file: File) => Promise<void>;
   onClearFile: () => void;
   onStart: () => void;
-  onPause: () => void;
-  onResume: () => void;
   onCancel: () => void;
   onConfirmSchema: () => void;
-  onWarmup: () => void;
   clearOutputs: () => void;
   downloadLog: () => void;
 }
@@ -70,8 +66,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [outputs, setOutputs] = useState<OutputPart[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isWorkerReady, setWorkerReady] = useState<boolean>(false);
-
   const workerRef = useRef<Worker | null>(null);
   const partBuffersRef = useRef<Map<number, InternalPartBuffer>>(new Map());
   const latestOptionsRef = useRef<ConverterOptions>(options);
@@ -102,10 +96,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
     worker.onmessage = (event: MessageEvent<WorkerResponseMessage>) => {
       const message = event.data;
       switch (message.type) {
-        case "READY": {
-          setWorkerReady(true);
-          break;
-        }
         case "PHASE": {
           setStatus(message.value);
           break;
@@ -230,7 +220,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
       setStatus("failed");
     };
 
-    worker.postMessage({ type: "WARMUP" } satisfies WorkerRequestMessage);
     return worker;
   }, []);
 
@@ -238,7 +227,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
     if (workerRef.current) {
       workerRef.current.terminate();
       workerRef.current = null;
-      setWorkerReady(false);
     }
   }, []);
 
@@ -291,14 +279,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
     postRequest(message);
   }, [file, postRequest, resetForNewRun]);
 
-  const onPause = useCallback(() => {
-    postRequest({ type: "PAUSE" });
-  }, [postRequest]);
-
-  const onResume = useCallback(() => {
-    postRequest({ type: "RESUME" });
-  }, [postRequest]);
-
   const onCancel = useCallback(() => {
     postRequest({ type: "CANCEL" });
     setStatus("cancelled");
@@ -311,10 +291,6 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
     awaitingSchemaConfirmationRef.current = false;
     postRequest({ type: "CONTINUE" });
   }, [postRequest]);
-
-  const onWarmup = useCallback(() => {
-    ensureWorker();
-  }, [ensureWorker]);
 
   const updateOptions = useCallback((updater: (prev: ConverterOptions) => ConverterOptions) => {
     setOptions((prev) => {
@@ -370,17 +346,13 @@ export const useBsonCsvTool = (): UseBsonCsvToolResult => {
     logs,
     outputs,
     error,
-    isWorkerReady,
     hasFile,
     isRunning,
     onFileSelected,
     onClearFile,
     onStart,
-    onPause,
-    onResume,
     onCancel,
     onConfirmSchema,
-    onWarmup,
     clearOutputs,
     downloadLog,
   };

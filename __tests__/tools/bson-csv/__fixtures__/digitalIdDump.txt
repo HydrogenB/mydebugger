@@ -1,0 +1,1654 @@
+/////////////Start .txt file ////////////////////
+
+
+
+
+/* 1 */
+{
+    "_id" : "8c9dd1b0a4875f501650b592c0507bc5",
+    "digitalId" : "8c9dd1b0a4875f501650b592c0507bc5",
+    "product" : {
+        "productId" : "+deD5sqm6F1veEw8SRK5aA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.966Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.966Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 2 */
+{
+    "_id" : "a3008db014447afc08f1f51742b6e554",
+    "digitalId" : "a3008db014447afc08f1f51742b6e554",
+    "product" : {
+        "productId" : "//dl6fbH0FnxIhdNg8LPCQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.762Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.762Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 3 */
+{
+    "_id" : "ad8f1ac14d648df6f6cab8db3711498e",
+    "digitalId" : "ad8f1ac14d648df6f6cab8db3711498e",
+    "product" : {
+        "productId" : "/9WoA8a2gy8vC1+0oqg9IQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.423Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.423Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 4 */
+{
+    "_id" : "fffc92cb440315c774f570d0268375b8",
+    "digitalId" : "fffc92cb440315c774f570d0268375b8",
+    "product" : {
+        "productId" : "/P6Ue34m1rHIHiDJ1PHUOg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.016Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.016Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 5 */
+{
+    "_id" : "81c6c705e63f7ff3d52ec5d770409222",
+    "digitalId" : "81c6c705e63f7ff3d52ec5d770409222",
+    "product" : {
+        "productId" : "/lDtj8R6CMFlLTQPM9cWzg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.283Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.283Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 6 */
+{
+    "_id" : "05cf50f8eaf31f8601ccfc41bc0bbecb",
+    "digitalId" : "05cf50f8eaf31f8601ccfc41bc0bbecb",
+    "product" : {
+        "productId" : "/mhkC963xH+aZ82c+gTtDA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.709Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.709Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 7 */
+{
+    "_id" : "9c81a0a0b3f372fd8b962a7c4c4ea151",
+    "digitalId" : "9c81a0a0b3f372fd8b962a7c4c4ea151",
+    "product" : {
+        "productId" : "/yxObtmCJLaEBTlXEk/P7Q==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.559Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.559Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 8 */
+{
+    "_id" : "20b67d842512d220037303afca4d881b",
+    "digitalId" : "20b67d842512d220037303afca4d881b",
+    "product" : {
+        "productId" : "0ZtMGFF9gHt9cq4B+4JKzg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.175Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.175Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 9 */
+{
+    "_id" : "0f14c055beb7db7cd9715d1a37000bd4",
+    "digitalId" : "0f14c055beb7db7cd9715d1a37000bd4",
+    "product" : {
+        "productId" : "1BB+EqUAIYzxjA8lpqrxLw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.989Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.989Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 10 */
+{
+    "_id" : "e955d9a0004b74094eb330124549801a",
+    "digitalId" : "e955d9a0004b74094eb330124549801a",
+    "product" : {
+        "productId" : "1InmVDQ46pgBdXf8OfqnSw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.578Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.578Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 11 */
+{
+    "_id" : "f00edaf8af0a9f73cc9635409375a7db",
+    "digitalId" : "f00edaf8af0a9f73cc9635409375a7db",
+    "product" : {
+        "productId" : "2GL40lgcvUpEpxTE21Q0pA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.090Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.090Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 12 */
+{
+    "_id" : "29d877d062808a9cb18af58e413f793c",
+    "digitalId" : "29d877d062808a9cb18af58e413f793c",
+    "product" : {
+        "productId" : "2NLzTERz7AHtM2rvn/l6jQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.019Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.019Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 13 */
+{
+    "_id" : "594a8aad30e58fb61005509ba054b8fe",
+    "digitalId" : "594a8aad30e58fb61005509ba054b8fe",
+    "product" : {
+        "productId" : "2ReEDVbDJ0hG6l4W0dGVjQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.366Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.366Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 14 */
+{
+    "_id" : "689d9b1a72830b1d89f60651d23e7bb2",
+    "digitalId" : "689d9b1a72830b1d89f60651d23e7bb2",
+    "product" : {
+        "productId" : "38oUDSbd3AwwxxdDUJhLYw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.796Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.796Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 15 */
+{
+    "_id" : "56cde2ee9bdb5199108bf7de8d346e1f",
+    "digitalId" : "56cde2ee9bdb5199108bf7de8d346e1f",
+    "product" : {
+        "productId" : "3bifTOMjCkiUU/n9MMX4gg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:33.873Z"),
+    "createTime" : ISODate("2025-09-21T18:26:33.873Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 16 */
+{
+    "_id" : "bda0ca085b3e4f208bc4ad2e15c64d11",
+    "digitalId" : "bda0ca085b3e4f208bc4ad2e15c64d11",
+    "product" : {
+        "productId" : "3ubV+DFGqsj33zzvjAN52A==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.473Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.473Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 17 */
+{
+    "_id" : "8eb1ff6921c4427f7548a3945dab5d38",
+    "digitalId" : "8eb1ff6921c4427f7548a3945dab5d38",
+    "product" : {
+        "productId" : "4DMPr1rc5GYdTPPj/oVAbg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.287Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.287Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 18 */
+{
+    "_id" : "09940268dd30a6a2b77d659b5c246bc4",
+    "digitalId" : "09940268dd30a6a2b77d659b5c246bc4",
+    "product" : {
+        "productId" : "4IJWhblUEMeV/QVJi9MmKA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.320Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.320Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 19 */
+{
+    "_id" : "aaf55a859c2e4cc95af08345ec155f50",
+    "digitalId" : "aaf55a859c2e4cc95af08345ec155f50",
+    "product" : {
+        "productId" : "4WdzPWVnowjadEcmTB3M4w==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.582Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.582Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 20 */
+{
+    "_id" : "2e074f42b2603be93a7ff01d2d1a8c7e",
+    "digitalId" : "2e074f42b2603be93a7ff01d2d1a8c7e",
+    "product" : {
+        "productId" : "57s/a3CvcryeioGQ4zJYwg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.156Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.156Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 21 */
+{
+    "_id" : "d2be277a425e9ac636ccb227084f3680",
+    "digitalId" : "d2be277a425e9ac636ccb227084f3680",
+    "product" : {
+        "productId" : "5TWszGgYQ0bNXvgigZex5Q==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.087Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.087Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 22 */
+{
+    "_id" : "fd947ee1772a958da2f95693cc754cba",
+    "digitalId" : "fd947ee1772a958da2f95693cc754cba",
+    "product" : {
+        "productId" : "6Rz38b/ZSI4vxcb3hOjlMg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.275Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.275Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 23 */
+{
+    "_id" : "4611874b77bdeb99071bd13175c97165",
+    "digitalId" : "4611874b77bdeb99071bd13175c97165",
+    "product" : {
+        "productId" : "73GxjyRY2k2MFY8rH2Lhzg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:51.109Z"),
+    "createTime" : ISODate("2025-09-21T18:26:51.109Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 24 */
+{
+    "_id" : "dde1acaa6851ff89f12051e88ca738af",
+    "digitalId" : "dde1acaa6851ff89f12051e88ca738af",
+    "product" : {
+        "productId" : "75hoLsgKmiKM4nAhAP38Hw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.548Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.548Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 25 */
+{
+    "_id" : "4c9ef2ad6a328b51befff79f201a2694",
+    "digitalId" : "4c9ef2ad6a328b51befff79f201a2694",
+    "product" : {
+        "productId" : "9LRjR7iXN/wPEMpshiyyFA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.446Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.446Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 26 */
+{
+    "_id" : "9c97e17be99bcd0c1984b8ee67bea436",
+    "digitalId" : "9c97e17be99bcd0c1984b8ee67bea436",
+    "product" : {
+        "productId" : "9qIpDPigNNDo5c+1Rv1dew==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.623Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.623Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 27 */
+{
+    "_id" : "df8166dc14bb05e618cc7309a4f14cbb",
+    "digitalId" : "df8166dc14bb05e618cc7309a4f14cbb",
+    "product" : {
+        "productId" : "9zL1zum52VicEFjpESQ9NA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.889Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.889Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 28 */
+{
+    "_id" : "a4a5f531f4b497e92d939894fba42ce0",
+    "digitalId" : "a4a5f531f4b497e92d939894fba42ce0",
+    "product" : {
+        "productId" : "ATZLMz6Gd4Erhm4rDMS4XQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.372Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.372Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 29 */
+{
+    "_id" : "5abbb833bf90d95475d658ff72ae2679",
+    "digitalId" : "5abbb833bf90d95475d658ff72ae2679",
+    "product" : {
+        "productId" : "AyStY4vKf1WSre85KuL8qQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:51.834Z"),
+    "createTime" : ISODate("2025-09-21T18:26:51.834Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 30 */
+{
+    "_id" : "ac037196f0a9245481260f4d9f72ee33",
+    "digitalId" : "ac037196f0a9245481260f4d9f72ee33",
+    "product" : {
+        "productId" : "BnqUTtOwGOZe+EnoE98BnQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.676Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.676Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 31 */
+{
+    "_id" : "04776ca0e74e2a14ca45222583377429",
+    "digitalId" : "04776ca0e74e2a14ca45222583377429",
+    "product" : {
+        "productId" : "ByXV+fvlDJSk3LeMOIXdjg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.584Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.584Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 32 */
+{
+    "_id" : "ba568c5facf12efca381130a32ba60ee",
+    "digitalId" : "ba568c5facf12efca381130a32ba60ee",
+    "product" : {
+        "productId" : "CBsVI7OoZXIFx5qZa2DnsA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.951Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.951Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 33 */
+{
+    "_id" : "581b3e6047d63c5e875b292c2eb33769",
+    "digitalId" : "581b3e6047d63c5e875b292c2eb33769",
+    "product" : {
+        "productId" : "CJsBXlZhd7soh5vPjVwsgQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.343Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.343Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 34 */
+{
+    "_id" : "95d9b7209f70a4bd50d03323ff402526",
+    "digitalId" : "95d9b7209f70a4bd50d03323ff402526",
+    "product" : {
+        "productId" : "CSh39LbNi3LO2bLpRiI0fw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.531Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.531Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 35 */
+{
+    "_id" : "1733bb22fd3ee88e611d3172c96ab25f",
+    "digitalId" : "1733bb22fd3ee88e611d3172c96ab25f",
+    "product" : {
+        "productId" : "CYHWoWeamnzgkUcskLMWOQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.606Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.606Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 36 */
+{
+    "_id" : "8e9211f7024c8bd4ebb66834a11fbbc1",
+    "digitalId" : "8e9211f7024c8bd4ebb66834a11fbbc1",
+    "product" : {
+        "productId" : "DJr8En8fiY8Pc/UFCLPKMQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.126Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.126Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 37 */
+{
+    "_id" : "46c859e5e2a00e39ed79ff198ec51daa",
+    "digitalId" : "46c859e5e2a00e39ed79ff198ec51daa",
+    "product" : {
+        "productId" : "DNBp64TXMRnWvrVrJu/cZA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.891Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.891Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 38 */
+{
+    "_id" : "5595957262380e948acd00ec8506a230",
+    "digitalId" : "5595957262380e948acd00ec8506a230",
+    "product" : {
+        "productId" : "E81ssHhQPAl87q0C38kEcA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:49.390Z"),
+    "createTime" : ISODate("2025-09-21T18:26:49.390Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 39 */
+{
+    "_id" : "879ba0eb60abd8195105dc672822c172",
+    "digitalId" : "879ba0eb60abd8195105dc672822c172",
+    "product" : {
+        "productId" : "EVC4XAtdQ12m7VwqrtZjFA==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.695Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.695Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 40 */
+{
+    "_id" : "1a460b0ea0ffd389209ef60582e349cb",
+    "digitalId" : "1a460b0ea0ffd389209ef60582e349cb",
+    "product" : {
+        "productId" : "EVZvrEcw0ZLfgtz+rtxd8Q==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.905Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.905Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 41 */
+{
+    "_id" : "a490e185ed755a54e65f2349afde73dc",
+    "digitalId" : "a490e185ed755a54e65f2349afde73dc",
+    "product" : {
+        "productId" : "EpOXkSBzHPsOgJms1UHOtQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.240Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.240Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 42 */
+{
+    "_id" : "fede1ef8627daf25c29679fe1c01cc2e",
+    "digitalId" : "fede1ef8627daf25c29679fe1c01cc2e",
+    "product" : {
+        "productId" : "Exrw7cQRb6JWaTjdJNEzRQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:34.835Z"),
+    "createTime" : ISODate("2025-09-21T18:26:34.835Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 43 */
+{
+    "_id" : "530e3a45d612d85fe98d5367a35a90ba",
+    "digitalId" : "530e3a45d612d85fe98d5367a35a90ba",
+    "product" : {
+        "productId" : "FJlGUa7evwmPOIX4d4/xjg==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:50.650Z"),
+    "createTime" : ISODate("2025-09-21T18:26:50.650Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 44 */
+{
+    "_id" : "3ed75d819deaa4efd7440cd58e4dba9d",
+    "digitalId" : "3ed75d819deaa4efd7440cd58e4dba9d",
+    "product" : {
+        "productId" : "Fuosq9wD3BgDTWtYpjBxRw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.577Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.577Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 45 */
+{
+    "_id" : "2ffbc5ec7caf5c22e03a8fab93d8cafe",
+    "digitalId" : "2ffbc5ec7caf5c22e03a8fab93d8cafe",
+    "product" : {
+        "productId" : "FyfnExBr4VhKWUKR04bKuw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.197Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.197Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 46 */
+{
+    "_id" : "5e3e786b831b51ac6101b301627c6cc4",
+    "digitalId" : "5e3e786b831b51ac6101b301627c6cc4",
+    "product" : {
+        "productId" : "GVm5MQm9uLbB2vo2WGkuyQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:49.689Z"),
+    "createTime" : ISODate("2025-09-21T18:26:49.689Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 47 */
+{
+    "_id" : "d9781e9901a719b7353d3e271ffed463",
+    "digitalId" : "d9781e9901a719b7353d3e271ffed463",
+    "product" : {
+        "productId" : "HBKfCWeGHFJO5fBIKmMqtQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:51.086Z"),
+    "createTime" : ISODate("2025-09-21T18:26:51.086Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 48 */
+{
+    "_id" : "4cf8a2a26c0318ee7adbbc1981df2eda",
+    "digitalId" : "4cf8a2a26c0318ee7adbbc1981df2eda",
+    "product" : {
+        "productId" : "HELfZLuQgp+iZc7fZpo83g==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.313Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.313Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 49 */
+{
+    "_id" : "76c3ca9af052f020b66bbeff857b0dac",
+    "digitalId" : "76c3ca9af052f020b66bbeff857b0dac",
+    "product" : {
+        "productId" : "HQw3cj6fWIf4hKurHkVRsQ==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.070Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.070Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}
+
+/* 50 */
+{
+    "_id" : "9145c243b8b17f5b85dcac5589345078",
+    "digitalId" : "9145c243b8b17f5b85dcac5589345078",
+    "product" : {
+        "productId" : "HWTBME80cPjQ1UVeRNWwJw==",
+        "productBrand" : "TMH",
+        "productStatus" : "Active",
+        "productType" : "POSTPAID",
+        "productSegment" : "TUC",
+        "bcBan" : "",
+        "ban" : "UNkVyna/5tR6/lZy7G+Nqw==",
+        "multiSimLevel" : "",
+        "mainConvergenceCode" : "",
+        "assetGroupId" : "",
+        "multiSimIndicator" : "",
+        "companyCode" : "RM",
+        "companyDescription" : "True Move H Universal Communication Co., Ltd.",
+        "subscriberId" : "TyXepEu3DIsLUYF7VmqfiA=="
+    },
+    "customer" : {
+        "customerIdentity" : "5NQi7NiTFv7ur0MRF0qLjA==",
+        "customerIdentityType" : "I",
+        "customerType" : "INDI",
+        "customerNumber" : "",
+        "birthday" : "1980-01-01"
+    },
+    "status" : "A",
+    "lastUpdateTime" : ISODate("2025-09-21T18:26:35.135Z"),
+    "createTime" : ISODate("2025-09-21T18:26:35.135Z"),
+    "_class" : "th.co.truecorp.commonapi.profile.model.mongo.DigitalId"
+}

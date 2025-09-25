@@ -11,8 +11,6 @@ interface RunControlsProps {
   hasFile: boolean;
   isRunning: boolean;
   onStart: () => void;
-  onPause: () => void;
-  onResume: () => void;
   onCancel: () => void;
   onConfirmSchema: () => void;
 }
@@ -22,8 +20,6 @@ const RunControls: React.FC<RunControlsProps> = ({
   hasFile,
   isRunning,
   onStart,
-  onPause,
-  onResume,
   onCancel,
   onConfirmSchema,
 }) => {
@@ -37,33 +33,27 @@ const RunControls: React.FC<RunControlsProps> = ({
     );
   }, [hasFile, status]);
 
-  const canPause = status === "discovery" || status === "conversion";
-  const canResume = status === "paused";
-  const canCancel = isRunning || status === "awaiting-schema" || status === "paused";
+  const canCancel = isRunning || status === "awaiting-schema";
   const canConfirm = status === "awaiting-schema";
 
   return (
     <div className={`${TOOL_PANEL_CLASS} flex flex-col gap-3`}>
       <div className="flex flex-wrap gap-2">
         <Button size="sm" onClick={onStart} disabled={!canStart}>
-          Start
+          Start conversion
         </Button>
-        <Button size="sm" variant="secondary" onClick={onPause} disabled={!canPause}>
-          Pause
+        <Button size="sm" variant="secondary" onClick={onCancel} disabled={!canCancel}>
+          Cancel run
         </Button>
-        <Button size="sm" variant="secondary" onClick={onResume} disabled={!canResume}>
-          Resume
-        </Button>
-        <Button size="sm" variant="danger" onClick={onCancel} disabled={!canCancel}>
-          Cancel
-        </Button>
-        <Button size="sm" variant="secondary" onClick={onConfirmSchema} disabled={!canConfirm}>
-          Confirm schema
-        </Button>
+        {canConfirm ? (
+          <Button size="sm" variant="primary" onClick={onConfirmSchema}>
+            Continue conversion
+          </Button>
+        ) : null}
       </div>
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        Tip: You can warm up the worker in the Uploader to reduce first-run latency.
-      </div>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        Step 1: Upload your dump. Step 2: Start conversion. Step 3: Download CSV when it finishes.
+      </p>
     </div>
   );
 };
