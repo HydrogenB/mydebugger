@@ -12,6 +12,7 @@ import { detectFileFormat } from "../utils/detect";
 import { createSchemaAccumulator, addFlatKeys, finalizeColumns } from "../utils/schema";
 import { flattenObject } from "../utils/flatten";
 import { encodeHeader, encodeRow } from "../utils/csv";
+import { normalizeMongoShellExtendedTypes } from "../utils/mongoShell";
 import { deserialize } from "bson";
 
 // Global state
@@ -37,9 +38,8 @@ function shouldPulse(last: number, intervalMs = 250): boolean {
   return nowMs() - last >= intervalMs;
 }
 
-function isoDateFix(line: string): string {
-  // Replace ISODate("...") with "..." for Mongo shell dumps
-  return line.replace(/ISODate\(\"([^\"]+)\"\)/g, '"$1"');
+function sanitizeMongoShell(line: string): string {
+  return normalizeMongoShellExtendedTypes(line);
 }
 
 // Parsers (async generators)
@@ -59,7 +59,7 @@ async function* iterNdjson(file: File): AsyncGenerator<Record<string, unknown>, 
       const trimmed = line.trim();
       if (!trimmed) continue;
       try {
-        const fixed = isoDateFix(trimmed);
+        const fixed = sanitizeMongoShell(trimmed);
         const obj = JSON.parse(fixed);
         if (obj && typeof obj === "object") {
           yield obj as Record<string, unknown>;
@@ -71,7 +71,7 @@ async function* iterNdjson(file: File): AsyncGenerator<Record<string, unknown>, 
   }
   if (buf.trim()) {
     try {
-      const fixed = isoDateFix(buf.trim());
+      const fixed = sanitizeMongoShell(buf.trim());
       const obj = JSON.parse(fixed);
       if (obj && typeof obj === "object") yield obj as Record<string, unknown>;
     } catch {
@@ -104,7 +104,9 @@ async function* iterJsonArray(file: File): AsyncGenerator<Record<string, unknown
       if (ch === "]" && depth === 0 && !inString) {
         // end of array; flush remaining
         if (curr.trim()) {
-          try { yield JSON.parse(isoDateFix(curr.trim())) as Record<string, unknown>; } catch {
+          try {
+            yield JSON.parse(sanitizeMongoShell(curr.trim())) as Record<string, unknown>;
+          } catch {
             post({ type: "LOG", payload: { level: "warn", message: "Malformed JSON item skipped", timestamp: nowMs() } });
           }
         }
@@ -131,7 +133,7 @@ async function* iterJsonArray(file: File): AsyncGenerator<Record<string, unknown
             let end = text.length - 1;
             while (end >= 0 && /\s|,/.test(text[end])) end -= 1;
             const objText = text.slice(0, end + 1);
-            const parsed = JSON.parse(isoDateFix(objText));
+            const parsed = JSON.parse(sanitizeMongoShell(objText));
             if (parsed && typeof parsed === "object") {
               yield parsed as Record<string, unknown>;
             }
@@ -224,10 +226,9 @@ async function* iterMongoShellText(file: File): AsyncGenerator<Record<string, un
         if (ch === "}") {
           depth -= 1;
           if (depth === 0) {
-            // Complete object captured in curr
             try {
               const text = curr;
-              const fixed = isoDateFix(text);
+              const fixed = sanitizeMongoShell(text);
               const obj = JSON.parse(fixed);
               if (obj && typeof obj === "object") yield obj as Record<string, unknown>;
             } catch {
@@ -256,7 +257,7 @@ async function* iterMongoShellText(file: File): AsyncGenerator<Record<string, un
   // Flush remaining (in case file ended right after closing brace handled above)
   if (started && curr.trim()) {
     try {
-      const fixed = isoDateFix(curr.trim());
+      const fixed = sanitizeMongoShell(curr.trim());
       const obj = JSON.parse(fixed);
       if (obj && typeof obj === "object") yield obj as Record<string, unknown>;
     } catch {
@@ -275,7 +276,9 @@ async function pickIterator(
     const text = await file.slice(0, 8192).text();
     const trimmed = text.trimStart();
     if (trimmed.startsWith("[")) return iterJsonArray(file);
-    const hasShellMarkers = /\/\*\s*\d+\s*\*\//.test(text) || /ISODate\(/.test(text);
+    const hasShellMarkers =
+      /\/\*\s*\d+\s*\*\//.test(text) ||
+      /(ISODate|ObjectId|NumberLong|NumberInt|NumberDecimal|UUID|BinData)\(/.test(text);
     if (hasShellMarkers) return iterMongoShellText(file);
   } catch {
     // fall through
