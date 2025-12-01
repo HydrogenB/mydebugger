@@ -62,12 +62,10 @@ import {
   JwtIcon,
   UrlIcon,
   HeadersIcon,
-  RegexIcon,
   QrCodeIcon,
   ClickJackingIcon,
   LinkTracerIcon,
   CookieIcon,
-  CacheIcon,
   PushIcon,
   ContactCardIcon,
   ImageCompressIcon,
@@ -136,60 +134,6 @@ const toolRegistry: Tool[] = [
     uiOptions: { showExamples: false },
   },
   {
-    id: "json-compare",
-    route: "/json-compare",
-    title: "JSON Compare",
-    description: "Compare two JSON documents and export a diff report.",
-    icon: FormattersIcon,
-    component: lazy(() => import("./json-compare/page")),
-    category: "Formatters",
-    isNew: true,
-    metadata: {
-      keywords: [
-        "json",
-        "diff",
-        "compare",
-        "delta",
-        "added",
-        "removed",
-        "modified",
-      ],
-      relatedTools: ["json-converter", "csv-to-markdown"],
-    },
-    uiOptions: { showExamples: false, fullWidth: true },
-  },
-  {
-    id: "bson-csv",
-    route: "/bson-csv",
-    title: "BSON/JSON → CSV Converter",
-    description:
-      "Flatten MongoDB BSON or JSON dumps into RFC4180-compliant CSV locally in your browser.",
-    longDescription:
-      "Convert BSON, NDJSON, and JSON array exports from MongoDB into deterministic, RFC4180-safe CSV entirely offline. Supports two-pass schema discovery, configurable flattening strategies, and chunked ZIP output for million-row datasets.",
-    icon: ConversionIcon,
-    component: lazy(() => import("./bson-csv/page")),
-    category: "Conversion",
-    isBeta: true,
-    metadata: {
-      keywords: [
-        "bson",
-        "json",
-        "csv",
-        "mongo",
-        "ndjson",
-        "converter",
-        "flatten",
-        "export",
-      ],
-      learnMoreUrl: "https://www.rfc-editor.org/rfc/rfc4180",
-      relatedTools: ["json-converter", "csvtomd"],
-    },
-    uiOptions: {
-      showExamples: true,
-      fullWidth: true,
-    },
-  },
-  {
     id: "jwt-toolkit",
     route: "/jwt",
     title: "JWT Toolkit",
@@ -240,40 +184,6 @@ const toolRegistry: Tool[] = [
     },
     uiOptions: {
       showExamples: true,
-    },
-  },
-  {
-    id: "headers-analyzer",
-    route: "/headers",
-    title: "HTTP Headers Analyzer",
-    description: "Analyze and understand HTTP request/response headers.",
-    icon: HeadersIcon,
-    component: lazy(() => import("./headers/HeadersAnalyzer")),
-    category: "Testing",
-    isBeta: true,
-    metadata: {
-      keywords: ["http", "headers", "request", "response", "analyze"],
-      learnMoreUrl: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers",
-      relatedTools: ["jwt-toolkit", "url-encoder", "clickjacking-validator"],
-    },
-  },
-  {
-    id: "regex-tester",
-    route: "/regex",
-    title: "Regex Tester",
-    description: "Test and debug regular expressions with real-time matching.",
-    icon: RegexIcon,
-    component: lazy(() => import("./regex/RegexTester")),
-    category: "Utilities",
-    isBeta: true,
-    metadata: {
-      keywords: ["regex", "regular expression", "pattern", "test", "match"],
-      learnMoreUrl:
-        "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions",
-      relatedTools: ["url-encoder"],
-    },
-    uiOptions: {
-      showExamples: false,
     },
   },
   {
@@ -346,66 +256,37 @@ const toolRegistry: Tool[] = [
     },
   },
   {
-    id: "device-trace",
-    route: "/device-trace",
-    title: "Dynamic-Link Probe",
-    description:
-      "Test how App Flyer/OneLink URLs behave across different device contexts and installation states.",
-    icon: LinkTracerIcon, // Reusing the same icon for now
-    component: lazy(() => import("./device-trace/page")),
-    category: "Testing",
-    metadata: {
-      keywords: [
-        "app flyer",
-        "one link",
-        "dynamic link",
-        "deep link",
-        "device probe",
-        "app store",
-        "play store",
-        "universal link",
-      ],
-      learnMoreUrl:
-        "https://support.appsflyer.com/hc/en-us/articles/207032366-OneLink-overview",
-      relatedTools: ["headers-analyzer"],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
     id: "dynamic-link-probe",
     route: "/dynamic-link-probe",
-    title: "Dynamic Link Tracker",
-    description: "Parse dynamic link parameters and display a debug overlay.",
+    title: "OneLink Deep Link Inspector",
+    description:
+      "Analyze AppsFlyer OneLink URLs, validate deep links against TrueApp rules, generate curl commands, and track QA tests.",
+    longDescription:
+      "Comprehensive AppsFlyer OneLink analysis tool for TrueApp. Parse AF parameters, validate deep link format (trueapp://app.true.th/...), generate platform-specific curl commands to test redirect chains, and maintain a test matrix for systematic QA verification.",
     icon: LinkTracerIcon,
     component: lazy(() => import("./dynamic-link-probe/page")),
     category: "Testing",
+    isNew: true,
     metadata: {
-      keywords: ["dynamic link", "debug", "utm", "tracking"],
-      relatedTools: ["deep-link-chain"],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
-    id: "deep-link-chain",
-    route: "/deep-link-chain",
-    title: "Deep Link Chain",
-    description:
-      "Follow redirects and extract UTM parameters entirely in the browser.",
-    icon: LinkTracerIcon,
-    component: lazy(() => import("./deep-link-chain/page")),
-    category: "Testing",
-    metadata: {
-      keywords: ["redirect", "utm", "deep link", "link trace", "url"],
+      keywords: [
+        "onelink",
+        "appsflyer",
+        "deep link",
+        "trueapp",
+        "af_dp",
+        "utm",
+        "attribution",
+        "mobile",
+        "app store",
+        "play store",
+      ],
       learnMoreUrl:
-        "https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections",
-      relatedTools: ["url-encoder"],
+        "https://support.appsflyer.com/hc/en-us/articles/207032366-OneLink-overview",
+      relatedTools: ["qrcode-generator", "url-encoder"],
     },
     uiOptions: {
       showExamples: false,
+      fullWidth: true,
     },
   },
   {
@@ -425,39 +306,6 @@ const toolRegistry: Tool[] = [
     },
   },
   {
-    id: "cache-inspector",
-    route: "/cache-inspector",
-    title: "Cache Inspector",
-    description: "Inspect browser caching for loaded resources.",
-    icon: CacheIcon,
-    component: lazy(() => import("./cache-inspector/page")),
-    category: "Testing",
-    metadata: {
-      keywords: ["cache", "http", "service worker", "resource timing"],
-      relatedTools: ["headers-analyzer"], // Assuming standard related tools
-    },
-    uiOptions: {
-      showExamples: false, // Assuming standard UI options
-    },
-  },
-  {
-    id: "storage-sync-debugger",
-    route: "/storage-sync",
-    title: "Storage Sync Debugger",
-    description:
-      "Inspect localStorage and sessionStorage with live sync events.",
-    icon: UtilitiesIcon,
-    component: lazy(() => import("./storage-sync/page")),
-    category: "Utilities",
-    metadata: {
-      keywords: ["localStorage", "sessionStorage", "debug", "storage"],
-      relatedTools: [],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
     id: "virtual-card",
     route: "/vcard",
     title: "Virtual Name Card",
@@ -469,22 +317,6 @@ const toolRegistry: Tool[] = [
     metadata: {
       keywords: ["vcard", "contact", "qr", "vcf", "share"],
       relatedTools: ["qrcode-generator"],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
-    id: "cookie-scope",
-    route: "/cookie-scope",
-    title: "Cookie Scope",
-    description: "Visualize document cookies and highlight duplicates.",
-    icon: CookieIcon,
-    component: lazy(() => import("./cookie-scope/page")),
-    category: "Testing",
-    metadata: {
-      keywords: ["cookie", "scope", "document.cookie", "browser"],
-      relatedTools: ["cookie-inspector"],
     },
     uiOptions: {
       showExamples: false,
@@ -529,31 +361,6 @@ const toolRegistry: Tool[] = [
       ],
 
       relatedTools: [],
-    },
-    uiOptions: {
-      showExamples: false,
-    },
-  },
-  {
-    id: "pentest-suite",
-    route: "/pentest-suite",
-    title: "Pentest Validator Suite",
-    description:
-      "Run basic security checks like HTTPS enforcement and clickjacking detection.",
-    icon: SecurityIcon,
-    component: lazy(() => import("./pentest/page")),
-    category: "Security",
-    metadata: {
-      keywords: [
-        "pentest",
-        "security",
-        "https",
-        "cors",
-        "xss",
-        "open redirect",
-        "clickjacking",
-      ],
-      relatedTools: ["clickjacking-validator", "headers-analyzer"],
     },
     uiOptions: {
       showExamples: false,
@@ -661,49 +468,6 @@ const toolRegistry: Tool[] = [
     category: "Testing",
     metadata: {
       keywords: ["image", "upload", "test", "dummy"],
-      relatedTools: [],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "api-simulator",
-    route: "/api-simulator",
-    title: "API Simulator",
-    description: "Encode JSON to Base64 and test API responses.",
-    icon: TestingIcon,
-    component: lazy(() => import("./api-simulator/page")),
-    category: "Testing",
-    metadata: {
-      keywords: ["api", "testing", "mock", "delay", "status"],
-      relatedTools: ["headers-analyzer", "cors-tester"],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "api-test",
-    route: "/api-test",
-    title: "API Request Repeater",
-    description: "Repeat HTTP requests from a curl command.",
-    icon: TestingIcon,
-    component: lazy(() => import("./api-test/page")),
-    category: "Testing",
-    isNew: true,
-    metadata: {
-      keywords: ["curl", "http", "testing", "repeater"],
-      relatedTools: ["api-simulator", "websocket-simulator"],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "network-suit",
-    route: "/networksuit",
-    title: "Network Test Suite",
-    description: "Check connection type, ping and download speed.",
-    icon: TestingIcon,
-    component: lazy(() => import("./networksuit/page")),
-    category: "Testing",
-    metadata: {
-      keywords: ["network", "ping", "speed", "connection"],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },
@@ -820,34 +584,6 @@ const toolRegistry: Tool[] = [
     category: "Conversion",
     metadata: {
       keywords: ["csv", "markdown", "table", "convert"],
-      relatedTools: [],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "json-converter",
-    route: "/json-converter",
-    title: "JSON to CSV / Excel Converter",
-    description: "Convert JSON data to CSV or Excel spreadsheets.",
-    icon: ConversionIcon,
-    component: lazy(() => import("./json-converter/page")),
-    category: "Conversion",
-    metadata: {
-      keywords: ["json", "csv", "excel", "convert"],
-      relatedTools: ["csv-to-markdown"],
-    },
-    uiOptions: { showExamples: false },
-  },
-  {
-    id: "stayawake",
-    route: "/stayawake",
-    title: "Stay Awake Toggle",
-    description: "Prevent the screen from sleeping.",
-    icon: UtilitiesIcon,
-    component: lazy(() => import("./stayawake/page")),
-    category: "Utilities",
-    metadata: {
-      keywords: ["wake lock", "screen", "sleep"],
       relatedTools: [],
     },
     uiOptions: { showExamples: false },
