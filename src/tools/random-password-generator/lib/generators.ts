@@ -3,6 +3,8 @@
  * All generation happens locally using the Web Crypto API.
  */
 
+import { WORDLIST } from './wordlist';
+
 export type PasswordOptions = {
   length: number;
   includeUppercase: boolean;
@@ -10,6 +12,18 @@ export type PasswordOptions = {
   includeNumbers: boolean;
   includeSymbols: boolean;
   excludeAmbiguous: boolean;
+  customChars?: string;
+};
+
+export type PassphraseOptions = {
+  wordCount: number;
+  separator: string;
+  capitalize: boolean;
+  includeNumber: boolean;
+};
+
+export type PinOptions = {
+  length: number;
 };
 
 const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -47,7 +61,16 @@ export function generatePassword(options: PasswordOptions): string {
     includeNumbers,
     includeSymbols,
     excludeAmbiguous,
+    customChars
   } = options;
+
+  if (customChars && customChars.length > 0) {
+    const chars: string[] = [];
+    for (let i = 0; i < length; i++) {
+      chars.push(customChars[secureRandInt(customChars.length)]);
+    }
+    return chars.join("");
+  }
 
   let pool = "";
   if (includeUppercase) pool += UPPERCASE;
@@ -71,19 +94,23 @@ export function generatePassword(options: PasswordOptions): string {
   // If requested length is smaller than the number of required sets,
   // choose a subset of sets at random to keep exact length
   const setsToUse = requiredSets.slice();
-  if (length < setsToUse.length) {
+  
+  // Apply ambiguity filter to sets
+  const filteredSets = setsToUse.map(set => 
+    excludeAmbiguous ? [...set].filter(c => !AMBIGUOUS.includes(c)).join("") : set
+  ).filter(s => s.length > 0);
+
+  if (length < filteredSets.length) {
     // shuffle and keep first N
-    for (let i = setsToUse.length - 1; i > 0; i--) {
+    for (let i = filteredSets.length - 1; i > 0; i--) {
       const j = secureRandInt(i + 1);
-      [setsToUse[i], setsToUse[j]] = [setsToUse[j], setsToUse[i]];
+      [filteredSets[i], filteredSets[j]] = [filteredSets[j], filteredSets[i]];
     }
-    setsToUse.length = length;
+    filteredSets.length = length;
   }
 
-  for (const set of setsToUse) {
-    let s = set;
-    if (excludeAmbiguous) s = [...s].filter((c) => !AMBIGUOUS.includes(c)).join("");
-    if (s.length > 0) chars.push(s[secureRandInt(s.length)]);
+  for (const set of filteredSets) {
+    chars.push(set[secureRandInt(set.length)]);
   }
 
   const remaining = Math.max(0, length - chars.length);
@@ -100,34 +127,87 @@ export function generatePassword(options: PasswordOptions): string {
   return chars.join("");
 }
 
-export function estimateStrength(options: PasswordOptions, password: string) {
-  const variety =
-    Number(options.includeLowercase) +
-    Number(options.includeUppercase) +
-    Number(options.includeNumbers) +
-    Number(options.includeSymbols);
-
-  // Shannon entropy approximation: log2(poolSize^length)
-  let poolSize = 0;
-  if (options.includeLowercase) poolSize += 26;
-  if (options.includeUppercase) poolSize += 26;
-  if (options.includeNumbers) poolSize += 10;
-  if (options.includeSymbols) poolSize += (SYMBOLS.length - (options.excludeAmbiguous ? [...SYMBOLS].filter(c => AMBIGUOUS.includes(c)).length : 0));
-  if (options.excludeAmbiguous) {
-    poolSize = Math.max(0, poolSize - AMBIGUOUS.length);
+export function generatePassphrase(options: PassphraseOptions): string {
+  const { wordCount, separator, capitalize, includeNumber } = options;
+  const words: string[] = [];
+  
+  for (let i = 0; i < wordCount; i++) {
+    let word = WORDLIST[secureRandInt(WORDLIST.length)];
+    if (capitalize) {
+      word = word.charAt(0).toUpperCase() + word.slice(1);
+    }
+    words.push(word);
   }
-  const entropy = Math.log2(Math.max(1, poolSize)) * password.length;
 
-  // Simple score buckets
+  if (includeNumber) {
+    const num = secureRandInt(10000).toString(); // 0-9999
+    // insert at random position
+    const pos = secureRandInt(words.length + 1);
+    words.splice(pos, 0, num);
+  }
+
+  return words.join(separator);
+}
+
+export function generatePIN(options: PinOptions): string {
+  const { length } = options;
+  let pin = "";
+  for (let i = 0; i < length; i++) {
+    pin += NUMBERS[secureRandInt(10)];
+  }
+  return pin;
+}
+
+export function estimateStrength(options: PasswordOptions | PassphraseOptions | null, password: string) {
+  // Simple entropy calculation
+  if (!password) return { entropy: 0, label: "Very weak", score: 0 };
+
+  let poolSize = 0;
+  
+  // Heuristic detection of type
+  const isPassphrase = password.length > 20 && (password.includes('-') || password.includes(' ') || password.includes('.'));
+  
+  if (isPassphrase) {
+    // Passphrase entropy: log2(wordlistSize^wordCount)
+    // Assuming roughly based on our wordlist ~2048 (11 bits per word)
+    const separators = password.match(/[- ._]/g);
+    const wordCount = separators ? separators.length + 1 : 1; 
+    // Roughly 11 bits per word + variations
+    const entropy = wordCount * 11; 
+    
+    let label: "Very weak" | "Weak" | "Good" | "Strong" | "Very strong" = "Very weak";
+    if (entropy > 80) label = "Very strong";
+    else if (entropy > 60) label = "Strong";
+    else if (entropy > 50) label = "Good";
+    else if (entropy > 30) label = "Weak";
+    
+    const score = Math.min(100, Math.round((entropy / 100) * 100));
+    return { entropy, label, score };
+  }
+
+  // Standard password entropy
+  const hasLower = /[a-z]/.test(password);
+  const hasUpper = /[A-Z]/.test(password);
+  const hasDigit = /[0-9]/.test(password);
+  const hasSymbol = /[^a-zA-Z0-9]/.test(password);
+
+  if (hasLower) poolSize += 26;
+  if (hasUpper) poolSize += 26;
+  if (hasDigit) poolSize += 10;
+  if (hasSymbol) poolSize += 32;
+
+  const entropy = Math.log2(Math.max(1, poolSize)) * password.length;
+  
   let label: "Very weak" | "Weak" | "Good" | "Strong" | "Very strong" = "Very weak";
-  if (entropy > 60 && variety >= 3 && password.length >= 12) label = "Good";
-  if (entropy > 80 && password.length >= 14) label = "Strong";
-  if (entropy > 100 && password.length >= 16) label = "Very strong";
+  if (entropy > 100) label = "Very strong";
+  else if (entropy > 80) label = "Strong";
+  else if (entropy > 60) label = "Good";
   else if (entropy > 40) label = "Weak";
 
   const score = Math.min(100, Math.round((entropy / 128) * 100));
   return { entropy, label, score };
 }
+
 
 export function generateUUIDv4(): string {
   if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();

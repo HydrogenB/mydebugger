@@ -72,6 +72,7 @@ import {
   ContactCardIcon,
   ImageCompressIcon,
   ThongThaiIcon,
+  ImageToSvgIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -720,6 +721,37 @@ const toolRegistry: Tool[] = [
       relatedTools: ["generate-large-image"],
     },
     uiOptions: { showExamples: false },
+  },
+  {
+    id: "img-to-svg",
+    route: "/img-to-svg",
+    title: "Image to SVG Converter",
+    description:
+      "Convert raster images (JPG, PNG, WebP) to scalable vector graphics using path tracing.",
+    longDescription:
+      "Transform bitmap images into clean, scalable SVG vectors entirely in your browser. Uses advanced path tracing algorithms with customizable presets for line art, posterization, or full-color vectorization. No server uploads required.",
+    icon: ImageToSvgIcon,
+    component: lazy(() => import("./img-to-svg/page")),
+    category: "Conversion",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "image to svg",
+        "vectorize",
+        "convert",
+        "path trace",
+        "potrace",
+        "raster to vector",
+        "jpg to svg",
+        "png to svg",
+        "webp to svg",
+        "vectorization",
+        "svg converter",
+      ],
+      learnMoreUrl: "https://en.wikipedia.org/wiki/Image_tracing",
+      relatedTools: ["image-compressor", "generate-large-image", "qrcode-generator"],
+    },
+    uiOptions: { showExamples: false, fullWidth: true },
   },
   {
     id: "thong-thai",

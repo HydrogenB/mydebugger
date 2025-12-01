@@ -193,3 +193,35 @@ export const TunerIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const ImageToSvgIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    {/* Image frame */}
+    <rect
+      x="3"
+      y="3"
+      width="18"
+      height="18"
+      rx="2"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Arrow indicating conversion */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 12h6m0 0l-2-2m2 2l-2 2"
+    />
+    {/* Vector path symbol */}
+    <circle cx="7" cy="7" r="1.5" fill="currentColor" />
+    <circle cx="17" cy="17" r="1.5" fill="currentColor" />
+  </svg>
+);
+
