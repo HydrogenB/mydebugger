@@ -6,9 +6,11 @@ import {
   traceImageFromFile,
   TracingOptions,
   TracingResult,
+  TracingEngine,
   DEFAULT_OPTIONS,
   PRESETS,
   TracingPreset,
+  ENGINE_INFO,
 } from '../lib/imageTracer';
 
 export interface ImageInfo {
@@ -160,6 +162,7 @@ export const useImageToSvg = () => {
     progress,
     activePreset,
     presets: PRESETS,
+    engineInfo: ENGINE_INFO,
     // Actions
     onFile,
     updateOption,

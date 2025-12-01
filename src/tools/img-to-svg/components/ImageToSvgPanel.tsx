@@ -4,7 +4,8 @@
 import React, { ChangeEvent, DragEvent, useState, useRef } from 'react';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
 import { UseImageToSvgReturn } from '../hooks/useImageToSvg';
-import { Download, Copy, RefreshCw, Upload, Palette, Settings, Sparkles, Check, X, Image, FileCode, Zap, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
+import { Download, Copy, RefreshCw, Upload, Palette, Settings, Sparkles, Check, X, Image, FileCode, Zap, ChevronDown, ChevronUp, Eye, EyeOff, Cpu, SlidersHorizontal } from 'lucide-react';
+import { TracingEngine } from '../lib/imageTracer';
 import clsx from 'clsx';
 
 interface Props extends UseImageToSvgReturn {}
@@ -19,6 +20,7 @@ const ImageToSvgPanel: React.FC<Props> = ({
   progress,
   activePreset,
   presets,
+  engineInfo,
   onFile,
   updateOption,
   applyPreset,
@@ -168,6 +170,45 @@ const ImageToSvgPanel: React.FC<Props> = ({
             )}
           </div>
 
+          {/* Tracing Engine Selector */}
+          <div className={TOOL_PANEL_CLASS}>
+            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+              <Cpu className="w-4 h-4" />
+              Tracing Engine
+            </h3>
+            <div className="space-y-2">
+              {(Object.keys(engineInfo) as TracingEngine[]).map((engineKey) => (
+                <button
+                  key={engineKey}
+                  onClick={() => updateOption('engine', engineKey)}
+                  className={clsx(
+                    'w-full px-4 py-3 rounded-lg text-left transition-all border-2',
+                    options.engine === engineKey
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                      : 'border-transparent bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={clsx(
+                      'font-medium text-sm',
+                      options.engine === engineKey
+                        ? 'text-primary-700 dark:text-primary-300'
+                        : 'text-gray-700 dark:text-gray-300'
+                    )}>
+                      {engineInfo[engineKey].name}
+                    </span>
+                    {options.engine === engineKey && (
+                      <Check className="w-4 h-4 text-primary-600" />
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {engineInfo[engineKey].description}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Presets */}
           <div className={TOOL_PANEL_CLASS}>
             <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
@@ -180,7 +221,7 @@ const ImageToSvgPanel: React.FC<Props> = ({
                   key={preset.name}
                   onClick={() => applyPreset(preset)}
                   className={clsx(
-                    'px-3 py-2 rounded-lg text-xs font-medium transition-all',
+                    'px-3 py-2 rounded-lg text-xs font-medium transition-all text-left',
                     activePreset === preset.name
                       ? 'bg-primary-600 text-white shadow-md'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -287,6 +328,53 @@ const ImageToSvgPanel: React.FC<Props> = ({
               {/* Advanced Options */}
               {showAdvanced && (
                 <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+                  {/* Threshold (for Potrace/Edge engines) */}
+                  {(options.engine === 'potrace' || options.engine === 'edgeTrace') && (
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                          Threshold
+                        </label>
+                        <span className="text-xs font-mono text-primary-600 dark:text-primary-400">
+                          {options.threshold}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={255}
+                        value={options.threshold}
+                        onChange={(e) => updateOption('threshold', parseInt(e.target.value, 10))}
+                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                      />
+                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>More detail</span>
+                        <span>Less detail</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stroke Width */}
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        Stroke Width
+                      </label>
+                      <span className="text-xs font-mono text-primary-600 dark:text-primary-400">
+                        {options.strokeWidth}px
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min={0.5}
+                      max={5}
+                      step={0.5}
+                      value={options.strokeWidth}
+                      onChange={(e) => updateOption('strokeWidth', parseFloat(e.target.value))}
+                      className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                    />
+                  </div>
+
                   {/* Min Path Length */}
                   <div>
                     <div className="flex justify-between items-center mb-2">
@@ -329,6 +417,17 @@ const ImageToSvgPanel: React.FC<Props> = ({
 
                   {/* Toggles */}
                   <div className="space-y-2">
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                        Line Filter (Strokes)
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={options.lineFilter}
+                        onChange={(e) => updateOption('lineFilter', e.target.checked)}
+                        className="w-4 h-4 rounded text-primary-600 focus:ring-primary-500"
+                      />
+                    </label>
                     <label className="flex items-center justify-between cursor-pointer">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                         Blur Preprocessing
@@ -504,6 +603,12 @@ const ImageToSvgPanel: React.FC<Props> = ({
               <div className="flex flex-wrap items-center gap-4">
                 {/* Stats */}
                 <div className="flex-1 flex flex-wrap gap-6">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Engine</p>
+                    <p className="text-lg font-bold text-primary-600 dark:text-primary-400">
+                      {engineInfo[result.engine]?.name || result.engine}
+                    </p>
+                  </div>
                   <div>
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paths</p>
                     <p className="text-xl font-bold text-gray-900 dark:text-white">{result.pathCount}</p>

@@ -2,17 +2,22 @@
  * © 2025 MyDebugger Contributors – MIT License
  *
  * Image to SVG Path Tracing Library
- * Uses a custom implementation based on potrace algorithm for reliable vectorization
+ * Supports multiple tracing engines for different use cases
  */
 
+// Available tracing engines
+export type TracingEngine = 'potrace' | 'edgeTrace' | 'colorQuantize';
+
 export interface TracingOptions {
+  /** Tracing engine to use */
+  engine: TracingEngine;
   /** Number of colors for color quantization (2-256) */
   colorCount: number;
   /** Color precision threshold (0-255), lower = more colors merged */
   colorQuantCycles: number;
   /** Minimum path length to keep */
   minPathLength: number;
-  /** Path smoothing level (0-100) */
+  /** Path smoothing level (0-5) */
   pathSmoothing: number;
   /** Corner detection threshold (0-180 degrees) */
   cornerThreshold: number;
@@ -24,6 +29,14 @@ export interface TracingOptions {
   blur: boolean;
   /** Invert colors before tracing */
   invert: boolean;
+  /** Threshold for edge detection (0-255) */
+  threshold: number;
+  /** Turn policy: 'black' | 'white' | 'left' | 'right' | 'minority' | 'majority' */
+  turnPolicy: 'black' | 'white' | 'left' | 'right' | 'minority' | 'majority';
+  /** Alpha color (background color for alpha blending) */
+  background: string;
+  /** Enable line filter for better stroke detection */
+  lineFilter: boolean;
 }
 
 export interface TracingResult {
@@ -32,6 +45,7 @@ export interface TracingResult {
   height: number;
   pathCount: number;
   colorPalette: string[];
+  engine: TracingEngine;
 }
 
 export interface TracingPreset {
@@ -40,7 +54,23 @@ export interface TracingPreset {
   options: Partial<TracingOptions>;
 }
 
+export const ENGINE_INFO: Record<TracingEngine, { name: string; description: string }> = {
+  potrace: {
+    name: 'Potrace',
+    description: 'Best for line art, logos, and high-contrast images. Produces clean stroked paths.',
+  },
+  edgeTrace: {
+    name: 'Edge Trace',
+    description: 'Edge detection based tracing. Great for outlines and contours.',
+  },
+  colorQuantize: {
+    name: 'Color Quantize',
+    description: 'Region-based tracing with color quantization. Best for filled shapes and photos.',
+  },
+};
+
 export const DEFAULT_OPTIONS: TracingOptions = {
+  engine: 'potrace',
   colorCount: 16,
   colorQuantCycles: 3,
   minPathLength: 4,
@@ -50,38 +80,52 @@ export const DEFAULT_OPTIONS: TracingOptions = {
   strokeWidth: 1,
   blur: false,
   invert: false,
+  threshold: 128,
+  turnPolicy: 'minority',
+  background: '#ffffff',
+  lineFilter: true,
 };
 
 export const PRESETS: TracingPreset[] = [
   {
-    name: 'Default',
-    description: 'Balanced settings for most images',
-    options: { colorCount: 16, pathSmoothing: 1, cornerThreshold: 100 },
+    name: 'Line Art (Best)',
+    description: 'Optimized for line drawings and outlines',
+    options: { engine: 'potrace', mode: 'monochrome', threshold: 128, lineFilter: true, strokeWidth: 1 },
   },
   {
-    name: 'Detailed',
-    description: 'High detail with more colors and paths',
-    options: { colorCount: 64, pathSmoothing: 0.5, minPathLength: 2, colorQuantCycles: 5 },
+    name: 'Logo/Icon',
+    description: 'Sharp edges for logos and icons',
+    options: { engine: 'potrace', colorCount: 8, threshold: 100, pathSmoothing: 0.5 },
+  },
+  {
+    name: 'Detailed Color',
+    description: 'High detail with many colors',
+    options: { engine: 'colorQuantize', colorCount: 64, pathSmoothing: 0.5, minPathLength: 2 },
   },
   {
     name: 'Simplified',
     description: 'Clean output with fewer colors',
-    options: { colorCount: 8, pathSmoothing: 2, minPathLength: 8, cornerThreshold: 120 },
+    options: { engine: 'colorQuantize', colorCount: 8, pathSmoothing: 2, minPathLength: 8 },
   },
   {
     name: 'Posterized',
     description: 'Artistic poster-style effect',
-    options: { colorCount: 4, pathSmoothing: 3, minPathLength: 10 },
+    options: { engine: 'colorQuantize', colorCount: 4, pathSmoothing: 3, minPathLength: 10 },
   },
   {
-    name: 'Line Art',
-    description: 'Monochrome line drawing',
-    options: { mode: 'monochrome', colorCount: 2, strokeWidth: 2, pathSmoothing: 1.5 },
+    name: 'Edge Detection',
+    description: 'Extract outlines only',
+    options: { engine: 'edgeTrace', mode: 'monochrome', threshold: 50, strokeWidth: 2 },
+  },
+  {
+    name: 'High Contrast',
+    description: 'Black and white with threshold',
+    options: { engine: 'potrace', mode: 'monochrome', threshold: 150, colorCount: 2 },
   },
   {
     name: 'Grayscale',
     description: 'Grayscale with smooth gradients',
-    options: { mode: 'grayscale', colorCount: 8, pathSmoothing: 1 },
+    options: { engine: 'colorQuantize', mode: 'grayscale', colorCount: 8, pathSmoothing: 1 },
   },
 ];
 
@@ -336,11 +380,439 @@ function smoothPath(
   return reduced;
 }
 
+// ============================================================================
+// POTRACE ENGINE - Best for line art
+// ============================================================================
+
+interface BitmapPath {
+  points: { x: number; y: number }[];
+  sign: '+' | '-';
+}
+
+function createBitmap(imageData: ImageData, threshold: number): number[][] {
+  const { width, height, data } = imageData;
+  const bitmap: number[][] = [];
+  
+  for (let y = 0; y < height; y++) {
+    bitmap[y] = [];
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const alpha = data[idx + 3];
+      if (alpha < 128) {
+        bitmap[y][x] = 0; // Transparent = white
+      } else {
+        const gray = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+        bitmap[y][x] = gray < threshold ? 1 : 0;
+      }
+    }
+  }
+  
+  return bitmap;
+}
+
+function traceBitmapPaths(bitmap: number[][], width: number, height: number): BitmapPath[] {
+  const paths: BitmapPath[] = [];
+  const visited: boolean[][] = Array(height).fill(null).map(() => Array(width).fill(false));
+  
+  // Direction vectors for 8-connectivity
+  const dx = [1, 1, 0, -1, -1, -1, 0, 1];
+  const dy = [0, 1, 1, 1, 0, -1, -1, -1];
+  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (bitmap[y][x] === 1 && !visited[y][x]) {
+        // Found a black pixel, trace the contour
+        const contour = traceContourPotrace(bitmap, x, y, width, height, visited);
+        if (contour.length >= 3) {
+          paths.push({ points: contour, sign: '+' });
+        }
+      }
+    }
+  }
+  
+  return paths;
+}
+
+function traceContourPotrace(
+  bitmap: number[][],
+  startX: number,
+  startY: number,
+  width: number,
+  height: number,
+  visited: boolean[][]
+): { x: number; y: number }[] {
+  const contour: { x: number; y: number }[] = [];
+  
+  // Find all connected pixels and their boundary
+  const region: { x: number; y: number }[] = [];
+  const queue: [number, number][] = [[startX, startY]];
+  
+  while (queue.length > 0) {
+    const [x, y] = queue.shift()!;
+    
+    if (x < 0 || x >= width || y < 0 || y >= height) continue;
+    if (visited[y][x] || bitmap[y][x] !== 1) continue;
+    
+    visited[y][x] = true;
+    region.push({ x, y });
+    
+    // 4-connectivity for flood fill
+    queue.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
+  }
+  
+  if (region.length === 0) return contour;
+  
+  // Extract boundary pixels (pixels adjacent to non-black)
+  const boundarySet = new Set<string>();
+  
+  for (const { x, y } of region) {
+    const neighbors = [
+      [x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]
+    ];
+    
+    for (const [nx, ny] of neighbors) {
+      if (nx < 0 || nx >= width || ny < 0 || ny >= height || bitmap[ny][nx] !== 1) {
+        boundarySet.add(`${x},${y}`);
+        break;
+      }
+    }
+  }
+  
+  // Convert to ordered boundary points using marching
+  const boundary = Array.from(boundarySet).map(s => {
+    const [x, y] = s.split(',').map(Number);
+    return { x, y };
+  });
+  
+  if (boundary.length < 3) return boundary;
+  
+  // Sort boundary by angle from centroid for proper ordering
+  const cx = boundary.reduce((s, p) => s + p.x, 0) / boundary.length;
+  const cy = boundary.reduce((s, p) => s + p.y, 0) / boundary.length;
+  
+  boundary.sort((a, b) => {
+    const angleA = Math.atan2(a.y - cy, a.x - cx);
+    const angleB = Math.atan2(b.y - cy, b.x - cx);
+    return angleA - angleB;
+  });
+  
+  return boundary;
+}
+
+function pathToSvgPotrace(
+  path: BitmapPath,
+  options: TracingOptions
+): string {
+  const points = path.points;
+  if (points.length < 2) return '';
+  
+  // Simplify path using Douglas-Peucker
+  const simplified = simplifyPath(points, options.pathSmoothing);
+  
+  if (simplified.length < 2) return '';
+  
+  let d = `M${simplified[0].x},${simplified[0].y}`;
+  
+  // Use bezier curves for smoothing
+  if (options.pathSmoothing > 0 && simplified.length > 2) {
+    for (let i = 1; i < simplified.length; i++) {
+      const p0 = simplified[i - 1];
+      const p1 = simplified[i];
+      const p2 = simplified[(i + 1) % simplified.length];
+      
+      const midX = (p1.x + p2.x) / 2;
+      const midY = (p1.y + p2.y) / 2;
+      
+      d += `Q${p1.x},${p1.y},${midX},${midY}`;
+    }
+  } else {
+    for (let i = 1; i < simplified.length; i++) {
+      d += `L${simplified[i].x},${simplified[i].y}`;
+    }
+  }
+  
+  d += 'Z';
+  return d;
+}
+
+function simplifyPath(
+  points: { x: number; y: number }[],
+  tolerance: number
+): { x: number; y: number }[] {
+  if (points.length <= 2) return points;
+  if (tolerance === 0) return points;
+  
+  // Douglas-Peucker algorithm
+  const sqTolerance = tolerance * tolerance;
+  
+  function getSqDist(p1: { x: number; y: number }, p2: { x: number; y: number }): number {
+    const dx = p1.x - p2.x;
+    const dy = p1.y - p2.y;
+    return dx * dx + dy * dy;
+  }
+  
+  function getSqSegDist(p: { x: number; y: number }, p1: { x: number; y: number }, p2: { x: number; y: number }): number {
+    let x = p1.x;
+    let y = p1.y;
+    let dx = p2.x - x;
+    let dy = p2.y - y;
+    
+    if (dx !== 0 || dy !== 0) {
+      const t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+      
+      if (t > 1) {
+        x = p2.x;
+        y = p2.y;
+      } else if (t > 0) {
+        x += dx * t;
+        y += dy * t;
+      }
+    }
+    
+    dx = p.x - x;
+    dy = p.y - y;
+    
+    return dx * dx + dy * dy;
+  }
+  
+  function simplifyDPStep(
+    points: { x: number; y: number }[],
+    first: number,
+    last: number,
+    sqTolerance: number,
+    simplified: { x: number; y: number }[]
+  ): void {
+    let maxSqDist = sqTolerance;
+    let index = 0;
+    
+    for (let i = first + 1; i < last; i++) {
+      const sqDist = getSqSegDist(points[i], points[first], points[last]);
+      
+      if (sqDist > maxSqDist) {
+        index = i;
+        maxSqDist = sqDist;
+      }
+    }
+    
+    if (maxSqDist > sqTolerance) {
+      if (index - first > 1) simplifyDPStep(points, first, index, sqTolerance, simplified);
+      simplified.push(points[index]);
+      if (last - index > 1) simplifyDPStep(points, index, last, sqTolerance, simplified);
+    }
+  }
+  
+  const last = points.length - 1;
+  const simplified = [points[0]];
+  simplifyDPStep(points, 0, last, sqTolerance, simplified);
+  simplified.push(points[last]);
+  
+  return simplified;
+}
+
+function generatePotracesSvg(
+  bitmap: number[][],
+  width: number,
+  height: number,
+  options: TracingOptions
+): { svg: string; pathCount: number; colors: string[] } {
+  const paths = traceBitmapPaths(bitmap, width, height);
+  
+  const strokeColor = options.invert ? '#ffffff' : '#000000';
+  const fillColor = options.invert ? '#ffffff' : '#000000';
+  
+  let svgPaths = '';
+  let pathCount = 0;
+  
+  for (const path of paths) {
+    const d = pathToSvgPotrace(path, options);
+    if (d) {
+      if (options.lineFilter) {
+        // Stroke-based output for line art
+        svgPaths += `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="${options.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>\n`;
+      } else {
+        // Fill-based output
+        svgPaths += `<path d="${d}" fill="${fillColor}" stroke="none"/>\n`;
+      }
+      pathCount++;
+    }
+  }
+  
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+${svgPaths}</svg>`;
+  
+  return { svg, pathCount, colors: [strokeColor] };
+}
+
+// ============================================================================
+// EDGE TRACE ENGINE - Edge detection based
+// ============================================================================
+
+function sobelEdgeDetection(imageData: ImageData, threshold: number): number[][] {
+  const { width, height, data } = imageData;
+  const edges: number[][] = Array(height).fill(null).map(() => Array(width).fill(0));
+  
+  // Sobel kernels
+  const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+  const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+  
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      let gx = 0;
+      let gy = 0;
+      
+      for (let ky = -1; ky <= 1; ky++) {
+        for (let kx = -1; kx <= 1; kx++) {
+          const idx = ((y + ky) * width + (x + kx)) * 4;
+          const gray = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+          const ki = (ky + 1) * 3 + (kx + 1);
+          gx += gray * sobelX[ki];
+          gy += gray * sobelY[ki];
+        }
+      }
+      
+      const magnitude = Math.sqrt(gx * gx + gy * gy);
+      edges[y][x] = magnitude > threshold ? 1 : 0;
+    }
+  }
+  
+  return edges;
+}
+
+function generateEdgeTraceSvg(
+  imageData: ImageData,
+  options: TracingOptions
+): { svg: string; pathCount: number; colors: string[] } {
+  const { width, height } = imageData;
+  const edges = sobelEdgeDetection(imageData, options.threshold);
+  
+  // Trace edge pixels as paths
+  const visited: boolean[][] = Array(height).fill(null).map(() => Array(width).fill(false));
+  const paths: string[] = [];
+  
+  const strokeColor = options.invert ? '#ffffff' : '#000000';
+  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (edges[y][x] === 1 && !visited[y][x]) {
+        const path = traceEdgePath(edges, x, y, width, height, visited);
+        if (path.length >= options.minPathLength) {
+          const simplified = simplifyPath(path, options.pathSmoothing);
+          if (simplified.length >= 2) {
+            let d = `M${simplified[0].x},${simplified[0].y}`;
+            for (let i = 1; i < simplified.length; i++) {
+              d += `L${simplified[i].x},${simplified[i].y}`;
+            }
+            paths.push(`<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="${options.strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>`);
+          }
+        }
+      }
+    }
+  }
+  
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+${paths.join('\n')}</svg>`;
+  
+  return { svg, pathCount: paths.length, colors: [strokeColor] };
+}
+
+function traceEdgePath(
+  edges: number[][],
+  startX: number,
+  startY: number,
+  width: number,
+  height: number,
+  visited: boolean[][]
+): { x: number; y: number }[] {
+  const path: { x: number; y: number }[] = [];
+  const queue: [number, number][] = [[startX, startY]];
+  
+  // 8-connectivity directions
+  const dx = [1, 1, 0, -1, -1, -1, 0, 1];
+  const dy = [0, 1, 1, 1, 0, -1, -1, -1];
+  
+  while (queue.length > 0) {
+    const [x, y] = queue.shift()!;
+    
+    if (x < 0 || x >= width || y < 0 || y >= height) continue;
+    if (visited[y][x] || edges[y][x] !== 1) continue;
+    
+    visited[y][x] = true;
+    path.push({ x, y });
+    
+    // Check 8-connected neighbors
+    for (let i = 0; i < 8; i++) {
+      const nx = x + dx[i];
+      const ny = y + dy[i];
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height && !visited[ny][nx] && edges[ny][nx] === 1) {
+        queue.push([nx, ny]);
+      }
+    }
+  }
+  
+  return path;
+}
+
+// ============================================================================
+// COLOR QUANTIZE ENGINE - Region-based (original)
+// ============================================================================
+
+function generateColorQuantizeSvg(
+  imageData: ImageData,
+  options: TracingOptions
+): { svg: string; pathCount: number; colors: string[] } {
+  const { width, height, data } = imageData;
+  
+  // Collect all pixels for color quantization
+  const pixels: number[][] = [];
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] > 128) {
+      pixels.push([data[i], data[i + 1], data[i + 2]]);
+    }
+  }
+
+  // Quantize colors
+  let palette = medianCut([...pixels], options.colorCount);
+
+  if (options.mode === 'monochrome') {
+    palette = [[0, 0, 0], [255, 255, 255]];
+  }
+
+  // Map pixels to palette colors
+  const colorMap: number[][] = [];
+  for (let y = 0; y < height; y++) {
+    colorMap[y] = [];
+    for (let x = 0; x < width; x++) {
+      const idx = (y * width + x) * 4;
+      const [r, g, b, a] = getPixelColor(data, idx);
+      if (a < 128) {
+        colorMap[y][x] = -1;
+      } else {
+        colorMap[y][x] = findClosestColor(r, g, b, palette);
+      }
+    }
+  }
+
+  // Trace contours
+  const { paths, colors } = traceContours(colorMap, width, height, palette, options);
+
+  const svgPaths = paths
+    .map((d, i) => `<path d="${d}" fill="${colors[i]}" stroke="none"/>`)
+    .join('\n');
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
+${svgPaths}</svg>`;
+
+  return { svg, pathCount: paths.length, colors: [...new Set(colors)] };
+}
+
+// ============================================================================
+// MAIN TRACE FUNCTION
+// ============================================================================
+
 export async function traceImage(
   imageSource: HTMLImageElement | HTMLCanvasElement | ImageBitmap,
   options: TracingOptions = DEFAULT_OPTIONS
 ): Promise<TracingResult> {
-  // Create canvas and draw image
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
 
@@ -375,58 +847,33 @@ export async function traceImage(
     imageData = invertColors(imageData);
   }
 
-  const { data } = imageData;
+  let result: { svg: string; pathCount: number; colors: string[] };
 
-  // Collect all pixels for color quantization
-  const pixels: number[][] = [];
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i + 3] > 128) {
-      // Only consider non-transparent pixels
-      pixels.push([data[i], data[i + 1], data[i + 2]]);
+  // Select engine
+  switch (options.engine) {
+    case 'potrace': {
+      const bitmap = createBitmap(imageData, options.threshold);
+      result = generatePotracesSvg(bitmap, width, height, options);
+      break;
+    }
+    case 'edgeTrace': {
+      result = generateEdgeTraceSvg(imageData, options);
+      break;
+    }
+    case 'colorQuantize':
+    default: {
+      result = generateColorQuantizeSvg(imageData, options);
+      break;
     }
   }
-
-  // Quantize colors
-  let palette = medianCut([...pixels], options.colorCount);
-
-  // Handle monochrome mode
-  if (options.mode === 'monochrome') {
-    palette = [[0, 0, 0], [255, 255, 255]];
-  }
-
-  // Map pixels to palette colors
-  const colorMap: number[][] = [];
-  for (let y = 0; y < height; y++) {
-    colorMap[y] = [];
-    for (let x = 0; x < width; x++) {
-      const idx = (y * width + x) * 4;
-      const [r, g, b, a] = getPixelColor(data, idx);
-      if (a < 128) {
-        colorMap[y][x] = -1; // Transparent
-      } else {
-        colorMap[y][x] = findClosestColor(r, g, b, palette);
-      }
-    }
-  }
-
-  // Trace contours
-  const { paths, colors } = traceContours(colorMap, width, height, palette, options);
-
-  // Generate SVG
-  const svgPaths = paths
-    .map((d, i) => `<path d="${d}" fill="${colors[i]}" stroke="none"/>`)
-    .join('\n  ');
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
-  ${svgPaths}
-</svg>`;
 
   return {
-    svg,
+    svg: result.svg,
     width,
     height,
-    pathCount: paths.length,
-    colorPalette: [...new Set(colors)],
+    pathCount: result.pathCount,
+    colorPalette: result.colors,
+    engine: options.engine,
   };
 }
 
