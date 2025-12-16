@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 // Comment out the HelmetProvider since we're not using it
 // import { HelmetProvider } from 'react-helmet-async';
+import { Analytics } from "@vercel/analytics/react";
 import "./App.css";
 
 import { ThemeProvider } from "./design-system/context/ThemeContext";
@@ -28,6 +29,7 @@ function App() {
             </main>
             <Footer />
           </div>
+          <Analytics />
         </Router>
       </TranslationProvider>
     </ThemeProvider>
