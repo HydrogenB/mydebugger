@@ -9,7 +9,6 @@ import { TranslationProvider } from "./context/TranslationContext";
 import Header from "./layout/Header";
 import { AppRoutes } from "./app/routes";
 import Footer from "./layout/Footer";
-import DynamicLinkProbeProvider from "./tools/dynamic-link-probe/components/DynamicLinkProbeProviderPanel";
 import AnalyticsBridge from "./pages/_app";
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
       <TranslationProvider>
         <Router>
           <AnalyticsBridge />
-          <DynamicLinkProbeProvider />
           <div className="app-ambient-bg flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">
