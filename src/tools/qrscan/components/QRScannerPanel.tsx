@@ -1,7 +1,7 @@
-/**
- * ? 2025 MyDebugger Contributors – MIT License
+ï»¿/**
+ * Â© 2025 MyDebugger Contributors â€“ MIT License
  */
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useRef } from 'react';
 import clsx from 'clsx';
 
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
@@ -19,7 +19,7 @@ const CAMERA_STATUS_STYLES: Record<string, string> = {
 
 const CAMERA_STATUS_LABEL: Record<string, string> = {
   ready: 'Camera Ready',
-  initializing: 'Starting Camera…',
+  initializing: 'Starting Camera...',
   blocked: 'Permission Required',
   'no-device': 'No Camera Found',
   error: 'Camera Error',
@@ -27,7 +27,7 @@ const CAMERA_STATUS_LABEL: Record<string, string> = {
 };
 
 const formatDuration = (ms: number | null): string => {
-  if (!ms || Number.isNaN(ms)) return '—';
+  if (!ms || Number.isNaN(ms)) return '-';
   if (ms < 1000) return `${ms}ms`;
   const seconds = Math.round(ms / 1000);
   if (seconds < 60) return `${seconds}s`;
@@ -50,27 +50,29 @@ const formatTimestamp = (timestamp: number) => new Date(timestamp).toLocaleStrin
 const typeIcon = (type: string): string => {
   switch (type) {
     case 'url':
-      return '??';
+      return '[link]';
     case 'email':
-      return '??';
+      return '[email]';
     case 'phone':
-      return '??';
+      return '[phone]';
     case 'sms':
-      return '??';
+      return '[sms]';
     case 'wifi':
-      return '??';
+      return '[wifi]';
     case 'location':
-      return '??';
+      return '[loc]';
     case 'vcard':
-      return '??';
+      return '[vcard]';
     case 'bitcoin':
-      return '?';
+      return '[btc]';
     default:
-      return '??';
+      return '[text]';
   }
 };
 
 const isOpenableLink = (text: string) => text.startsWith('http://') || text.startsWith('https://') || text.startsWith('mailto:') || text.startsWith('tel:');
+
+type ScanMode = 'camera' | 'file';
 
 interface Props extends UseQrscanReturn {}
 
@@ -124,6 +126,11 @@ const QRScannerPanel: React.FC<Props> = (props) => {
   const [manualText, setManualText] = useState('');
   const [isCopying, setIsCopying] = useState(false);
 
+  // New state for scan mode
+  const [scanMode, setScanMode] = useState<ScanMode>('camera');
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const permissionLabel = useMemo(() => {
     switch (cameraPermission) {
       case 'granted':
@@ -143,6 +150,39 @@ const QRScannerPanel: React.FC<Props> = (props) => {
     await scanFromFile(file);
     event.target.value = '';
   };
+
+  // Drag and drop handlers
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(async (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    await scanFromFile(file);
+  }, [scanFromFile]);
+
+  const handleDropZoneClick = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   const handleManualSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -213,7 +253,7 @@ const QRScannerPanel: React.FC<Props> = (props) => {
       {error ? (
         <div className="mt-4 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
           <div className="flex items-start gap-2">
-            <span className="text-lg">??</span>
+            <span className="text-lg">Warning</span>
             <p>{error}</p>
           </div>
           <Button size="sm" variant="ghost" onClick={clearError}>
@@ -222,94 +262,181 @@ const QRScannerPanel: React.FC<Props> = (props) => {
         </div>
       ) : null}
 
+      {/* Mode Selector Tabs */}
+      <div className="mt-6 flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
+        <button
+          type="button"
+          onClick={() => setScanMode('camera')}
+          className={clsx(
+            'flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
+            scanMode === 'camera'
+              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+              : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          )}
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          Camera Scan
+        </button>
+        <button
+          type="button"
+          onClick={() => setScanMode('file')}
+          className={clsx(
+            'flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all',
+            scanMode === 'file'
+              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
+              : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+          )}
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          File Upload
+        </button>
+      </div>
+
       <div className="mt-6 grid gap-6 lg:grid-cols-[2fr,1fr]">
         <div className="space-y-6">
-          <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-black/80 shadow-sm dark:border-gray-700">
-            <video
-              ref={videoRef}
-              className="aspect-video w-full bg-black object-cover"
-              muted
-              playsInline
-            />
-            {isBusy ? (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm text-white">
-                Initialising…
-              </div>
-            ) : null}
-            {!scanning && !isBusy ? (
-              <div className="absolute inset-x-4 bottom-4 rounded-lg bg-black/60 p-3 text-center text-xs text-gray-100">
-                Allow camera access and click <strong>Start Scanner</strong> to begin.
-              </div>
-            ) : null}
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={startScan} disabled={scanning || isBusy || cameraStatus === 'blocked'}>
-              {scanning ? 'Scanning…' : 'Start Scanner'}
-            </Button>
-            <Button variant="outline-secondary" onClick={stop} disabled={!scanning}>
-              Stop
-            </Button>
-            <Button variant="outline-primary" onClick={flip} disabled={!canFlip || isBusy}>
-              Switch Camera
-            </Button>
-            <Button variant="ghost" onClick={() => switchCamera(selectedCamera)} disabled={isBusy}>
-              Reconnect
-            </Button>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="camera-select">
-                Active Camera
-              </label>
-              <select
-                id="camera-select"
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800"
-                value={selectedCamera}
-                onChange={(event) => switchCamera(event.target.value)}
-                disabled={devices.length === 0 || isBusy}
-              >
-                {devices.length === 0 ? (
-                  <option>No camera detected</option>
-                ) : (
-                  devices.map((device) => (
-                    <option key={device.deviceId} value={device.deviceId}>
-                      {device.label || 'Camera'}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-
-            <div className="grid gap-4">
-              {showTorchControl ? (
-                <div className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700">
-                  <span>Torch</span>
-                  <Button size="sm" variant="outline-secondary" onClick={torch.toggle}>
-                    {torch.enabled ? 'Disable' : 'Enable'}
-                  </Button>
-                </div>
-              ) : null}
-              {showZoomControl ? (
-                <div className="rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700">
-                  <div className="flex items-center justify-between">
-                    <span>Zoom</span>
-                    <span className="font-medium">{zoom.value.toFixed(2)}?</span>
+          {/* Camera Mode */}
+          {scanMode === 'camera' && (
+            <>
+              <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-black/80 shadow-sm dark:border-gray-700">
+                <video
+                  ref={videoRef}
+                  className="aspect-video w-full bg-black object-cover"
+                  muted
+                  playsInline
+                />
+                {isBusy ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-sm text-white">
+                    Initialising...
                   </div>
-                  <input
-                    type="range"
-                    min={zoom.min}
-                    max={zoom.max}
-                    step={zoom.step || 0.1}
-                    value={zoom.value}
-                    onChange={(event) => zoom.set(Number(event.target.value))}
-                    className="mt-2 w-full"
-                  />
+                ) : null}
+                {!scanning && !isBusy ? (
+                  <div className="absolute inset-x-4 bottom-4 rounded-lg bg-black/60 p-3 text-center text-xs text-gray-100">
+                    Allow camera access and click <strong>Start Scanner</strong> to begin.
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={startScan} disabled={scanning || isBusy || cameraStatus === 'blocked'}>
+                  {scanning ? 'Scanning...' : 'Start Scanner'}
+                </Button>
+                <Button variant="outline-secondary" onClick={stop} disabled={!scanning}>
+                  Stop
+                </Button>
+                <Button variant="outline-primary" onClick={flip} disabled={!canFlip || isBusy}>
+                  Switch Camera
+                </Button>
+                <Button variant="ghost" onClick={() => switchCamera(selectedCamera)} disabled={isBusy}>
+                  Reconnect
+                </Button>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200" htmlFor="camera-select">
+                    Active Camera
+                  </label>
+                  <select
+                    id="camera-select"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-800"
+                    value={selectedCamera}
+                    onChange={(event) => switchCamera(event.target.value)}
+                    disabled={devices.length === 0 || isBusy}
+                  >
+                    {devices.length === 0 ? (
+                      <option>No camera detected</option>
+                    ) : (
+                      devices.map((device) => (
+                        <option key={device.deviceId} value={device.deviceId}>
+                          {device.label || 'Camera'}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
-              ) : null}
+
+                <div className="grid gap-4">
+                  {showTorchControl ? (
+                    <div className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700">
+                      <span>Torch</span>
+                      <Button size="sm" variant="outline-secondary" onClick={torch.toggle}>
+                        {torch.enabled ? 'Disable' : 'Enable'}
+                      </Button>
+                    </div>
+                  ) : null}
+                  {showZoomControl ? (
+                    <div className="rounded-lg border border-gray-200 px-3 py-2 text-sm dark:border-gray-700">
+                      <div className="flex items-center justify-between">
+                        <span>Zoom</span>
+                        <span className="font-medium">{zoom.value.toFixed(2)}x</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={zoom.min}
+                        max={zoom.max}
+                        step={zoom.step || 0.1}
+                        value={zoom.value}
+                        onChange={(event) => zoom.set(Number(event.target.value))}
+                        className="mt-2 w-full"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* File Upload Mode */}
+          {scanMode === 'file' && (
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={handleDropZoneClick}
+              className={clsx(
+                'relative flex min-h-[300px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 transition-all duration-200',
+                isDragging
+                  ? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
+                  : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/50 dark:border-gray-600 dark:bg-gray-800 dark:hover:border-blue-500 dark:hover:bg-blue-900/10'
+              )}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+              <div className={clsx(
+                'mb-4 flex h-16 w-16 items-center justify-center rounded-full transition-colors',
+                isDragging
+                  ? 'bg-blue-100 text-blue-600 dark:bg-blue-800 dark:text-blue-300'
+                  : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+              )}>
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <p className={clsx(
+                'text-lg font-semibold transition-colors',
+                isDragging
+                  ? 'text-blue-700 dark:text-blue-300'
+                  : 'text-gray-700 dark:text-gray-200'
+              )}>
+                {isDragging ? 'Drop your image here' : 'Drag & drop an image'}
+              </p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                or click to browse files
+              </p>
+              <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
+                Supported: PNG, JPG, JPEG, GIF, WebP
+              </p>
             </div>
-          </div>
+          )}
 
           <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <div className="flex items-center justify-between">
@@ -333,7 +460,7 @@ const QRScannerPanel: React.FC<Props> = (props) => {
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => copyToClipboard(result)} disabled={isCopying}>
-                    {isCopying ? 'Copying…' : 'Copy'}
+                    {isCopying ? 'Copying...' : 'Copy'}
                   </Button>
                   <Button size="sm" variant="outline-primary" onClick={openResult} disabled={!isOpenableLink(result)}>
                     Open
@@ -352,28 +479,22 @@ const QRScannerPanel: React.FC<Props> = (props) => {
 
           <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Import or Manual Decode</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Manual Decode</h2>
             </div>
-            <div className="mt-3 flex flex-col gap-3 md:flex-row">
-              <label className="flex flex-1 cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-sm font-medium text-gray-600 transition hover:border-blue-400 hover:text-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
-                Upload Image
-              </label>
-              <form onSubmit={handleManualSubmit} className="flex-1">
-                <textarea
-                  value={manualText}
-                  onChange={(event) => setManualText(event.target.value)}
-                  rows={3}
-                  placeholder="Paste QR content manually to record it"
-                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                />
-                <div className="mt-2 flex justify-end">
-                  <Button size="sm" type="submit" disabled={!manualText.trim()}>
-                    Save Manual Entry
-                  </Button>
-                </div>
-              </form>
-            </div>
+            <form onSubmit={handleManualSubmit} className="mt-3">
+              <textarea
+                value={manualText}
+                onChange={(event) => setManualText(event.target.value)}
+                rows={3}
+                placeholder="Paste QR content manually to record it"
+                className="w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-900 focus:border-blue-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+              />
+              <div className="mt-2 flex justify-end">
+                <Button size="sm" type="submit" disabled={!manualText.trim()}>
+                  Save Manual Entry
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -395,7 +516,7 @@ const QRScannerPanel: React.FC<Props> = (props) => {
                 ))}
                 <div className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-800 dark:text-gray-400">
                   <span>Last Scan</span>
-                  <span>{lastScanTime ? formatTimestamp(lastScanTime) : '—'}</span>
+                  <span>{lastScanTime ? formatTimestamp(lastScanTime) : '-'}</span>
                 </div>
               </dl>
             ) : null}
