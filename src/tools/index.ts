@@ -71,6 +71,7 @@ import {
   ImageCompressIcon,
   ThongThaiIcon,
   ImageToSvgIcon,
+  PdfToImageIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -587,6 +588,36 @@ const toolRegistry: Tool[] = [
       relatedTools: [],
     },
     uiOptions: { showExamples: false },
+  },
+  {
+    id: "pdf-to-image",
+    route: "/pdf-to-img",
+    title: "PDF to Image Converter",
+    description:
+      "Convert PDF pages to PNG, JPG, or WebP images directly in your browser.",
+    longDescription:
+      "Transform PDF documents into high-quality raster images entirely in your browser. Supports PNG (lossless), JPG (compressed), and WebP formats with adjustable quality and resolution. Batch convert multiple pages and download as a ZIP file. No server uploads required.",
+    icon: PdfToImageIcon,
+    component: lazy(() => import("./pdf-to-img/index")),
+    category: "Conversion",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "pdf to image",
+        "pdf to png",
+        "pdf to jpg",
+        "pdf to jpeg",
+        "pdf to webp",
+        "convert pdf",
+        "pdf converter",
+        "rasterize pdf",
+        "pdf export",
+        "document converter",
+      ],
+      learnMoreUrl: "https://en.wikipedia.org/wiki/PDF",
+      relatedTools: ["img-to-svg", "image-compressor", "qrcode-generator"],
+    },
+    uiOptions: { showExamples: false, fullWidth: true },
   },
 ];
 

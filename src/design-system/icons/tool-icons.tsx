@@ -225,3 +225,37 @@ export const ImageToSvgIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const PdfToImageIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    {/* Document with corner fold */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+    />
+    {/* Corner fold */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M13 3v5a1 1 0 001 1h5"
+    />
+    {/* Arrow indicating conversion */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M9 14h4m0 0l-1.5-1.5M13 14l-1.5 1.5"
+    />
+    {/* Small image icon */}
+    <rect x="8" y="16" width="5" height="3" rx="0.5" strokeWidth={1.5} />
+  </svg>
+);
+
