@@ -72,6 +72,7 @@ import {
   ThongThaiIcon,
   ImageToSvgIcon,
   PdfToImageIcon,
+  CompassIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -618,6 +619,37 @@ const toolRegistry: Tool[] = [
       relatedTools: ["img-to-svg", "image-compressor", "qrcode-generator"],
     },
     uiOptions: { showExamples: false, fullWidth: true },
+  },
+  {
+    id: "compass",
+    route: "/compass",
+    title: "Digital Compass",
+    description:
+      "High-fidelity compass with sensor fusion, tilt compensation, and True North support.",
+    longDescription:
+      "Professional digital compass using device magnetometer and accelerometer sensors. Features include sensor fusion for accurate readings, tilt compensation, magnetic interference detection, haptic bearing lock, and True North calculation with geomagnetic declination.",
+    icon: CompassIcon,
+    component: lazy(() => import("./compass/page")),
+    category: "Utilities",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "compass",
+        "magnetometer",
+        "heading",
+        "navigation",
+        "bearing",
+        "orientation",
+        "true north",
+        "magnetic north",
+        "sensor fusion",
+        "tilt compensation",
+      ],
+      learnMoreUrl:
+        "https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs",
+      relatedTools: ["permission-tester", "metadata-echo"],
+    },
+    uiOptions: { showExamples: false },
   },
 ];
 

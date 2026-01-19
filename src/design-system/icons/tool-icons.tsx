@@ -259,3 +259,24 @@ export const PdfToImageIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const CompassIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    {/* Outer circle */}
+    <circle cx="12" cy="12" r="10" strokeWidth={2} />
+    {/* Compass needle - diamond shape */}
+    <polygon
+      points="12,4 14,12 12,20 10,12"
+      fill="currentColor"
+      strokeWidth={1}
+    />
+    {/* Center circle */}
+    <circle cx="12" cy="12" r="2" strokeWidth={2} />
+  </svg>
+);
+
