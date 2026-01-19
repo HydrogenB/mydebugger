@@ -326,11 +326,16 @@ export class SensorFusionPipeline {
   private headingFilter: HeadingEMA;
   private lastMagnetic: MagneticReading | null = null;
   private lastAccelerometer: AccelerometerReading | null = null;
+  private hasRealMagnetometer: boolean = false;
 
   constructor(alpha: number = 0.15) {
     this.magneticFilter = new Vector3Filter(alpha);
     this.accelerometerFilter = new Vector3Filter(alpha);
     this.headingFilter = new HeadingEMA(alpha, true);
+  }
+
+  setHasRealMagnetometer(hasReal: boolean): void {
+    this.hasRealMagnetometer = hasReal;
   }
 
   updateMagnetic(reading: MagneticReading): void {
@@ -399,8 +404,13 @@ export class SensorFusionPipeline {
     const smoothedHeading = this.headingFilter.update(heading);
 
     // Calculate field strength and confidence
-    const fieldStrength = calculateFieldStrength(this.lastMagnetic);
-    const confidence = assessConfidence(fieldStrength);
+    // Only calculate field strength if we have real magnetometer data
+    const fieldStrength = this.hasRealMagnetometer
+      ? calculateFieldStrength(this.lastMagnetic)
+      : -1; // -1 indicates unavailable
+    const confidence = this.hasRealMagnetometer
+      ? assessConfidence(fieldStrength)
+      : 'medium' as const; // Default to medium when no real magnetometer
 
     return {
       heading: smoothedHeading,

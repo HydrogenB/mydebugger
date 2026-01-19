@@ -7,7 +7,7 @@
  * Helps user level the device for accurate readings.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface TiltIndicatorProps {
   tiltAngle: number; // Current tilt angle in degrees
@@ -22,15 +22,48 @@ const TiltIndicator: React.FC<TiltIndicatorProps> = ({
   roll,
   threshold = 15,
 }) => {
+  // Track device orientation
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+
+  useEffect(() => {
+    const updateOrientation = () => {
+      const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+      setOrientation(isLandscape ? 'landscape' : 'portrait');
+    };
+
+    updateOrientation();
+    window.addEventListener('resize', updateOrientation);
+    const mediaQuery = window.matchMedia('(orientation: landscape)');
+    mediaQuery.addEventListener('change', updateOrientation);
+
+    return () => {
+      window.removeEventListener('resize', updateOrientation);
+      mediaQuery.removeEventListener('change', updateOrientation);
+    };
+  }, []);
+
   // Only show if tilt exceeds threshold
   if (tiltAngle < threshold) {
     return null;
   }
 
   // Calculate bubble position (clamped to visible range)
+  // Inverted to behave like an air bubble: when phone tilts left, bubble moves right
   const maxOffset = 40; // Maximum pixel offset
-  const bubbleX = Math.max(-maxOffset, Math.min(maxOffset, roll * 2));
-  const bubbleY = Math.max(-maxOffset, Math.min(maxOffset, pitch * 2));
+
+  // Adjust based on device orientation
+  let bubbleX: number;
+  let bubbleY: number;
+
+  if (orientation === 'portrait') {
+    // Portrait mode: roll affects X, pitch affects Y
+    bubbleX = Math.max(-maxOffset, Math.min(maxOffset, -roll * 2));
+    bubbleY = Math.max(-maxOffset, Math.min(maxOffset, -pitch * 2));
+  } else {
+    // Landscape mode: swap and adjust axes
+    bubbleX = Math.max(-maxOffset, Math.min(maxOffset, pitch * 2));
+    bubbleY = Math.max(-maxOffset, Math.min(maxOffset, -roll * 2));
+  }
 
   return (
     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
