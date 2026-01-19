@@ -147,6 +147,10 @@ const calculateSafeScale = (
 
 /**
  * Render a single PDF page to canvas and convert to image
+ * Optimized for memory efficiency:
+ * - Immediate page cleanup after rendering
+ * - Single toBlob conversion (no redundant toDataURL)
+ * - Canvas memory reclaimed after blob creation
  */
 export const renderPageToImage = async (
   pdf: pdfjsLib.PDFDocumentProxy,
@@ -156,58 +160,60 @@ export const renderPageToImage = async (
 ): Promise<ConvertedImage> => {
   const page = await pdf.getPage(pageNumber);
 
-  // Get viewport at scale 1 first
-  const baseViewport = page.getViewport({ scale: 1 });
+  try {
+    // Get viewport at scale 1 for dimension calculation
+    const baseViewport = page.getViewport({ scale: 1 });
 
-  // Calculate safe scale to prevent browser crash
-  const safeScale = calculateSafeScale(
-    { width: baseViewport.width, height: baseViewport.height },
-    config.scale,
-  );
+    // Calculate safe scale to prevent browser crash (max 16.7MP canvas)
+    const safeScale = calculateSafeScale(
+      { width: baseViewport.width, height: baseViewport.height },
+      config.scale,
+    );
 
-  const viewport = page.getViewport({ scale: safeScale });
+    const viewport = page.getViewport({ scale: safeScale });
 
-  // Create canvas
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
+    // Create canvas for rendering
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
 
-  if (!context) {
-    throw new Error("Failed to get canvas context");
+    if (!context) {
+      throw new Error("Failed to get canvas context");
+    }
+
+    // Set canvas dimensions (must be exact pixel values)
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+
+    // Render PDF page to canvas
+    const renderContext = {
+      canvasContext: context,
+      viewport,
+    };
+
+    await page.render(renderContext).promise;
+
+    // Convert canvas to blob immediately (single conversion for memory efficiency)
+    const mimeType = `image/${config.format}`;
+    const quality = config.format === "png" ? undefined : config.quality;
+    const blob = await canvasToBlob(canvas, mimeType, quality);
+
+    // Generate output filename
+    const baseName = fileName.replace(/\.pdf$/i, "");
+    const pageStr = String(pageNumber).padStart(3, "0");
+    const extension = config.format === "jpeg" ? "jpg" : config.format;
+    const imageFileName = `${baseName}_page_${pageStr}.${extension}`;
+
+    return {
+      pageNumber,
+      blob,
+      width: canvas.width,
+      height: canvas.height,
+      fileName: imageFileName,
+    };
+  } finally {
+    // Always clean up page resources immediately to free memory
+    page.cleanup();
   }
-
-  canvas.width = Math.floor(viewport.width);
-  canvas.height = Math.floor(viewport.height);
-
-  // Render page
-  const renderContext = {
-    canvasContext: context,
-    viewport,
-  };
-
-  await page.render(renderContext).promise;
-
-  // Convert to image format (use only toBlob for memory efficiency)
-  const mimeType = `image/${config.format}`;
-  const quality = config.format === "png" ? undefined : config.quality;
-
-  const blob = await canvasToBlob(canvas, mimeType, quality);
-
-  // Clean up page resources
-  page.cleanup();
-
-  // Generate filename
-  const baseName = fileName.replace(/\.pdf$/i, "");
-  const pageStr = String(pageNumber).padStart(3, "0");
-  const extension = config.format === "jpeg" ? "jpg" : config.format;
-  const imageFileName = `${baseName}_page_${pageStr}.${extension}`;
-
-  return {
-    pageNumber,
-    blob,
-    width: canvas.width,
-    height: canvas.height,
-    fileName: imageFileName,
-  };
 };
 
 /**
