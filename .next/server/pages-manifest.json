@@ -1,0 +1,10 @@
+{
+  "/_app": "pages/_app.js",
+  "/NotFound": "pages/NotFound.js",
+  "/PrivacyPolicy": "pages/PrivacyPolicy.js",
+  "/Home": "pages/Home.js",
+  "/TermsOfService": "pages/TermsOfService.js",
+  "/dashboard/_template": "pages/dashboard/_template.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js"
+}

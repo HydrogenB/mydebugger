@@ -9,7 +9,10 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat\\(pdf-to-img\\): Add batch processing queue and memory optimizations\n\nPhase 4 improvements:\n1. Created pdfConversionQueue.ts with intelligent batch processing\n2. Memory-aware processing: detects memory pressure, adapts scale\n3. Automatic batching: process 5 pages at a time by default\n4. Memory estimation: calculates safe batch sizes based on page dimensions\n5. Adaptive batch sizing: recommends batch size based on available memory\n\nMemory optimizations:\n- Page cleanup now uses try-finally for guaranteed resource release\n- Canvas dimensions explicitly floor''d for precise pixel calculations\n- Single blob conversion path \\(no redundant toDataURL\\)\n- Memory usage monitoring with 85% threshold for scaling reduction\n\nFeatures:\n- processPdfInBatches: Async generator for streaming results\n- processPdfInBatchesSync: Simple sync wrapper for all pages\n- estimatePageMemory: Calculate memory requirements per page\n- recommendBatchSize: Intelligent batch sizing based on memory\n- hasVariablePageSizes: Detect mixed portrait/landscape documents\n\nReady for 100MB+ PDF handling:\n- Batch processing prevents memory spikes\n- Adaptive scaling maintains quality while respecting constraints\n- Progressive UI updates as batches complete\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(cd:*)",
       "Bash(xargs ls:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

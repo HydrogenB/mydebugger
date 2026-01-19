@@ -1,48 +1,83 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
+ *
+ * Crypto Lab Page
+ * Educational cryptography tool with transparent mechanics
  */
-import React from 'react';
-import useAesCbc from './hooks/useAesCbc';
-import AesCbcView from './components/AesCbcPanel';
 
-const AesCbcPage: React.FC = () => {
-  const vm = useAesCbc();
+import React from 'react';
+import useCryptoLab from './hooks/useCryptoLab';
+import CryptoLabPanel from './components/CryptoLabPanel';
+import type { CryptoAlgorithm } from './types';
+
+const CryptoLabPage: React.FC = () => {
+  const vm = useCryptoLab();
+
   return (
-    <AesCbcView
-      keyValue={vm.key}
-      publicKey={vm.publicKey}
-      privateKey={vm.privateKey}
-      input={vm.input}
-      output={vm.output}
+    <CryptoLabPanel
+      // Mode & Algorithm
       mode={vm.mode}
       algorithm={vm.algorithm}
+      onModeChange={vm.setMode}
+      onAlgorithmChange={(algo) => vm.setAlgorithm(algo as CryptoAlgorithm)}
 
-      error={vm.error}
-      examples={vm.examples}
-      exampleIndex={vm.exampleIndex}
-      setKey={vm.setKey}
-      setPublicKey={vm.setPublicKey}
-      setPrivateKey={vm.setPrivateKey}
-      setInput={vm.setInput}
-      setExampleIndex={vm.setExampleIndex}
-      setAlgorithm={vm.setAlgorithm}
-      generateKeyPair={vm.generateKeyPair}
-      generateDemo={vm.generateDemo}
-      saveCurrentKey={vm.saveCurrentKey}
-      selectSavedKey={vm.selectSavedKey}
-      discardSavedKey={vm.discardSavedKey}
-      savedKeys={vm.savedKeys}
-      savedKeyPairs={vm.savedKeyPairs}
+      // Input
+      inputText={vm.inputText}
+      inputBytes={vm.inputBytes}
+      onInputChange={vm.setInputText}
 
+      // Key Management (Symmetric)
+      passphrase={vm.passphrase}
+      showPassphrase={vm.showPassphrase}
+      onPassphraseChange={vm.setPassphrase}
+      onToggleShowPassphrase={vm.toggleShowPassphrase}
+
+      // Key Management (Asymmetric)
+      publicKey={vm.publicKey}
+      privateKey={vm.privateKey}
+      onPublicKeyChange={vm.setPublicKey}
+      onPrivateKeyChange={vm.setPrivateKey}
+      onGenerateKeyPair={vm.generateKeyPair}
+
+      // Lab View
+      labView={vm.labView}
+      onToggleLabView={vm.toggleLabView}
+      onSaltChange={vm.setSalt}
+      onRegenerateSalt={vm.regenerateSalt}
+      onIterationsChange={vm.setIterations}
+      onIVChange={vm.setIV}
+      onRegenerateIV={vm.regenerateIV}
+
+      // Output
+      output={vm.output}
       outputFormat={vm.outputFormat}
-      setOutputFormat={vm.setOutputFormat}
-      toastMessage={vm.toastMessage}
-      copyOutput={vm.copyOutput}
+      onOutputFormatChange={vm.setOutputFormat}
+      studyModeEnabled={vm.studyModeEnabled}
+      onToggleStudyMode={vm.toggleStudyMode}
+      outputAnatomy={vm.outputAnatomy}
+      opensslCommand={vm.opensslCommand}
+      hashResult={vm.hashResult}
 
-      toggleMode={vm.toggleMode}
-      clear={vm.clear}
+      // Actions
+      onExecute={vm.execute}
+      onCopyOutput={vm.copyOutput}
+      onCopyOpenSSLCommand={vm.copyOpenSSLCommand}
+      onMoveToInput={vm.moveOutputToInput}
+      onClear={vm.clear}
+      onGenerateDemo={vm.generateDemo}
+
+      // Status
+      isProcessing={vm.isProcessing}
+      error={vm.error}
+      onClearError={vm.clearError}
+      toastMessage={vm.toastMessage}
+
+      // Flags
+      isSymmetric={vm.isSymmetric}
+      isAsymmetric={vm.isAsymmetric}
+      isHashing={vm.isHashing}
     />
   );
 };
 
-export default AesCbcPage;
+export default CryptoLabPage;
