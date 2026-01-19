@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 // Comment out the HelmetProvider since we're not using it
 // import { HelmetProvider } from 'react-helmet-async';
 import "./App.css";
@@ -26,6 +27,7 @@ function App() {
             </main>
             <Footer />
           </div>
+          <SpeedInsights />
         </Router>
       </TranslationProvider>
     </ThemeProvider>
