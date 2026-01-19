@@ -6,10 +6,11 @@
  */
 
 import * as pdfjsLib from 'pdfjs-dist';
-import { zipSync, strToU8 } from 'fflate';
+import { zipSync } from 'fflate';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker - use local file for reliability
+// The worker file is copied from node_modules/pdfjs-dist/build/ to public/
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 export type ImageFormat = 'png' | 'jpeg' | 'webp';
 
