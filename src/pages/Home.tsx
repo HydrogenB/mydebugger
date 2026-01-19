@@ -446,7 +446,7 @@ const Home: React.FC = () => {
                 <Link
                   key={`recent-${tool.id}`}
                   to={tool.route}
-                  onClick={() => handleToolClick(tool, { index: idx, section: 'recent' })}
+                  onClick={() => handleToolClick(tool)}
                   className="no-underline"
                 >
                   <div className={`flex items-center p-2 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow ${TOOL_PANEL_CLASS.replace('p-6', 'p-2')}`}> 
@@ -534,7 +534,7 @@ const Home: React.FC = () => {
                   <Link
                     key={tool.id}
                     to={tool.route}
-                    onClick={() => handleToolClick(tool, { index: idx, section: 'grid' })}
+                    onClick={() => handleToolClick(tool)}
                     className="no-underline tool-card glass-card"
                     aria-labelledby={`tool-title-${tool.id}`}
                   >
@@ -571,7 +571,7 @@ const Home: React.FC = () => {
                   <Link
                     key={`list-${tool.id}`}
                     to={tool.route}
-                    onClick={() => handleToolClick(tool, { index: idx, section: 'list' })}
+                    onClick={() => handleToolClick(tool)}
                     className="no-underline block tool-card"
                   >
                     <div className={`p-3 border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 flex items-center ${TOOL_PANEL_CLASS.replace('p-6', 'p-3')}`}> 

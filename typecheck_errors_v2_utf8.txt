@@ -1,0 +1,88 @@
+﻿
+> mydebugger@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+__tests__/permission-tester/permissions.test.ts(12,14): error TS2704: The operand of a 'delete' operator cannot be a read-only property.
+__tests__/permission-tester/permissions.test.ts(23,14): error TS2704: The operand of a 'delete' operator cannot be a read-only property.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(44,5): error TS1117: An object literal cannot have multiple properties with the same name.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(84,5): error TS1117: An object literal cannot have multiple properties with the same name.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(85,5): error TS1117: An object literal cannot have multiple properties with the same name.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(115,9): error TS2322: Type '{ name: string; displayName: string; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; }' is missing the following properties from type 'Permission': description, icon, category, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(147,25): error TS2322: Type '{ name: string; displayName: string; category: "Location"; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; category: "Location"; }' is missing the following properties from type 'Permission': description, icon, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(148,25): error TS2322: Type '{ name: string; displayName: string; category: "Media"; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; category: "Media"; }' is missing the following properties from type 'Permission': description, icon, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(149,25): error TS2322: Type '{ name: string; displayName: string; category: "System"; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; category: "System"; }' is missing the following properties from type 'Permission': description, icon, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(172,9): error TS2322: Type '{ name: string; displayName: string; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; }' is missing the following properties from type 'Permission': description, icon, category, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(226,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(227,96): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(233,43): error TS2322: Type '{ name: string; displayName: string; category: "Media"; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; category: "Media"; }' is missing the following properties from type 'Permission': description, icon, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(234,48): error TS2322: Type '{ name: string; displayName: string; category: "Location"; }' is not assignable to type 'Permission & Partial<Permission>'.
+  Type '{ name: string; displayName: string; category: "Location"; }' is missing the following properties from type 'Permission': description, icon, requestFn, hasLivePreview
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(250,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/permission-tester/PermissionTesterPanel.test.tsx(252,35): error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+__tests__/tools.api-simulator.ws.test.ts(1,49): error TS2307: Cannot find module '../src/tools/api-simulator/lib/websocketSimulator' or its corresponding type declarations.
+__tests__/tools.api-test.test.ts(1,27): error TS2307: Cannot find module '../src/tools/api-test/lib/apiRepeater' or its corresponding type declarations.
+__tests__/tools.cache-inspector.test.ts(1,78): error TS2307: Cannot find module '../src/tools/cache-inspector/lib/cacheInspector' or its corresponding type declarations.
+__tests__/tools.cookie-scope.more.test.ts(1,38): error TS2307: Cannot find module '../src/tools/cookie-scope/lib/cookies' or its corresponding type declarations.
+__tests__/tools.cookie-scope.more.test.ts(2,30): error TS2307: Cannot find module '../src/tools/cookie-scope/lib/cookieScope' or its corresponding type declarations.
+__tests__/tools.deep-link-chain.more.test.ts(1,80): error TS2307: Cannot find module '../src/tools/deep-link-chain/lib/deepLinkChain' or its corresponding type declarations.
+__tests__/tools.deep-link-chain.test.ts(1,32): error TS2307: Cannot find module '../src/tools/deep-link-chain/lib/deepLinkChain' or its corresponding type declarations.
+__tests__/tools.device-trace.test.ts(1,62): error TS2307: Cannot find module '../src/tools/device-trace/lib/deviceTrace' or its corresponding type declarations.
+__tests__/tools.json-compare.test.ts(1,29): error TS2307: Cannot find module '../src/tools/json-compare/lib/jsonCompare' or its corresponding type declarations.
+__tests__/tools.json-compare.test.ts(11,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+__tests__/tools.json-converter.test.ts(1,45): error TS2307: Cannot find module '../src/tools/json-converter/lib/jsonConverter' or its corresponding type declarations.
+__tests__/tools.net.test.ts(1,54): error TS2307: Cannot find module '../src/tools/networksuit/lib/networkSuite' or its corresponding type declarations.
+__tests__/tools.networksuit.more.test.ts(1,146): error TS2307: Cannot find module '../src/tools/networksuit/lib/networkSuite' or its corresponding type declarations.
+__tests__/tools.storage-sync.test.ts(1,58): error TS2307: Cannot find module '../src/tools/storage-sync/lib/storage' or its corresponding type declarations.
+__tests__/tools.storage-sync.test.ts(22,27): error TS7006: Parameter 'e' implicitly has an 'any' type.
+__tests__/tools.storage-sync.test.ts(23,29): error TS7006: Parameter 'e' implicitly has an 'any' type.
+__tests__/tools/bson-csv/mongoShellNormalization.test.ts(4,50): error TS2307: Cannot find module '../../../src/tools/bson-csv/utils/mongoShell' or its corresponding type declarations.
+__tests__/tools/bson-csv/mongoShellTextIterator.test.ts(9,8): error TS2307: Cannot find module '../../../src/tools/bson-csv/utils/mongoShellText' or its corresponding type declarations.
+__tests__/tools/bson-csv/mongoShellTextIterator.test.ts(19,58): error TS7006: Parameter 'message' implicitly has an 'any' type.
+src/design-system/components/display/PentestResult.tsx(6,34): error TS2307: Cannot find module '../../../tools/pentest/lib/pentest' or its corresponding type declarations.
+src/pages/Home.tsx(449,56): error TS2554: Expected 1 arguments, but got 2.
+src/pages/Home.tsx(537,58): error TS2554: Expected 1 arguments, but got 2.
+src/pages/Home.tsx(574,58): error TS2554: Expected 1 arguments, but got 2.
+src/tools/clickjacking/index.ts(2,35): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.
+src/tools/pdf-to-img/lib/pdfConverter.ts(94,28): error TS2339: Property 'Title' does not exist on type 'Object'.
+src/tools/pdf-to-img/lib/pdfConverter.ts(95,29): error TS2339: Property 'Author' does not exist on type 'Object'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(8,40): error TS2305: Module '"../../../design-system"' has no exported member 'PermissionResult'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(221,10): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(318,23): error TS2322: Type '"warning" | "success" | "danger" | "default"' is not assignable to type 'BadgeVariant | undefined'.
+  Type '"default"' is not assignable to type 'BadgeVariant | undefined'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(320,33): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(321,33): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(324,65): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(336,57): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(340,32): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(345,32): error TS2339: Property 'state' does not exist on type 'PermissionState'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(374,14): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(432,14): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(489,14): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(575,14): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(637,14): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(673,69): error TS2339: Property 'toFixed' does not exist on type 'string | number'.
+  Property 'toFixed' does not exist on type 'string'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(714,12): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/EnhancedPermissionTesterPanel.tsx(734,12): error TS2559: Type '{ children: Element; }' has no properties in common with type 'IntrinsicAttributes & { title?: ReactNode; subtitle?: ReactNode; actions?: ReactNode; className?: string | undefined; divider?: boolean | undefined; }'.
+src/tools/permission-tester/components/PermissionCard.tsx(298,14): error TS2741: Property 'onStop' is missing in type '{ position: GeolocationPosition; onRefresh: () => Promise<void>; }' but required in type 'GeoPanelProps'.
+src/tools/permission-tester/components/PermissionCard.tsx(367,14): error TS2741: Property 'onStop' is missing in type '{ win: Window; onClose: () => void; }' but required in type 'WindowPanelProps'.
+src/tools/permission-tester/components/PermissionCard.tsx(444,15): error TS2322: Type '{ midiAccess: { inputs: Map<string, { name: string; manufacturer: string; state: string; connection: string; }>; outputs: Map<string, { name: string; manufacturer: string; state: string; connection: string; }>; sysexEnabled: boolean; }; onStop: () => void; }' is not assignable to type 'IntrinsicAttributes & { access: MidiAccessLike; onStop: () => void; }'.
+  Property 'midiAccess' does not exist on type 'IntrinsicAttributes & { access: MidiAccessLike; onStop: () => void; }'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(60,17): error TS2304: Cannot find name 'NotificationPreview'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(63,17): error TS2304: Cannot find name 'BluetoothPreview'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(66,17): error TS2304: Cannot find name 'USBPreview'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(69,17): error TS2304: Cannot find name 'ScreenWakeLockPreview'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(72,17): error TS2304: Cannot find name 'SerialPreview'.
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(81,17): error TS2552: Cannot find name 'ClipboardPreview'. Did you mean 'ClipboardEvent'?
+src/tools/permission-tester/components/PermissionCardEnhanced.tsx(176,7): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/tools/push-tester/hooks/usePushTester.ts(251,76): error TS2339: Property '0' does not exist on type 'NotificationAction[] | undefined'.
+src/tools/qrscan/lib/qrscan.ts(44,42): error TS2339: Property 'timeBetweenScansMillis' does not exist on type 'BrowserMultiFormatReader'.
+src/tools/qrscan/lib/qrscan.ts(114,47): error TS2353: Object literal may only specify known properties, and 'torch' does not exist in type 'MediaTrackConstraintSet'.
+src/tools/qrscan/lib/qrscan.ts(152,47): error TS2353: Object literal may only specify known properties, and 'zoom' does not exist in type 'MediaTrackConstraintSet'.
+src/tools/url/index.ts(2,24): error TS5097: An import path can only end with a '.tsx' extension when 'allowImportingTsExtensions' is enabled.

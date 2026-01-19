@@ -5,14 +5,14 @@
  * Supports PNG, JPG, and WebP output formats
  */
 
-import * as pdfjsLib from 'pdfjs-dist';
-import { zipSync } from 'fflate';
+import * as pdfjsLib from "pdfjs-dist";
+import { zipSync } from "fflate";
 
 // Configure PDF.js worker - use local file for reliability
 // The worker file is copied from node_modules/pdfjs-dist/build/ to public/
-pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
 
-export type ImageFormat = 'png' | 'jpeg' | 'webp';
+export type ImageFormat = "png" | "jpeg" | "webp";
 
 export interface ConversionConfig {
   scale: number;
@@ -23,7 +23,7 @@ export interface ConversionConfig {
 export interface ConversionProgress {
   currentPage: number;
   totalPages: number;
-  status: 'idle' | 'loading' | 'converting' | 'complete' | 'error';
+  status: "idle" | "loading" | "converting" | "complete" | "error";
   message?: string;
 }
 
@@ -50,16 +50,21 @@ const MAX_CANVAS_PIXELS = 16777216;
 /**
  * Validate if file is a PDF
  */
-export const validatePdfFile = (file: File): { valid: boolean; error?: string } => {
+export const validatePdfFile = (
+  file: File,
+): { valid: boolean; error?: string } => {
   // Check MIME type
-  if (file.type !== 'application/pdf') {
-    return { valid: false, error: 'Invalid file type. Please select a PDF file.' };
+  if (file.type !== "application/pdf") {
+    return {
+      valid: false,
+      error: "Invalid file type. Please select a PDF file.",
+    };
   }
 
   // Check file size (max 100MB for browser safety)
   const maxSize = 100 * 1024 * 1024;
   if (file.size > maxSize) {
-    return { valid: false, error: 'File too large. Maximum size is 100MB.' };
+    return { valid: false, error: "File too large. Maximum size is 100MB." };
   }
 
   return { valid: true };
@@ -70,7 +75,7 @@ export const validatePdfFile = (file: File): { valid: boolean; error?: string } 
  */
 export const loadPdfDocument = async (
   file: File,
-  password?: string
+  password?: string,
 ): Promise<{ pdf: pdfjsLib.PDFDocumentProxy; info: PdfInfo }> => {
   const arrayBuffer = await file.arrayBuffer();
   const loadingTask = pdfjsLib.getDocument({
@@ -86,8 +91,8 @@ export const loadPdfDocument = async (
     fileName: file.name,
     fileSize: file.size,
     pageCount: pdf.numPages,
-    title: metadata?.info?.Title as string | undefined,
-    author: metadata?.info?.Author as string | undefined,
+    title: (metadata?.info as any)?.Title as string | undefined,
+    author: (metadata?.info as any)?.Author as string | undefined,
   };
 
   return { pdf, info };
@@ -98,13 +103,16 @@ export const loadPdfDocument = async (
  */
 const calculateSafeScale = (
   viewport: { width: number; height: number },
-  requestedScale: number
+  requestedScale: number,
 ): number => {
-  const pixelCount = viewport.width * requestedScale * viewport.height * requestedScale;
+  const pixelCount =
+    viewport.width * requestedScale * viewport.height * requestedScale;
 
   if (pixelCount > MAX_CANVAS_PIXELS) {
     // Calculate max safe scale
-    const safeScale = Math.sqrt(MAX_CANVAS_PIXELS / (viewport.width * viewport.height));
+    const safeScale = Math.sqrt(
+      MAX_CANVAS_PIXELS / (viewport.width * viewport.height),
+    );
     return Math.min(requestedScale, safeScale);
   }
 
@@ -118,7 +126,7 @@ export const renderPageToImage = async (
   pdf: pdfjsLib.PDFDocumentProxy,
   pageNumber: number,
   config: ConversionConfig,
-  fileName: string
+  fileName: string,
 ): Promise<ConvertedImage> => {
   const page = await pdf.getPage(pageNumber);
 
@@ -128,17 +136,17 @@ export const renderPageToImage = async (
   // Calculate safe scale to prevent browser crash
   const safeScale = calculateSafeScale(
     { width: baseViewport.width, height: baseViewport.height },
-    config.scale
+    config.scale,
   );
 
   const viewport = page.getViewport({ scale: safeScale });
 
   // Create canvas
-  const canvas = document.createElement('canvas');
-  const context = canvas.getContext('2d');
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
 
   if (!context) {
-    throw new Error('Failed to get canvas context');
+    throw new Error("Failed to get canvas context");
   }
 
   canvas.width = Math.floor(viewport.width);
@@ -154,7 +162,7 @@ export const renderPageToImage = async (
 
   // Convert to image format
   const mimeType = `image/${config.format}`;
-  const quality = config.format === 'png' ? undefined : config.quality;
+  const quality = config.format === "png" ? undefined : config.quality;
 
   const dataUrl = canvas.toDataURL(mimeType, quality);
   const blob = await canvasToBlob(canvas, mimeType, quality);
@@ -163,9 +171,9 @@ export const renderPageToImage = async (
   page.cleanup();
 
   // Generate filename
-  const baseName = fileName.replace(/\.pdf$/i, '');
-  const pageStr = String(pageNumber).padStart(3, '0');
-  const extension = config.format === 'jpeg' ? 'jpg' : config.format;
+  const baseName = fileName.replace(/\.pdf$/i, "");
+  const pageStr = String(pageNumber).padStart(3, "0");
+  const extension = config.format === "jpeg" ? "jpg" : config.format;
   const imageFileName = `${baseName}_page_${pageStr}.${extension}`;
 
   return {
@@ -184,7 +192,7 @@ export const renderPageToImage = async (
 const canvasToBlob = (
   canvas: HTMLCanvasElement,
   mimeType: string,
-  quality?: number
+  quality?: number,
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     canvas.toBlob(
@@ -192,11 +200,11 @@ const canvasToBlob = (
         if (blob) {
           resolve(blob);
         } else {
-          reject(new Error('Failed to convert canvas to blob'));
+          reject(new Error("Failed to convert canvas to blob"));
         }
       },
       mimeType,
-      quality
+      quality,
     );
   });
 };
@@ -206,7 +214,7 @@ const canvasToBlob = (
  */
 export const parsePageRange = (
   rangeStr: string,
-  totalPages: number
+  totalPages: number,
 ): { pages: number[]; error?: string } => {
   if (!rangeStr.trim()) {
     // Return all pages if empty
@@ -214,14 +222,14 @@ export const parsePageRange = (
   }
 
   const pages = new Set<number>();
-  const parts = rangeStr.split(',').map((s) => s.trim());
+  const parts = rangeStr.split(",").map((s) => s.trim());
 
   for (const part of parts) {
     if (!part) continue;
 
     // Check if it's a range (e.g., "3-5")
-    if (part.includes('-')) {
-      const [startStr, endStr] = part.split('-').map((s) => s.trim());
+    if (part.includes("-")) {
+      const [startStr, endStr] = part.split("-").map((s) => s.trim());
       const start = parseInt(startStr, 10);
       const end = parseInt(endStr, 10);
 
@@ -230,7 +238,10 @@ export const parsePageRange = (
       }
 
       if (start < 1 || end > totalPages || start > end) {
-        return { pages: [], error: `Invalid range: ${part} (pages 1-${totalPages})` };
+        return {
+          pages: [],
+          error: `Invalid range: ${part} (pages 1-${totalPages})`,
+        };
       }
 
       for (let i = start; i <= end; i++) {
@@ -245,7 +256,10 @@ export const parsePageRange = (
       }
 
       if (page < 1 || page > totalPages) {
-        return { pages: [], error: `Page ${page} out of range (1-${totalPages})` };
+        return {
+          pages: [],
+          error: `Page ${page} out of range (1-${totalPages})`,
+        };
       }
 
       pages.add(page);
@@ -268,7 +282,7 @@ const blobToUint8Array = async (blob: Blob): Promise<Uint8Array> => {
  */
 export const createZipFromImages = async (
   images: ConvertedImage[],
-  baseName: string
+  baseName: string,
 ): Promise<Blob> => {
   const files: { [key: string]: Uint8Array } = {};
 
@@ -278,7 +292,7 @@ export const createZipFromImages = async (
   }
 
   const zipped = zipSync(files, { level: 6 });
-  return new Blob([zipped], { type: 'application/zip' });
+  return new Blob([zipped], { type: "application/zip" });
 };
 
 /**
@@ -286,7 +300,7 @@ export const createZipFromImages = async (
  */
 export const downloadFile = (blob: Blob, fileName: string): void => {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = fileName;
   document.body.appendChild(link);
@@ -299,9 +313,9 @@ export const downloadFile = (blob: Blob, fileName: string): void => {
  * Format file size to human readable string
  */
 export const formatFileSize = (bytes: number): string => {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) return "0 B";
 
-  const units = ['B', 'KB', 'MB', 'GB'];
+  const units = ["B", "KB", "MB", "GB"];
   const k = 1024;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -311,11 +325,27 @@ export const formatFileSize = (bytes: number): string => {
 /**
  * Get recommended scale based on use case
  */
-export const getScalePresets = (): Array<{ label: string; value: number; description: string }> => [
-  { label: '1x (72 DPI)', value: 1, description: 'Web preview, smaller file size' },
-  { label: '2x (144 DPI)', value: 2, description: 'Retina display, recommended' },
-  { label: '3x (216 DPI)', value: 3, description: 'High quality print' },
-  { label: '4x (288 DPI)', value: 4, description: 'Professional print quality' },
+export const getScalePresets = (): Array<{
+  label: string;
+  value: number;
+  description: string;
+}> => [
+  {
+    label: "1x (72 DPI)",
+    value: 1,
+    description: "Web preview, smaller file size",
+  },
+  {
+    label: "2x (144 DPI)",
+    value: 2,
+    description: "Retina display, recommended",
+  },
+  { label: "3x (216 DPI)", value: 3, description: "High quality print" },
+  {
+    label: "4x (288 DPI)",
+    value: 4,
+    description: "Professional print quality",
+  },
 ];
 
 /**
@@ -326,6 +356,7 @@ export const checkWebPSupport = (): Promise<boolean> => {
     const img = new Image();
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
-    img.src = 'data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=';
+    img.src =
+      "data:image/webp;base64,UklGRh4AAABXRUJQVlA4TBEAAAAvAAAAAAfQ//73v/+BiOh/AAA=";
   });
 };

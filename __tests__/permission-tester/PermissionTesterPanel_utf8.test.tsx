@@ -41,6 +41,7 @@ function buildPermission(overrides: PartialPermissionState = {}): PermissionStat
     error: undefined,
     lastRequested: undefined,
     ...overrides,
+    permission,
   };
 }
 
@@ -80,6 +81,8 @@ function buildVm(overrides: VmOverrides = {}): UsePermissionTesterReturn {
       total: filteredPermissions.length,
     },
     ...overrides,
+    permissions,
+    filteredPermissions,
   };
 }
 
@@ -259,3 +262,4 @@ function defineGlobalPolyfills() {
   // @ts-expect-error jsdom polyfill
   global.MediaStream = MockMediaStream;
 }
+
