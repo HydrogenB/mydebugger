@@ -9,7 +9,7 @@
  * - Target bearing indicator for haptic lock
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 
 interface CompassDialProps {
   heading: number; // Current heading in degrees (0-360)
@@ -28,6 +28,36 @@ const CompassDial: React.FC<CompassDialProps> = ({
   deviationWarning,
   onDialTap,
 }) => {
+  // Track rotation to avoid 359->1 degree jump
+  const rotationRef = useRef(0);
+  const lastHeadingRef = useRef(heading);
+
+  useEffect(() => {
+    // Calculate the shortest rotation path
+    let newRotation = -heading;
+    const lastRotation = rotationRef.current;
+    const diff = newRotation - lastRotation;
+
+    // Normalize the difference to -180 to 180 range
+    if (diff > 180) {
+      newRotation -= 360;
+    } else if (diff < -180) {
+      newRotation += 360;
+    }
+
+    // If the difference is still large (> 180), we crossed the boundary
+    const adjustedDiff = newRotation - lastRotation;
+    if (Math.abs(adjustedDiff) > 180) {
+      if (adjustedDiff > 0) {
+        newRotation -= 360;
+      } else {
+        newRotation += 360;
+      }
+    }
+
+    rotationRef.current = newRotation;
+    lastHeadingRef.current = heading;
+  }, [heading]);
   // Generate tick marks
   const ticks = useMemo(() => {
     const tickElements: JSX.Element[] = [];
@@ -83,13 +113,19 @@ const CompassDial: React.FC<CompassDialProps> = ({
       const x = event.clientX - rect.left - centerX;
       const y = event.clientY - rect.top - centerY;
 
-      // Calculate angle from center
+      // Calculate angle from center (relative to screen)
       let angle = Math.atan2(x, -y) * (180 / Math.PI);
       if (angle < 0) angle += 360;
 
-      onDialTap(angle);
+      // Add current heading to get actual bearing relative to North
+      // The dial is rotated by -heading, so we need to add heading to get world bearing
+      let worldBearing = angle + heading;
+      if (worldBearing >= 360) worldBearing -= 360;
+      if (worldBearing < 0) worldBearing += 360;
+
+      onDialTap(worldBearing);
     },
-    [onDialTap]
+    [onDialTap, heading]
   );
 
   // Determine if deviation warning should show
@@ -145,7 +181,7 @@ const CompassDial: React.FC<CompassDialProps> = ({
         {/* Tick marks - rotated with the dial */}
         <g
           className="text-gray-600 dark:text-gray-400"
-          transform={`rotate(${-heading} 200 200)`}
+          transform={`rotate(${rotationRef.current} 200 200)`}
           style={{
             transition: 'transform 50ms linear',
           }}
@@ -165,26 +201,10 @@ const CompassDial: React.FC<CompassDialProps> = ({
                   ? 'text-lg fill-gray-700 dark:fill-gray-300'
                   : 'text-sm fill-gray-500 dark:fill-gray-400'
               }`}
-              transform={`rotate(${angle} 200 200) rotate(${heading} 200 ${primary ? 55 : 60})`}
+              transform={`rotate(${angle} 200 200) rotate(${-rotationRef.current} 200 ${primary ? 55 : 60})`}
               style={{ fontSize: primary ? '18px' : '12px' }}
             >
               {label}
-            </text>
-          ))}
-
-          {/* Degree numbers */}
-          {[30, 60, 120, 150, 210, 240, 300, 330].map((deg) => (
-            <text
-              key={deg}
-              x="200"
-              y="58"
-              textAnchor="middle"
-              dominantBaseline="middle"
-              className="text-xs fill-gray-400 dark:fill-gray-500"
-              transform={`rotate(${deg} 200 200) rotate(${heading} 200 58)`}
-              style={{ fontSize: '10px' }}
-            >
-              {deg}
             </text>
           ))}
 
@@ -248,18 +268,6 @@ const CompassDial: React.FC<CompassDialProps> = ({
           />
         )}
       </svg>
-
-      {/* Heading display overlay */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="absolute bottom-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
-          <div className="text-center">
-            <span className="text-3xl font-mono font-bold text-gray-800 dark:text-gray-200">
-              {Math.round(heading)}
-            </span>
-            <span className="text-lg text-gray-500 dark:text-gray-400 ml-1">°</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

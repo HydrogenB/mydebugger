@@ -159,6 +159,9 @@ export default function useCompass(): UseCompassReturn {
    */
   const startSensors = useCallback(async (caps: SensorCapabilities) => {
     if (caps.provider === 'generic-sensor-api') {
+      // We have real magnetometer data
+      fusionPipeline.current.setHasRealMagnetometer(true);
+
       // Create magnetometer provider
       magnetometerHandle.current = createMagnetometerProvider(
         (reading) => {
@@ -183,6 +186,8 @@ export default function useCompass(): UseCompassReturn {
       await magnetometerHandle.current?.start();
       await accelerometerHandle.current?.start();
     } else {
+      // Using deviceorientation - no real magnetometer field strength data
+      fusionPipeline.current.setHasRealMagnetometer(false);
       // Use deviceorientation events
       orientationHandle.current = createOrientationProvider(
         (reading) => {

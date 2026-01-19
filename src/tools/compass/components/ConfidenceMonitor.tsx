@@ -28,11 +28,19 @@ const ConfidenceMonitor: React.FC<ConfidenceMonitorProps> = ({
 }) => {
   const { NORMAL_MIN, NORMAL_MAX } = FIELD_STRENGTH_THRESHOLDS;
 
+  // Check if field strength is available (-1 means unavailable)
+  const isFieldStrengthAvailable = fieldStrength >= 0;
+
   // Calculate bar percentage (0-100)
-  const barPercent = Math.min(100, Math.max(0, (fieldStrength / 100) * 100));
+  const barPercent = isFieldStrengthAvailable
+    ? Math.min(100, Math.max(0, (fieldStrength / 100) * 100))
+    : 50; // Default to middle when unavailable
 
   // Determine bar color based on field strength
   const getBarColor = () => {
+    if (!isFieldStrengthAvailable) {
+      return 'bg-gray-400'; // Gray when unavailable
+    }
     if (fieldStrength >= NORMAL_MIN && fieldStrength <= NORMAL_MAX) {
       return 'bg-green-500';
     }
@@ -115,7 +123,7 @@ const ConfidenceMonitor: React.FC<ConfidenceMonitorProps> = ({
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600 dark:text-gray-400">Magnetic Field</span>
           <span className="font-mono font-medium text-gray-800 dark:text-gray-200">
-            {fieldStrength.toFixed(1)} µT
+            {isFieldStrengthAvailable ? `${fieldStrength.toFixed(1)} µT` : 'N/A'}
           </span>
         </div>
 

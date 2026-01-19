@@ -39,6 +39,18 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
     state === 'ACTIVE_UNTRUSTED' ||
     state === 'CALIBRATING';
 
+  // Detect if device is mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ) || ('ontouchstart' in window);
+
+  // Auto-start on mobile when idle
+  React.useEffect(() => {
+    if (isMobile && state === 'IDLE') {
+      start();
+    }
+  }, [isMobile, state, start]);
+
   return (
     <div className="space-y-6">
       {/* Error message */}
@@ -68,8 +80,8 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
         </div>
       )}
 
-      {/* Idle state - Start button */}
-      {state === 'IDLE' && (
+      {/* Idle state - Desktop message */}
+      {state === 'IDLE' && !isMobile && (
         <div className="text-center py-12">
           <div className="inline-flex items-center justify-center w-24 h-24 mb-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
             <svg
@@ -94,16 +106,31 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
             High-fidelity compass with sensor fusion, tilt compensation, and True North support.
           </p>
 
-          <button
-            onClick={start}
-            className="px-8 py-3 text-lg font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl hover:from-blue-600 hover:to-indigo-700 shadow-lg hover:shadow-xl transition-all"
-          >
-            Start Compass
-          </button>
-
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-            Requires device motion sensors and permissions
-          </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-md mx-auto">
+            <div className="flex items-start gap-3">
+              <svg
+                className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
+                />
+              </svg>
+              <div className="text-left">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                  Mobile Device Required
+                </p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                  Please open this tool on a mobile device to use the compass. Desktop computers do not have the required motion sensors.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -284,15 +311,6 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
             />
           </div>
 
-          {/* Stop button */}
-          <div className="text-center">
-            <button
-              onClick={stop}
-              className="px-6 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-            >
-              Stop Compass
-            </button>
-          </div>
         </>
       )}
 
