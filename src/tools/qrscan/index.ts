@@ -1,3 +1,3 @@
-import QrscanPage from './page';
-export { QrscanPage };
-export default QrscanPage;
+import QrscanPageFixed from './page-fixed';
+export { QrscanPageFixed };
+export default QrscanPageFixed;
