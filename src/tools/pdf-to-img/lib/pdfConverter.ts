@@ -8,9 +8,19 @@
 import * as pdfjsLib from "pdfjs-dist";
 import { zipSync } from "fflate";
 
-// Configure PDF.js worker - use local file for reliability
-// The worker file is copied from node_modules/pdfjs-dist/build/ to public/
-pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
+// Configure PDF.js worker - use local minified file for reliability
+// The worker file is served from the public directory to avoid CDN dependencies
+// Using .min.mjs for smaller bundle size and better performance
+const initializePDFWorker = () => {
+  if (typeof window !== 'undefined' && typeof pdfjsLib !== 'undefined') {
+    const baseUrl = window.location.origin;
+    const workerUrl = `${baseUrl}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+  }
+};
+
+// Initialize immediately
+initializePDFWorker();
 
 export type ImageFormat = "png" | "jpeg" | "webp";
 
