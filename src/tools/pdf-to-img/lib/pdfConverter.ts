@@ -40,10 +40,26 @@ export interface ConversionProgress {
 export interface ConvertedImage {
   pageNumber: number;
   blob: Blob;
-  dataUrl: string;
   width: number;
   height: number;
   fileName: string;
+}
+
+export interface DownloadStatus {
+  pageNumber: number;
+  status: "idle" | "downloading" | "completed";
+  timestamp?: number; // milliseconds since epoch
+}
+
+export interface PreviewState {
+  currentPage: number;
+  zoomLevel: number; // percentage: 50, 75, 100, 125, 150
+}
+
+export interface ConversionBatch {
+  pages: number[];
+  priority: "high" | "normal";
+  status: "queued" | "processing" | "completed";
 }
 
 export interface PdfInfo {
@@ -170,11 +186,10 @@ export const renderPageToImage = async (
 
   await page.render(renderContext).promise;
 
-  // Convert to image format
+  // Convert to image format (use only toBlob for memory efficiency)
   const mimeType = `image/${config.format}`;
   const quality = config.format === "png" ? undefined : config.quality;
 
-  const dataUrl = canvas.toDataURL(mimeType, quality);
   const blob = await canvasToBlob(canvas, mimeType, quality);
 
   // Clean up page resources
@@ -189,7 +204,6 @@ export const renderPageToImage = async (
   return {
     pageNumber,
     blob,
-    dataUrl,
     width: canvas.width,
     height: canvas.height,
     fileName: imageFileName,

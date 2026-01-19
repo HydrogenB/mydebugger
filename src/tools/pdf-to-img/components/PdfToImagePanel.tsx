@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
 import clsx from 'clsx';
 import {
   Upload,
@@ -23,6 +23,9 @@ import {
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
 import type { UsePdfToImageReturn } from '../hooks/usePdfToImage';
 import { formatFileSize, getScalePresets, type ImageFormat } from '../lib/pdfConverter';
+import { PDFPreviewCarousel } from './PDFPreviewCarousel';
+import { ImageLightbox } from './ImageLightbox';
+import { ImageGridToolbar } from './ImageGridToolbar';
 
 interface Props extends UsePdfToImageReturn {}
 
@@ -46,6 +49,7 @@ const PdfToImagePanel: React.FC<Props> = (props) => {
     customPageRange,
     progress,
     convertedImages,
+    downloadStatus,
     error,
     isPasswordRequired,
     password,
@@ -66,10 +70,14 @@ const PdfToImagePanel: React.FC<Props> = (props) => {
     downloadAllAsZip,
     clearResults,
     clearError,
+    clearDownloadTracking,
   } = props;
 
   const [isDragging, setIsDragging] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxPage, setLightboxPage] = useState(1);
+  const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -485,57 +493,74 @@ const PdfToImagePanel: React.FC<Props> = (props) => {
         {/* Right Column: Preview & Results */}
         <div className="lg:col-span-2 space-y-4">
           {/* Preview */}
-          <div className={TOOL_PANEL_CLASS}>
-            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <Eye className="w-4 h-4" />
-              Preview
-            </h3>
-
-            <div className="relative bg-gray-100 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 min-h-[300px] flex items-center justify-center">
-              {previewUrl ? (
-                <>
-                  <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-black/50 rounded-md text-xs text-white font-medium">
-                    Page 1 of {pdfInfo?.pageCount || 1}
-                  </div>
+          {pdfInfo && (
+            <div className={TOOL_PANEL_CLASS}>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Preview
+              </h3>
+              {/* Note: Preview carousel requires access to PDF document which is stored in usePdfToImage hook */}
+              {previewUrl && (
+                <div className="relative bg-gray-100 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 min-h-[300px] flex items-center justify-center">
                   <img
                     src={previewUrl}
                     alt="PDF Preview"
-                    className="max-w-full max-h-[500px] object-contain p-4"
+                    className="max-w-full max-h-[500px] object-contain p-4 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => {
+                      setLightboxPage(1);
+                      setLightboxOpen(true);
+                    }}
+                    title="Click to view in full screen"
                   />
-                </>
-              ) : isLoading ? (
-                <div className="text-center">
-                  <svg
-                    className="animate-spin h-8 w-8 mx-auto text-primary-600"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Loading PDF...
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center text-gray-400 dark:text-gray-500 p-8">
-                  <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                  <p className="text-sm">Upload a PDF to preview</p>
+                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 rounded-md text-xs text-white font-medium">
+                    Page 1 of {pdfInfo.pageCount} (Click for full screen)
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
+
+          {!pdfInfo && !hasResults && (
+            <div className={TOOL_PANEL_CLASS}>
+              <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                <Eye className="w-4 h-4" />
+                Preview
+              </h3>
+              <div className="relative bg-gray-100 dark:bg-gray-700/50 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 min-h-[300px] flex items-center justify-center">
+                {isLoading ? (
+                  <div className="text-center">
+                    <svg
+                      className="animate-spin h-8 w-8 mx-auto text-primary-600"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                      Loading PDF...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 dark:text-gray-500 p-8">
+                    <FileText className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    <p className="text-sm">Upload a PDF to preview</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Progress */}
           {isConverting && (
@@ -565,100 +590,171 @@ const PdfToImagePanel: React.FC<Props> = (props) => {
 
           {/* Results */}
           {hasResults && (
-            <div className={TOOL_PANEL_CLASS}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                  <Image className="w-4 h-4" />
-                  Converted Images
-                  <span className="px-2 py-0.5 bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-full text-xs">
-                    {convertedImages.length}
-                  </span>
-                </h3>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={downloadAllAsZip}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition-all shadow-md hover:shadow-lg"
-                  >
-                    <Archive className="w-4 h-4" />
-                    Download ZIP
-                  </button>
+            <>
+              <div className={TOOL_PANEL_CLASS}>
+                <ImageGridToolbar
+                  images={convertedImages}
+                  downloadStatus={downloadStatus}
+                  selectedPages={selectedPages}
+                  onSelectAll={() => setSelectedPages(new Set(convertedImages.map(img => img.pageNumber)))}
+                  onClearSelection={() => setSelectedPages(new Set())}
+                  onDownloadAll={downloadAllAsZip}
+                  onDownloadSelected={(pages) => downloadAllAsZip(pages)}
+                  onClearTracking={clearDownloadTracking}
+                />
+
+                {/* Stats */}
+                <div className="flex flex-wrap gap-6 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700 px-4 pt-2">
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Format
+                    </p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      {format.toUpperCase()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Pages
+                    </p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      {convertedImages.length}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Total Size
+                    </p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      {formatFileSize(convertedImages.reduce((sum, img) => sum + img.blob.size, 0))}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Resolution
+                    </p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">
+                      {scale}x
+                    </p>
+                  </div>
+                </div>
+
+                {/* Image Grid */}
+                <div className="px-4 pb-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {convertedImages.map((image) => {
+                      const isSelected = selectedPages.has(image.pageNumber);
+                      const isDownloaded = downloadStatus.get(image.pageNumber)?.status === 'completed';
+                      return (
+                        <div
+                          key={image.pageNumber}
+                          className={clsx(
+                            'group relative bg-gray-100 dark:bg-gray-700/50 rounded-lg overflow-hidden border-2 aspect-[3/4] cursor-pointer transition-all',
+                            isSelected
+                              ? 'border-blue-500 shadow-lg'
+                              : 'border-gray-200 dark:border-gray-600 hover:border-blue-400'
+                          )}
+                          onClick={() => {
+                            const newSelected = new Set(selectedPages);
+                            if (newSelected.has(image.pageNumber)) {
+                              newSelected.delete(image.pageNumber);
+                            } else {
+                              newSelected.add(image.pageNumber);
+                            }
+                            setSelectedPages(newSelected);
+                          }}
+                        >
+                          {/* Checkbox */}
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              const newSelected = new Set(selectedPages);
+                              if (e.target.checked) {
+                                newSelected.add(image.pageNumber);
+                              } else {
+                                newSelected.delete(image.pageNumber);
+                              }
+                              setSelectedPages(newSelected);
+                            }}
+                            className="absolute top-2 left-2 w-4 h-4 rounded z-20 cursor-pointer accent-blue-500"
+                          />
+
+                          {/* Placeholder or image URL using object URL */}
+                          <div className="w-full h-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-400">
+                            <FileText className="w-12 h-12 opacity-50" />
+                          </div>
+
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                downloadImage(image);
+                              }}
+                              className="w-full py-1.5 bg-white/90 text-gray-900 rounded text-xs font-medium hover:bg-white transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Download className="w-3 h-3" />
+                              Download
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setLightboxPage(image.pageNumber);
+                                setLightboxOpen(true);
+                              }}
+                              className="w-full mt-1 py-1.5 bg-blue-500/90 text-white rounded text-xs font-medium hover:bg-blue-600 transition-colors"
+                            >
+                              View
+                            </button>
+                          </div>
+
+                          {/* Page number badge */}
+                          <div className="absolute top-1.5 left-8 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white font-medium">
+                            {image.pageNumber}
+                          </div>
+
+                          {/* Download status badge */}
+                          {isDownloaded && (
+                            <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-green-500/90 rounded text-[10px] text-white font-medium flex items-center gap-1">
+                              ✓
+                            </div>
+                          )}
+
+                          {/* File size */}
+                          <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white">
+                            {formatFileSize(image.blob.size)}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Clear button */}
+                <div className="px-4 pb-4 flex justify-end">
                   <button
                     onClick={clearResults}
-                    className="p-2 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                    className="px-3 py-2 text-sm text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center gap-2"
                     title="Clear results"
                   >
                     <Trash2 className="w-4 h-4" />
+                    Clear Results
                   </button>
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="flex flex-wrap gap-6 mb-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Format
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {format.toUpperCase()}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Pages
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {convertedImages.length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Total Size
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {formatFileSize(convertedImages.reduce((sum, img) => sum + img.blob.size, 0))}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Resolution
-                  </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
-                    {scale}x
-                  </p>
-                </div>
-              </div>
-
-              {/* Image Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {convertedImages.map((image) => (
-                  <div
-                    key={image.pageNumber}
-                    className="group relative bg-gray-100 dark:bg-gray-700/50 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 aspect-[3/4]"
-                  >
-                    <img
-                      src={image.dataUrl}
-                      alt={`Page ${image.pageNumber}`}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                      <button
-                        onClick={() => downloadImage(image)}
-                        className="w-full py-1.5 bg-white/90 text-gray-900 rounded text-xs font-medium hover:bg-white transition-colors flex items-center justify-center gap-1"
-                      >
-                        <Download className="w-3 h-3" />
-                        Download
-                      </button>
-                    </div>
-                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white font-medium">
-                      {image.pageNumber}
-                    </div>
-                    <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 bg-black/60 rounded text-[10px] text-white">
-                      {formatFileSize(image.blob.size)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+              {/* Lightbox */}
+              {lightboxOpen && (
+                <ImageLightbox
+                  images={convertedImages}
+                  initialPageNumber={lightboxPage}
+                  onClose={() => setLightboxOpen(false)}
+                  onDownload={downloadImage}
+                />
+              )}
+            </>
           )}
 
           {/* Empty state when no PDF and no results */}

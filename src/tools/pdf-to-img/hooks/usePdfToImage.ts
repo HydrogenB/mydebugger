@@ -19,6 +19,7 @@ import {
   type ConversionProgress,
   type ConvertedImage,
   type PdfInfo,
+  type DownloadStatus,
 } from '../lib/pdfConverter';
 
 export type PageRangeMode = 'all' | 'custom';
@@ -39,6 +40,7 @@ export interface UsePdfToImageState {
   // Conversion state
   progress: ConversionProgress;
   convertedImages: ConvertedImage[];
+  downloadStatus: Map<number, DownloadStatus>;
   error: string | null;
   isPasswordRequired: boolean;
   password: string;
@@ -68,9 +70,13 @@ export interface UsePdfToImageActions {
   startConversion: () => Promise<void>;
   cancelConversion: () => void;
   downloadImage: (image: ConvertedImage) => void;
-  downloadAllAsZip: () => Promise<void>;
+  downloadAllAsZip: (selectedPages?: number[]) => Promise<void>;
   clearResults: () => void;
   clearError: () => void;
+
+  // Download tracking actions
+  markAsDownloaded: (pageNumber: number) => void;
+  clearDownloadTracking: () => void;
 }
 
 export type UsePdfToImageReturn = UsePdfToImageState & UsePdfToImageActions;
@@ -98,6 +104,7 @@ const usePdfToImage = (): UsePdfToImageReturn => {
   // Conversion state
   const [progress, setProgress] = useState<ConversionProgress>(INITIAL_PROGRESS);
   const [convertedImages, setConvertedImages] = useState<ConvertedImage[]>([]);
+  const [downloadStatus, setDownloadStatus] = useState<Map<number, DownloadStatus>>(new Map());
   const [error, setError] = useState<string | null>(null);
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
   const [password, setPassword] = useState('');
@@ -114,10 +121,6 @@ const usePdfToImage = (): UsePdfToImageReturn => {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      // Revoke all blob URLs
-      convertedImages.forEach((img) => {
-        URL.revokeObjectURL(img.dataUrl);
-      });
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -160,7 +163,9 @@ const usePdfToImage = (): UsePdfToImageReturn => {
       // Generate first page preview
       const config: ConversionConfig = { scale: 1, format: 'png', quality: 0.8 };
       const preview = await renderPageToImage(pdf, 1, config, selectedFile.name);
-      setPreviewUrl(preview.dataUrl);
+      const previewBlob = preview.blob;
+      const previewDataUrl = URL.createObjectURL(previewBlob);
+      setPreviewUrl(previewDataUrl);
 
       setProgress(INITIAL_PROGRESS);
     } catch (err) {
@@ -215,10 +220,6 @@ const usePdfToImage = (): UsePdfToImageReturn => {
   }, [file, password, loadPdf]);
 
   const clearFile = useCallback(() => {
-    // Revoke URLs
-    convertedImages.forEach((img) => {
-      URL.revokeObjectURL(img.dataUrl);
-    });
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -234,13 +235,14 @@ const usePdfToImage = (): UsePdfToImageReturn => {
     setPdfInfo(null);
     setPreviewUrl(null);
     setConvertedImages([]);
+    setDownloadStatus(new Map());
     setError(null);
     setIsPasswordRequired(false);
     setPassword('');
     setProgress(INITIAL_PROGRESS);
     setCustomPageRange('');
     setPageRangeMode('all');
-  }, [convertedImages, previewUrl]);
+  }, [previewUrl]);
 
   const startConversion = useCallback(async () => {
     if (!pdfDocRef.current || !pdfInfo || !file) {
@@ -252,10 +254,8 @@ const usePdfToImage = (): UsePdfToImageReturn => {
     setError(null);
 
     // Clear previous results
-    convertedImages.forEach((img) => {
-      URL.revokeObjectURL(img.dataUrl);
-    });
     setConvertedImages([]);
+    setDownloadStatus(new Map());
 
     // Parse page range
     const rangeInput = pageRangeMode === 'all' ? '' : customPageRange;
@@ -328,9 +328,14 @@ const usePdfToImage = (): UsePdfToImageReturn => {
 
   const downloadImage = useCallback((image: ConvertedImage) => {
     downloadFile(image.blob, image.fileName);
+    setDownloadStatus(prev => new Map(prev).set(image.pageNumber, {
+      pageNumber: image.pageNumber,
+      status: 'completed',
+      timestamp: Date.now(),
+    }));
   }, []);
 
-  const downloadAllAsZip = useCallback(async () => {
+  const downloadAllAsZip = useCallback(async (selectedPages?: number[]) => {
     if (convertedImages.length === 0 || !file) return;
 
     setProgress((prev) => ({
@@ -340,8 +345,26 @@ const usePdfToImage = (): UsePdfToImageReturn => {
 
     try {
       const baseName = file.name.replace(/\.pdf$/i, '');
-      const zipBlob = await createZipFromImages(convertedImages, baseName);
+      const imagesToZip = selectedPages
+        ? convertedImages.filter(img => selectedPages.includes(img.pageNumber))
+        : convertedImages;
+
+      if (imagesToZip.length === 0) {
+        setError('No images selected for download');
+        return;
+      }
+
+      const zipBlob = await createZipFromImages(imagesToZip, baseName);
       downloadFile(zipBlob, `${baseName}_images.zip`);
+
+      // Mark all as downloaded
+      imagesToZip.forEach(img => {
+        setDownloadStatus(prev => new Map(prev).set(img.pageNumber, {
+          pageNumber: img.pageNumber,
+          status: 'completed',
+          timestamp: Date.now(),
+        }));
+      });
 
       setProgress((prev) => ({
         ...prev,
@@ -354,12 +377,22 @@ const usePdfToImage = (): UsePdfToImageReturn => {
   }, [convertedImages, file]);
 
   const clearResults = useCallback(() => {
-    convertedImages.forEach((img) => {
-      URL.revokeObjectURL(img.dataUrl);
-    });
     setConvertedImages([]);
+    setDownloadStatus(new Map());
     setProgress(INITIAL_PROGRESS);
-  }, [convertedImages]);
+  }, []);
+
+  const markAsDownloaded = useCallback((pageNumber: number) => {
+    setDownloadStatus(prev => new Map(prev).set(pageNumber, {
+      pageNumber,
+      status: 'completed',
+      timestamp: Date.now(),
+    }));
+  }, []);
+
+  const clearDownloadTracking = useCallback(() => {
+    setDownloadStatus(new Map());
+  }, []);
 
   return {
     // State
@@ -373,6 +406,7 @@ const usePdfToImage = (): UsePdfToImageReturn => {
     customPageRange,
     progress,
     convertedImages,
+    downloadStatus,
     error,
     isPasswordRequired,
     password,
@@ -395,6 +429,8 @@ const usePdfToImage = (): UsePdfToImageReturn => {
     downloadAllAsZip,
     clearResults,
     clearError,
+    markAsDownloaded,
+    clearDownloadTracking,
   };
 };
 
