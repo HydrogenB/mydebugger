@@ -8,11 +8,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import type { PhonePosture } from '../lib/compassTypes';
 
 interface TiltIndicatorProps {
   tiltAngle: number; // Current tilt angle in degrees
   pitch: number; // Front-to-back tilt
   roll: number; // Left-to-right tilt
+  posture: PhonePosture; // Phone holding posture
   threshold?: number; // Tilt threshold in degrees (default 15)
 }
 
@@ -20,49 +22,39 @@ const TiltIndicator: React.FC<TiltIndicatorProps> = ({
   tiltAngle,
   pitch,
   roll,
+  posture,
   threshold = 15,
 }) => {
-  // Track device orientation
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
-
-  useEffect(() => {
-    const updateOrientation = () => {
-      const isLandscape = window.matchMedia('(orientation: landscape)').matches;
-      setOrientation(isLandscape ? 'landscape' : 'portrait');
-    };
-
-    updateOrientation();
-    window.addEventListener('resize', updateOrientation);
-    const mediaQuery = window.matchMedia('(orientation: landscape)');
-    mediaQuery.addEventListener('change', updateOrientation);
-
-    return () => {
-      window.removeEventListener('resize', updateOrientation);
-      mediaQuery.removeEventListener('change', updateOrientation);
-    };
-  }, []);
-
   // Only show if tilt exceeds threshold
   if (tiltAngle < threshold) {
     return null;
   }
 
   // Calculate bubble position (clamped to visible range)
-  // Inverted to behave like an air bubble: when phone tilts left, bubble moves right
+  // Bubble behaves like air bubble - moves opposite to tilt direction (floats "up")
   const maxOffset = 40; // Maximum pixel offset
 
-  // Adjust based on device orientation
   let bubbleX: number;
   let bubbleY: number;
 
-  if (orientation === 'portrait') {
-    // Portrait mode: roll affects X, pitch affects Y
+  if (posture === 'flat') {
+    // Phone is flat on table
+    // Bubble moves opposite to tilt: if phone tilts right (positive roll), bubble goes left
     bubbleX = Math.max(-maxOffset, Math.min(maxOffset, -roll * 2));
     bubbleY = Math.max(-maxOffset, Math.min(maxOffset, -pitch * 2));
+  } else if (posture === 'upright-portrait') {
+    // Phone held upright in portrait mode
+    // When perfectly upright: pitch=0, roll=0
+    // If phone tilts away from user (top goes back): pitch > 0, bubble should go up (negative Y)
+    // If phone tilts left: roll < 0, bubble should go right (positive X)
+    bubbleX = Math.max(-maxOffset, Math.min(maxOffset, roll * 2));
+    bubbleY = Math.max(-maxOffset, Math.min(maxOffset, -pitch * 2));
   } else {
-    // Landscape mode: swap and adjust axes
+    // Phone held upright in landscape mode
+    // When perfectly upright: pitch=0, roll=0
+    // Adjust for landscape: axes are rotated 90 degrees
     bubbleX = Math.max(-maxOffset, Math.min(maxOffset, pitch * 2));
-    bubbleY = Math.max(-maxOffset, Math.min(maxOffset, -roll * 2));
+    bubbleY = Math.max(-maxOffset, Math.min(maxOffset, roll * 2));
   }
 
   return (

@@ -47,6 +47,9 @@ export interface OrientationReading {
   timestamp: number;
 }
 
+// Phone posture types
+export type PhonePosture = 'flat' | 'upright-portrait' | 'upright-landscape';
+
 // Processed compass data for UI consumption
 export interface CompassData {
   heading: number; // 0-359.99 degrees (magnetic or true based on config)
@@ -55,10 +58,11 @@ export interface CompassData {
   fieldStrength: number; // µT (microteslas)
   confidence: 'high' | 'medium' | 'low';
   tiltCompensated: boolean;
-  tiltAngle: number; // Device tilt in degrees from horizontal
+  tiltAngle: number; // Device tilt in degrees from horizontal/vertical
   pitch: number; // Front-to-back tilt
   roll: number; // Left-to-right tilt
   declination: number | null; // Geomagnetic declination offset
+  posture: PhonePosture; // Phone holding posture
 }
 
 // Configuration options for the compass

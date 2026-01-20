@@ -114,6 +114,7 @@ export default function useCompass(): UseCompassReturn {
           pitch: processed.pitch,
           roll: processed.roll,
           declination: declinationRef.current,
+          posture: processed.posture,
         });
 
         // Update state based on confidence
@@ -121,20 +122,6 @@ export default function useCompass(): UseCompassReturn {
           setState('ACTIVE_UNTRUSTED');
         } else if (state === 'ACTIVE_UNTRUSTED' && processed.confidence === 'high') {
           setState('ACTIVE_TRUSTED');
-        }
-
-        // Haptic feedback for bearing lock
-        if (
-          config.enableHaptics &&
-          config.targetBearing !== null &&
-          'vibrate' in navigator
-        ) {
-          const deviation = Math.abs(
-            angularDifference(displayHeading, config.targetBearing)
-          );
-          if (deviation <= config.lockTolerance) {
-            navigator.vibrate(10);
-          }
         }
       }
 
