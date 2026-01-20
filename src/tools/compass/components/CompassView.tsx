@@ -13,7 +13,6 @@ import CompassDial from './CompassDial';
 import ConfidenceMonitor from './ConfidenceMonitor';
 import CalibrationOverlay from './CalibrationOverlay';
 import TiltIndicator from './TiltIndicator';
-import HapticLockPanel from './HapticLockPanel';
 
 const CompassView: React.FC<UseCompassReturn> = (props) => {
   const {
@@ -269,6 +268,7 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
                   tiltAngle={data.tiltAngle}
                   pitch={data.pitch}
                   roll={data.roll}
+                  posture={data.posture}
                 />
               )}
 
@@ -292,23 +292,6 @@ const CompassView: React.FC<UseCompassReturn> = (props) => {
                 {getCardinalDirection(data.heading)}
               </div>
             </div>
-          </div>
-
-          {/* Haptic lock panel */}
-          <div className="card-ambient bg-white/90 dark:bg-gray-800/90 p-4 rounded-xl shadow-lg">
-            <HapticLockPanel
-              targetBearing={config.targetBearing}
-              currentHeading={data.heading}
-              isLocked={isLocked}
-              deviation={lockDeviation}
-              deviationWarning={config.deviationWarning}
-              hapticEnabled={config.enableHaptics}
-              supportsVibration={capabilities?.supportsVibration ?? false}
-              onSetTarget={setTargetBearing}
-              onToggleHaptic={(enabled) =>
-                updateConfig({ enableHaptics: enabled })
-              }
-            />
           </div>
 
         </>

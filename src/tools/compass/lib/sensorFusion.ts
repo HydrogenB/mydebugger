@@ -80,46 +80,116 @@ export class Vector3Filter {
 }
 
 /**
+ * Phone posture types
+ */
+export type PhonePosture = 'flat' | 'upright-portrait' | 'upright-landscape';
+
+/**
+ * Detect phone posture based on accelerometer
+ */
+export function detectPhonePosture(
+  accelerometer: AccelerometerReading
+): PhonePosture {
+  const { x, y, z } = accelerometer;
+  const norm = Math.sqrt(x * x + y * y + z * z);
+  if (norm === 0) return 'flat';
+
+  const ax = x / norm;
+  const ay = y / norm;
+  const az = z / norm;
+
+  // Check screen orientation
+  const isLandscape = window.matchMedia('(orientation: landscape)').matches;
+
+  // Detect posture based on dominant gravity axis
+  const absAx = Math.abs(ax);
+  const absAy = Math.abs(ay);
+  const absAz = Math.abs(az);
+
+  // Flat: Z axis dominant (screen facing up or down)
+  if (absAz > 0.7) {
+    return 'flat';
+  }
+
+  // Upright: Y or X axis dominant
+  if (isLandscape) {
+    // Landscape: check if X is dominant (phone held sideways upright)
+    return absAx > absAy ? 'upright-landscape' : 'upright-portrait';
+  } else {
+    // Portrait: check if Y is dominant (phone held normally upright)
+    return absAy > absAx ? 'upright-portrait' : 'upright-landscape';
+  }
+}
+
+/**
  * Calculate pitch and roll from accelerometer data
- * Returns angles in radians
+ * Returns angles in radians, adjusted for phone posture
  */
 export function calculateTiltAngles(
   accelerometer: AccelerometerReading
-): { pitch: number; roll: number; tiltAngle: number } {
+): { pitch: number; roll: number; tiltAngle: number; posture: PhonePosture } {
   const { x, y, z } = accelerometer;
 
   // Normalize the accelerometer vector
   const norm = Math.sqrt(x * x + y * y + z * z);
   if (norm === 0) {
-    return { pitch: 0, roll: 0, tiltAngle: 0 };
+    return { pitch: 0, roll: 0, tiltAngle: 0, posture: 'flat' };
   }
 
   const ax = x / norm;
   const ay = y / norm;
   const az = z / norm;
 
-  // Calculate pitch (rotation around X axis) - front-to-back tilt
-  const pitch = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
+  // Detect phone posture
+  const posture = detectPhonePosture(accelerometer);
 
-  // Calculate roll (rotation around Y axis) - left-to-right tilt
-  const roll = Math.atan2(ay, az);
+  let pitch: number;
+  let roll: number;
+  let tiltAngle: number;
 
-  // Calculate total tilt angle from vertical
-  // When phone is flat, az ≈ 1, so acos(|az|) ≈ 0
-  const tiltAngle = Math.acos(Math.min(1, Math.abs(az))) * (180 / Math.PI);
+  if (posture === 'flat') {
+    // Phone is flat (traditional compass usage)
+    // Calculate pitch (rotation around X axis) - front-to-back tilt
+    pitch = Math.atan2(-ax, Math.sqrt(ay * ay + az * az));
 
-  return { pitch, roll, tiltAngle };
+    // Calculate roll (rotation around Y axis) - left-to-right tilt
+    roll = Math.atan2(ay, az);
+
+    // Calculate total tilt angle from horizontal
+    // When phone is flat, az ≈ 1, so acos(|az|) ≈ 0
+    tiltAngle = Math.acos(Math.min(1, Math.abs(az))) * (180 / Math.PI);
+  } else if (posture === 'upright-portrait') {
+    // Phone is held upright in portrait mode
+    // Y axis points down (gravity), Z points away from user
+    // Calculate tilt from vertical (perfect upright is ay ≈ -1)
+    pitch = Math.atan2(-az, Math.sqrt(ax * ax + ay * ay));
+    roll = Math.atan2(ax, -ay);
+
+    // Tilt from vertical: when upright, ay ≈ -1
+    tiltAngle = Math.acos(Math.min(1, Math.abs(ay))) * (180 / Math.PI);
+  } else {
+    // Phone is held upright in landscape mode
+    // X axis points down (gravity), Z points away from user
+    pitch = Math.atan2(-az, Math.sqrt(ax * ax + ay * ay));
+    roll = Math.atan2(ay, -ax);
+
+    // Tilt from vertical: when upright landscape, ax ≈ ±1
+    tiltAngle = Math.acos(Math.min(1, Math.abs(ax))) * (180 / Math.PI);
+  }
+
+  return { pitch, roll, tiltAngle, posture };
 }
 
 /**
  * Compensate magnetometer readings for device tilt
  * Projects the 3D magnetic vector onto the horizontal plane
+ * Supports all phone postures: flat, upright-portrait, upright-landscape
  */
 export function compensateTilt(
   magnetic: MagneticReading,
   accelerometer: AccelerometerReading
 ): { x: number; y: number } {
-  const { pitch, roll } = calculateTiltAngles(accelerometer);
+  const { pitch, roll, posture } = calculateTiltAngles(accelerometer);
   const { x: mx, y: my, z: mz } = magnetic;
 
   // Rotate magnetic vector to horizontal plane
@@ -129,12 +199,25 @@ export function compensateTilt(
   const cosRoll = Math.cos(roll);
   const sinRoll = Math.sin(roll);
 
-  // Horizontal X component (pointing forward in device frame)
-  const Hx =
-    mx * cosPitch + my * sinRoll * sinPitch - mz * cosRoll * sinPitch;
+  let Hx: number;
+  let Hy: number;
 
-  // Horizontal Y component (pointing right in device frame)
-  const Hy = my * cosRoll + mz * sinRoll;
+  if (posture === 'flat') {
+    // Traditional flat compass calculation
+    Hx = mx * cosPitch + my * sinRoll * sinPitch - mz * cosRoll * sinPitch;
+    Hy = my * cosRoll + mz * sinRoll;
+  } else if (posture === 'upright-portrait') {
+    // Phone held upright in portrait: top of phone points forward
+    // Project magnetic field onto horizontal plane
+    // When upright, device Y points down, Z points back, X points right
+    Hx = -mz * cosPitch + my * sinPitch;
+    Hy = mx * cosRoll - my * cosPitch * sinRoll + mz * sinPitch * sinRoll;
+  } else {
+    // Phone held upright in landscape: side of phone points forward
+    // When upright landscape, device X points down, Z points back, Y points right
+    Hx = -mz * cosPitch + mx * sinPitch;
+    Hy = my * cosRoll - mx * cosPitch * sinRoll + mz * sinPitch * sinRoll;
+  }
 
   return { x: Hx, y: Hy };
 }
@@ -373,6 +456,7 @@ export class SensorFusionPipeline {
     pitch: number;
     roll: number;
     tiltCompensated: boolean;
+    posture: PhonePosture;
   } | null {
     if (!this.lastMagnetic) return null;
 
@@ -381,6 +465,7 @@ export class SensorFusionPipeline {
     let pitch = 0;
     let roll = 0;
     let tiltCompensated = false;
+    let posture: PhonePosture = 'flat';
 
     if (this.lastAccelerometer) {
       // Full tilt compensation
@@ -388,6 +473,7 @@ export class SensorFusionPipeline {
       tiltAngle = tilt.tiltAngle;
       pitch = tilt.pitch * (180 / Math.PI);
       roll = tilt.roll * (180 / Math.PI);
+      posture = tilt.posture;
 
       const compensated = compensateTilt(
         this.lastMagnetic,
@@ -420,6 +506,7 @@ export class SensorFusionPipeline {
       pitch,
       roll,
       tiltCompensated,
+      posture,
     };
   }
 
