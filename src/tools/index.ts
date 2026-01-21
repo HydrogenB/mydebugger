@@ -73,6 +73,7 @@ import {
   ImageToSvgIcon,
   PdfToImageIcon,
   CompassIcon,
+  UnicodeAnalyzerIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -648,6 +649,43 @@ const toolRegistry: Tool[] = [
       learnMoreUrl:
         "https://developer.mozilla.org/en-US/docs/Web/API/Sensor_APIs",
       relatedTools: ["permission-tester", "metadata-echo"],
+    },
+    uiOptions: { showExamples: false },
+  },
+  {
+    id: "unicode-analyzer",
+    route: "/unicode-analyzer",
+    title: "Unicode & Emoji Analyzer",
+    description:
+      "Reveal hidden characters, decompose emoji sequences, and analyze Unicode code points.",
+    longDescription:
+      "A web-based utility that reveals non-printable characters, hidden control codes (BOM, Zero Width Space), and complex Emoji sequences. Decompose ZWJ family emojis, skin tone modifiers, and variation selectors into their constituent code points. See grapheme vs code point counts and UTF-8/UTF-16 byte sizes.",
+    icon: UnicodeAnalyzerIcon,
+    component: lazy(() => import("./unicode-analyzer/page")),
+    category: "Utilities",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "unicode",
+        "emoji",
+        "analyzer",
+        "zwj",
+        "zero width joiner",
+        "zero width space",
+        "bom",
+        "byte order mark",
+        "grapheme",
+        "code point",
+        "utf-8",
+        "utf-16",
+        "invisible characters",
+        "skin tone",
+        "variation selector",
+        "hidden characters",
+        "control characters",
+      ],
+      learnMoreUrl: "https://unicode.org/reports/tr29/",
+      relatedTools: ["url-encoder"],
     },
     uiOptions: { showExamples: false },
   },
