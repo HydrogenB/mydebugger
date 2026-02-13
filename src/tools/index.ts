@@ -112,6 +112,33 @@ export const categories: Record<
 // This drives routes, homepage, SEO, and navigation
 const toolRegistry: Tool[] = [
   {
+    id: "artifact-viewer",
+    route: "/artifact-viewer",
+    title: "Artifact Viewer",
+    description: "Preview React components from .tsx source code.",
+    longDescription: "A view-only mode that renders interactive React components directly from TSX source code without a full editor environment.",
+    icon: UtilitiesIcon, // Using UtilitiesIcon for now
+    component: lazy(() => import("./artifact-viewer/page")),
+    category: "Utilities",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "react",
+        "preview",
+        "tsx",
+        "render",
+        "component",
+        "artifact",
+        "viewer",
+      ],
+      relatedTools: ["pre-rendering-tester"],
+    },
+    uiOptions: {
+      showExamples: false,
+      fullWidth: true,
+    },
+  },
+  {
     id: "random-password-generator",
     route: "/random-password-generator",
     title: "Random Password Generator",
