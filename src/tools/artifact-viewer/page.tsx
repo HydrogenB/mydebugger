@@ -112,7 +112,7 @@ export default function ArtifactViewerPage() {
   }, [info.title]);
 
   return (
-    <main className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="bg-gray-50 flex flex-col w-full">
       {/* 1. Inject JSON-LD (Works for Google even if Client Rendered sometimes, provided it's in the DOM) */}
       <script
         type="application/ld+json"
@@ -123,66 +123,7 @@ export default function ArtifactViewerPage() {
       <ClientArtifactViewer fileContent={code} />
 
       {/* 3. SEO Content Section (Visible to Bots, useful for Users too) */}
-      <section className="max-w-7xl mx-auto px-4 py-12 w-full">
-        <div className="flex items-baseline justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">{info.title}</h1>
-            <span className="text-sm text-gray-500">Last updated: {new Date().toLocaleDateString()}</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Tech Stack</h3>
-            <div className="flex flex-wrap gap-2">
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">React</span>
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full font-medium">Tailwind CSS</span>
-              {info.dependencies.map(dep => (
-                <span key={dep} className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full font-medium border border-blue-100">
-                  {dep}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Statistics</h3>
-             <div className="space-y-3 text-sm">
-                <div className="flex justify-between border-b border-gray-50 pb-2">
-                  <span className="text-gray-600">File Size</span>
-                  <span className="font-mono font-bold text-gray-900">{info.sizeKB} KB</span>
-                </div>
-                <div className="flex justify-between border-b border-gray-50 pb-2">
-                  <span className="text-gray-600">Lines of Code</span>
-                  <span className="font-mono font-bold text-gray-900">{info.lines}</span>
-                </div>
-             </div>
-          </div>
-          
-           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center items-center text-center">
-             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">SEO Status</h3>
-             <div className="text-green-600 font-bold flex items-center gap-2">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                Optimized
-             </div>
-             <p className="text-xs text-gray-400 mt-1">JSON-LD Injected</p>
-          </div>
-        </div>
-
-        {/* 4. Static Code Block for Crawlers (Using Details to keep UI clean) */}
-        <details className="group bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
-           <summary className="cursor-pointer p-4 text-slate-400 hover:text-white font-medium flex items-center justify-between transition-colors select-none">
-             <span>View Raw Source (SEO Crawlable)</span>
-             <span className="text-xs bg-slate-800 px-2 py-1 rounded group-open:bg-slate-700">Expand</span>
-           </summary>
-           <div className="p-4 border-t border-slate-800 overflow-x-auto">
-                <pre className="text-xs text-slate-300 font-mono leading-relaxed">
-                    <code>{code}</code>
-                </pre>
-           </div>
-        </details>
-      </section>
-    </main>
+      {/* User requested to remove extra functions, so we hide the visible SEO stats but keep metadata */}
+    </div>
   );
 }
