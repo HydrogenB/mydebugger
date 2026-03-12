@@ -13,7 +13,7 @@ const initEsbuild = async () => {
 
   esbuildInitPromise = esbuild
     .initialize({
-      wasmURL: "https://unpkg.com/esbuild-wasm@0.25.0/esbuild.wasm",
+      wasmURL: "https://unpkg.com/esbuild-wasm@0.27.3/esbuild.wasm",
     })
     .then(() => {
       esbuildInitialized = true;
