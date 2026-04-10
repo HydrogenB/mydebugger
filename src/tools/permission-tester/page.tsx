@@ -2,14 +2,12 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
-import usePermissionTester from './hooks/usePermissionTester';
-import PermissionTesterView from './components/PermissionTesterPanel';
+import { usePermissionTester } from './hooks/usePermissionTester';
+import { PermissionTesterPanel } from './components/PermissionTesterPanel';
 
 const PermissionTesterPage: React.FC = () => {
   const vm = usePermissionTester();
-  return <PermissionTesterView {...vm} />;
+  return <PermissionTesterPanel {...vm} />;
 };
 
 export default PermissionTesterPage;
-
-

@@ -1,595 +1,235 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
- * 
- * Permission Tester ViewModel Hook
+ * ViewModel hook for the Permission Tester tool.
  */
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   PERMISSIONS,
-  PermissionState,
-  PermissionEvent,
+  PermissionDef,
+  PermissionStatus,
   checkPermissionStatus,
-  generateCodeSnippet,
-  createPermissionEvent,
-  cleanupPermissionData,
   requestPermissionWithTimeout,
-  IdleDetectorConstructor
+  cleanupPermissionData,
+  generateCodeSnippet,
 } from '../lib/permissions';
 
-export interface UsePermissionTesterReturn {
-  permissions: PermissionState[];
-  filteredPermissions: PermissionState[];
-  events: PermissionEvent[];
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  requestPermission: (permissionName: string) => Promise<void>;
-  retryPermission: (permissionName: string) => Promise<void>;
-  copyCodeSnippet: (permissionName: string) => Promise<void>;
-  copyEventLog: () => Promise<void>;
-  clearEvents: () => void;
-  testNotification: () => void;
-  getCodeSnippet: (permissionName: string) => string;
-  isLoading: (permissionName: string) => boolean;
-  getPermissionData: (permissionName: string) => unknown;
-  clearPermissionData: (permissionName: string) => void;
-  activePreview: string | null;
-  setActivePreview: (permissionName: string | null) => void;
-  previewStates: Record<string, any>;
-  updatePreviewState: (permissionName: string, data: any) => void;
-  isPreviewActive: (permissionName: string) => boolean;
-  startPreview: (permissionName: string) => Promise<void>;
-  stopPreview: (permissionName: string) => void;
-  exportResults: () => Promise<void>;
-  runBatchTest: (permissionNames: string[]) => Promise<void>;
-  permissionStats: {
-    granted: number;
-    denied: number;
-    unsupported: number;
-    total: number;
-  };
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+export interface PermissionState {
+  def: PermissionDef;
+  status: 'idle' | 'loading' | 'granted' | 'denied' | 'unsupported';
+  error?: string;
+  data?: unknown;
+  showPreview: boolean;
+  showCode: boolean;
 }
 
-const usePermissionTester = (): UsePermissionTesterReturn => {
-  const [permissions, setPermissions] = useState<PermissionState[]>([]);
-  const [events, setEvents] = useState<PermissionEvent[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [loadingStates, setLoadingStates] = useState<Set<string>>(new Set());
-  const [activePreview, setActivePreview] = useState<string | null>(null);
-  const [previewStates, setPreviewStates] = useState<Record<string, unknown>>({});
-  
-  // Use ref to track cleanup and prevent memory leaks
-  const cleanupRefs = useRef<Map<string, () => void>>(new Map());
+export type EventAction = 'request' | 'grant' | 'deny' | 'error';
 
-  const addEvent = useCallback((event: PermissionEvent) => {
-    setEvents(prev => [event, ...prev.slice(0, 99)]); // Keep last 100 events
-  }, []);
+export interface EventEntry {
+  id: string;
+  ts: Date;
+  permissionId: string;
+  permissionName: string;
+  action: EventAction;
+  detail?: string;
+}
 
-  // Initialize permissions on mount
+export interface PermissionTesterVM {
+  permissions: PermissionState[];
+  filteredPermissions: PermissionState[];
+  events: EventEntry[];
+  search: string;
+  setSearch: (v: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (v: string) => void;
+  stats: { granted: number; denied: number; unsupported: number; total: number };
+  requestPermission: (id: string) => Promise<void>;
+  togglePreview: (id: string) => void;
+  toggleCode: (id: string) => void;
+  copyCode: (id: string) => void;
+  clearEvents: () => void;
+  copyEventLog: () => void;
+  exportResults: () => void;
+  retryDenied: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Hook
+// ---------------------------------------------------------------------------
+export function usePermissionTester(): PermissionTesterVM {
+  const [permissions, setPermissions] = useState<PermissionState[]>(
+    () => PERMISSIONS.map(def => ({ def, status: 'idle', showPreview: false, showCode: false })),
+  );
+  const [events, setEvents] = useState<EventEntry[]>([]);
+  const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+
+  // ── Initial status check on mount ────────────────────────────────────────
   useEffect(() => {
-    const initializePermissions = async () => {
-      const initialStates: PermissionState[] = await Promise.all(
-        PERMISSIONS.map(async (permission) => {
-          try {
-            const status = await checkPermissionStatus(permission.name);
-            return {
-              permission,
-              status,
-              lastRequested: undefined,
-              data: undefined,
-              error: undefined
-            };
-          } catch (error) {
-            return {
-              permission,
-              status: 'unsupported' as const,
-              lastRequested: undefined,
-              data: undefined,
-              error: error instanceof Error ? error.message : 'Unknown error'
-            };
-          }
-        })
-      );
-      
-      setPermissions(initialStates);
+    PERMISSIONS.forEach(async (def) => {
+      try {
+        const status = await checkPermissionStatus(def);
+        setPermissions(prev =>
+          prev.map(p =>
+            p.def.id === def.id
+              ? { ...p, status: status === 'unsupported' ? 'unsupported' : status === 'granted' ? 'granted' : status === 'denied' ? 'denied' : 'idle' }
+              : p,
+          ),
+        );
+      } catch {
+        // ignore
+      }
+    });
+  }, []);
+
+  // ── addEvent ─────────────────────────────────────────────────────────────
+  const addEvent = useCallback((permissionId: string, permissionName: string, action: EventAction, detail?: string) => {
+    const entry: EventEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      ts: new Date(),
+      permissionId,
+      permissionName,
+      action,
+      detail,
     };
-
-    initializePermissions();
+    setEvents(prev => [entry, ...prev].slice(0, 100));
   }, []);
 
-  // Cleanup all resources on unmount
-  useEffect(() => () => {
-    // Cleanup all active resources
-    permissions.forEach(({ permission, data }) => {
-      if (data) {
-        cleanupPermissionData(permission.name, data);
-      }
-    });
-    
-    // Run any additional cleanup functions
-    const cleanupMap = cleanupRefs.current;
-    cleanupMap.forEach(cleanup => cleanup());
-    cleanupMap.clear();
-  }, [permissions]); // Include permissions dependency
+  // ── requestPermission ─────────────────────────────────────────────────────
+  const requestPermission = useCallback(async (id: string) => {
+    const pState = permissions.find(p => p.def.id === id);
+    if (!pState || pState.status === 'loading' || pState.status === 'unsupported') return;
 
-  const setLoading = useCallback((permissionName: string, loading: boolean) => {
-    setLoadingStates(prev => {
-      const next = new Set(prev);
-      if (loading) {
-        next.add(permissionName);
-      } else {
-        next.delete(permissionName);
-      }
-      return next;
-    });
-  }, []);
+    // Cleanup any existing data
+    if (pState.data) cleanupPermissionData(id, pState.data);
 
-  const requestPermission = useCallback(async (permissionName: string) => {
-    const permissionState = permissions.find(p => p.permission.name === permissionName);
-    if (!permissionState) return;
-
-    const { permission } = permissionState;
-    
-    // Cleanup any existing data first
-    if (permissionState.data) {
-      cleanupPermissionData(permission.name, permissionState.data);
-    }
-    
-    setLoading(permissionName, true);
-    addEvent(createPermissionEvent(permissionName, 'request', `Requesting ${permission.displayName}`));
+    setPermissions(prev =>
+      prev.map(p => (p.def.id === id ? { ...p, status: 'loading', error: undefined, data: undefined, showPreview: false } : p)),
+    );
+    addEvent(id, pState.def.displayName, 'request');
 
     try {
-      // Use timeout-enhanced request function
-      const result = await requestPermissionWithTimeout(permission, 15000);
-
-      // Check the actual permission status after request
-      let newStatus = await checkPermissionStatus(permissionName);
-      
-      // For some permissions, if the request succeeds but status is still 'prompt' or 'unsupported',
-      // we can assume it's granted
-      if ((newStatus === 'prompt' || newStatus === 'unsupported') && result) {
-        newStatus = 'granted';
-      }
+      const data = await requestPermissionWithTimeout(pState.def);
+      setPermissions(prev =>
+        prev.map(p => (p.def.id === id ? { ...p, status: 'granted', data, error: undefined } : p)),
+      );
+      addEvent(id, pState.def.displayName, 'grant');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const isDenied =
+        msg.toLowerCase().includes('denied') ||
+        msg.toLowerCase().includes('not allowed') ||
+        msg.toLowerCase().includes('permission');
 
       setPermissions(prev =>
         prev.map(p =>
-          p.permission.name === permissionName
-            ? {
-                ...p,
-                status: newStatus,
-                data: newStatus === 'granted' ? result : undefined,
-                error: undefined,
-                lastRequested: Date.now()
-              }
-            : p
-        )
+          p.def.id === id
+            ? { ...p, status: isDenied ? 'denied' : 'idle', error: msg, data: undefined }
+            : p,
+        ),
       );
-
-      addEvent(
-        createPermissionEvent(
-          permissionName,
-          newStatus === 'granted' ? 'grant' : 'deny',
-          `${permission.displayName} access ${newStatus}`
-        )
-      );
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Permission denied';
-      
-      setPermissions(prev => 
-        prev.map(p => 
-          p.permission.name === permissionName
-            ? {
-                ...p,
-                status: 'denied',
-                data: undefined,
-                error: errorMessage,
-                lastRequested: Date.now()
-              }
-            : p
-        )
-      );
-
-      addEvent(createPermissionEvent(
-        permissionName,
-        'error',
-        errorMessage
-      ));
-    } finally {
-      setLoading(permissionName, false);
+      addEvent(id, pState.def.displayName, isDenied ? 'deny' : 'error', msg);
     }
-  }, [permissions, addEvent, setLoading]);
+  }, [permissions, addEvent]);
 
-  const retryPermission = useCallback(async (permissionName: string) => {
-    const permissionState = permissions.find(p => p.permission.name === permissionName);
-    if (!permissionState) return;
-
-    const { permission } = permissionState;
-
-    addEvent(
-      createPermissionEvent(
-        permissionName,
-        'request',
-        `Retrying ${permission.displayName}`
-      )
-    );
-
-    await requestPermission(permissionName);
-  }, [permissions, addEvent, requestPermission]);
-
-  const copyCodeSnippet = useCallback(async (permissionName: string) => {
-    const permission = PERMISSIONS.find(p => p.name === permissionName);
-    if (!permission) return;
-
-    const code = generateCodeSnippet(permission);
-    
-    try {
-      await navigator.clipboard.writeText(code);
-      addEvent(createPermissionEvent(
-        permissionName,
-        'request',
-        'Code snippet copied to clipboard'
-      ));
-    } catch {
-      // Silent fail for clipboard errors
-    }
-  }, [addEvent]);
-
-  const copyEventLog = useCallback(async () => {
-    const logText = events
-      .map(event => {
-        const time = new Date(event.timestamp).toLocaleTimeString();
-        return `${time} - ${event.permissionName}: ${event.action} ${event.details || ''}`;
-      })
-      .join('\n');
-
-    try {
-      await navigator.clipboard.writeText(logText);
-      addEvent(createPermissionEvent(
-        'system',
-        'request',
-        'Event log copied to clipboard'
-      ));
-    } catch {
-      // Silent fail for clipboard errors
-    }
-  }, [events, addEvent]);
-
-  const clearEvents = useCallback(() => {
-    setEvents([]);
-    addEvent(createPermissionEvent(
-      'system',
-      'request',
-      'Event log cleared'
-    ));
-  }, [addEvent]);
-
-  const testNotification = useCallback(() => {
-    if (Notification.permission !== 'granted') {
-      addEvent(createPermissionEvent(
-        'notifications',
-        'error',
-        'Notification permission not granted'
-      ));
-      return;
-    }
-    try {
-      // eslint-disable-next-line no-new
-      new Notification('MyDebugger', {
-        body: 'Test notification from Permission Tester'
-      });
-      addEvent(createPermissionEvent(
-        'notifications',
-        'request',
-        'Test notification sent'
-      ));
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Notification error';
-      addEvent(createPermissionEvent('notifications', 'error', msg));
-    }
-  }, [addEvent]);
-
-  const getCodeSnippet = useCallback((permissionName: string): string => {
-    const permission = PERMISSIONS.find(p => p.name === permissionName);
-    return permission ? generateCodeSnippet(permission) : '';
-  }, []);
-
-  const isLoading = useCallback((permissionName: string): boolean => 
-    loadingStates.has(permissionName), [loadingStates]);
-
-  const getPermissionData = useCallback((permissionName: string) => {
-    const permissionState = permissions.find(p => p.permission.name === permissionName);
-    return permissionState?.data;
-  }, [permissions]);
-
-  const clearPermissionData = useCallback((permissionName: string) => {
-    const permissionState = permissions.find(p => p.permission.name === permissionName);
-    if (permissionState?.data) {
-      cleanupPermissionData(permissionName, permissionState.data);
-    }
-    
+  // ── togglePreview ─────────────────────────────────────────────────────────
+  const togglePreview = useCallback((id: string) => {
     setPermissions(prev =>
-      prev.map(p =>
-        p.permission.name === permissionName ? { ...p, data: undefined } : p
-      )
+      prev.map(p => (p.def.id === id ? { ...p, showPreview: !p.showPreview } : p)),
     );
-  }, [permissions]);
-
-  // Filter permissions based on search query
-  const filteredPermissions = useMemo(() => {
-    if (!searchQuery.trim()) return permissions;
-    
-    const query = searchQuery.toLowerCase();
-    return permissions.filter(({ permission }) => 
-      permission.name.toLowerCase().includes(query) ||
-      permission.displayName.toLowerCase().includes(query) ||
-      permission.description.toLowerCase().includes(query) ||
-      permission.category.toLowerCase().includes(query)
-    );
-  }, [permissions, searchQuery]);
-
-  // Enhanced Preview management functions with comprehensive preview support
-  const updatePreviewState = useCallback((permissionName: string, data: unknown) => {
-    setPreviewStates(prev => ({
-      ...prev,
-      [permissionName]: data
-    }));
   }, []);
 
-  // Check if preview is active for a permission
-  const isPreviewActive = useCallback((permissionName: string): boolean => 
-    activePreview === permissionName, [activePreview]);
+  // ── toggleCode ────────────────────────────────────────────────────────────
+  const toggleCode = useCallback((id: string) => {
+    setPermissions(prev =>
+      prev.map(p => (p.def.id === id ? { ...p, showCode: !p.showCode } : p)),
+    );
+  }, []);
 
-  // Enhanced preview starter with comprehensive coverage
-  const startPreview = useCallback(async (permissionName: string) => {
-    const permissionState = permissions.find(p => p.permission.name === permissionName);
-    if (!permissionState || permissionState.status !== 'granted') return;
+  // ── copyCode ──────────────────────────────────────────────────────────────
+  const copyCode = useCallback((id: string) => {
+    const snippet = generateCodeSnippet(id);
+    navigator.clipboard.writeText(snippet).catch(() => {});
+  }, []);
 
-    setActivePreview(permissionName);
+  // ── clearEvents ───────────────────────────────────────────────────────────
+  const clearEvents = useCallback(() => setEvents([]), []);
 
-    try {
-      switch (permissionName) {
-        case 'camera': {
-          const stream = permissionState.data as MediaStream;
-          if (stream) {
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.autoplay = true;
-            updatePreviewState(permissionName, { stream, video, type: 'camera' });
-          }
-          break;
-        }
-        case 'microphone': {
-          const stream = permissionState.data as MediaStream;
-          if (stream) {
-            const audioContext = new AudioContext();
-            const analyser = audioContext.createAnalyser();
-            const source = audioContext.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 256;
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            updatePreviewState(permissionName, { 
-              stream, 
-              audioContext, 
-              analyser, 
-              dataArray, 
-              type: 'microphone' 
-            });
-          }
-          break;
-        }
-        case 'display-capture': {
-          const stream = permissionState.data as MediaStream;
-          if (stream) {
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.autoplay = true;
-            updatePreviewState(permissionName, { stream, video, type: 'screen' });
-          }
-          break;
-        }
-        case 'geolocation': {
-          const position = permissionState.data as GeolocationPosition;
-          if (position) {
-            updatePreviewState(permissionName, {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy,
-              type: 'location',
-              mapUrl: `https://www.openstreetmap.org/?mlat=${position.coords.latitude}&mlon=${position.coords.longitude}&zoom=15`
-            });
-          }
-          break;
-        }
-        case 'bluetooth': {
-          const device = permissionState.data as { name?: string; id?: string };
-          if (device) {
-            updatePreviewState(permissionName, {
-              device,
-              type: 'bluetooth',
-              name: device.name || 'Unknown Device',
-              id: device.id || 'Unknown ID'
-            });
-          }
-          break;
-        }
-        case 'usb': {
-          const device = permissionState.data as { productName?: string; manufacturerName?: string };
-          if (device) {
-            updatePreviewState(permissionName, {
-              device,
-              type: 'usb',
-              productName: device.productName || 'Unknown Device',
-              manufacturerName: device.manufacturerName || 'Unknown Manufacturer'
-            });
-          }
-          break;
-        }
-        case 'midi': {
-          const access = permissionState.data as { inputs: Map<string, unknown>; outputs: Map<string, unknown> };
-          if (access) {
-            const inputs = Array.from(access.inputs.values());
-            const outputs = Array.from(access.outputs.values());
-            updatePreviewState(permissionName, {
-              access,
-              inputs,
-              outputs,
-              type: 'midi'
-            });
-          }
-          break;
-        }
-        case 'storage-access': {
-          updatePreviewState(permissionName, {
-            type: 'storage',
-            hasAccess: true,
-            timestamp: Date.now()
-          });
-          break;
-        }
-        case 'persistent-storage': {
-          const persisted = permissionState.data;
-          if (navigator.storage && navigator.storage.estimate) {
-            const estimate = await navigator.storage.estimate();
-            updatePreviewState(permissionName, {
-              persisted,
-              quota: estimate.quota,
-              usage: estimate.usage,
-              type: 'storage-persistent'
-            });
-          }
-          break;
-        }
-        default:
-          updatePreviewState(permissionName, {
-            type: 'generic',
-            data: permissionState.data,
-            timestamp: Date.now()
-          });
-      }
-    } catch (error) {
-      // Log error for debugging but don't throw
-      updatePreviewState(permissionName, {
-        type: 'error',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  }, [permissions, updatePreviewState]);
+  // ── copyEventLog ──────────────────────────────────────────────────────────
+  const copyEventLog = useCallback(() => {
+    const text = events
+      .map(e => `[${e.ts.toLocaleTimeString()}] ${e.permissionName} — ${e.action}${e.detail ? ': ' + e.detail : ''}`)
+      .join('\n');
+    navigator.clipboard.writeText(text).catch(() => {});
+  }, [events]);
 
-  // Stop preview for a permission
-  const stopPreview = useCallback((permissionName: string) => {
-    if (activePreview === permissionName) {
-      setActivePreview(null);
-    }
-    // Clean up any resources associated with this preview
-    const cleanup = cleanupRefs.current.get(permissionName);
-    if (cleanup) {
-      cleanup();
-      cleanupRefs.current.delete(permissionName);
-    }
-    // Clear preview state
-    setPreviewStates(prev => {
-      const { [permissionName]: unused, ...rest } = prev;
-      return rest;
-    });
-  }, [activePreview]);
-
-  // Export test results
-  const exportResults = useCallback(async () => {
-    const results = {
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      permissions: permissions.map(({ permission, status, error, lastRequested }) => ({
-        name: permission.name,
-        displayName: permission.displayName,
-        category: permission.category,
-        status,
-        error,
-        lastRequested,
-        supported: status !== 'unsupported'
-      })),
-      events: events.slice(0, 50), // Last 50 events
-      summary: {
-        total: permissions.length,
-        granted: permissions.filter(p => p.status === 'granted').length,
-        denied: permissions.filter(p => p.status === 'denied').length,
-        unsupported: permissions.filter(p => p.status === 'unsupported').length
-      }
-    };
-
-    const dataStr = JSON.stringify(results, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `permission-test-results-${Date.now()}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // ── exportResults ─────────────────────────────────────────────────────────
+  const exportResults = useCallback(() => {
+    const output = permissions.map(p => ({
+      id: p.def.id,
+      name: p.def.displayName,
+      category: p.def.category,
+      status: p.status,
+      error: p.error,
+    }));
+    const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `permission-test-results-${Date.now()}.json`;
+    a.click();
     URL.revokeObjectURL(url);
-
-    addEvent(createPermissionEvent('system', 'grant', 'Test results exported'));
-  }, [permissions, events, addEvent]);
-
-  // Run batch test on multiple permissions
-  const runBatchTest = useCallback(async (permissionNames: string[]) => {
-    addEvent(createPermissionEvent('system', 'request', `Starting batch test for ${permissionNames.length} permissions`));
-    
-    // Process permissions sequentially using reduce to avoid for...await
-    await permissionNames.reduce(async (previousPromise, permissionName) => {
-      await previousPromise;
-      await requestPermission(permissionName);
-      // Small delay between requests to avoid overwhelming the browser
-      return new Promise<void>(resolve => {
-        setTimeout(() => resolve(), 500);
-      });
-    }, Promise.resolve());
-    
-    addEvent(createPermissionEvent('system', 'grant', 'Batch test completed'));
-  }, [requestPermission, addEvent]);
-
-  // Permission statistics
-  const permissionStats = useMemo(() => {
-    const granted = permissions.filter(p => p.status === 'granted').length;
-    const denied = permissions.filter(p => p.status === 'denied').length;
-    const unsupported = permissions.filter(p => p.status === 'unsupported').length;
-    
-    return {
-      granted,
-      denied,
-      unsupported,
-      total: permissions.length
-    };
   }, [permissions]);
+
+  // ── retryDenied ───────────────────────────────────────────────────────────
+  const retryDenied = useCallback(async () => {
+    const denied = permissions.filter(p => p.status === 'denied');
+    for (const p of denied) {
+      await requestPermission(p.def.id);
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }, [permissions, requestPermission]);
+
+  // ── stats ─────────────────────────────────────────────────────────────────
+  const stats = useMemo(() => ({
+    granted: permissions.filter(p => p.status === 'granted').length,
+    denied: permissions.filter(p => p.status === 'denied').length,
+    unsupported: permissions.filter(p => p.status === 'unsupported').length,
+    total: permissions.length,
+  }), [permissions]);
+
+  // ── filteredPermissions ───────────────────────────────────────────────────
+  const filteredPermissions = useMemo(() => {
+    const q = search.toLowerCase();
+    return permissions.filter(p => {
+      const matchCat = categoryFilter === 'all' || p.def.category === categoryFilter;
+      const matchSearch =
+        !q ||
+        p.def.displayName.toLowerCase().includes(q) ||
+        p.def.description.toLowerCase().includes(q) ||
+        p.def.id.toLowerCase().includes(q);
+      return matchCat && matchSearch;
+    });
+  }, [permissions, search, categoryFilter]);
 
   return {
     permissions,
     filteredPermissions,
     events,
-    searchQuery,
-    setSearchQuery,
+    search,
+    setSearch,
+    categoryFilter,
+    setCategoryFilter,
+    stats,
     requestPermission,
-    retryPermission,
-    copyCodeSnippet,
-    copyEventLog,
+    togglePreview,
+    toggleCode,
+    copyCode,
     clearEvents,
-    testNotification,
-    getCodeSnippet,
-    isLoading,
-    getPermissionData,
-    clearPermissionData,
-    activePreview,
-    setActivePreview,
-    previewStates,
-    updatePreviewState,
-    isPreviewActive,
-    startPreview,
-    stopPreview,
+    copyEventLog,
     exportResults,
-    runBatchTest,
-    permissionStats
+    retryDenied,
   };
-};
-
-export default usePermissionTester;
+}

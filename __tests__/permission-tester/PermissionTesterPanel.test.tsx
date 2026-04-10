@@ -1,260 +1,160 @@
-﻿/**
- * ? 2025 MyDebugger Contributors – MIT License
+/**
+ * © 2025 MyDebugger Contributors – MIT License
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import PermissionTesterView from '../../src/tools/permission-tester/components/PermissionTesterPanel';
-import type { UsePermissionTesterReturn } from '../../src/tools/permission-tester/hooks/usePermissionTester';
-import type { PermissionState, Permission } from '../../src/tools/permission-tester/lib/permissions';
+import { PermissionTesterPanel } from '../../src/tools/permission-tester/components/PermissionTesterPanel';
+import type { PermissionTesterVM, PermissionState } from '../../src/tools/permission-tester/hooks/usePermissionTester';
+import type { PermissionDef } from '../../src/tools/permission-tester/lib/permissions';
 
 defineGlobalPolyfills();
-jest.mock('../../src/shared/components/StageWrapper', () => ({
-  StageWrapper: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-  StageIndicator: ({ children }: { children: React.ReactNode }) => <>{children}</>,
-}));
 
-type PartialPermissionState = Partial<PermissionState> & { permission?: Partial<Permission> };
-
-type VmOverrides = Partial<UsePermissionTesterReturn> & {
-  permissions?: PermissionState[];
-  filteredPermissions?: PermissionState[];
-};
-
-const basePermission: Permission = {
-  name: 'camera',
-  displayName: 'Camera',
-  description: 'Access the camera',
-  icon: 'Camera',
-  category: 'Media',
-  requestFn: async () => undefined,
-  hasLivePreview: true,
-};
-
-function buildPermission(overrides: PartialPermissionState = {}): PermissionState {
-  const permission = { ...basePermission, ...overrides.permission };
-
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+function buildDef(overrides: Partial<PermissionDef> = {}): PermissionDef {
   return {
-    permission,
-    status: 'prompt',
-    data: undefined,
-    error: undefined,
-    lastRequested: undefined,
+    id: 'camera',
+    displayName: 'Camera',
+    description: 'Access the device camera.',
+    category: 'media',
+    icon: '📷',
+    requestFn: async () => undefined,
+    hasLivePreview: true,
     ...overrides,
   };
 }
 
-function buildVm(overrides: VmOverrides = {}): UsePermissionTesterReturn {
+function buildPermissionState(overrides: Partial<PermissionState> = {}): PermissionState {
+  return {
+    def: buildDef(),
+    status: 'idle',
+    showPreview: false,
+    showCode: false,
+    ...overrides,
+  };
+}
+
+function buildVm(overrides: Partial<PermissionTesterVM> = {}): PermissionTesterVM {
   const permissions = overrides.permissions ?? [];
   const filteredPermissions = overrides.filteredPermissions ?? permissions;
-
   return {
     permissions,
     filteredPermissions,
     events: [],
-    searchQuery: '',
-    setSearchQuery: jest.fn(),
+    search: '',
+    setSearch: jest.fn(),
+    categoryFilter: 'all',
+    setCategoryFilter: jest.fn(),
+    stats: { granted: 0, denied: 0, unsupported: 0, total: filteredPermissions.length },
     requestPermission: jest.fn().mockResolvedValue(undefined),
-    retryPermission: jest.fn().mockResolvedValue(undefined),
-    copyCodeSnippet: jest.fn().mockResolvedValue(undefined),
-    copyEventLog: jest.fn().mockResolvedValue(undefined),
+    togglePreview: jest.fn(),
+    toggleCode: jest.fn(),
+    copyCode: jest.fn(),
     clearEvents: jest.fn(),
-    testNotification: jest.fn(),
-    getCodeSnippet: jest.fn().mockReturnValue('code snippet'),
-    isLoading: jest.fn().mockReturnValue(false),
-    getPermissionData: jest.fn(),
-    clearPermissionData: jest.fn(),
-    activePreview: null,
-    setActivePreview: jest.fn(),
-    previewStates: {},
-    updatePreviewState: jest.fn(),
-    isPreviewActive: jest.fn().mockReturnValue(false),
-    startPreview: jest.fn().mockResolvedValue(undefined),
-    stopPreview: jest.fn(),
-    exportResults: jest.fn().mockResolvedValue(undefined),
-    runBatchTest: jest.fn().mockResolvedValue(undefined),
-    permissionStats: {
-      granted: 0,
-      denied: 0,
-      unsupported: 0,
-      total: filteredPermissions.length,
-    },
+    copyEventLog: jest.fn(),
+    exportResults: jest.fn(),
+    retryDenied: jest.fn(),
     ...overrides,
   };
 }
 
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
 describe('PermissionTesterPanel', () => {
   afterEach(jest.clearAllMocks);
 
-  it('requests a permission when the card action is triggered', async () => {
+  it('renders the title', () => {
+    const vm = buildVm();
+    render(<PermissionTesterPanel {...vm} />);
+    expect(screen.getByText('Web Permission Tester')).toBeTruthy();
+  });
+
+  it('requests a permission when "Request Permission" is clicked', async () => {
     const user = userEvent.setup();
-    const permission = buildPermission();
     const requestPermission = jest.fn().mockResolvedValue(undefined);
+    const pState = buildPermissionState({ status: 'idle' });
+    const vm = buildVm({ permissions: [pState], filteredPermissions: [pState], requestPermission });
 
-    const vm = buildVm({
-      permissions: [permission],
-      filteredPermissions: [permission],
-      requestPermission,
-    });
+    render(<PermissionTesterPanel {...vm} />);
 
-    render(<PermissionTesterView {...vm} />);
-
-    const requestButton = await screen.findByRole('button', { name: 'Request' });
-    await user.click(requestButton);
+    const btn = screen.getByRole('button', { name: /request permission/i });
+    await user.click(btn);
 
     expect(requestPermission).toHaveBeenCalledWith('camera');
   });
 
-  it('invokes quick action to request the next five pending permissions', async () => {
-    const user = userEvent.setup();
-    const permissions = Array.from({ length: 6 }).map((_, index) =>
-      buildPermission({
-        permission: {
-          name: `perm-${index}`,
-          displayName: `Permission ${index}`,
-        },
-      })
-    );
-    const requestPermission = jest.fn().mockResolvedValue(undefined);
+  it('shows "Retry Request" when permission is denied', () => {
+    const pState = buildPermissionState({ status: 'denied' });
+    const vm = buildVm({ permissions: [pState], filteredPermissions: [pState] });
 
-    const vm = buildVm({
-      permissions,
-      filteredPermissions: permissions,
-      requestPermission,
-    });
+    render(<PermissionTesterPanel {...vm} />);
 
-    render(<PermissionTesterView {...vm} />);
-
-    const quickAction = screen.getByRole('button', { name: 'Request Next 5 Pending' });
-    await user.click(quickAction);
-
-    expect(requestPermission).toHaveBeenCalledTimes(5);
-    expect(requestPermission.mock.calls.map(([name]) => name)).toEqual([
-      'perm-0',
-      'perm-1',
-      'perm-2',
-      'perm-3',
-      'perm-4',
-    ]);
+    expect(screen.getByRole('button', { name: /retry request/i })).toBeTruthy();
   });
 
-  it('runs a batch test from the toolbar', async () => {
-    const user = userEvent.setup();
-    const permissions = [
-      buildPermission({ permission: { name: 'geo', displayName: 'Geo', category: 'Location' }, status: 'prompt' }),
-      buildPermission({ permission: { name: 'mic', displayName: 'Mic', category: 'Media' }, status: 'denied' }),
-      buildPermission({ permission: { name: 'clip', displayName: 'Clipboard', category: 'System' }, status: 'granted' }),
-    ];
-    const runBatchTest = jest.fn().mockResolvedValue(undefined);
-
+  it('shows stat chips', () => {
     const vm = buildVm({
-      permissions,
-      filteredPermissions: permissions,
-      runBatchTest,
+      stats: { granted: 2, denied: 1, unsupported: 0, total: 3 },
     });
 
-    render(<PermissionTesterView {...vm} />);
+    render(<PermissionTesterPanel {...vm} />);
 
-    const button = screen.getByRole('button', { name: 'Test All' });
-    await user.click(button);
-
-    expect(runBatchTest).toHaveBeenCalledWith(['geo', 'mic']);
+    expect(screen.getByText('Granted')).toBeTruthy();
+    expect(screen.getByText('Denied')).toBeTruthy();
+    expect(screen.getByText('Total')).toBeTruthy();
   });
 
-  it('retries denied permissions via quick action', async () => {
+  it('calls retryDenied when "Retry All Denied" is clicked', async () => {
     const user = userEvent.setup();
-    const retryPermission = jest.fn().mockResolvedValue(undefined);
-    const permissions = Array.from({ length: 6 }).map((_, index) =>
-      buildPermission({
-        permission: { name: `perm-${index}`, displayName: `Permission ${index}` },
-        status: index < 3 ? 'denied' : 'granted',
-      })
-    );
-
+    const retryDenied = jest.fn();
+    const pState = buildPermissionState({ status: 'denied' });
     const vm = buildVm({
-      permissions,
-      filteredPermissions: permissions,
-      retryPermission,
+      permissions: [pState],
+      filteredPermissions: [pState],
+      stats: { granted: 0, denied: 1, unsupported: 0, total: 1 },
+      retryDenied,
     });
 
-    render(<PermissionTesterView {...vm} />);
+    render(<PermissionTesterPanel {...vm} />);
 
-    const button = screen.getByRole('button', { name: 'Retry 3 Denied' });
-    await user.click(button);
+    const btn = screen.getByRole('button', { name: /retry all denied/i });
+    await user.click(btn);
 
-    expect(retryPermission).toHaveBeenCalledTimes(3);
-    expect(retryPermission.mock.calls.map(([name]) => name)).toEqual(['perm-0', 'perm-1', 'perm-2']);
+    expect(retryDenied).toHaveBeenCalledTimes(1);
   });
 
-  it('exports results when the user clicks the export button', async () => {
+  it('calls exportResults when "Export Results JSON" is clicked', async () => {
     const user = userEvent.setup();
-    const exportResults = jest.fn().mockResolvedValue(undefined);
-    const permission = buildPermission();
+    const exportResults = jest.fn();
+    const vm = buildVm({ exportResults });
 
-    const vm = buildVm({
-      permissions: [permission],
-      filteredPermissions: [permission],
-      exportResults,
-    });
+    render(<PermissionTesterPanel {...vm} />);
 
-    render(<PermissionTesterView {...vm} />);
-
-    const button = screen.getByRole('button', { name: 'Export' });
-    await user.click(button);
+    const btn = screen.getByRole('button', { name: /export results json/i });
+    await user.click(btn);
 
     expect(exportResults).toHaveBeenCalledTimes(1);
   });
 
-  it('shows an empty state when no permissions match the search query', () => {
+  it('shows empty state text when filteredPermissions is empty', () => {
     const vm = buildVm({
-      permissions: [buildPermission()],
+      permissions: [buildPermissionState()],
       filteredPermissions: [],
-      searchQuery: 'something',
-      permissionStats: {
-        granted: 0,
-        denied: 0,
-        unsupported: 0,
-        total: 0,
-      },
+      search: 'xyz',
     });
 
-    render(<PermissionTesterView {...vm} />);
+    render(<PermissionTesterPanel {...vm} />);
 
-    expect(screen.getByText('No permissions found')).toBeInTheDocument();
-    expect(screen.getByText('No permissions match "something". Try a different search term.')).toBeInTheDocument();
-  });
-
-  it('renders permission stats summary cards', () => {
-    const permissions = [
-      buildPermission({ status: 'granted' }),
-      buildPermission({ status: 'denied', permission: { name: 'mic', displayName: 'Mic', category: 'Media' } }),
-      buildPermission({ status: 'unsupported', permission: { name: 'geo', displayName: 'Geo', category: 'Location' } }),
-    ];
-
-    const vm = buildVm({
-      permissions,
-      filteredPermissions: permissions,
-      permissionStats: {
-        granted: 1,
-        denied: 1,
-        unsupported: 1,
-        total: 3,
-      },
-    });
-
-    render(<PermissionTesterView {...vm} />);
-
-    expect(screen.getByText('Granted')).toBeInTheDocument();
-    expect(screen.getAllByText('1')).toHaveLength(3);
-    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText(/no permissions match/i)).toBeTruthy();
   });
 });
 
 function defineGlobalPolyfills() {
   class MockMediaStream {
-    getTracks() {
-      return [];
-    }
+    getTracks() { return []; }
   }
   // @ts-expect-error jsdom polyfill
   global.MediaStream = MockMediaStream;

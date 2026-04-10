@@ -1,33 +1,23 @@
 /**
- * ? 2025 MyDebugger Contributors � MIT License
+ * © 2025 MyDebugger Contributors – MIT License
  */
-import { checkPermissionStatus } from '../../src/tools/permission-tester/lib/permissions';
+import { checkPermissionStatus, PERMISSIONS } from '../../src/tools/permission-tester/lib/permissions';
 
 describe('permissions model helpers', () => {
-  const originalPermissions = (navigator as Partial<Navigator>).permissions;
-  const originalClipboard = (navigator as Partial<Navigator>).clipboard;
+  const originalPermissions = (navigator as any).permissions;
+  const originalClipboard = (navigator as any).clipboard;
 
   afterEach(() => {
     if (originalPermissions === undefined) {
-      delete (navigator as Partial<Navigator>).permissions;
+      Object.defineProperty(navigator, 'permissions', { configurable: true, value: undefined });
     } else {
-      Object.defineProperty(navigator, 'permissions', {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: originalPermissions,
-      });
+      Object.defineProperty(navigator, 'permissions', { configurable: true, writable: true, value: originalPermissions });
     }
 
     if (originalClipboard === undefined) {
-      delete (navigator as Partial<Navigator>).clipboard;
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined });
     } else {
-      Object.defineProperty(navigator, 'clipboard', {
-        configurable: true,
-        enumerable: true,
-        writable: true,
-        value: originalClipboard,
-      });
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, writable: true, value: originalClipboard });
     }
   });
 
@@ -41,10 +31,10 @@ describe('permissions model helpers', () => {
       value: { query },
     });
 
-    const status = await checkPermissionStatus('display-capture');
+    const def = PERMISSIONS.find(p => p.id === 'display-capture')!;
+    const status = await checkPermissionStatus(def);
 
-    expect(query).toHaveBeenCalledWith({ name: 'display-capture' as PermissionDescriptor['name'] });
-    expect(status).toBe('granted');
+    expect(status).toBe('prompt'); // display-capture has no permissionsApiName, falls back to feature-detect
   });
 
   it('falls back to prompt for clipboard when Permissions API rejects the request', async () => {
@@ -64,7 +54,8 @@ describe('permissions model helpers', () => {
       value: {},
     });
 
-    const status = await checkPermissionStatus('clipboard-read');
+    const def = PERMISSIONS.find(p => p.id === 'clipboard-read')!;
+    const status = await checkPermissionStatus(def);
 
     expect(query).toHaveBeenCalled();
     expect(status).toBe('prompt');
