@@ -4,6 +4,15 @@
  * ScannerController — runs the camera preview render loop on the main thread and
  * dispatches decode work to a Web Worker. The render loop never awaits the worker;
  * frames are dropped if the worker is still busy.
+ *
+ * Edge cases covered:
+ *   - Camera track ends mid-scan (permission revoked, device unplugged)
+ *   - Worker replies arriving after stop() are ignored
+ *   - Wedged worker (no reply within decodeTimeoutMs) is terminated + surfaced
+ *   - Tab backgrounded — skip posting to save CPU (rAF is already throttled)
+ *   - `onResult` throwing does not corrupt controller state
+ *   - getImageData / postMessage failures reset the decoding flag
+ *   - onmessageerror (structured clone failures)
  */
 import {
   nextDownscaledWidth,
@@ -23,6 +32,11 @@ export interface ScannerStartOptions {
   initialWidth?: number;
   minWidth?: number;
   maxDecodeMs?: number;
+  /** Watchdog timeout — if the worker doesn't reply within this many ms, treat
+   * it as wedged, surface an error, and stop. Default 3000. Pass 0 to disable. */
+  decodeTimeoutMs?: number;
+  /** Skip decoding while the document is hidden (default true). */
+  pauseWhenHidden?: boolean;
   runLevelPattern?: readonly RunLevel[];
   workerFactory?: () => Worker;
 }
@@ -37,6 +51,7 @@ export interface ScannerHandle {
 const DEFAULT_INITIAL_WIDTH = 640;
 const DEFAULT_MIN_WIDTH = 320;
 const DEFAULT_MAX_DECODE_MS = 30;
+const DEFAULT_DECODE_TIMEOUT_MS = 3000;
 
 const buildConstraints = (
   deviceId: string | undefined,
@@ -59,6 +74,8 @@ export const startScanner = async (
     initialWidth = DEFAULT_INITIAL_WIDTH,
     minWidth = DEFAULT_MIN_WIDTH,
     maxDecodeMs = DEFAULT_MAX_DECODE_MS,
+    decodeTimeoutMs = DEFAULT_DECODE_TIMEOUT_MS,
+    pauseWhenHidden = true,
     runLevelPattern,
     workerFactory = createDefaultQrWorker,
   } = options;
@@ -98,10 +115,51 @@ export const startScanner = async (
   let pendingJobId = 0;
   let nextJobId = 1;
   let currentWidth = initialWidth;
+  let decodeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const reportError = (error: unknown, fallbackMessage: string) => {
+    if (!onError) return;
+    try {
+      onError(error instanceof Error ? error : new Error(fallbackMessage));
+    } catch {
+      // onError must not itself crash the controller.
+    }
+  };
+
+  const clearDecodeTimer = () => {
+    if (decodeTimer !== null) {
+      clearTimeout(decodeTimer);
+      decodeTimer = null;
+    }
+  };
+
+  const trackEndedHandler = () => {
+    if (stopped) return;
+    reportError(
+      new Error('Camera stream ended unexpectedly.'),
+      'Camera stream ended unexpectedly.',
+    );
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    cleanup();
+  };
+
+  const visibilityHandler = () => {
+    // When the tab becomes visible again, rAF resumes on its own; nothing to do.
+    // When it becomes hidden we just let rAF throttle and skip worker posts.
+  };
+
+  stream.getVideoTracks().forEach((track) => {
+    track.addEventListener('ended', trackEndedHandler);
+  });
+
+  if (pauseWhenHidden && typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', visibilityHandler);
+  }
 
   const cleanup = () => {
     if (stopped) return;
     stopped = true;
+    clearDecodeTimer();
     if (rafId) {
       cancelAnimationFrame(rafId);
       rafId = 0;
@@ -111,6 +169,9 @@ export const startScanner = async (
     } catch {
       // ignore — worker may already be detached
     }
+    stream.getVideoTracks().forEach((track) => {
+      track.removeEventListener('ended', trackEndedHandler);
+    });
     stream.getTracks().forEach((track) => {
       try {
         track.stop();
@@ -118,6 +179,9 @@ export const startScanner = async (
         // ignore
       }
     });
+    if (pauseWhenHidden && typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', visibilityHandler);
+    }
     if (video.srcObject === stream) {
       video.srcObject = null;
     }
@@ -127,6 +191,10 @@ export const startScanner = async (
     const data = event.data;
     if (!data || data.type !== 'result') return;
 
+    // Late reply after stop(): ignore entirely.
+    if (stopped) return;
+
+    clearDecodeTimer();
     decoding = false;
     lastDecodeMs = data.decodeMs;
 
@@ -135,15 +203,31 @@ export const startScanner = async (
     }
 
     if (data.jobId !== pendingJobId) return;
-    if (data.result) {
+    if (!data.result) return;
+
+    try {
       onResult(data.result.text, data.result.engine);
+    } catch (callbackError) {
+      reportError(callbackError, 'QR result handler threw');
     }
   };
 
   worker.onerror = (err) => {
     decoding = false;
-    onError?.(new Error(err.message || 'QR decode worker error'));
+    clearDecodeTimer();
+    reportError(err, 'QR decode worker error');
   };
+
+  // onmessageerror fires when postMessage payload fails to (de)serialize or when
+  // a transferred buffer is malformed. Reset the flag so the pipeline recovers.
+  (worker as Worker & { onmessageerror: ((ev: MessageEvent) => void) | null }).onmessageerror = () => {
+    decoding = false;
+    clearDecodeTimer();
+    reportError(new Error('QR decode worker message error'), 'QR decode worker message error');
+  };
+
+  const isDocumentHidden = (): boolean =>
+    pauseWhenHidden && typeof document !== 'undefined' && document.hidden === true;
 
   const renderFrame = () => {
     if (stopped) return;
@@ -158,7 +242,7 @@ export const startScanner = async (
     }
 
     const aspect = video.videoHeight / video.videoWidth;
-    const targetWidth = Math.min(currentWidth, video.videoWidth);
+    const targetWidth = Math.max(1, Math.min(currentWidth, video.videoWidth));
     const targetHeight = Math.max(1, Math.round(targetWidth * aspect));
 
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
@@ -166,9 +250,16 @@ export const startScanner = async (
       canvas.height = targetHeight;
     }
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    try {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    } catch (drawError) {
+      // drawImage can throw if the video frame is not decodable yet. Skip frame.
+      reportError(drawError, 'Unable to draw video frame');
+      return;
+    }
 
     if (decoding) return;
+    if (isDocumentHidden()) return; // save CPU while backgrounded
 
     decoding = true;
     const thisFrameIndex = frameIndex;
@@ -179,9 +270,9 @@ export const startScanner = async (
     let imageData: ImageData;
     try {
       imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    } catch (drawError) {
+    } catch (readError) {
       decoding = false;
-      onError?.(drawError instanceof Error ? drawError : new Error(String(drawError)));
+      reportError(readError, 'Unable to read pixels from canvas');
       return;
     }
 
@@ -199,7 +290,21 @@ export const startScanner = async (
       worker.postMessage(message, [buffer]);
     } catch (postError) {
       decoding = false;
-      onError?.(postError instanceof Error ? postError : new Error(String(postError)));
+      reportError(postError, 'Unable to post frame to worker');
+      return;
+    }
+
+    if (decodeTimeoutMs > 0) {
+      const armedJobId = pendingJobId;
+      decodeTimer = setTimeout(() => {
+        if (stopped || armedJobId !== pendingJobId) return;
+        // Worker is wedged. Surface and tear down — caller can restart.
+        reportError(
+          new Error(`QR decode timed out after ${decodeTimeoutMs}ms`),
+          'QR decode timed out',
+        );
+        cleanup();
+      }, decodeTimeoutMs);
     }
   };
 
