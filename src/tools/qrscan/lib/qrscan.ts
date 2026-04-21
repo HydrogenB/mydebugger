@@ -1,10 +1,18 @@
 /**
- * ? 2025 MyDebugger Contributors � MIT License
+ * © 2025 MyDebugger Contributors – MIT License
  *
  * QR scanner utility helpers used by the QR Scan tool view-model.
+ *
+ * The camera path runs through a Web Worker via {@link startScanner} so the rAF
+ * preview loop on the main thread stays smooth. File decoding still uses ZXing
+ * because it covers non-QR formats (Code128, EAN, etc.) that the in-worker
+ * cascade does not.
  */
 import { BrowserMultiFormatReader, BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import type { Result } from '@zxing/library';
+
+import type { DecodeEngineName } from './qrCascade';
+import { startScanner, type ScannerHandle } from './scannerController';
 
 export type VideoDevice = MediaDeviceInfo;
 
@@ -32,30 +40,26 @@ const createReader = (enableMultiFormat: boolean) =>
 export const listVideoInputDevices = async (): Promise<VideoDevice[]> =>
   BrowserQRCodeReader.listVideoInputDevices();
 
+const formatForEngine = (engine: DecodeEngineName): string => `${DEFAULT_FORMAT}:${engine}`;
+
 export const startQrScan = async (
   video: HTMLVideoElement,
   onResult: (text: string, format?: string) => void,
   deviceId?: string,
+  // Retained for API compatibility — the worker cascade is QR-only. Multi-format
+  // decoding remains available through `decodeFile` for uploaded images.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   enableMultiFormat: boolean = true,
 ): Promise<IScannerControls> => {
-  const reader = createReader(enableMultiFormat);
-
-  if ('timeBetweenScansMillis' in reader) {
-    (reader as BrowserMultiFormatReader).timeBetweenScansMillis = 250;
-  }
-
-  const controls = await reader.decodeFromVideoDevice(
-    deviceId ?? undefined,
+  const handle: ScannerHandle = await startScanner({
     video,
-    (result) => {
-      if (result) {
-        const format = getFormatName(result, enableMultiFormat ? 'UNKNOWN' : DEFAULT_FORMAT);
-        onResult(result.getText(), format);
-      }
-    },
-  );
+    deviceId,
+    onResult: (text, engine) => onResult(text, formatForEngine(engine)),
+  });
 
-  return controls;
+  return {
+    stop: () => handle.stop(),
+  } as IScannerControls;
 };
 
 export const stopQrScan = (controls: IScannerControls | undefined) => {
