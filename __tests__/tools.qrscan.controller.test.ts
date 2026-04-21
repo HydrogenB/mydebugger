@@ -256,7 +256,7 @@ describe('startScanner', () => {
       decodeMs: 4,
     });
 
-    expect(onResult).toHaveBeenCalledWith('https://example.com', 'BarcodeDetector');
+    expect(onResult).toHaveBeenCalledWith('https://example.com', 'BarcodeDetector', 4);
     handle.stop();
   });
 
@@ -277,6 +277,46 @@ describe('startScanner', () => {
     raf.flush(1);
 
     expect(worker.posts.map((p) => p.runLevel)).toEqual(['fast', 'medium', 'full']);
+    handle.stop();
+  });
+
+  test('fires onDecodeAttempt for both hits and misses with runLevel + canvas size', async () => {
+    const worker = createFakeWorker();
+    const onDecodeAttempt = jest.fn();
+    const video = createFakeVideo(800, 600);
+
+    const handle = await startScanner({
+      video,
+      onResult: jest.fn(),
+      onDecodeAttempt,
+      initialWidth: 640,
+      workerFactory: () => worker as unknown as Worker,
+    });
+
+    raf.flush(1);
+    worker.reply({ jobId: worker.posts[0].jobId, result: null, decodeMs: 7 });
+
+    raf.flush(1);
+    worker.reply({
+      jobId: worker.posts[1].jobId,
+      result: { text: 'HI', engine: 'jsQR-fast' },
+      decodeMs: 12,
+    });
+
+    expect(onDecodeAttempt).toHaveBeenCalledTimes(2);
+    expect(onDecodeAttempt.mock.calls[0][0]).toMatchObject({
+      matched: false,
+      engine: null,
+      decodeMs: 7,
+      runLevel: 'fast',
+      canvasWidth: 640,
+    });
+    expect(onDecodeAttempt.mock.calls[1][0]).toMatchObject({
+      matched: true,
+      engine: 'jsQR-fast',
+      decodeMs: 12,
+      runLevel: 'medium',
+    });
     handle.stop();
   });
 

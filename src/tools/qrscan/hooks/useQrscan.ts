@@ -1,5 +1,5 @@
 /**
- * ? 2025 MyDebugger Contributors – MIT License
+ * ? 2025 MyDebugger Contributors ï¿½ MIT License
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { IScannerControls } from '@zxing/browser';
@@ -13,6 +13,8 @@ import {
   startQrScan,
   stopQrScan,
   toggleTorch as toggleTorchOnTrack,
+  type DecodeAttemptMeta,
+  type DecodeEngineName,
   type VideoDevice,
 } from '../lib/qrscan';
 
@@ -45,6 +47,96 @@ export interface SessionStats {
   averageIntervalMs: number | null;
   lastScanAgoMs: number | null;
 }
+
+export interface EngineStat {
+  engine: DecodeEngineName;
+  hits: number;
+  attempts: number;
+  lastDecodeMs: number | null;
+  averageDecodeMs: number | null;
+}
+
+export interface ScanPerformance {
+  lastEngine: DecodeEngineName | null;
+  lastDecodeMs: number | null;
+  lastRunLevel: DecodeAttemptMeta['runLevel'] | null;
+  lastCanvasSize: { width: number; height: number } | null;
+  attempts: number;
+  hits: number;
+  averageDecodeMs: number | null;
+  scansPerSecond: number | null;
+  engines: Record<DecodeEngineName, EngineStat>;
+  winningEngine: DecodeEngineName | null;
+}
+
+export const EMPTY_ENGINE_STAT = (engine: DecodeEngineName): EngineStat => ({
+  engine,
+  hits: 0,
+  attempts: 0,
+  lastDecodeMs: null,
+  averageDecodeMs: null,
+});
+
+export const createEmptyPerformance = (): ScanPerformance => ({
+  lastEngine: null,
+  lastDecodeMs: null,
+  lastRunLevel: null,
+  lastCanvasSize: null,
+  attempts: 0,
+  hits: 0,
+  averageDecodeMs: null,
+  scansPerSecond: null,
+  engines: {
+    BarcodeDetector: EMPTY_ENGINE_STAT('BarcodeDetector'),
+    'jsQR-fast': EMPTY_ENGINE_STAT('jsQR-fast'),
+    'jsQR-deep': EMPTY_ENGINE_STAT('jsQR-deep'),
+  },
+  winningEngine: null,
+});
+
+export const mergeAttempt = (
+  previous: ScanPerformance,
+  meta: DecodeAttemptMeta,
+): ScanPerformance => {
+  const attempts = previous.attempts + 1;
+  const hits = previous.hits + (meta.matched ? 1 : 0);
+  const prevAvg = previous.averageDecodeMs ?? 0;
+  const averageDecodeMs = (prevAvg * previous.attempts + meta.decodeMs) / attempts;
+
+  const engines = { ...previous.engines };
+  const key = meta.engine;
+  if (key) {
+    const bucket = engines[key] ?? EMPTY_ENGINE_STAT(key);
+    const engineAttempts = bucket.attempts + 1;
+    const engineHits = bucket.hits + (meta.matched ? 1 : 0);
+    const prevEngineAvg = bucket.averageDecodeMs ?? 0;
+    engines[key] = {
+      engine: key,
+      attempts: engineAttempts,
+      hits: engineHits,
+      lastDecodeMs: meta.decodeMs,
+      averageDecodeMs: (prevEngineAvg * bucket.attempts + meta.decodeMs) / engineAttempts,
+    };
+  }
+
+  const winningEngine = (Object.values(engines) as EngineStat[])
+    .filter((stat) => stat.hits > 0)
+    .sort((a, b) => b.hits - a.hits || (a.averageDecodeMs ?? Infinity) - (b.averageDecodeMs ?? Infinity))[0]?.engine ?? null;
+
+  return {
+    ...previous,
+    lastEngine: meta.engine ?? previous.lastEngine,
+    lastDecodeMs: meta.decodeMs,
+    lastRunLevel: meta.runLevel,
+    lastCanvasSize: { width: meta.canvasWidth, height: meta.canvasHeight },
+    attempts,
+    hits,
+    averageDecodeMs,
+    engines,
+    winningEngine,
+    scansPerSecond: previous.scansPerSecond,
+  };
+};
 
 export interface UseQrscanReturn {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -96,6 +188,7 @@ export interface UseQrscanReturn {
     available: boolean;
     set: (value: number) => Promise<void>;
   };
+  performance: ScanPerformance;
   scanFromFile: (file: File) => Promise<void>;
   processManualText: (text: string) => void;
 }
@@ -228,6 +321,8 @@ const useQrscan = (): UseQrscanReturn => {
   const [torchAvailable, setTorchAvailable] = useState(false);
   const [zoomValue, setZoomValue] = useState(1);
   const [zoomCapability, setZoomCapability] = useState<{ min: number; max: number; step: number } | null>(null);
+  const [performance, setPerformance] = useState<ScanPerformance>(() => createEmptyPerformance());
+  const attemptTimesRef = useRef<number[]>([]);
 
   const historyRef = useRef<ScanRecord[]>([]);
   useEffect(() => {
@@ -448,6 +543,24 @@ const useQrscan = (): UseQrscanReturn => {
     }
   }, [continuousMode, processDecodedValue, stop]);
 
+  const handleDecodeAttempt = useCallback((meta: DecodeAttemptMeta) => {
+    setPerformance((previous) => mergeAttempt(previous, meta));
+    const now = Date.now();
+    const times = attemptTimesRef.current;
+    times.push(now);
+    const cutoff = now - 2000;
+    while (times.length > 0 && times[0] < cutoff) times.shift();
+    setPerformance((previous) => ({
+      ...previous,
+      scansPerSecond: times.length > 0 ? Math.round((times.length / 2) * 10) / 10 : 0,
+    }));
+  }, []);
+
+  const resetPerformance = useCallback(() => {
+    attemptTimesRef.current = [];
+    setPerformance(createEmptyPerformance());
+  }, []);
+
   const startInternal = useCallback(async (cameraOverride?: string) => {
     if (!isBrowser) return;
     const video = videoRef.current;
@@ -471,8 +584,13 @@ const useQrscan = (): UseQrscanReturn => {
     stopQrScan(controlsRef.current);
     controlsRef.current = undefined;
 
+    resetPerformance();
     try {
-      controlsRef.current = await startQrScan(video, handleCameraResult, cameraId || undefined, true);
+      controlsRef.current = await startQrScan(
+        video,
+        (text, format) => handleCameraResult(text, format),
+        { deviceId: cameraId || undefined, onDecodeAttempt: handleDecodeAttempt },
+      );
       setScanning(true);
       setCameraStatus('ready');
       updateCapabilities();
@@ -484,7 +602,15 @@ const useQrscan = (): UseQrscanReturn => {
     } finally {
       setIsBusy(false);
     }
-  }, [cameraPermission, devices, handleCameraResult, selectedCamera, updateCapabilities]);
+  }, [
+    cameraPermission,
+    devices,
+    handleCameraResult,
+    handleDecodeAttempt,
+    resetPerformance,
+    selectedCamera,
+    updateCapabilities,
+  ]);
 
   const start = useCallback(async () => {
     await startInternal();
@@ -676,6 +802,7 @@ const useQrscan = (): UseQrscanReturn => {
     setFilterDuplicates,
     torch,
     zoom,
+    performance,
     scanFromFile,
     processManualText,
   };

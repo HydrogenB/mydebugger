@@ -24,10 +24,22 @@ import {
 import type { DecodeRequest, DecodeResponse } from './qr.worker';
 import { createDefaultQrWorker } from './defaultQrWorker';
 
+export interface DecodeAttemptMeta {
+  /** Engine that produced the hit, or null if every engine missed. */
+  engine: DecodeEngineName | null;
+  matched: boolean;
+  decodeMs: number;
+  runLevel: RunLevel;
+  canvasWidth: number;
+  canvasHeight: number;
+}
+
 export interface ScannerStartOptions {
   video: HTMLVideoElement;
   deviceId?: string;
-  onResult: (text: string, engine: DecodeEngineName) => void;
+  onResult: (text: string, engine: DecodeEngineName, decodeMs: number) => void;
+  /** Fires after every worker reply (hit or miss) — use for live performance HUD. */
+  onDecodeAttempt?: (meta: DecodeAttemptMeta) => void;
   onError?: (error: Error) => void;
   initialWidth?: number;
   minWidth?: number;
@@ -70,6 +82,7 @@ export const startScanner = async (
     video,
     deviceId,
     onResult,
+    onDecodeAttempt,
     onError,
     initialWidth = DEFAULT_INITIAL_WIDTH,
     minWidth = DEFAULT_MIN_WIDTH,
@@ -113,6 +126,9 @@ export const startScanner = async (
   let frameIndex = 0;
   let lastDecodeMs = 0;
   let pendingJobId = 0;
+  let pendingRunLevel: RunLevel = 'fast';
+  let pendingCanvasWidth = 0;
+  let pendingCanvasHeight = 0;
   let nextJobId = 1;
   let currentWidth = initialWidth;
   let decodeTimer: ReturnType<typeof setTimeout> | null = null;
@@ -203,10 +219,26 @@ export const startScanner = async (
     }
 
     if (data.jobId !== pendingJobId) return;
+
+    if (onDecodeAttempt) {
+      try {
+        onDecodeAttempt({
+          engine: data.result?.engine ?? null,
+          matched: Boolean(data.result),
+          decodeMs: data.decodeMs,
+          runLevel: pendingRunLevel,
+          canvasWidth: pendingCanvasWidth,
+          canvasHeight: pendingCanvasHeight,
+        });
+      } catch (attemptError) {
+        reportError(attemptError, 'QR decode attempt handler threw');
+      }
+    }
+
     if (!data.result) return;
 
     try {
-      onResult(data.result.text, data.result.engine);
+      onResult(data.result.text, data.result.engine, data.decodeMs);
     } catch (callbackError) {
       reportError(callbackError, 'QR result handler threw');
     }
@@ -266,6 +298,9 @@ export const startScanner = async (
     frameIndex += 1;
     pendingJobId = nextJobId;
     nextJobId += 1;
+    pendingRunLevel = pickRunLevel(thisFrameIndex, runLevelPattern);
+    pendingCanvasWidth = canvas.width;
+    pendingCanvasHeight = canvas.height;
 
     let imageData: ImageData;
     try {
@@ -283,7 +318,7 @@ export const startScanner = async (
       width: imageData.width,
       height: imageData.height,
       buffer,
-      runLevel: pickRunLevel(thisFrameIndex, runLevelPattern),
+      runLevel: pendingRunLevel,
     };
 
     try {
