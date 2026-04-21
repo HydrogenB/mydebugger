@@ -11,8 +11,15 @@
 import { BrowserMultiFormatReader, BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import type { Result } from '@zxing/library';
 
+import {
+  startScanner,
+  type DecodeAttemptMeta,
+  type ScannerHandle,
+} from './scannerController';
+
+export type { DecodeAttemptMeta } from './scannerController';
+export type { DecodeEngineName } from './qrCascade';
 import type { DecodeEngineName } from './qrCascade';
-import { startScanner, type ScannerHandle } from './scannerController';
 
 export type VideoDevice = MediaDeviceInfo;
 
@@ -42,19 +49,35 @@ export const listVideoInputDevices = async (): Promise<VideoDevice[]> =>
 
 const formatForEngine = (engine: DecodeEngineName): string => `${DEFAULT_FORMAT}:${engine}`;
 
+export interface StartQrScanOptions {
+  deviceId?: string;
+  /** Retained for API compatibility — camera path is QR-only; non-QR formats
+   * are still handled by {@link decodeFile}. */
+  enableMultiFormat?: boolean;
+  /** Fires after every worker reply (hit or miss) — use for a live HUD. */
+  onDecodeAttempt?: (meta: DecodeAttemptMeta) => void;
+  onError?: (error: Error) => void;
+}
+
 export const startQrScan = async (
   video: HTMLVideoElement,
-  onResult: (text: string, format?: string) => void,
-  deviceId?: string,
-  // Retained for API compatibility — the worker cascade is QR-only. Multi-format
-  // decoding remains available through `decodeFile` for uploaded images.
+  onResult: (text: string, format: string, decodeMs: number) => void,
+  deviceIdOrOptions?: string | StartQrScanOptions,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   enableMultiFormat: boolean = true,
 ): Promise<IScannerControls> => {
+  const options: StartQrScanOptions =
+    typeof deviceIdOrOptions === 'string' || deviceIdOrOptions === undefined
+      ? { deviceId: deviceIdOrOptions }
+      : deviceIdOrOptions;
+
   const handle: ScannerHandle = await startScanner({
     video,
-    deviceId,
-    onResult: (text, engine) => onResult(text, formatForEngine(engine)),
+    deviceId: options.deviceId,
+    onDecodeAttempt: options.onDecodeAttempt,
+    onError: options.onError,
+    onResult: (text, engine, decodeMs) =>
+      onResult(text, formatForEngine(engine), decodeMs),
   });
 
   return {
