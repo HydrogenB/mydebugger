@@ -32,10 +32,46 @@ const NUMBERS = "0123456789";
 const SYMBOLS = "!@#$%^&*()_+[]{}|;:,.<>?/~-";
 const AMBIGUOUS = "O0oIl1|S5B8G6Z2"; // characters users often confuse
 
+export type EntropySource = {
+  bytes: Uint8Array;
+  cursor: { value: number };
+};
+
+export const createEntropySource = (entropy?: Uint8Array): EntropySource | undefined => {
+  if (!entropy || entropy.length === 0) return undefined;
+  return { bytes: entropy, cursor: { value: 0 } };
+};
+
 /**
- * Create a cryptographically strong random integer in [0, maxExclusive)
+ * Fill a typed array with cryptographically strong random bytes, optionally
+ * XORing each byte with the next value from a user-supplied entropy source.
+ * The entropy source never weakens the stream — it only diffuses additional
+ * randomness drawn from pointer events.
  */
-function secureRandInt(maxExclusive: number): number {
+function fillRandom(buffer: Uint32Array | Uint8Array, source?: EntropySource): void {
+  if (globalThis.crypto && globalThis.crypto.getRandomValues) {
+    globalThis.crypto.getRandomValues(buffer);
+  } else {
+    // eslint-disable-next-line no-restricted-syntax
+    for (let i = 0; i < buffer.length; i += 1) {
+      buffer[i] = Math.floor(Math.random() * 0x100000000);
+    }
+  }
+  if (source && source.bytes.length > 0) {
+    const view = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    for (let i = 0; i < view.length; i += 1) {
+      const { value } = source.cursor;
+      view[i] ^= source.bytes[value % source.bytes.length];
+      source.cursor.value = value + 1;
+    }
+  }
+}
+
+/**
+ * Create a cryptographically strong random integer in [0, maxExclusive),
+ * optionally diffused with bytes from a user-entropy source.
+ */
+function secureRandInt(maxExclusive: number, source?: EntropySource): number {
   if (maxExclusive <= 0) return 0;
   // Use rejection sampling to avoid modulo bias
   const maxUint = 0xffffffff;
@@ -43,9 +79,7 @@ function secureRandInt(maxExclusive: number): number {
   const buffer = new Uint32Array(1);
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    (globalThis.crypto && globalThis.crypto.getRandomValues
-      ? globalThis.crypto.getRandomValues(buffer)
-      : buffer.fill(Math.floor(Math.random() * (maxUint + 1)))) as any;
+    fillRandom(buffer, source);
     const value = buffer[0];
     if (value < maxUnbiased) {
       return value % maxExclusive;
@@ -53,7 +87,10 @@ function secureRandInt(maxExclusive: number): number {
   }
 }
 
-export function generatePassword(options: PasswordOptions): string {
+export function generatePassword(
+  options: PasswordOptions,
+  entropy?: Uint8Array,
+): string {
   const {
     length,
     includeUppercase,
@@ -64,10 +101,12 @@ export function generatePassword(options: PasswordOptions): string {
     customChars
   } = options;
 
+  const source = createEntropySource(entropy);
+
   if (customChars && customChars.length > 0) {
     const chars: string[] = [];
     for (let i = 0; i < length; i++) {
-      chars.push(customChars[secureRandInt(customChars.length)]);
+      chars.push(customChars[secureRandInt(customChars.length, source)]);
     }
     return chars.join("");
   }
@@ -94,33 +133,33 @@ export function generatePassword(options: PasswordOptions): string {
   // If requested length is smaller than the number of required sets,
   // choose a subset of sets at random to keep exact length
   const setsToUse = requiredSets.slice();
-  
+
   // Apply ambiguity filter to sets
-  const filteredSets = setsToUse.map(set => 
+  const filteredSets = setsToUse.map(set =>
     excludeAmbiguous ? [...set].filter(c => !AMBIGUOUS.includes(c)).join("") : set
   ).filter(s => s.length > 0);
 
   if (length < filteredSets.length) {
     // shuffle and keep first N
     for (let i = filteredSets.length - 1; i > 0; i--) {
-      const j = secureRandInt(i + 1);
+      const j = secureRandInt(i + 1, source);
       [filteredSets[i], filteredSets[j]] = [filteredSets[j], filteredSets[i]];
     }
     filteredSets.length = length;
   }
 
   for (const set of filteredSets) {
-    chars.push(set[secureRandInt(set.length)]);
+    chars.push(set[secureRandInt(set.length, source)]);
   }
 
   const remaining = Math.max(0, length - chars.length);
   for (let i = 0; i < remaining; i++) {
-    chars.push(pool[secureRandInt(pool.length)]);
+    chars.push(pool[secureRandInt(pool.length, source)]);
   }
 
   // Shuffle
   for (let i = chars.length - 1; i > 0; i--) {
-    const j = secureRandInt(i + 1);
+    const j = secureRandInt(i + 1, source);
     [chars[i], chars[j]] = [chars[j], chars[i]];
   }
 
@@ -209,13 +248,21 @@ export function estimateStrength(options: PasswordOptions | PassphraseOptions | 
 }
 
 
-export function generateUUIDv4(): string {
-  if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID();
-  // Fallback
+export function generateUUIDv4(entropy?: Uint8Array): string {
+  // When the user has seeded the pool, derive the UUID from a
+  // crypto+entropy mix so the variant/version bits still come from a
+  // known-good stream. When no seed is provided, prefer the native
+  // randomUUID (same CSPRNG, simpler path).
+  if (
+    (!entropy || entropy.length === 0) &&
+    globalThis.crypto &&
+    typeof globalThis.crypto.randomUUID === "function"
+  ) {
+    return globalThis.crypto.randomUUID();
+  }
+  const source = createEntropySource(entropy);
   const bytes = new Uint8Array(16);
-  (globalThis.crypto && globalThis.crypto.getRandomValues
-    ? globalThis.crypto.getRandomValues(bytes)
-    : bytes.forEach((_, i, a) => (a[i] = Math.floor(Math.random() * 256)))) as any;
+  fillRandom(bytes, source);
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
   const toHex = (n: number) => n.toString(16).padStart(2, "0");
@@ -231,10 +278,14 @@ export type KeyOptions = {
   format: "hex" | "base64";
 };
 
-export function generateKey({ bits, format }: KeyOptions): string {
+export function generateKey(
+  { bits, format }: KeyOptions,
+  entropy?: Uint8Array,
+): string {
   const bytes = bits / 8;
   const buf = new Uint8Array(bytes);
-  crypto.getRandomValues(buf);
+  const source = createEntropySource(entropy);
+  fillRandom(buf, source);
   if (format === "hex") {
     return [...buf].map((b) => b.toString(16).padStart(2, "0")).join("");
   }
