@@ -189,6 +189,7 @@ export interface UseQrscanReturn {
     set: (value: number) => Promise<void>;
   };
   performance: ScanPerformance;
+  scanHint: string | null;
   scanFromFile: (file: File) => Promise<void>;
   processManualText: (text: string) => void;
 }
@@ -323,6 +324,8 @@ const useQrscan = (): UseQrscanReturn => {
   const [zoomCapability, setZoomCapability] = useState<{ min: number; max: number; step: number } | null>(null);
   const [performance, setPerformance] = useState<ScanPerformance>(() => createEmptyPerformance());
   const attemptTimesRef = useRef<number[]>([]);
+  const scanStartedAtRef = useRef<number | null>(null);
+  const [scanHint, setScanHint] = useState<string | null>(null);
 
   const historyRef = useRef<ScanRecord[]>([]);
   useEffect(() => {
@@ -558,8 +561,44 @@ const useQrscan = (): UseQrscanReturn => {
 
   const resetPerformance = useCallback(() => {
     attemptTimesRef.current = [];
+    scanStartedAtRef.current = null;
+    setScanHint(null);
     setPerformance(createEmptyPerformance());
   }, []);
+
+  useEffect(() => {
+    if (!scanning) {
+      scanStartedAtRef.current = null;
+      setScanHint(null);
+      return undefined;
+    }
+    if (scanStartedAtRef.current === null) {
+      scanStartedAtRef.current = Date.now();
+    }
+    const interval = window.setInterval(() => {
+      if (performance.hits > 0) {
+        setScanHint(null);
+        return;
+      }
+      const startedAt = scanStartedAtRef.current;
+      if (startedAt === null) return;
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < 4000) {
+        setScanHint(null);
+      } else if (elapsed < 9000) {
+        setScanHint('Centre the QR code inside the box and hold steady.');
+      } else {
+        setScanHint('No code yet — try moving closer or improving the lighting.');
+      }
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [scanning, performance.hits]);
+
+  useEffect(() => {
+    if (performance.hits > 0) {
+      setScanHint(null);
+    }
+  }, [performance.hits]);
 
   const startInternal = useCallback(async (cameraOverride?: string) => {
     if (!isBrowser) return;
@@ -589,7 +628,11 @@ const useQrscan = (): UseQrscanReturn => {
       controlsRef.current = await startQrScan(
         video,
         (text, format) => handleCameraResult(text, format),
-        { deviceId: cameraId || undefined, onDecodeAttempt: handleDecodeAttempt },
+        {
+          deviceId: cameraId || undefined,
+          onDecodeAttempt: handleDecodeAttempt,
+          cropToCenterSquare: true,
+        },
       );
       setScanning(true);
       setCameraStatus('ready');
@@ -803,6 +846,7 @@ const useQrscan = (): UseQrscanReturn => {
     torch,
     zoom,
     performance,
+    scanHint,
     scanFromFile,
     processManualText,
   };

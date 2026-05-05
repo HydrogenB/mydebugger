@@ -57,6 +57,9 @@ export interface StartQrScanOptions {
   /** Fires after every worker reply (hit or miss) — use for a live HUD. */
   onDecodeAttempt?: (meta: DecodeAttemptMeta) => void;
   onError?: (error: Error) => void;
+  /** Crop the decode canvas to the centered square (matches the AR reticle).
+   * Speeds up decoding and focuses on what the user is aiming at. */
+  cropToCenterSquare?: boolean;
 }
 
 export const startQrScan = async (
@@ -76,6 +79,7 @@ export const startQrScan = async (
     deviceId: options.deviceId,
     onDecodeAttempt: options.onDecodeAttempt,
     onError: options.onError,
+    cropToCenterSquare: options.cropToCenterSquare,
     onResult: (text, engine, decodeMs) =>
       onResult(text, formatForEngine(engine), decodeMs),
   });
