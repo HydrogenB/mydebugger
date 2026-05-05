@@ -51,6 +51,12 @@ export interface ScannerStartOptions {
   pauseWhenHidden?: boolean;
   runLevelPattern?: readonly RunLevel[];
   workerFactory?: () => Worker;
+  /** Crop the decode canvas to the centered square (matches the AR reticle).
+   * Decoding only the area the user is aiming at speeds up jsQR substantially
+   * and avoids wasted work on background pixels. Default false. */
+  cropToCenterSquare?: boolean;
+  /** Ideal camera height; pairs with initialWidth. Default 720. */
+  initialHeight?: number;
 }
 
 export interface ScannerHandle {
@@ -60,18 +66,24 @@ export interface ScannerHandle {
   getCanvasSize: () => { width: number; height: number };
 }
 
-const DEFAULT_INITIAL_WIDTH = 640;
-const DEFAULT_MIN_WIDTH = 320;
+const DEFAULT_INITIAL_WIDTH = 1280;
+const DEFAULT_INITIAL_HEIGHT = 720;
+const DEFAULT_MIN_WIDTH = 480;
 const DEFAULT_MAX_DECODE_MS = 30;
 const DEFAULT_DECODE_TIMEOUT_MS = 3000;
 
 const buildConstraints = (
   deviceId: string | undefined,
   idealWidth: number,
+  idealHeight: number,
 ): MediaStreamConstraints => {
+  const base: MediaTrackConstraints = {
+    width: { ideal: idealWidth },
+    height: { ideal: idealHeight },
+  };
   const videoConstraints: MediaTrackConstraints = deviceId
-    ? { deviceId: { exact: deviceId }, width: { ideal: idealWidth } }
-    : { facingMode: { ideal: 'environment' }, width: { ideal: idealWidth } };
+    ? { ...base, deviceId: { exact: deviceId } }
+    : { ...base, facingMode: { ideal: 'environment' } };
   return { audio: false, video: videoConstraints };
 };
 
@@ -85,12 +97,14 @@ export const startScanner = async (
     onDecodeAttempt,
     onError,
     initialWidth = DEFAULT_INITIAL_WIDTH,
+    initialHeight = DEFAULT_INITIAL_HEIGHT,
     minWidth = DEFAULT_MIN_WIDTH,
     maxDecodeMs = DEFAULT_MAX_DECODE_MS,
     decodeTimeoutMs = DEFAULT_DECODE_TIMEOUT_MS,
     pauseWhenHidden = true,
     runLevelPattern,
     workerFactory = createDefaultQrWorker,
+    cropToCenterSquare = false,
   } = options;
 
   if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
@@ -98,7 +112,7 @@ export const startScanner = async (
   }
 
   const stream = await navigator.mediaDevices.getUserMedia(
-    buildConstraints(deviceId, initialWidth),
+    buildConstraints(deviceId, initialWidth, initialHeight),
   );
 
   video.srcObject = stream;
@@ -273,9 +287,22 @@ export const startScanner = async (
       return;
     }
 
-    const aspect = video.videoHeight / video.videoWidth;
-    const targetWidth = Math.max(1, Math.min(currentWidth, video.videoWidth));
-    const targetHeight = Math.max(1, Math.round(targetWidth * aspect));
+    let sourceX = 0;
+    let sourceY = 0;
+    let sourceWidth = video.videoWidth;
+    let sourceHeight = video.videoHeight;
+
+    if (cropToCenterSquare) {
+      const side = Math.min(video.videoWidth, video.videoHeight);
+      sourceWidth = side;
+      sourceHeight = side;
+      sourceX = Math.round((video.videoWidth - side) / 2);
+      sourceY = Math.round((video.videoHeight - side) / 2);
+    }
+
+    const sourceAspect = sourceHeight / sourceWidth;
+    const targetWidth = Math.max(1, Math.min(currentWidth, sourceWidth));
+    const targetHeight = Math.max(1, Math.round(targetWidth * sourceAspect));
 
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
@@ -283,7 +310,17 @@ export const startScanner = async (
     }
 
     try {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(
+        video,
+        sourceX,
+        sourceY,
+        sourceWidth,
+        sourceHeight,
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
     } catch (drawError) {
       // drawImage can throw if the video frame is not decodable yet. Skip frame.
       reportError(drawError, 'Unable to draw video frame');

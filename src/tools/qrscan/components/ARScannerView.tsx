@@ -296,6 +296,7 @@ const ARScannerView: React.FC<Props> = ({
   clearResult,
   torch,
   performance: perf,
+  scanHint,
   scanHistory,
   removeHistoryEntry,
   clearHistory,
@@ -373,6 +374,14 @@ const ARScannerView: React.FC<Props> = ({
 
         {scanning && <Reticle scanning={scanning} />}
 
+        {scanning && scanHint && !result && (
+          <div className="pointer-events-none absolute inset-x-0 top-1/2 mt-[max(40vw,200px)] flex justify-center px-6">
+            <div className="max-w-xs rounded-2xl border border-white/15 bg-black/70 px-4 py-2 text-center text-xs text-white/90 backdrop-blur-md">
+              {scanHint}
+            </div>
+          </div>
+        )}
+
         {/* Top controls */}
         <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),0.75rem)]">
           <TopButton label={scanning ? 'Stop camera' : 'Camera idle'} onClick={scanning ? stop : () => void start()}>
@@ -405,12 +414,14 @@ const ARScannerView: React.FC<Props> = ({
             {lastEngine ? (
               <span className="text-emerald-300">{lastEngine}</span>
             ) : (
-              <span className="text-white/60">scanning…</span>
+              <span className="text-white/60">searching…</span>
             )}
             <span className="mx-2 text-white/30">·</span>
             <span>{formatMs(lastDecodeMs)}</span>
             <span className="mx-2 text-white/30">·</span>
             <span>{perf.scansPerSecond ?? 0}/s</span>
+            <span className="mx-2 text-white/30">·</span>
+            <span>{formatCount(perf.attempts)} frames</span>
           </div>
         )}
 
