@@ -16,7 +16,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 import type {
   EngineStat,
-  ScanPerformance,
   ScanRecord,
   UseQrscanReturn,
 } from '../hooks/useQrscan';
@@ -55,12 +54,6 @@ const ENGINE_COLORS: Record<string, string> = {
   'jsQR-deep': 'bg-amber-500/90 text-amber-50',
 };
 
-const ENGINE_DESCRIPTION: Record<string, string> = {
-  BarcodeDetector: 'Native · GPU-accelerated',
-  'jsQR-fast': 'jsQR · no-inversion pass',
-  'jsQR-deep': 'jsQR · inverted QR pass',
-};
-
 const TopButton: React.FC<{
   label: string;
   onClick: () => void;
@@ -74,8 +67,8 @@ const TopButton: React.FC<{
     disabled={disabled}
     onClick={onClick}
     className={clsx(
-      'h-12 w-12 rounded-full border border-white/20 backdrop-blur-md',
-      'flex items-center justify-center text-xl text-white transition',
+      'h-9 w-9 rounded-full border border-white/20 backdrop-blur-md',
+      'flex items-center justify-center text-base text-white transition',
       'active:scale-95 disabled:opacity-40',
       active ? 'bg-yellow-300/90 text-slate-900' : 'bg-black/40 hover:bg-black/60',
     )}
@@ -86,7 +79,7 @@ const TopButton: React.FC<{
 
 const Reticle: React.FC<{ scanning: boolean }> = ({ scanning }) => (
   <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-    <div className="relative aspect-square w-[72vw] max-w-[360px]">
+    <div className="relative aspect-square w-[60vmin] max-w-[300px]">
       <div className="absolute inset-0 rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]" />
       <div className="absolute inset-0 rounded-3xl border border-white/20" />
       <span className="absolute -top-1 -left-1 h-8 w-8 rounded-tl-2xl border-t-4 border-l-4 border-emerald-300" />
@@ -100,73 +93,6 @@ const Reticle: React.FC<{ scanning: boolean }> = ({ scanning }) => (
         />
       )}
     </div>
-  </div>
-);
-
-const EngineChip: React.FC<{ stat: EngineStat; winner: boolean }> = ({ stat, winner }) => (
-  <div
-    className={clsx(
-      'flex flex-col rounded-xl border px-3 py-2',
-      winner ? 'border-yellow-300 bg-yellow-300/10' : 'border-white/10 bg-white/5',
-    )}
-  >
-    <div className="flex items-center justify-between text-[11px] uppercase tracking-wide text-white/70">
-      <span>{stat.engine}</span>
-      {winner && <span className="text-yellow-300">★ winner</span>}
-    </div>
-    <div className="mt-1 text-sm font-semibold text-white">
-      {formatCount(stat.hits)} hit{stat.hits === 1 ? '' : 's'}
-    </div>
-    <div className="text-[11px] text-white/60">
-      avg {formatMs(stat.averageDecodeMs)} · last {formatMs(stat.lastDecodeMs)}
-    </div>
-  </div>
-);
-
-const PerformanceHUD: React.FC<{ performance: ScanPerformance; scanning: boolean }> = ({
-  performance: perf,
-  scanning,
-}) => (
-  <div className="rounded-2xl border border-white/10 bg-black/50 p-4 text-white backdrop-blur-lg">
-    <div className="flex items-center justify-between">
-      <div className="text-xs uppercase tracking-widest text-white/60">
-        {scanning ? 'Live performance' : 'Last session'}
-      </div>
-      <div className="flex items-center gap-2 text-sm">
-        <span
-          className={clsx(
-            'inline-block h-2 w-2 rounded-full',
-            scanning ? 'animate-pulse bg-emerald-400' : 'bg-slate-500',
-          )}
-        />
-        {scanning ? 'scanning' : 'idle'}
-      </div>
-    </div>
-    <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-      <div>
-        <div className="text-2xl font-bold">{formatMs(perf.lastDecodeMs)}</div>
-        <div className="text-[11px] uppercase tracking-wide text-white/60">Last decode</div>
-      </div>
-      <div>
-        <div className="text-2xl font-bold">{perf.scansPerSecond ?? '—'}</div>
-        <div className="text-[11px] uppercase tracking-wide text-white/60">Scans / sec</div>
-      </div>
-      <div>
-        <div className="text-2xl font-bold">{formatCount(perf.hits)}</div>
-        <div className="text-[11px] uppercase tracking-wide text-white/60">Total hits</div>
-      </div>
-    </div>
-    <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
-      {(Object.values(perf.engines) as EngineStat[]).map((stat) => (
-        <EngineChip key={stat.engine} stat={stat} winner={perf.winningEngine === stat.engine} />
-      ))}
-    </div>
-    {perf.winningEngine && (
-      <div className="mt-3 rounded-lg bg-white/5 px-3 py-2 text-xs text-white/80">
-        <span className="font-semibold">{perf.winningEngine}</span> is winning —{' '}
-        {ENGINE_DESCRIPTION[perf.winningEngine]}
-      </div>
-    )}
   </div>
 );
 
@@ -282,7 +208,6 @@ const HistoryList: React.FC<{
 const ARScannerView: React.FC<Props> = ({
   videoRef,
   start,
-  stop,
   flip,
   scanning,
   isBusy,
@@ -341,15 +266,23 @@ const ARScannerView: React.FC<Props> = ({
     if (cameraStatus === 'initializing') return 'Starting camera…';
     if (cameraStatus === 'blocked' || cameraPermission === 'denied') return 'Camera permission needed';
     if (cameraStatus === 'no-device') return 'No camera found on this device';
-    if (cameraStatus === 'error') return 'Camera error — tap to retry';
-    if (!scanning) return 'Tap Start to scan';
+    if (cameraStatus === 'error') return 'Camera error — tap retry';
+    if (!scanning) return 'Starting…';
     return 'Point the camera at a QR code';
   }, [cameraPermission, cameraStatus, scanning]);
 
+  const blocked = !scanning && (cameraStatus === 'blocked' || cameraStatus === 'error' || cameraStatus === 'no-device' || cameraPermission === 'denied');
+
+  const recent = scanHistory.slice(0, 3);
+  const openLink = useCallback((text: string) => {
+    const action = detectAction(text);
+    if (action.href) window.open(action.href, '_blank', 'noopener');
+  }, []);
+
   return (
-    <div className="relative isolate overflow-hidden rounded-3xl bg-black text-white">
+    <div className="relative isolate flex h-[calc(100vh-180px)] min-h-[520px] flex-col overflow-hidden rounded-2xl bg-black text-white">
       {/* Camera surface */}
-      <div className="relative h-[78vh] min-h-[520px] w-full overflow-hidden">
+      <div className="relative w-full flex-1 overflow-hidden">
         <video
           ref={videoRef}
           muted
@@ -357,17 +290,17 @@ const ARScannerView: React.FC<Props> = ({
           autoPlay
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {!scanning && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/80 p-6 text-center">
-            <div className="text-4xl">📷</div>
+        {blocked && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/85 p-6 text-center">
+            <div className="text-3xl">📷</div>
             <div className="max-w-xs text-sm text-white/70">{statusLabel}</div>
             <button
               type="button"
               disabled={isBusy || cameraStatus === 'no-device'}
               onClick={() => void start()}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-semibold text-slate-900 transition active:scale-95 disabled:opacity-40"
+              className="rounded-full bg-emerald-400 px-5 py-2 text-sm font-semibold text-slate-900 transition active:scale-95 disabled:opacity-40"
             >
-              {isBusy ? 'Starting…' : 'Start camera'}
+              {isBusy ? 'Starting…' : 'Retry camera'}
             </button>
           </div>
         )}
@@ -375,19 +308,16 @@ const ARScannerView: React.FC<Props> = ({
         {scanning && <Reticle scanning={scanning} />}
 
         {scanning && scanHint && !result && (
-          <div className="pointer-events-none absolute inset-x-0 top-1/2 mt-[max(40vw,200px)] flex justify-center px-6">
-            <div className="max-w-xs rounded-2xl border border-white/15 bg-black/70 px-4 py-2 text-center text-xs text-white/90 backdrop-blur-md">
+          <div className="pointer-events-none absolute inset-x-0 bottom-16 flex justify-center px-6">
+            <div className="max-w-xs rounded-full border border-white/15 bg-black/70 px-3 py-1.5 text-center text-[11px] text-white/90 backdrop-blur-md">
               {scanHint}
             </div>
           </div>
         )}
 
         {/* Top controls */}
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-4 pt-[max(env(safe-area-inset-top),0.75rem)]">
-          <TopButton label={scanning ? 'Stop camera' : 'Camera idle'} onClick={scanning ? stop : () => void start()}>
-            {scanning ? '✕' : '▶'}
-          </TopButton>
-          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-xs backdrop-blur-md">
+        <div className="absolute inset-x-0 top-0 flex items-center justify-between gap-2 p-3 pt-[max(env(safe-area-inset-top),0.5rem)]">
+          <div className="flex items-center gap-2 rounded-full border border-white/15 bg-black/50 px-3 py-1.5 text-[11px] backdrop-blur-md">
             <span
               className={clsx(
                 'h-2 w-2 rounded-full',
@@ -408,26 +338,26 @@ const ARScannerView: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Live HUD (compact) */}
-        {scanning && (
-          <div className="absolute bottom-[max(env(safe-area-inset-bottom),1rem)] left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-black/60 px-4 py-1.5 text-xs font-mono backdrop-blur-md">
+        {/* Live HUD (compact, bottom) */}
+        {scanning && !result && (
+          <div className="absolute bottom-[max(env(safe-area-inset-bottom),0.6rem)] left-1/2 -translate-x-1/2 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-[11px] font-mono backdrop-blur-md">
             {lastEngine ? (
               <span className="text-emerald-300">{lastEngine}</span>
             ) : (
               <span className="text-white/60">searching…</span>
             )}
-            <span className="mx-2 text-white/30">·</span>
+            <span className="mx-1.5 text-white/30">·</span>
             <span>{formatMs(lastDecodeMs)}</span>
-            <span className="mx-2 text-white/30">·</span>
+            <span className="mx-1.5 text-white/30">·</span>
             <span>{perf.scansPerSecond ?? 0}/s</span>
-            <span className="mx-2 text-white/30">·</span>
-            <span>{formatCount(perf.attempts)} frames</span>
+            <span className="mx-1.5 text-white/30">·</span>
+            <span>{formatCount(perf.attempts)}f</span>
           </div>
         )}
 
-        {/* Result card */}
+        {/* Result card (auto-dismisses in continuous mode) */}
         {result && (
-          <div className="absolute inset-x-4 bottom-[max(env(safe-area-inset-bottom),1.25rem)] sm:inset-x-6">
+          <div className="absolute inset-x-3 bottom-[max(env(safe-area-inset-bottom),0.75rem)] sm:inset-x-6">
             <ResultCard
               text={result}
               format={format}
@@ -437,97 +367,149 @@ const ARScannerView: React.FC<Props> = ({
               onClear={clearResult}
             />
             {copied && (
-              <div className="mt-2 text-center text-xs text-emerald-300">Copied to clipboard</div>
+              <div className="mt-1 text-center text-[11px] text-emerald-300">Copied to clipboard</div>
             )}
+          </div>
+        )}
+
+        {error && (
+          <div className="absolute inset-x-3 top-14 rounded-lg border border-red-400/40 bg-red-950/80 p-2 text-xs text-red-100 backdrop-blur-md">
+            <div className="flex items-start gap-2">
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={clearError}
+                aria-label="Dismiss error"
+                className="ml-auto text-red-200"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Bottom sheet trigger */}
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setSheetOpen((prev) => !prev)}
-          aria-expanded={sheetOpen}
-          className="flex w-full items-center justify-between gap-2 border-t border-white/10 bg-slate-900/80 px-4 py-3 text-sm text-white"
-        >
-          <span>
-            <strong>Performance & history</strong>
-            <span className="ml-2 text-white/60">
-              {perf.hits} hits · winner:{' '}
-              {perf.winningEngine ?? '—'}
-            </span>
+      {/* Compact HUD strip — always visible, fits in one screen */}
+      <div className="flex shrink-0 flex-col gap-1.5 border-t border-white/10 bg-slate-950/95 p-2 text-xs text-white">
+        {/* Stats row */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1">
+          <span className="text-[10px] uppercase tracking-wider text-white/50">HITS</span>
+          <span className="font-mono text-sm">{formatCount(perf.hits)}</span>
+          <span className="text-white/30">·</span>
+          <span className="text-[10px] uppercase tracking-wider text-white/50">WIN</span>
+          <span
+            className={clsx(
+              'rounded-full px-2 py-0.5 font-mono text-[11px]',
+              perf.winningEngine ? ENGINE_COLORS[perf.winningEngine] ?? 'bg-white/10' : 'bg-white/5 text-white/40',
+            )}
+          >
+            {perf.winningEngine ?? '—'}
           </span>
-          <span className="text-white/60">{sheetOpen ? '▾' : '▸'}</span>
-        </button>
+          <span className="text-white/30">·</span>
+          <span className="font-mono">{perf.scansPerSecond ?? 0}/s</span>
+          <span className="text-white/30">·</span>
+          <span className="font-mono">{formatMs(perf.lastDecodeMs)}</span>
+          <span className="ml-auto flex items-center gap-1 text-[10px] text-white/40">
+            {(Object.values(perf.engines) as EngineStat[])
+              .filter((engine) => engine.attempts > 0)
+              .map((engine) => (
+                <span key={engine.engine} className="rounded bg-white/5 px-1.5 py-0.5 font-mono">
+                  {engine.engine.replace('jsQR-', '')}:{engine.hits}
+                </span>
+              ))}
+          </span>
+        </div>
+
+        {/* Controls row: scan image + paste text */}
+        <div className="flex flex-wrap items-center gap-1.5 px-1">
+          <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1.5 text-[11px] text-white hover:bg-white/10">
+            <span aria-hidden>📁</span>
+            <span>Scan image</span>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFileChange}
+              className="hidden"
+            />
+          </label>
+          <input
+            value={manualText}
+            onChange={(event) => setManualText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && manualText.trim()) {
+                processManualText(manualText);
+                setManualText('');
+              }
+            }}
+            placeholder="Paste QR content…"
+            className="min-w-0 flex-1 rounded-md border border-white/10 bg-slate-900/60 px-2.5 py-1.5 text-[11px] text-white placeholder:text-white/40"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (manualText.trim()) {
+                processManualText(manualText);
+                setManualText('');
+              }
+            }}
+            disabled={!manualText.trim()}
+            className="rounded-md bg-emerald-400 px-2.5 py-1.5 text-[11px] font-semibold text-slate-900 disabled:opacity-40"
+          >
+            Record
+          </button>
+        </div>
+
+        {/* Recent row — collapsible if there are many */}
+        {recent.length > 0 && (
+          <div className="flex items-center gap-2 px-1">
+            <span className="text-[10px] uppercase tracking-wider text-white/50">RECENT</span>
+            <ul className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+              {recent.map((record) => (
+                <li
+                  key={record.id}
+                  className="flex shrink-0 items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-1 text-[11px]"
+                >
+                  <button
+                    type="button"
+                    onClick={() => openLink(record.text)}
+                    className="max-w-[180px] truncate text-left text-white/90 hover:text-white"
+                    title={record.text}
+                  >
+                    {record.text}
+                  </button>
+                  <span className="text-[9px] uppercase text-white/40">{record.type}</span>
+                  <button
+                    type="button"
+                    aria-label="Remove entry"
+                    onClick={() => removeHistoryEntry(record.id)}
+                    className="text-white/40 hover:text-white"
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              onClick={() => setSheetOpen((prev) => !prev)}
+              className="text-[10px] text-white/50 hover:text-white"
+            >
+              {sheetOpen ? 'less ▴' : `all (${scanHistory.length}) ▾`}
+            </button>
+          </div>
+        )}
 
         {sheetOpen && (
-          <div className="space-y-4 bg-slate-900/95 p-4">
-            <PerformanceHUD performance={perf} scanning={scanning} />
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
-              <div className="mb-2 text-xs uppercase tracking-widest text-white/60">Scan an image</div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={onFileChange}
-                className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-emerald-400 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-slate-900"
-              />
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
-              <div className="mb-2 text-xs uppercase tracking-widest text-white/60">Paste text</div>
-              <div className="flex gap-2">
-                <input
-                  value={manualText}
-                  onChange={(event) => setManualText(event.target.value)}
-                  placeholder="Paste QR content..."
-                  className="flex-1 rounded-lg border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-white placeholder:text-white/40"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (manualText.trim()) {
-                      processManualText(manualText);
-                      setManualText('');
-                    }
-                  }}
-                  className="rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 disabled:opacity-40"
-                  disabled={!manualText.trim()}
-                >
-                  Record
-                </button>
-              </div>
-            </div>
-
+          <div className="border-t border-white/10 pt-2">
             <HistoryList
               history={scanHistory}
-              onOpen={(text) => {
-                const action = detectAction(text);
-                if (action.href) window.open(action.href, '_blank', 'noopener');
-              }}
+              onOpen={openLink}
               onRemove={removeHistoryEntry}
               onClear={clearHistory}
             />
           </div>
         )}
       </div>
-
-      {error && (
-        <div className="absolute inset-x-4 top-20 rounded-xl border border-red-400/40 bg-red-950/80 p-3 text-sm text-red-100 backdrop-blur-md">
-          <div className="flex items-start gap-2">
-            <span>{error}</span>
-            <button
-              type="button"
-              onClick={clearError}
-              aria-label="Dismiss error"
-              className="ml-auto text-red-200"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

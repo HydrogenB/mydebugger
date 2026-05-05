@@ -316,7 +316,7 @@ const useQrscan = (): UseQrscanReturn => {
   const [autoCopy, setAutoCopy] = useState(false);
   const [autoOpen, setAutoOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [continuousMode, setContinuousMode] = useState(false);
+  const [continuousMode, setContinuousMode] = useState(true);
   const [filterDuplicates, setFilterDuplicates] = useState(true);
   const [torchEnabled, setTorchEnabled] = useState(false);
   const [torchAvailable, setTorchAvailable] = useState(false);
@@ -389,7 +389,7 @@ const useQrscan = (): UseQrscanReturn => {
         setAutoCopy(Boolean(parsed.autoCopy));
         setAutoOpen(Boolean(parsed.autoOpen));
         setSoundEnabled(parsed.soundEnabled !== false);
-        setContinuousMode(Boolean(parsed.continuousMode));
+        setContinuousMode(parsed.continuousMode !== false);
         setFilterDuplicates(parsed.filterDuplicates !== false);
       }
 
@@ -539,12 +539,29 @@ const useQrscan = (): UseQrscanReturn => {
     }
   }, [autoCopy, autoOpen, filterDuplicates, persistHistory, soundEnabled]);
 
+  const lastCameraTextRef = useRef('');
   const handleCameraResult = useCallback((text: string, barcodeFormat?: string) => {
+    const trimmed = text.trim();
+    if (continuousMode && trimmed === lastCameraTextRef.current) {
+      return;
+    }
+    lastCameraTextRef.current = trimmed;
     void processDecodedValue(text, barcodeFormat || 'UNKNOWN', 'camera');
     if (!continuousMode) {
       stop();
     }
   }, [continuousMode, processDecodedValue, stop]);
+
+  useEffect(() => {
+    if (!continuousMode || !result) return undefined;
+    const timer = window.setTimeout(() => {
+      setResult('');
+      setFormat('QR_CODE');
+      setLastSource(null);
+      lastCameraTextRef.current = '';
+    }, 4000);
+    return () => window.clearTimeout(timer);
+  }, [continuousMode, result]);
 
   const handleDecodeAttempt = useCallback((meta: DecodeAttemptMeta) => {
     setPerformance((previous) => mergeAttempt(previous, meta));
@@ -658,6 +675,23 @@ const useQrscan = (): UseQrscanReturn => {
   const start = useCallback(async () => {
     await startInternal();
   }, [startInternal]);
+
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (!isBrowser) return;
+    if (autoStartedRef.current) return;
+    if (scanning || isBusy) return;
+    if (cameraStatus !== 'idle') return;
+    if (cameraPermission === 'denied') return;
+    if (devices.length === 0) return;
+    autoStartedRef.current = true;
+    void startInternal();
+  }, [cameraPermission, cameraStatus, devices.length, isBusy, scanning, startInternal]);
+
+  useEffect(() => () => {
+    stopQrScan(controlsRef.current);
+    controlsRef.current = undefined;
+  }, []);
 
   const switchCamera = useCallback(async (deviceId: string) => {
     if (!deviceId || deviceId === selectedCamera) {
