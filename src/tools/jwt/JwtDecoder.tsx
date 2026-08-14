@@ -4,6 +4,8 @@ import { Card, Button, Alert, Badge, Tooltip } from '@design-system';
 import { ACTIVE_TAB_CLASS } from '@design-system';
 import { useJwt } from './context/JwtContext';
 import { Text } from '@design-system';
+import { isNoneAlgorithm } from './utils/analyzer';
+import { copyText } from '../../shared/utils/clipboard';
 
 const JwtDecoder: React.FC = () => {
   // Use the enhanced context instead of local state
@@ -62,10 +64,11 @@ const JwtDecoder: React.FC = () => {
     }
   }, [decoded]);
   
-  const handleCopyContent = (content: string, section: string) => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setCopiedSection(section);
+  const handleCopyContent = async (content: string, section: string) => {
+    if (await copyText(content)) {
+      setCopied(true);
+      setCopiedSection(section);
+    }
   };
   
   const handleReset = () => {
@@ -86,7 +89,7 @@ const JwtDecoder: React.FC = () => {
     }
 
     // If token uses an algorithm that might be vulnerable
-    if (decoded?.header?.alg === 'none' || decoded?.header?.alg === 'HS256') {
+    if (isNoneAlgorithm(decoded?.header?.alg) || decoded?.header?.alg === 'HS256') {
       suggestions.push(
         <li key="alg">Test for algorithm confusion attacks by changing the algorithm</li>
       );

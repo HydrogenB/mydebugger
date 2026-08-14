@@ -32,6 +32,8 @@ export interface DecodedJwt {
   parsingWarnings?: string[];
 }
 
+import { isNoneAlgorithm } from '../utils/analyzer';
+
 export interface SecurityIssue {
   id: string;
   title: string;
@@ -500,8 +502,8 @@ export const verifyToken = async (token: string, key: string): Promise<boolean> 
 
     const alg = header.alg;
     
-    // Handle 'none' algorithm securely
-    if (alg === 'none') {
+    // Handle 'none' algorithm securely (case-insensitive: "None", "NONE", etc. must not verify)
+    if (isNoneAlgorithm(alg)) {
       return false; // Always consider 'none' algorithm as invalid for security reasons
     }
 

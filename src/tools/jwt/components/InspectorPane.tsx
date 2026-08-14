@@ -11,6 +11,7 @@ import {
   TextInput,
   Tooltip
 } from '../../../design-system';
+import { copyText } from '../../../shared/utils/clipboard';
 
 /**
  * JWT Inspector component - handles token decoding, verification, and security analysis
@@ -150,10 +151,11 @@ export const InspectorPane: React.FC = () => {
   };
   
   // Copy content to clipboard
-  const handleCopy = (content: string, section: string = 'token') => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setCopiedSection(section);
+  const handleCopy = async (content: string, section: string = 'token') => {
+    if (await copyText(content)) {
+      setCopied(true);
+      setCopiedSection(section);
+    }
   };
   
   // Handle signature verification
