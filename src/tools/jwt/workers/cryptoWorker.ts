@@ -602,8 +602,8 @@ export const signToken = async (
     const payloadBase64 = base64UrlEncode(JSON.stringify(payload));
     const signedData = `${headerBase64}.${payloadBase64}`;
     
-    // Handle 'none' algorithm
-    if (alg === 'none') {
+    // Handle 'none' algorithm (case-insensitive: "None", "NONE", etc.)
+    if (isNoneAlgorithm(alg)) {
       return `${signedData}.`;
     }
     
@@ -775,8 +775,8 @@ export const analyzeToken = async (token: string): Promise<SecurityIssue[]> => {
         severity: 'high'
       });
     } else {
-      // Check for insecure algorithms
-      if (alg === 'none') {
+      // Check for insecure algorithms (case-insensitive: "None", "NONE", etc.)
+      if (isNoneAlgorithm(alg)) {
         issues.push({
           id: 'alg-none',
           title: 'Insecure "none" Algorithm',
