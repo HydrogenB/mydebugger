@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { AnalysisResult } from '../types';
+import type { CopyStatus } from '../hooks/useUnicodeAnalyzer';
 import { GraphemeCard } from './GraphemeCard';
 import { StatsPanel } from './StatsPanel';
 import { TOOL_PANEL_CLASS, Button, LoadingSpinner } from '@design-system';
@@ -19,7 +20,7 @@ interface AnalyzerViewProps {
   clear: () => void;
   loadExample: (key: string) => void;
   copyResults: () => Promise<void>;
-  copied: boolean;
+  copyStatus: CopyStatus;
 }
 
 const EXAMPLES = [
@@ -45,7 +46,7 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
   clear,
   loadExample,
   copyResults,
-  copied,
+  copyStatus,
 }) => {
   return (
     <div className="space-y-6">
@@ -115,15 +116,20 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
               </button>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline-primary"
               size="sm"
               onClick={copyResults}
               disabled={!result}
             >
-              {copied ? 'Copied!' : 'Copy Results'}
+              {copyStatus === 'success' ? 'Copied!' : 'Copy Results'}
             </Button>
+            {copyStatus === 'error' && (
+              <span role="status" className="text-xs text-red-600 dark:text-red-400">
+                Copy failed.
+              </span>
+            )}
             <Button
               variant="secondary"
               size="sm"
@@ -151,6 +157,16 @@ export const AnalyzerView: React.FC<AnalyzerViewProps> = ({
             <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               Statistics
             </h2>
+            {result.stats.graphemeClusteringDegraded && (
+              <p
+                role="status"
+                className="mb-4 text-sm text-amber-600 dark:text-amber-400"
+              >
+                Grapheme clustering isn&apos;t supported in this browser. Visual
+                character counts are an approximate per-code-point split, not true
+                grapheme clusters.
+              </p>
+            )}
             <StatsPanel stats={result.stats} />
           </div>
 
