@@ -76,6 +76,16 @@ export const useCsvtomd = () => {
     }
   }, [data, alignment]);
 
+  // Self-clearing copy feedback, mirroring useCookieInspector's toast pattern:
+  // each new copyStatus (re)starts a 2s timer, and the cleanup — which fires
+  // on unmount and on the next status change alike — clears any pending one,
+  // so a stale timeout can never fire against an unmounted/overtaken state.
+  useEffect(() => {
+    if (copyStatus === 'idle') return undefined;
+    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
+
   const uploadFile = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onload = () => {

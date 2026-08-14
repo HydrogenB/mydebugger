@@ -1,6 +1,16 @@
-import { act, renderHook } from '@testing-library/react';
+import React from 'react';
+import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { detectDelimiter, parseCsv, generateMarkdownTable } from '../src/tools/csvtomd/lib/csvtomd';
 import { useCsvtomd } from '../src/tools/csvtomd/hooks/useCsvtomd';
+import { CsvtomdView } from '../src/tools/csvtomd/components/CsvtomdPanel';
+
+// Renders the real hook wired to the real presentational component, the same
+// way page.tsx does, so the copy-feedback reset is verified end to end
+// through the rendered `role="status"` output rather than only hook state.
+function CsvtomdHarness() {
+  const vm = useCsvtomd();
+  return React.createElement(CsvtomdView, vm);
+}
 
 describe('CSV to Markdown', () => {
   test('detectDelimiter chooses comma', () => {
@@ -264,5 +274,54 @@ describe('useCsvtomd', () => {
     expect(result.current.error).toBe('Could not read the selected file');
 
     FileReaderSpy.mockRestore();
+  });
+});
+
+// Reviewer follow-up: copyStatus must not stay stuck forever — it self-clears
+// after a short timeout (same pattern as useCookieInspector's toast), so a
+// stale "Copied to clipboard." message can never sit next to markdown that
+// was never actually copied.
+describe('CsvtomdView copy feedback reset (component)', () => {
+  const originalClipboard = navigator.clipboard;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      writable: true,
+      value: originalClipboard,
+    });
+  });
+
+  test('the rendered copy-feedback status clears itself after the timeout', async () => {
+    const writeText = jest.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      writable: true,
+      value: { writeText },
+    });
+
+    render(React.createElement(CsvtomdHarness));
+
+    fireEvent.change(screen.getByPlaceholderText('Paste CSV here'), {
+      target: { value: 'a,b\n1,2' },
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+      await Promise.resolve();
+    });
+
+    expect(screen.getByRole('status').textContent).toBe('Copied to clipboard.');
+
+    act(() => {
+      jest.advanceTimersByTime(2000);
+    });
+
+    expect(screen.queryByRole('status')).toBeNull();
   });
 });
