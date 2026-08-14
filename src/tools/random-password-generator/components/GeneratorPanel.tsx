@@ -19,6 +19,7 @@ import {
 import { EntropyPool } from '../lib/entropy';
 import { EntropyCanvas } from './EntropyCanvas';
 import { logEvent } from '../../../lib/analytics';
+import { copyText } from '../../../shared/utils/clipboard';
 
 type Mode = 'password' | 'uuid' | 'key';
 
@@ -93,39 +94,26 @@ export const GeneratorPanel: React.FC = () => {
   }, [strength]);
 
   const copyToClipboard = async () => {
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(output);
-      } else {
-        const ta = document.createElement('textarea');
-        ta.value = output;
-        ta.setAttribute('readonly', '');
-        ta.style.position = 'absolute';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+    const ok = await copyText(output);
+    if (!ok) return;
+    setCopied(true);
+    const container = copyBurstRef.current;
+    if (container) {
+      const burst = document.createElement('div');
+      burst.className = 'copy-burst';
+      for (let i = 0; i < 8; i += 1) {
+        const dot = document.createElement('span');
+        const angle = (i / 8) * 2 * Math.PI;
+        const radius = 14;
+        dot.style.setProperty('--x', `${Math.cos(angle) * radius}px`);
+        dot.style.setProperty('--y', `${Math.sin(angle) * radius}px`);
+        burst.appendChild(dot);
       }
-      setCopied(true);
-      const container = copyBurstRef.current;
-      if (container) {
-        const burst = document.createElement('div');
-        burst.className = 'copy-burst';
-        for (let i = 0; i < 8; i += 1) {
-          const dot = document.createElement('span');
-          const angle = (i / 8) * 2 * Math.PI;
-          const radius = 14;
-          dot.style.setProperty('--x', `${Math.cos(angle) * radius}px`);
-          dot.style.setProperty('--y', `${Math.sin(angle) * radius}px`);
-          burst.appendChild(dot);
-        }
-        container.appendChild(burst);
-        setTimeout(() => burst.remove(), 650);
-      }
-      setTimeout(() => setCopied(false), 1600);
-      try { logEvent('rpg_copy', { mode, length: output.length }); } catch { /* noop */ }
-    } catch { /* noop */ }
+      container.appendChild(burst);
+      setTimeout(() => burst.remove(), 650);
+    }
+    setTimeout(() => setCopied(false), 1600);
+    try { logEvent('rpg_copy', { mode, length: output.length }); } catch { /* noop */ }
   };
 
   const handleEntropyEvent = useCallback(() => {

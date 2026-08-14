@@ -11,7 +11,10 @@ import {
   generateKey,
   generatePassword,
   generateUUIDv4,
+  estimateStrength,
+  PasswordOptions,
 } from '../src/tools/random-password-generator/lib/generators';
+import { WORDLIST } from '../src/tools/random-password-generator/lib/wordlist';
 
 describe('EntropyPool', () => {
   test('pool is seeded and reports the expected size', () => {
@@ -96,5 +99,83 @@ describe('seeded generators', () => {
   test('empty entropy buffer is treated as no entropy', () => {
     const pwd = generatePassword(basePwOpts, new Uint8Array(0));
     expect(pwd).toHaveLength(16);
+  });
+});
+
+describe('estimateStrength', () => {
+  const reproOpts: PasswordOptions = {
+    length: 32,
+    includeUppercase: true,
+    includeLowercase: true,
+    includeNumbers: true,
+    includeSymbols: true,
+    excludeAmbiguous: true,
+  };
+
+  test('regression: length-32 all-classes password never under-reports as weak (200 samples)', () => {
+    const iterations = 200;
+    for (let i = 0; i < iterations; i += 1) {
+      const pwd = generatePassword(reproOpts);
+      const { entropy, label } = estimateStrength(reproOpts, pwd);
+      expect(entropy).toBeGreaterThan(100);
+      expect(['Strong', 'Very strong']).toContain(label);
+    }
+  });
+
+  test('a password containing "-" and "." is never classified as a passphrase', () => {
+    // Longer than 20 chars and full of the separators that used to trigger the
+    // passphrase heuristic — but the caller declares PasswordOptions, so the
+    // passphrase branch (small wordCount-based entropy) must never be taken.
+    const dashDotPassword = 'a-b.c-d.e-f.g-h.i-j.k-l.m-n.o-p';
+    expect(dashDotPassword.length).toBeGreaterThan(20);
+    const { entropy } = estimateStrength(reproOpts, dashDotPassword);
+    const poolSize = 26 + 26 + 10 + 27 - 15; // upper+lower+digits+symbols, minus ambiguous overlap
+    expect(entropy).toBeCloseTo(Math.log2(poolSize) * dashDotPassword.length, 5);
+  });
+
+  test('entropy scales with length', () => {
+    const short = estimateStrength(reproOpts, 'a'.repeat(8));
+    const long = estimateStrength(reproOpts, 'a'.repeat(32));
+    expect(long.entropy).toBeGreaterThan(short.entropy);
+  });
+
+  test('entropy scales with the number of enabled character classes', () => {
+    const onlyLower: PasswordOptions = {
+      length: 20,
+      includeUppercase: false,
+      includeLowercase: true,
+      includeNumbers: false,
+      includeSymbols: false,
+      excludeAmbiguous: false,
+    };
+    const allClasses: PasswordOptions = { ...onlyLower, includeUppercase: true, includeNumbers: true, includeSymbols: true };
+    const sample = 'a'.repeat(20);
+    const fewer = estimateStrength(onlyLower, sample);
+    const more = estimateStrength(allClasses, sample);
+    expect(more.entropy).toBeGreaterThan(fewer.entropy);
+  });
+
+  test('excludeAmbiguous true yields a smaller pool and slightly lower entropy per character', () => {
+    const withFilter: PasswordOptions = { ...reproOpts, excludeAmbiguous: true };
+    const withoutFilter: PasswordOptions = { ...reproOpts, excludeAmbiguous: false };
+    const sample = 'a'.repeat(32);
+    const filtered = estimateStrength(withFilter, sample);
+    const unfiltered = estimateStrength(withoutFilter, sample);
+    expect(filtered.entropy).toBeLessThan(unfiltered.entropy);
+  });
+
+  test('options === null falls back to observed character classes without throwing', () => {
+    expect(() => estimateStrength(null, 'aB3!aB3!aB3!')).not.toThrow();
+    const { entropy, label } = estimateStrength(null, 'aB3!aB3!aB3!');
+    expect(entropy).toBeGreaterThan(0);
+    expect(label).toBeDefined();
+  });
+
+  test('passphrase entropy derives bits-per-word from WORDLIST.length, not a hardcoded value', () => {
+    const passphraseOpts = { wordCount: 6, separator: '-', capitalize: false, includeNumber: false };
+    const { entropy } = estimateStrength(passphraseOpts, 'six-random-words-joined-by-dashes');
+    const expectedBitsPerWord = Math.log2(WORDLIST.length);
+    expect(expectedBitsPerWord).not.toBeCloseTo(11, 1);
+    expect(entropy).toBeCloseTo(6 * expectedBitsPerWord, 5);
   });
 });
