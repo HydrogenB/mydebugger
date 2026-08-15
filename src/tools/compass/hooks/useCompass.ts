@@ -49,9 +49,9 @@ export default function useCompass(): UseCompassReturn {
   }>({ magnetic: null, accelerometer: null, orientation: null });
 
   // Refs for sensor handles
-  const magnetometerHandle = useRef<ReturnType<typeof createMagnetometerProvider>>(null);
-  const accelerometerHandle = useRef<ReturnType<typeof createAccelerometerProvider>>(null);
-  const orientationHandle = useRef<ReturnType<typeof createOrientationProvider>>(null);
+  const magnetometerHandle = useRef<ReturnType<typeof createMagnetometerProvider> | null>(null);
+  const accelerometerHandle = useRef<ReturnType<typeof createAccelerometerProvider> | null>(null);
+  const orientationHandle = useRef<ReturnType<typeof createOrientationProvider> | null>(null);
 
   // Refs for processing
   const fusionPipeline = useRef(new SensorFusionPipeline(config.lowPassAlpha));

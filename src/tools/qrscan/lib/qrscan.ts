@@ -11,6 +11,15 @@
 import { BrowserMultiFormatReader, BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import type { Result } from '@zxing/library';
 
+// `torch` and `zoom` are Image Capture extensions to MediaTrackConstraintSet.
+// Chromium implements them; the DOM lib types do not declare them.
+declare global {
+  interface MediaTrackConstraintSet {
+    torch?: boolean;
+    zoom?: number;
+  }
+}
+
 import {
   startScanner,
   type DecodeAttemptMeta,

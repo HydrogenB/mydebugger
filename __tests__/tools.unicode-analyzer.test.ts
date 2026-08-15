@@ -7,27 +7,6 @@ import { analyzeText } from '../src/tools/unicode-analyzer/lib/analyzer';
 import { useUnicodeAnalyzer } from '../src/tools/unicode-analyzer/hooks/useUnicodeAnalyzer';
 import { AnalyzerView } from '../src/tools/unicode-analyzer/components/AnalyzerView';
 
-// `@design-system` is a Vite path alias (see vite.config.ts / tsconfig paths).
-// jest.config.cjs has no moduleNameMapper entry for it, so any component tree
-// that imports from it needs a virtual mock to be testable under Jest at all
-// -- unrelated to this task's fix, just what's needed to render AnalyzerView.
-jest.mock(
-  '@design-system',
-  () => {
-    // Required lazily inside the factory: jest hoists jest.mock() above
-    // imports, so the top-level `React` import isn't in scope here yet.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ReactLib = require('react');
-    return {
-      TOOL_PANEL_CLASS: 'tool-panel',
-      Button: ({ children, ...props }: Record<string, unknown>) =>
-        ReactLib.createElement('button', { type: 'button', ...props }, children),
-      LoadingSpinner: () => ReactLib.createElement('div', null, 'Loading...'),
-      Tooltip: ({ children }: Record<string, unknown>) => children,
-    };
-  },
-  { virtual: true },
-);
 
 // A ZWJ family sequence: man + ZWJ + woman + ZWJ + girl + ZWJ + boy. Seven
 // code points, but one user-perceived grapheme when clustering is correct.

@@ -61,8 +61,10 @@ describe('PermissionTesterPanel (utf8)', () => {
   it('renders category filter buttons', () => {
     const vm = buildVm();
     render(<PermissionTesterPanel {...vm} />);
-    expect(screen.getByRole('button', { name: /all/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /media/i })).toBeTruthy();
+    // Anchored at the end: category buttons render as "🔐 All" / "📷 Media", and an
+    // unanchored /all/i would also match the "Retry All Denied" action button.
+    expect(screen.getByRole('button', { name: /all$/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /media$/i })).toBeTruthy();
   });
 
   it('renders a permission card for each filtered permission', () => {

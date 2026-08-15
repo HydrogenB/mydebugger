@@ -29,11 +29,24 @@ const MAX_MEMORY_USAGE = 0.85; // Stop processing if memory usage exceeds 85% of
 const WARNING_MEMORY_USAGE = 0.70; // Warn when memory usage exceeds 70%
 
 /**
+ * `performance.memory` is a non-standard Chrome extension to the Performance
+ * interface, so it is absent from the DOM lib types and from other engines.
+ */
+interface PerformanceMemory {
+  usedJSHeapSize: number;
+  jsHeapSizeLimit: number;
+}
+
+const getPerformanceMemory = (): PerformanceMemory | undefined =>
+  (performance as Performance & { memory?: PerformanceMemory }).memory;
+
+/**
  * Get current memory usage ratio (0-1)
  */
 const getMemoryUsageRatio = (): number => {
-  if (!performance.memory) return 0;
-  return performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit;
+  const memory = getPerformanceMemory();
+  if (!memory) return 0;
+  return memory.usedJSHeapSize / memory.jsHeapSizeLimit;
 };
 
 /**
@@ -154,9 +167,10 @@ export function recommendBatchSize(
   format: 'png' | 'jpeg' | 'webp' = 'png',
   maxMemoryPercent: number = 0.5
 ): number {
-  if (!performance.memory) return 5; // Default if memory API unavailable
+  const memory = getPerformanceMemory();
+  if (!memory) return 5; // Default if memory API unavailable
 
-  const availableMemory = performance.memory.jsHeapSizeLimit;
+  const availableMemory = memory.jsHeapSizeLimit;
   const maxMemoryToUse = availableMemory * maxMemoryPercent;
   const pageMemory = estimatePageMemory(pageWidth, pageHeight, scale, format);
 

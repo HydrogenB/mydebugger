@@ -241,7 +241,11 @@ export const usePushTester = () => {
     }));
   };
 
-  const updateAction = (index: number, field: keyof typeof payload.actions[0], value: string) => {
+  const updateAction = (
+    index: number,
+    field: keyof NonNullable<typeof payload.actions>[number],
+    value: string,
+  ) => {
     const currentActions = payload.actions || [];
     const updatedActions = currentActions.map((action, i) => 
       i === index ? { ...action, [field]: value } : action

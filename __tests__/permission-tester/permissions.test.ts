@@ -6,8 +6,17 @@ import { checkPermissionStatus, PERMISSIONS } from '../../src/tools/permission-t
 describe('permissions model helpers', () => {
   const originalPermissions = (navigator as any).permissions;
   const originalClipboard = (navigator as any).clipboard;
+  const originalMediaDevices = (navigator as any).mediaDevices;
 
   afterEach(() => {
+    if (originalMediaDevices === undefined) {
+      Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined });
+    } else {
+      Object.defineProperty(navigator, 'mediaDevices', {
+        configurable: true, writable: true, value: originalMediaDevices,
+      });
+    }
+
     if (originalPermissions === undefined) {
       Object.defineProperty(navigator, 'permissions', { configurable: true, value: undefined });
     } else {
@@ -21,7 +30,9 @@ describe('permissions model helpers', () => {
     }
   });
 
-  it('queries display-capture permissions when available', async () => {
+  // display-capture has no permissionsApiName, so the Permissions API is never consulted —
+  // checkPermissionStatus feature-detects getDisplayMedia instead.
+  it('reports display-capture as promptable when getDisplayMedia exists', async () => {
     const query = jest.fn().mockResolvedValue({ state: 'granted' });
 
     Object.defineProperty(navigator, 'permissions', {
@@ -31,10 +42,31 @@ describe('permissions model helpers', () => {
       value: { query },
     });
 
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: { getDisplayMedia: jest.fn() },
+    });
+
     const def = PERMISSIONS.find(p => p.id === 'display-capture')!;
     const status = await checkPermissionStatus(def);
 
-    expect(status).toBe('prompt'); // display-capture has no permissionsApiName, falls back to feature-detect
+    expect(status).toBe('prompt');
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it('reports display-capture as unsupported when getDisplayMedia is absent', async () => {
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      enumerable: true,
+      writable: true,
+      value: undefined,
+    });
+
+    const def = PERMISSIONS.find(p => p.id === 'display-capture')!;
+
+    expect(await checkPermissionStatus(def)).toBe('unsupported');
   });
 
   it('falls back to prompt for clipboard when Permissions API rejects the request', async () => {
