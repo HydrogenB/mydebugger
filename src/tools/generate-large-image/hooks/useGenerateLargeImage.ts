@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { expandImageWithJunk } from '../../ImagePaddingUtils';
 
 export const useGenerateLargeImage = () => {
@@ -15,16 +15,46 @@ export const useGenerateLargeImage = () => {
   const [autoDownload, setAutoDownload] = useState(false);
   const [preserveResolution, setPreserveResolution] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [outputBlob, setOutputBlob] = useState<Blob | null>(null);
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
   const [outputSize, setOutputSize] = useState(0);
   const [error, setError] = useState('');
 
+  // Derive the preview object URL from the selected file, revoking the
+  // previous one whenever the file changes and on unmount.
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl('');
+      return undefined;
+    }
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    const img = new Image();
+    img.onload = () => {
+      setWidth(img.width);
+      setHeight(img.height);
+    };
+    img.src = url;
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  // Derive the output object URL from the generated blob, revoking the
+  // previous one whenever the blob changes and on unmount.
+  useEffect(() => {
+    if (!outputBlob) {
+      setOutputUrl(null);
+      return undefined;
+    }
+    const url = URL.createObjectURL(outputBlob);
+    setOutputUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [outputBlob]);
+
   const reset = () => {
-    setPreviewUrl('');
     setWidth(0);
     setHeight(0);
     setSizeKB(0);
-    setOutputUrl(null);
+    setOutputBlob(null);
     setOutputSize(0);
     setProgress(0);
   };
@@ -42,14 +72,6 @@ export const useGenerateLargeImage = () => {
     setError('');
     setFile(f);
     setSizeKB(Math.round(f.size / 1024));
-    const url = URL.createObjectURL(f);
-    setPreviewUrl(url);
-    const img = new Image();
-    img.onload = () => {
-      setWidth(img.width);
-      setHeight(img.height);
-    };
-    img.src = url;
   };
 
   const generate = async () => {
@@ -78,16 +100,17 @@ export const useGenerateLargeImage = () => {
     if (blob.size < targetSizeMB * 1024 * 1024) {
       finalBlob = expandImageWithJunk(blob, targetSizeMB);
     }
-    const url = URL.createObjectURL(finalBlob);
-    setOutputUrl(url);
+    setOutputBlob(finalBlob);
     setOutputSize(finalBlob.size);
     setProgress(100);
     if (autoDownload) {
+      const dlUrl = URL.createObjectURL(finalBlob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = dlUrl;
       const base = file.name.replace(/\.[^.]+$/, '');
       a.download = `${base}_${targetSizeMB}MB.${format}`;
       a.click();
+      URL.revokeObjectURL(dlUrl);
     }
   };
 
