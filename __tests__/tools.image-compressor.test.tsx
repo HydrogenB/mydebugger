@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ImageCompressorView from '../src/tools/image-compressor/components/ImageCompressorPanel';
 import type { UseImageCompressorReturn } from '../src/tools/image-compressor/hooks/useImageCompressor';
+import { resizeImage } from '../src/tools/image-compressor/lib/imageCompressor';
 import type { CompressedResult } from '../src/tools/image-compressor/lib/imageCompressor';
 
 // jsdom does not implement these — stub them so the component's URL lifecycle is observable.
@@ -144,6 +145,67 @@ describe('ImageCompressorPanel', () => {
 
     unmount();
     expect(revokeObjectURLMock).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURLMock).toHaveBeenCalledWith(createObjectURLMock.mock.results[0].value);
+  });
+});
+
+describe('resizeImage object URL lifecycle', () => {
+  // jsdom implements neither of these; the code guards on a null 2d context already.
+  let getContextSpy: jest.SpyInstance;
+  let toBlobSpy: jest.SpyInstance;
+  let OriginalImage: typeof Image;
+
+  beforeEach(() => {
+    getContextSpy = jest
+      .spyOn(HTMLCanvasElement.prototype, 'getContext')
+      .mockReturnValue(null);
+    toBlobSpy = jest
+      .spyOn(HTMLCanvasElement.prototype, 'toBlob')
+      .mockImplementation((cb) => { cb(new Blob(['png'], { type: 'image/png' })); });
+    OriginalImage = global.Image;
+  });
+
+  afterEach(() => {
+    getContextSpy.mockRestore();
+    toBlobSpy.mockRestore();
+    global.Image = OriginalImage;
+  });
+
+  test('revokes the object URL and still resolves when the image fails to load', async () => {
+    // An image that always fails. Before the fix there was no `onerror` handler, so this
+    // promise never settled and `resizeImage` hung forever — and the URL was never revoked.
+    class FailingImage {
+      onload: (() => void) | null = null;
+
+      onerror: (() => void) | null = null;
+
+      set src(_value: string) {
+        setTimeout(() => this.onerror?.(), 0);
+      }
+    }
+    global.Image = FailingImage as unknown as typeof Image;
+
+    const blob = await resizeImage(new File(['x'], 'a.png', { type: 'image/png' }), 4, 4);
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(createObjectURLMock).toHaveBeenCalledTimes(1);
+    expect(revokeObjectURLMock).toHaveBeenCalledWith(createObjectURLMock.mock.results[0].value);
+  });
+
+  test('revokes the object URL on the successful path too', async () => {
+    class LoadingImage {
+      onload: (() => void) | null = null;
+
+      onerror: (() => void) | null = null;
+
+      set src(_value: string) {
+        setTimeout(() => this.onload?.(), 0);
+      }
+    }
+    global.Image = LoadingImage as unknown as typeof Image;
+
+    await resizeImage(new File(['x'], 'a.png', { type: 'image/png' }), 4, 4);
+
     expect(revokeObjectURLMock).toHaveBeenCalledWith(createObjectURLMock.mock.results[0].value);
   });
 });
