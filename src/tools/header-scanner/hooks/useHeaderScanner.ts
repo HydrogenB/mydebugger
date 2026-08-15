@@ -1,7 +1,7 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { analyzeHeaders, HeaderAuditResult } from '../lib/headerScanner';
 import { copyText } from '../../../shared/utils/clipboard';
 
@@ -18,11 +18,20 @@ export const useHeaderScanner = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [copyStatus, setCopyStatus] = useState<CopyStatus | null>(null);
-  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => () => {
-    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
-  }, []);
+  // Declarative reset, keyed on the status value itself (same shape as
+  // useCookieInspector's toast effect): React clears the *previous*
+  // status's timer (via this effect's own cleanup) before scheduling a new
+  // one whenever copyStatus changes. That holds even when two `copy()`
+  // calls overlap and resolve out of order — there is only ever one live
+  // timer, tied to whichever status is currently displayed, so a slower
+  // call's late resolution can never leave a stray timer that clears a
+  // newer row's feedback early. It also covers unmount for free.
+  useEffect(() => {
+    if (!copyStatus) return undefined;
+    const timer = setTimeout(() => setCopyStatus(null), COPY_FEEDBACK_MS);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
 
   const scan = async () => {
     if (!url) {
@@ -45,15 +54,8 @@ export const useHeaderScanner = () => {
   // `key` identifies which row triggered the copy (the header name) so feedback
   // stays scoped to that row instead of flipping every row to "Copied".
   const copy = async (key: string, text: string) => {
-    if (copyTimerRef.current) {
-      clearTimeout(copyTimerRef.current);
-    }
     const ok = await copyText(text);
     setCopyStatus({ key, ok });
-    copyTimerRef.current = setTimeout(() => {
-      setCopyStatus(null);
-      copyTimerRef.current = null;
-    }, COPY_FEEDBACK_MS);
   };
 
   const exportJson = () => {

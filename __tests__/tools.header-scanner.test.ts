@@ -166,6 +166,57 @@ describe('Header Scanner copy feedback (per-row, reset, failure)', () => {
     expect(buttons[1].textContent).toBe('Copy value');
   });
 
+  test('a slower overlapping copy resolving after a faster one leaves no stray timer', async () => {
+    // Row A's write never resolves on its own — we resolve it manually,
+    // later, to simulate it finishing *after* row B's overlapping copy.
+    let resolveA: (() => void) | undefined;
+    const writeText = jest.fn()
+      .mockImplementationOnce(() => new Promise<void>((resolve) => { resolveA = resolve; }))
+      .mockImplementationOnce(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { writeText },
+      configurable: true,
+    });
+
+    const { buttons } = await renderScanned();
+
+    jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
+
+    // t=0: row A's copy starts but its clipboard write is left pending.
+    act(() => { fireEvent.click(buttons[0]); });
+    await act(async () => { await flushPromises(); });
+    expect(buttons[0].textContent).toBe('Copy value'); // still pending
+
+    // t=0: row B's copy starts and resolves immediately, while A is still
+    // in flight — the overlapping-copies race the fix targets.
+    await clickCopy(buttons[1]);
+    expect(buttons[1].textContent).toBe('Copied');
+
+    // t=1000: row B's status has been up for 1s of its 2s window.
+    await act(async () => { jest.advanceTimersByTime(1000); });
+    expect(buttons[1].textContent).toBe('Copied');
+
+    // t=1000: row A's slow write finally resolves, a full second after B's.
+    // This is the "second resolves first" ordering finding U3's reviewer
+    // flagged — the earlier-started call finishing later must not corrupt
+    // bookkeeping for whatever is currently displayed.
+    await act(async () => {
+      resolveA?.();
+      await flushPromises();
+    });
+    expect(buttons[0].textContent).toBe('Copied');
+
+    // t=2000: this is when row B's *original* timer would have fired had it
+    // survived uncancelled (a stray leftover timer). It must not fire here
+    // and wipe out row A's just-set status a full second early.
+    await act(async () => { jest.advanceTimersByTime(1000); });
+    expect(buttons[0].textContent).toBe('Copied');
+
+    // t=3000: row A's own fresh 2s window (started at t=1000) elapses.
+    await act(async () => { jest.advanceTimersByTime(1000); });
+    expect(buttons[0].textContent).toBe('Copy value');
+  });
+
   test('a rejected copy surfaces failure instead of silently reverting', async () => {
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: jest.fn().mockRejectedValue(new Error('denied')) },
@@ -180,7 +231,13 @@ describe('Header Scanner copy feedback (per-row, reset, failure)', () => {
     expect(buttons[0].textContent).toBe('Copy failed');
   });
 
-  test('the reset timer is cleared on unmount so it cannot fire after teardown', async () => {
+  test('the reset timer is cleared on unmount', async () => {
+    // React 18 no longer warns on a setState call after unmount (that
+    // console.error was removed), so asserting "no console.error after
+    // unmount + advancing timers" would pass identically whether or not
+    // cleanup ran — it wouldn't authenticate anything. Assert directly on
+    // the mechanism instead: unmounting must call clearTimeout with the
+    // exact timer id the copy-status effect scheduled.
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: jest.fn().mockResolvedValue(undefined) },
       configurable: true,
@@ -189,14 +246,15 @@ describe('Header Scanner copy feedback (per-row, reset, failure)', () => {
     const { buttons, unmount } = await renderScanned();
 
     jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
+    const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
     await clickCopy(buttons[0]);
 
-    const consoleErrorSpy = jest.spyOn(console, 'error');
+    expect(setTimeoutSpy).toHaveBeenCalledTimes(1);
+    const scheduledTimerId = setTimeoutSpy.mock.results[0].value;
+
+    const clearTimeoutSpy = jest.spyOn(window, 'clearTimeout');
     unmount();
-    // Advancing time now must not trigger a state update against the
-    // unmounted component's pending copy-reset timer (which would surface
-    // as a React "state update on an unmounted component" console.error).
-    jest.advanceTimersByTime(5000);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    expect(clearTimeoutSpy).toHaveBeenCalledWith(scheduledTimerId);
   });
 });
