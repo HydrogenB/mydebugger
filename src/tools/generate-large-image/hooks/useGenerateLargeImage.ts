@@ -63,10 +63,12 @@ export const useGenerateLargeImage = () => {
     reset();
     if (!['image/jpeg', 'image/png'].includes(f.type)) {
       setError('Only JPG or PNG images allowed');
+      setFile(null);
       return;
     }
     if (f.size > 1 * 1024 * 1024) {
       setError('Image must be 1MB or smaller');
+      setFile(null);
       return;
     }
     setError('');
@@ -109,7 +111,9 @@ export const useGenerateLargeImage = () => {
       a.href = dlUrl;
       const base = file.name.replace(/\.[^.]+$/, '');
       a.download = `${base}_${targetSizeMB}MB.${format}`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(dlUrl);
     }
   };

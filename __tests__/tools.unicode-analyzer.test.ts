@@ -1,3 +1,6 @@
+/**
+ * © 2025 MyDebugger Contributors – MIT License
+ */
 import React from 'react';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import { analyzeText } from '../src/tools/unicode-analyzer/lib/analyzer';

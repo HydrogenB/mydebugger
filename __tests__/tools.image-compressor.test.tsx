@@ -116,6 +116,21 @@ describe('ImageCompressorPanel', () => {
     expect(link.getAttribute('download')).toBe('compressed.webp');
   });
 
+  test('download extension follows the actual blob bytes when the browser silently fell back to PNG', () => {
+    // Simulates a browser whose canvas.toBlob has no WebP encoder: it returns
+    // PNG bytes even though 'image/webp' was requested (result.mimeType).
+    const result: CompressedResult = {
+      blob: new Blob(['data'], { type: 'image/png' }),
+      base64: 'data:base64,AAAA',
+      info: { width: 10, height: 10, sizeKB: 1 },
+      mimeType: 'image/webp',
+    };
+    render(<Harness initialResult={result} />);
+
+    const link = screen.getByRole('link', { name: /download image/i }) as HTMLAnchorElement;
+    expect(link.getAttribute('download')).toBe('compressed.png');
+  });
+
   test('object URL is created once per result and revoked on unmount', () => {
     const result = makeResult('image/webp');
     const { rerender, unmount } = render(<Harness initialResult={result} />);

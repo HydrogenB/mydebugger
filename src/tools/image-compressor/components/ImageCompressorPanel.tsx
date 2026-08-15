@@ -166,7 +166,7 @@ function ImageCompressorView({
               {downloadUrl && (
                 <a
                   href={downloadUrl}
-                  download={`compressed.${extensionForMime(result.mimeType)}`}
+                  download={`compressed.${extensionForMime(result.blob.type || result.mimeType)}`}
                   className="underline text-primary-600"
                 >
                   Download image
