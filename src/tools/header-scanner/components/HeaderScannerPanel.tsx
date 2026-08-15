@@ -7,6 +7,7 @@ import { Button } from '../../../design-system/components/inputs/Button';
 import { Card } from '../../../design-system/components/layout/Card';
 import { LoadingSpinner } from '../../../design-system/components/feedback/LoadingSpinner';
 import { HeaderAuditResult } from '../lib/headerScanner';
+import { CopyStatus } from '../hooks/useHeaderScanner';
 
 interface Props {
   url: string;
@@ -14,11 +15,16 @@ interface Props {
   results: HeaderAuditResult[];
   loading: boolean;
   error: string;
-  copied: boolean;
+  copyStatus: CopyStatus | null;
   scan: () => void;
-  copy: (text: string) => void;
+  copy: (key: string, text: string) => void;
   exportJson: () => void;
 }
+
+const copyRowLabel = (copyStatus: CopyStatus | null, rowKey: string): string => {
+  if (copyStatus?.key !== rowKey) return 'Copy value';
+  return copyStatus.ok ? 'Copied' : 'Copy failed';
+};
 
 const statusBadge = (status: string) => {
   switch (status) {
@@ -37,7 +43,7 @@ export function HeaderScannerView({
   results,
   loading,
   error,
-  copied,
+  copyStatus,
   scan,
   copy,
   exportJson,
@@ -92,9 +98,9 @@ export function HeaderScannerView({
                       <p className="text-xs text-gray-500 dark:text-gray-400">{r.fix}</p>
                       <button
                         type="button"
-                        onClick={() => copy(r.value ?? '')}
+                        onClick={() => copy(r.name, r.value ?? '')}
                         className="self-start text-xs text-primary-600 dark:text-primary-400 hover:underline"
-                      >{copied ? 'Copied' : 'Copy value'}</button>
+                      >{copyRowLabel(copyStatus, r.name)}</button>
                     </div>
                   ))}
                 </div>
