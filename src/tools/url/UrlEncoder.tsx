@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { TOOL_PANEL_CLASS, Tooltip } from '@design-system';
+import { copyText } from '../../shared/utils/clipboard';
 
 const clsx = (...c: Array<string | false | null | undefined>) =>
   c.filter(Boolean).join(' ');
@@ -96,11 +97,13 @@ const UrlEncoder: React.FC = () => {
     }
   };
   
-  const handleCopyOutput = () => {
+  const handleCopyOutput = async () => {
     if (!output) return;
-    
-    navigator.clipboard.writeText(output);
-    setCopied(true);
+
+    const ok = await copyText(output);
+    if (ok) {
+      setCopied(true);
+    }
   };
   
   const handleReset = () => {

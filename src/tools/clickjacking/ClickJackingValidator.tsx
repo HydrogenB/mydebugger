@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet';
 import { getToolByRoute } from '../index';
 import { ToolLayout, Card, Button, LoadingSpinner } from '@design-system';
+import { copyText } from '../../shared/utils/clipboard';
 
 interface ValidationResult {
   url: string;
@@ -177,11 +178,7 @@ const ClickJackingValidator: React.FC = () => {
     const text = Object.entries(results.rawHeaders)
       .map(([k, v]) => `${k}: ${v}`)
       .join('\n');
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // ignore
-    }
+    await copyText(text);
   };
 
   const saveReport = () => {

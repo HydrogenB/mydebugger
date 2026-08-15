@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useState, useEffect } from 'react';
+import { copyText } from '../../../shared/utils/clipboard';
 import {
   aes256CbcEncryptRandomIV,
   aes256CbcDecryptRandomIV,
@@ -246,12 +247,8 @@ export const useAesCbc = () => {
   };
 
   const copyOutput = async () => {
-    try {
-      await navigator.clipboard.writeText(output);
-      setToastMessage('Output copied');
-    } catch {
-      setToastMessage('Clipboard access denied');
-    }
+    const copied = await copyText(output);
+    setToastMessage(copied ? 'Output copied' : 'Clipboard access denied');
   };
 
 

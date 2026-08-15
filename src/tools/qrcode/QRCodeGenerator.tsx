@@ -14,6 +14,7 @@ import { QR_PRESETS, getPresetByName } from "./lib/qrcodePresets";
 import { useLocation } from "react-router-dom";
 import { generateICalEvent } from "./lib/ical";
 import { useTranslation } from "../../context/TranslationContext";
+import { copyText } from "../../shared/utils/clipboard";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -424,16 +425,13 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   };
 
-  const copyToClipboard = useCallback((text: string, message: string) => {
-    try {
-      navigator.clipboard.writeText(text);
-      setToastMessage(message);
-    } catch (error) {
-      console.error("Clipboard error:", error);
-      setToastMessage(
-        "Clipboard access denied. Please update your browser permissions.",
-      );
-    }
+  const copyToClipboard = useCallback(async (text: string, message: string) => {
+    const copied = await copyText(text);
+    setToastMessage(
+      copied
+        ? message
+        : "Clipboard access denied. Please update your browser permissions.",
+    );
   }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useArtifactCompiler } from "../useArtifactCompiler";
 import { useDebounce } from "../useDebounce";
+import { copyText } from "../../../shared/utils/clipboard";
 
 interface Props {
   fileContent: string;
@@ -28,18 +29,8 @@ const ClientArtifactViewer: React.FC<Props> = ({
   const { compiledHtml, error, isLoading } = useArtifactCompiler(debouncedCode);
 
   const handleCopy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Fallback for older browsers
-      const textarea = document.createElement("textarea");
-      textarea.value = code;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
+    const ok = await copyText(code);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

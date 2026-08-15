@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useState, useCallback, useEffect } from 'react';
+import { copyText } from '../../../shared/utils/clipboard';
 import {
   analyzeDynamicLink,
   DynamicLinkAnalysis,
@@ -139,14 +140,7 @@ export function useDynamicLinkProbe(): UseDynamicLinkProbeReturn {
     return buildDynamicLink(params);
   }, []);
 
-  const copyToClipboard = useCallback(async (text: string): Promise<boolean> => {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
+  const copyToClipboard = useCallback((text: string): Promise<boolean> => copyText(text), []);
 
   return {
     inputUrl,
