@@ -14,6 +14,7 @@
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
+import { copyText } from '../../../shared/utils/clipboard';
 import type {
   EngineStat,
   ScanPerformance,
@@ -317,12 +318,10 @@ const ARScannerView: React.FC<Props> = ({
 
   const copyResult = useCallback(async () => {
     if (!result) return;
-    try {
-      await navigator.clipboard.writeText(result);
+    const ok = await copyText(result);
+    if (ok) {
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
-    } catch {
-      // ignore — most likely insecure context
     }
   }, [result]);
 

@@ -38,12 +38,23 @@ export interface JwtInfo {
 }
 
 // Security rule checks
+
+/**
+ * Case-insensitively detect the JWT "none" algorithm (also matches "None", "NONE", "nOnE", ...).
+ * `alg` is attacker-controlled header data, so this must never throw on a missing or
+ * non-string value. Named algorithms (HS256, RS256, ...) stay case-sensitive everywhere
+ * else — this helper only normalizes the "none" comparison, never the value used for
+ * algorithm dispatch or display.
+ */
+export const isNoneAlgorithm = (alg: unknown): boolean =>
+  typeof alg === 'string' && alg.toLowerCase() === 'none';
+
 const checkNoneAlgorithm = (jwt: JwtInfo): Finding | null => {
-  if (jwt.header.alg === 'none') {
+  if (isNoneAlgorithm(jwt.header.alg)) {
     return {
       id: 'JWT-NONE-ALG',
       title: 'Unsigned token (alg: none)',
-      description: 'This token uses the "none" algorithm, which means it has no cryptographic signature for verification.',
+      description: `This token uses the "${jwt.header.alg}" algorithm, which means it has no cryptographic signature for verification.`,
       severity: 'high',
       recommendation: 'UNSIGNED TOKEN — do not accept in production. Always reject tokens with alg: none.'
     };
@@ -243,7 +254,7 @@ const checkUnsafeJWTConstructs = (jwt: JwtInfo): Finding | null => {
 
 const checkAlgVsSignature = (jwt: JwtInfo): Finding | null => {
   // Check if token claims to use a signature algorithm but has no/empty signature
-  if (jwt.header.alg && jwt.header.alg !== 'none' && (!jwt.signature || jwt.signature === '')) {
+  if (jwt.header.alg && !isNoneAlgorithm(jwt.header.alg) && (!jwt.signature || jwt.signature === '')) {
     return {
       id: 'JWT-MISSING-SIG',
       title: 'Missing signature despite algorithm',

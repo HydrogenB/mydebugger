@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { fetchSnapshot, parseMetadata, Metadata } from '../../pre-rendering-tester/lib/prerender';
 import { AGENTS } from '../../pre-rendering-tester/hooks/usePreRenderingTester';
+import { copyText } from '../../../shared/utils/clipboard';
 
 export type ExportFormat = 'html' | 'json';
 
@@ -90,16 +91,10 @@ export const useFetchRender = () => {
   const copyOutput = async () => {
     const html = renderedHtml || rawHtml;
     if (!html) return;
-    try {
-      if (exportFormat === 'html') {
-        await navigator.clipboard.writeText(html);
-      } else {
-        await navigator.clipboard.writeText(
-          JSON.stringify({ rawHtml, renderedHtml, metadata }, null, 2),
-        );
-      }
-    } catch {
-      // ignore clipboard errors
+    if (exportFormat === 'html') {
+      await copyText(html);
+    } else {
+      await copyText(JSON.stringify({ rawHtml, renderedHtml, metadata }, null, 2));
     }
   };
 

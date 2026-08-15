@@ -8,6 +8,7 @@ import {
   TabPanel,
   Badge
 } from '../../../design-system';
+import { copyText } from '../../../shared/utils/clipboard';
 // Use dynamic import for cryptoWorker for consistency
 // This will be imported when needed using the async pattern
 
@@ -208,9 +209,10 @@ export const BuilderWizard: React.FC = () => {
     setIsSigning(false);
   };
   
-  const handleCopyToken = () => {
-    navigator.clipboard.writeText(generatedToken);
-    setCopied(true);
+  const handleCopyToken = async () => {
+    if (await copyText(generatedToken)) {
+      setCopied(true);
+    }
   };
 
   const handleGenerateKeyPair = async () => {

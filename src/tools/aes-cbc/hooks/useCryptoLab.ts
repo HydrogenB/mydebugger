@@ -6,6 +6,7 @@
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { copyText } from '../../../shared/utils/clipboard';
 import type {
   CryptoMode,
   CryptoAlgorithm,
@@ -654,21 +655,13 @@ export const useCryptoLab = () => {
   // ============================================
 
   const copyOutput = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(state.output);
-      showToast('Copied to clipboard');
-    } catch {
-      showToast('Clipboard access denied');
-    }
+    const copied = await copyText(state.output);
+    showToast(copied ? 'Copied to clipboard' : 'Clipboard access denied');
   }, [state.output, showToast]);
 
   const copyOpenSSLCommand = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(state.opensslCommand);
-      showToast('OpenSSL command copied');
-    } catch {
-      showToast('Clipboard access denied');
-    }
+    const copied = await copyText(state.opensslCommand);
+    showToast(copied ? 'OpenSSL command copied' : 'Clipboard access denied');
   }, [state.opensslCommand, showToast]);
 
   const moveOutputToInput = useCallback(() => {

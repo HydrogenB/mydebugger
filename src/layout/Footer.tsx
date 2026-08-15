@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from '../context/TranslationContext';
 import { TrustBanner } from '@design-system';
+import { copyText } from '../shared/utils/clipboard';
 
 // Helper function for icons
 const getIconHelper = (name: string) => {
@@ -66,16 +67,13 @@ const Footer: React.FC = () => {
       }
     }
 
-    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      try {
-        await navigator.clipboard.writeText(shareData.url);
-        setShareStatus(t('footer.shareCopied', 'Link copied!'));
-        window.setTimeout(() => setShareStatus(''), 2000);
-      } catch {
-        setShareStatus(t('footer.shareFailed', 'Unable to share'));
-        window.setTimeout(() => setShareStatus(''), 2000);
-      }
+    const copied = await copyText(shareData.url);
+    if (copied) {
+      setShareStatus(t('footer.shareCopied', 'Link copied!'));
+    } else {
+      setShareStatus(t('footer.shareFailed', 'Unable to share'));
     }
+    window.setTimeout(() => setShareStatus(''), 2000);
   };
 
   return (

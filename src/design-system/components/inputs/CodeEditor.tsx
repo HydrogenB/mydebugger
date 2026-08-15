@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { copyText } from '../../../shared/utils/clipboard';
 
 export interface CodeEditorProps {
   value: string;
@@ -215,7 +216,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             <button type="button" className="px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setWrap(!wrap)} title={wrap ? 'Disable wrap' : 'Enable wrap'}>
               {wrap ? 'Wrap: On' : 'Wrap: Off'}
             </button>
-            <button type="button" className="px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => navigator.clipboard?.writeText(value)} title="Copy">
+            <button type="button" className="px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => { void copyText(value); }} title="Copy">
               Copy
             </button>
           </div>

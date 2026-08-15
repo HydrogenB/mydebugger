@@ -87,6 +87,40 @@ function secureRandInt(maxExclusive: number, source?: EntropySource): number {
   }
 }
 
+/** Build the literal character pool for the selected classes, ambiguity filter applied. */
+function buildPasswordPool(options: {
+  includeUppercase: boolean;
+  includeLowercase: boolean;
+  includeNumbers: boolean;
+  includeSymbols: boolean;
+  excludeAmbiguous: boolean;
+}): string {
+  const { includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeAmbiguous } = options;
+  let pool = "";
+  if (includeUppercase) pool += UPPERCASE;
+  if (includeLowercase) pool += LOWERCASE;
+  if (includeNumbers) pool += NUMBERS;
+  if (includeSymbols) pool += SYMBOLS;
+  if (excludeAmbiguous) {
+    pool = [...pool].filter((c) => !AMBIGUOUS.includes(c)).join("");
+  }
+  return pool;
+}
+
+/**
+ * Size of the pool the generator actually draws from for a given set of
+ * options — mirrors generatePassword's own pool construction (including its
+ * customChars short-circuit, which ignores excludeAmbiguous) so entropy is
+ * computed from what was really drawn, not from characters observed in the
+ * output string.
+ */
+function passwordPoolSize(options: PasswordOptions): number {
+  if (options.customChars && options.customChars.length > 0) {
+    return options.customChars.length;
+  }
+  return buildPasswordPool(options).length;
+}
+
 export function generatePassword(
   options: PasswordOptions,
   entropy?: Uint8Array,
@@ -111,14 +145,7 @@ export function generatePassword(
     return chars.join("");
   }
 
-  let pool = "";
-  if (includeUppercase) pool += UPPERCASE;
-  if (includeLowercase) pool += LOWERCASE;
-  if (includeNumbers) pool += NUMBERS;
-  if (includeSymbols) pool += SYMBOLS;
-  if (excludeAmbiguous) {
-    pool = [...pool].filter((c) => !AMBIGUOUS.includes(c)).join("");
-  }
+  const pool = buildPasswordPool({ includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeAmbiguous });
 
   if (!pool) return "";
 
@@ -197,54 +224,63 @@ export function generatePIN(options: PinOptions): string {
   return pin;
 }
 
-export function estimateStrength(options: PasswordOptions | PassphraseOptions | null, password: string) {
-  // Simple entropy calculation
-  if (!password) return { entropy: 0, label: "Very weak", score: 0 };
+type StrengthLabel = "Very weak" | "Weak" | "Good" | "Strong" | "Very strong";
 
-  let poolSize = 0;
-  
-  // Heuristic detection of type
-  const isPassphrase = password.length > 20 && (password.includes('-') || password.includes(' ') || password.includes('.'));
-  
-  if (isPassphrase) {
-    // Passphrase entropy: log2(wordlistSize^wordCount)
-    // Assuming roughly based on our wordlist ~2048 (11 bits per word)
-    const separators = password.match(/[- ._]/g);
-    const wordCount = separators ? separators.length + 1 : 1; 
-    // Roughly 11 bits per word + variations
-    const entropy = wordCount * 11; 
-    
-    let label: "Very weak" | "Weak" | "Good" | "Strong" | "Very strong" = "Very weak";
-    if (entropy > 80) label = "Very strong";
-    else if (entropy > 60) label = "Strong";
-    else if (entropy > 50) label = "Good";
-    else if (entropy > 30) label = "Weak";
-    
-    const score = Math.min(100, Math.round((entropy / 100) * 100));
-    return { entropy, label, score };
-  }
+function isPassphraseOptions(
+  options: PasswordOptions | PassphraseOptions,
+): options is PassphraseOptions {
+  return "wordCount" in options;
+}
 
-  // Standard password entropy
-  const hasLower = /[a-z]/.test(password);
-  const hasUpper = /[A-Z]/.test(password);
-  const hasDigit = /[0-9]/.test(password);
-  const hasSymbol = /[^a-zA-Z0-9]/.test(password);
-
-  if (hasLower) poolSize += 26;
-  if (hasUpper) poolSize += 26;
-  if (hasDigit) poolSize += 10;
-  if (hasSymbol) poolSize += 32;
-
-  const entropy = Math.log2(Math.max(1, poolSize)) * password.length;
-  
-  let label: "Very weak" | "Weak" | "Good" | "Strong" | "Very strong" = "Very weak";
+function passwordStrengthLabel(entropy: number): { label: StrengthLabel; score: number } {
+  let label: StrengthLabel = "Very weak";
   if (entropy > 100) label = "Very strong";
   else if (entropy > 80) label = "Strong";
   else if (entropy > 60) label = "Good";
   else if (entropy > 40) label = "Weak";
-
   const score = Math.min(100, Math.round((entropy / 128) * 100));
-  return { entropy, label, score };
+  return { label, score };
+}
+
+function passphraseStrengthLabel(entropy: number): { label: StrengthLabel; score: number } {
+  let label: StrengthLabel = "Very weak";
+  if (entropy > 80) label = "Very strong";
+  else if (entropy > 60) label = "Strong";
+  else if (entropy > 50) label = "Good";
+  else if (entropy > 30) label = "Weak";
+  const score = Math.min(100, Math.round((entropy / 100) * 100));
+  return { label, score };
+}
+
+/** Pool size inferred from character classes actually present in the string. Only
+ * used when the caller can't tell us what generated the password (options === null). */
+function observedPoolSize(password: string): number {
+  let poolSize = 0;
+  if (/[a-z]/.test(password)) poolSize += 26;
+  if (/[A-Z]/.test(password)) poolSize += 26;
+  if (/[0-9]/.test(password)) poolSize += 10;
+  if (/[^a-zA-Z0-9]/.test(password)) poolSize += 32;
+  return poolSize;
+}
+
+export function estimateStrength(
+  options: PasswordOptions | PassphraseOptions | null,
+  password: string,
+): { entropy: number; label: StrengthLabel; score: number } {
+  if (!password) return { entropy: 0, label: "Very weak", score: 0 };
+
+  if (options !== null && isPassphraseOptions(options)) {
+    // Passphrase entropy: log2(wordlistSize) bits per word, drawn straight
+    // from the wordlist the generator actually samples from.
+    const bitsPerWord = Math.log2(WORDLIST.length);
+    const entropy = options.wordCount * bitsPerWord;
+    return { entropy, ...passphraseStrengthLabel(entropy) };
+  }
+
+  // Password entropy: pool the generator actually drew from, times length.
+  const poolSize = options !== null ? passwordPoolSize(options) : observedPoolSize(password);
+  const entropy = Math.log2(Math.max(1, poolSize)) * password.length;
+  return { entropy, ...passwordStrengthLabel(entropy) };
 }
 
 

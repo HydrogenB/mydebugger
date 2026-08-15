@@ -20,6 +20,7 @@ export interface CompressedResult {
   blob: Blob;
   base64: string;
   info: ImageInfo;
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
 }
 
 /* eslint-disable no-param-reassign */
@@ -180,6 +181,7 @@ export const compressImageV2 = async (
       height: canvas.height,
       sizeKB: Math.round(blob.size / 1024),
     },
+    mimeType,
   };
 };
 

@@ -7,6 +7,7 @@ import { CodeBlock } from '../../../design-system/components/display/CodeBlock';
 import { Button, SelectInput, TextInput } from '../../../design-system/components/inputs';
 import { InfoBox } from '../../../design-system/components/display/InfoBox';
 import { CorsResult, CorsAnalysis } from '../lib/cors';
+import { copyText } from '../../../shared/utils/clipboard';
 
 interface Props {
   url: string;
@@ -56,7 +57,7 @@ export function CorsTesterView({
         <h2 className="text-2xl font-bold heading-gradient">CORS Tester</h2>
         <div className="flex gap-2">
           <Button size="sm" variant="ghost" onClick={() => setHeaderJson('{}')}>Reset</Button>
-          <Button size="sm" variant="secondary" onClick={() => navigator.clipboard.writeText(curlCommand)}>Copy cURL</Button>
+          <Button size="sm" variant="secondary" onClick={() => { void copyText(curlCommand); }}>Copy cURL</Button>
         </div>
       </div>
       <div className="space-y-4">
@@ -184,49 +185,64 @@ export function CorsTesterView({
       {result && (
         <>
           <h3 className="font-semibold text-lg">Results</h3>
-          <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-left border border-gray-200 dark:border-gray-700">
-            <thead className="sticky top-0 bg-gray-100 dark:bg-gray-700 z-10">
-              <tr className="bg-gray-50 dark:bg-gray-900">
-                <th className="px-2 py-1">Header</th>
-                <th className="px-2 py-1">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(result.response.headers).map(([k, v]) => {
-                const keyMap: Record<string, 'origin' | 'method' | 'headers' | 'credentials' | ''> = {
-                  'access-control-allow-origin': 'origin',
-                  'access-control-allow-methods': 'method',
-                  'access-control-allow-headers': 'headers',
-                  'access-control-allow-credentials': 'credentials',
-                };
-                const mismatchKey = keyMap[k] || '';
-                const highlight = mismatchKey && mismatches[mismatchKey] ? 'text-red-600' : '';
-                const rowClass = mismatchKey && mismatches[mismatchKey] ? 'bg-red-50 dark:bg-red-900/20' : '';
-                return (
-                  <React.Fragment key={k}>
-                    <tr className={`border-b ${rowClass}`}>
-                      <td className="px-2 py-1 font-medium">{k}</td>
-                      <td className={`px-2 py-1 ${highlight}`}>{v ?? '-'}</td>
-                    </tr>
-                    {mismatchKey && mismatches[mismatchKey] && (
-                      <tr className="bg-red-50 text-xs text-red-600">
-                        <td colSpan={2} className="px-2 py-1">{guides[mismatchKey]}</td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-          </div>
-          {blockedBrowsers.length > 0 && (
-            <div className="mt-2 text-sm text-red-700">
-              Blocked browsers: {blockedBrowsers.join(', ')}
-            </div>
+          {analysis?.browserOpaque ? (
+            <InfoBox title="Browser mode can't verify preflight headers" variant="warning">
+              {analysis.guides.info}
+            </InfoBox>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left border border-gray-200 dark:border-gray-700">
+                <thead className="sticky top-0 bg-gray-100 dark:bg-gray-700 z-10">
+                  <tr className="bg-gray-50 dark:bg-gray-900">
+                    <th className="px-2 py-1">Header</th>
+                    <th className="px-2 py-1">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(result.response.headers).map(([k, v]) => {
+                    const keyMap: Record<string, 'origin' | 'method' | 'headers' | 'credentials' | ''> = {
+                      'access-control-allow-origin': 'origin',
+                      'access-control-allow-methods': 'method',
+                      'access-control-allow-headers': 'headers',
+                      'access-control-allow-credentials': 'credentials',
+                    };
+                    const mismatchKey = keyMap[k] || '';
+                    const highlight = mismatchKey && mismatches[mismatchKey] ? 'text-red-600' : '';
+                    const rowClass = mismatchKey && mismatches[mismatchKey] ? 'bg-red-50 dark:bg-red-900/20' : '';
+                    return (
+                      <React.Fragment key={k}>
+                        <tr className={`border-b ${rowClass}`}>
+                          <td className="px-2 py-1 font-medium">{k}</td>
+                          <td className={`px-2 py-1 ${highlight}`}>{v ?? '-'}</td>
+                        </tr>
+                        {mismatchKey && mismatches[mismatchKey] && (
+                          <tr className="bg-red-50 text-xs text-red-600">
+                            <td colSpan={2} className="px-2 py-1">{guides[mismatchKey]}</td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+              </div>
+              {blockedBrowsers.length > 0 && (
+                <div className="mt-2 text-sm text-red-700">
+                  Blocked browsers: {blockedBrowsers.join(', ')}
+                </div>
+              )}
+            </>
           )}
           <details className="mt-4 summary-no-marker">
             <summary className="cursor-pointer">Request Flow & cURL</summary>
+            {result.request.mode === 'browser' && (
+              <p className="mt-2 text-xs italic text-gray-600 dark:text-gray-400">
+                Note: `Origin` and the `Access-Control-Request-*` entries below are
+                requested-but-forbidden headers — the browser strips them before sending, so
+                they were not actually transmitted.
+              </p>
+            )}
             <CodeBlock className="mt-2 text-xs" maxHeight="16rem">
               {JSON.stringify(result, null, 2)}
             </CodeBlock>
@@ -235,7 +251,7 @@ export function CorsTesterView({
               <button
                 type="button"
                 className="px-2 py-1 bg-primary-500 text-white text-xs rounded"
-                onClick={() => navigator.clipboard.writeText(curlCommand)}
+                onClick={() => { void copyText(curlCommand); }}
               >
                 Copy curl
               </button>

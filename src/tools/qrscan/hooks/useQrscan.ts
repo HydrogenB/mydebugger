@@ -17,6 +17,7 @@ import {
   type DecodeEngineName,
   type VideoDevice,
 } from '../lib/qrscan';
+import { copyText } from '../../../shared/utils/clipboard';
 
 const SETTINGS_KEY = 'qrscan-settings';
 const HISTORY_KEY = 'qrscan-history';
@@ -526,11 +527,10 @@ const useQrscan = (): UseQrscanReturn => {
 
     playSuccessSound(soundEnabled);
 
-    if (autoCopy && isBrowser && navigator.clipboard) {
-      try {
-        await navigator.clipboard.writeText(trimmed);
-      } catch (copyError) {
-        setError('Failed to copy result: ' + (copyError as Error).message);
+    if (autoCopy && isBrowser) {
+      const copied = await copyText(trimmed);
+      if (!copied) {
+        setError('Failed to copy result');
       }
     }
 

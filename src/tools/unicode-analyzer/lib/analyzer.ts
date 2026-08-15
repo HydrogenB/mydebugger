@@ -145,6 +145,7 @@ export function analyzeText(input: string): AnalysisResult {
         emojiCount: 0,
         hiddenCharCount: 0,
         categoryBreakdown: {} as Record<CharacterCategory, number>,
+        graphemeClusteringDegraded: false,
       },
     };
   }
@@ -171,14 +172,27 @@ export function analyzeText(input: string): AnalysisResult {
   let emojiCount = 0;
   let hiddenCharCount = 0;
 
-  // Use Intl.Segmenter for accurate grapheme clustering
-  const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
-  const segments = segmenter.segment(input);
+  // Feature-detect Intl.Segmenter before use: it is absent on Safari < 16.4,
+  // and the `declare global` block above only satisfies the type checker --
+  // it says nothing about whether the runtime actually has it. A `typeof`
+  // check on the possibly-missing property is safe (it never throws) and
+  // reflects reality rather than the type.
+  const hasSegmenter = typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function';
+
+  // When available, Intl.Segmenter gives accurate grapheme clustering (e.g. a
+  // ZWJ family sequence is one grapheme). When it isn't, fall back to
+  // Array.from, which splits by code point -- a correct per-code-point split
+  // and a reasonable degraded approximation, but not true grapheme
+  // clustering. `graphemeClusteringDegraded` below makes that visible.
+  const graphemeStrings: string[] = hasSegmenter
+    ? Array.from(
+        new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(input),
+        (segment) => segment.segment,
+      )
+    : Array.from(input);
 
   let index = 0;
-  for (const segment of segments) {
-    const grapheme = segment.segment;
-
+  for (const grapheme of graphemeStrings) {
     // Extract code points using Array.from to handle surrogates correctly
     const codePoints = Array.from(grapheme).map((char: string) => char.codePointAt(0)!);
 
@@ -235,6 +249,7 @@ export function analyzeText(input: string): AnalysisResult {
       emojiCount,
       hiddenCharCount,
       categoryBreakdown,
+      graphemeClusteringDegraded: !hasSegmenter,
     },
   };
 }

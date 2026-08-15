@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useReducer, useCallback, ReactNode } from 'react';
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string';
+import { isNoneAlgorithm } from '../utils/analyzer';
 
 // Types for JWT parts
 export interface JwtParts {
@@ -313,13 +314,13 @@ const isValid = await cryptoWorker.verify(
     
     const issues: SecurityIssue[] = [];
     
-    // Check for algorithm none
-    if (state.decoded.header.alg === 'none') {
+    // Check for algorithm none (case-insensitive: "None", "NONE", etc. are the same bypass attempt)
+    if (isNoneAlgorithm(state.decoded.header.alg)) {
       issues.push({
         id: 'alg-none',
         severity: 'high',
         title: 'UNSIGNED TOKEN',
-        description: 'The token uses algorithm "none" and has no signature. Do not accept in production.'
+        description: `The token uses algorithm "${state.decoded.header.alg}" and has no signature. Do not accept in production.`
       });
     }
     

@@ -17,6 +17,7 @@ import {
   exportAsMarkdown,
   exportAsJson,
 } from '../lib/dynamicLink';
+import { copyText } from '../../../shared/utils/clipboard';
 import clsx from 'clsx';
 import {
   Search,
@@ -162,12 +163,10 @@ export function OneLinkInspector() {
 
   // Copy to clipboard
   const handleCopy = async (text: string, key: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
+    const ok = await copyText(text);
+    if (ok) {
       setCopied(key);
       setTimeout(() => setCopied(null), 2000);
-    } catch {
-      // Ignore
     }
   };
 

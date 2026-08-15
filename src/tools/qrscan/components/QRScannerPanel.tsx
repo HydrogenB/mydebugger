@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
 import { Button } from '../../../design-system/components/inputs';
 import type { ScanRecord, SessionStats, UseQrscanReturn } from '../hooks/useQrscan';
+import { copyText } from '../../../shared/utils/clipboard';
 
 const CAMERA_STATUS_STYLES: Record<string, string> = {
   ready: 'bg-green-100 text-green-800 border-green-200',
@@ -194,12 +195,9 @@ const QRScannerPanel: React.FC<Props> = (props) => {
 
   const copyToClipboard = async (value: string) => {
     if (!value) return;
-    if (typeof navigator === 'undefined' || !navigator.clipboard) {
-      return;
-    }
     try {
       setIsCopying(true);
-      await navigator.clipboard.writeText(value);
+      await copyText(value);
     } finally {
       setIsCopying(false);
     }

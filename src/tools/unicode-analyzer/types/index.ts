@@ -76,6 +76,13 @@ export interface TextStats {
   hiddenCharCount: number;
   /** Breakdown by category */
   categoryBreakdown: Record<CharacterCategory, number>;
+  /**
+   * True when `Intl.Segmenter` was unavailable and grapheme clustering fell
+   * back to a per-code-point split (`Array.from`). The fallback is a correct
+   * code point split but not true grapheme clustering, so `graphemeCount`
+   * (and the graphemes themselves) mean something different when this is set.
+   */
+  graphemeClusteringDegraded: boolean;
 }
 
 /**

@@ -56,6 +56,7 @@ export default function useCompass(): UseCompassReturn {
   // Refs for processing
   const fusionPipeline = useRef(new SensorFusionPipeline(config.lowPassAlpha));
   const animationFrameId = useRef<number | null>(null);
+  const calibrationIntervalId = useRef<ReturnType<typeof setInterval> | null>(null);
   const wakeLockSentinel = useRef<WakeLockSentinel | null>(null);
   const declinationRef = useRef<number | null>(null);
   const lastStateBeforeBackground = useRef<CompassState>('IDLE');
@@ -276,11 +277,17 @@ export default function useCompass(): UseCompassReturn {
       setCalibrationProgress(0);
 
       // Simulate calibration progress (in real app, would check sensor variance)
-      const calibrationInterval = setInterval(() => {
+      if (calibrationIntervalId.current !== null) {
+        clearInterval(calibrationIntervalId.current);
+      }
+      calibrationIntervalId.current = setInterval(() => {
         setCalibrationProgress((prev) => {
           const next = prev + 10;
           if (next >= 100) {
-            clearInterval(calibrationInterval);
+            if (calibrationIntervalId.current !== null) {
+              clearInterval(calibrationIntervalId.current);
+              calibrationIntervalId.current = null;
+            }
             setState('ACTIVE_TRUSTED');
           }
           return Math.min(next, 100);
@@ -300,6 +307,10 @@ export default function useCompass(): UseCompassReturn {
    * Stop the compass
    */
   const stop = useCallback(() => {
+    if (calibrationIntervalId.current !== null) {
+      clearInterval(calibrationIntervalId.current);
+      calibrationIntervalId.current = null;
+    }
     stopAnimationLoop();
     stopSensors();
     fusionPipeline.current.reset();
@@ -319,11 +330,17 @@ export default function useCompass(): UseCompassReturn {
     fusionPipeline.current.reset();
 
     // Simulate calibration
-    const calibrationInterval = setInterval(() => {
+    if (calibrationIntervalId.current !== null) {
+      clearInterval(calibrationIntervalId.current);
+    }
+    calibrationIntervalId.current = setInterval(() => {
       setCalibrationProgress((prev) => {
         const next = prev + 10;
         if (next >= 100) {
-          clearInterval(calibrationInterval);
+          if (calibrationIntervalId.current !== null) {
+            clearInterval(calibrationIntervalId.current);
+            calibrationIntervalId.current = null;
+          }
           setState('ACTIVE_TRUSTED');
         }
         return Math.min(next, 100);
@@ -408,6 +425,10 @@ export default function useCompass(): UseCompassReturn {
    */
   useEffect(() => {
     return () => {
+      if (calibrationIntervalId.current !== null) {
+        clearInterval(calibrationIntervalId.current);
+        calibrationIntervalId.current = null;
+      }
       stopAnimationLoop();
       stopSensors();
       if (wakeLockSentinel.current) {
