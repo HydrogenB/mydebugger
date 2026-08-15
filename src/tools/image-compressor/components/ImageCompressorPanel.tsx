@@ -1,11 +1,17 @@
 /**
  * © 2025 MyDebugger Contributors – MIT License
  */
-import React, { ChangeEvent, DragEvent } from 'react';
+import React, { ChangeEvent, DragEvent, useEffect, useState } from 'react';
 import { TOOL_PANEL_CLASS } from '../../../design-system/foundations/layout';
 import { UseImageCompressorReturn } from '../hooks/useImageCompressor';
 
 const dropClasses = 'border-2 border-dashed border-gray-300 p-6 rounded-md text-center bg-gray-50 dark:bg-gray-700 hover:border-primary-400 dark:hover:border-primary-500 transition-colors';
+
+const extensionForMime = (mime: string): string => {
+  if (mime === 'image/webp') return 'webp';
+  if (mime === 'image/png') return 'png';
+  return 'jpg';
+};
 
 function ImageCompressorView({
   info,
@@ -22,6 +28,18 @@ function ImageCompressorView({
   compress,
   loading,
 }: UseImageCompressorReturn) {
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!result) {
+      setDownloadUrl(null);
+      return undefined;
+    }
+    const url = URL.createObjectURL(result.blob);
+    setDownloadUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [result]);
+
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) onFile(e.target.files[0]);
   };
@@ -65,7 +83,7 @@ function ImageCompressorView({
               type="number"
               min={1}
               value={targetSize}
-              onChange={(e) => setTargetSize(parseInt(e.target.value, 10))}
+              onChange={(e) => setTargetSize(Math.max(1, parseInt(e.target.value, 10) || 1))}
               className="border p-2 rounded-md w-full"
             />
           </label>
@@ -96,7 +114,7 @@ function ImageCompressorView({
                   value={scale}
                   step={0.1}
                   min={0.1}
-                  onChange={(e) => setScale(parseFloat(e.target.value))}
+                  onChange={(e) => setScale(Math.max(0.1, parseFloat(e.target.value) || 0.1))}
                   className="border p-1 w-16"
                 />
               </label>
@@ -145,13 +163,15 @@ function ImageCompressorView({
             <div className="text-sm space-y-1">
               <p>New size: {result.info.sizeKB} kB</p>
               <p>Resolution: {result.info.width} × {result.info.height}</p>
-              <a
-                href={URL.createObjectURL(result.blob)}
-                download={`compressed.${mimeType === 'image/webp' ? 'webp' : mimeType === 'image/png' ? 'png' : 'jpg'}`}
-                className="underline text-primary-600"
-              >
-                Download image
-              </a>
+              {downloadUrl && (
+                <a
+                  href={downloadUrl}
+                  download={`compressed.${extensionForMime(result.mimeType)}`}
+                  className="underline text-primary-600"
+                >
+                  Download image
+                </a>
+              )}
               <details className="mt-2">
                 <summary className="cursor-pointer">Base64</summary>
                 <textarea
