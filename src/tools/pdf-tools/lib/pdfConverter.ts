@@ -132,8 +132,8 @@ export const loadPdfDocument = async (
     fileName: file.name,
     fileSize: file.size,
     pageCount: pdf.numPages,
-    title: (metadata?.info as any)?.Title as string | undefined,
-    author: (metadata?.info as any)?.Author as string | undefined,
+    title: (metadata?.info as Record<string, unknown> | undefined)?.Title as string | undefined,
+    author: (metadata?.info as Record<string, unknown> | undefined)?.Author as string | undefined,
   };
 
   return { pdf, info };
@@ -327,7 +327,6 @@ const blobToUint8Array = async (blob: Blob): Promise<Uint8Array> => {
  */
 export const createZipFromImages = async (
   images: ConvertedImage[],
-  baseName: string,
 ): Promise<Blob> => {
   const files: { [key: string]: Uint8Array } = {};
 

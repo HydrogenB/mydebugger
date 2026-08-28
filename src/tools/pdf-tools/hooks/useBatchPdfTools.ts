@@ -182,7 +182,7 @@ const useBatchPdfTools = (): UseBatchPdfToolsReturn => {
       if (row.operation === 'unlock' && row.unlockedBytes) {
         downloadFile(new Blob([row.unlockedBytes], { type: 'application/pdf' }), `${baseName}.pdf`);
       } else if (row.operation === 'to-image' && row.convertedImages) {
-        const zipBlob = await createZipFromImages(row.convertedImages, baseName);
+        const zipBlob = await createZipFromImages(row.convertedImages);
         downloadFile(zipBlob, `${baseName}_images.zip`);
       }
     },
