@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet';
+import { copyText } from '../../shared/utils/clipboard';
 
 // Contact Info Interface
 interface ContactInfo {
@@ -177,15 +178,19 @@ const useVirtualCard = () => {
 
   const copyLink = async () => {
     if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl);
-      setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      const copied = await copyText(shareUrl);
+      if (copied) {
+        setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      }
     }
   };
 
   const copyVcard = async () => {
     if (vcard) {
-      await navigator.clipboard.writeText(vcard);
-      setToastMessage('คัดลอกข้อมูลแล้ว! 📋 Info copied!');
+      const copied = await copyText(vcard);
+      if (copied) {
+        setToastMessage('คัดลอกข้อมูลแล้ว! 📋 Info copied!');
+      }
     }
   };
 
@@ -203,8 +208,10 @@ const useVirtualCard = () => {
       }
     }
     if (shareUrl) {
-      await navigator.clipboard.writeText(shareUrl);
-      setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      const copied = await copyText(shareUrl);
+      if (copied) {
+        setToastMessage('คัดลอกลิงก์แล้ว! 🔗 Link copied!');
+      }
     }
   };
 

@@ -63,3 +63,6 @@ coverage
 *.mov
 *.avi
 
+
+# SDD subagent workspace (ledger, briefs, review packages)
+.superpowers/

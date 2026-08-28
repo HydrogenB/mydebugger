@@ -8,6 +8,7 @@ import {
   LoadingSpinner
 } from '../../../design-system';
 import { useJwt } from '../context/JwtContext';
+import { copyText } from '../../../shared/utils/clipboard';
 
 interface JwkData {
   kty: string;
@@ -189,10 +190,11 @@ export const JwksProbe: React.FC = () => {
   };
 
   // Handle copy to clipboard
-  const handleCopy = (content: string, item: string) => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setCopiedItem(item);
+  const handleCopy = async (content: string, item: string) => {
+    if (await copyText(content)) {
+      setCopied(true);
+      setCopiedItem(item);
+    }
   };
   
   // Try loading from cached data first

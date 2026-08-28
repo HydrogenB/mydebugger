@@ -15,6 +15,7 @@ import {
   PushHeaders,
   FCMWebpushPayload
 } from '../lib/pushTester';
+import { copyText } from '../../../shared/utils/clipboard';
 
 export interface PushTesterState {
   support: PushSupport;
@@ -157,26 +158,18 @@ export const usePushTester = () => {
   };
 
   const copySubscription = async () => {
-    try {
-      if (!subscription) return;
-      await navigator.clipboard.writeText(JSON.stringify(subscription, null, 2));
-      log('Subscription JSON copied to clipboard');
-    } catch (error: any) {
-      log(`Copy failed: ${error.message}`);
-    }
+    if (!subscription) return;
+    const copied = await copyText(JSON.stringify(subscription, null, 2));
+    log(copied ? 'Subscription JSON copied to clipboard' : 'Copy failed: clipboard unavailable');
   };
 
   const copyPayload = async () => {
-    try {
-      const payloadToCopy = sendMode === 'fcm-v1' 
-        ? generateFCMPayload(payload, headers)
-        : { notification: payload, headers };
-      
-      await navigator.clipboard.writeText(JSON.stringify(payloadToCopy, null, 2));
-      log(`${sendMode} payload copied to clipboard`);
-    } catch (error: any) {
-      log(`Copy payload failed: ${error.message}`);
-    }
+    const payloadToCopy = sendMode === 'fcm-v1'
+      ? generateFCMPayload(payload, headers)
+      : { notification: payload, headers };
+
+    const copied = await copyText(JSON.stringify(payloadToCopy, null, 2));
+    log(copied ? `${sendMode} payload copied to clipboard` : 'Copy payload failed: clipboard unavailable');
   };
 
   const generateCurlExample = (): string => {
@@ -248,7 +241,11 @@ export const usePushTester = () => {
     }));
   };
 
-  const updateAction = (index: number, field: keyof typeof payload.actions[0], value: string) => {
+  const updateAction = (
+    index: number,
+    field: keyof NonNullable<typeof payload.actions>[number],
+    value: string,
+  ) => {
     const currentActions = payload.actions || [];
     const updatedActions = currentActions.map((action, i) => 
       i === index ? { ...action, [field]: value } : action

@@ -2,6 +2,7 @@
  * © 2025 MyDebugger Contributors – MIT License
  */
 import { useEffect, useState } from 'react';
+import { copyText } from '../../../shared/utils/clipboard';
 import {
   BasicCookie,
   ClientCookie,
@@ -71,12 +72,8 @@ export const useCookieInspector = () => {
   };
 
   const copy = async (text: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setToastMessage(`${label} copied!`);
-    } catch {
-      setToastMessage('Clipboard access denied');
-    }
+    const copied = await copyText(text);
+    setToastMessage(copied ? `${label} copied!` : 'Clipboard access denied');
   };
 
   useEffect(() => {

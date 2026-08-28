@@ -12,6 +12,7 @@ import {
   TracingPreset,
   ENGINE_INFO,
 } from '../lib/imageTracer';
+import { copyText } from '../../../shared/utils/clipboard';
 
 export interface ImageInfo {
   name: string;
@@ -95,20 +96,19 @@ export const useImageToSvg = () => {
     setError(null);
     setProgress(10);
 
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => Math.min(prev + 10, 80));
+    }, 200);
+
     try {
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 10, 80));
-      }, 200);
-
       const tracingResult = await traceImageFromFile(file, options);
-
-      clearInterval(progressInterval);
       setProgress(100);
       setResult(tracingResult);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to trace image');
     } finally {
+      clearInterval(progressInterval);
       setLoading(false);
     }
   }, [file, options]);
@@ -128,14 +128,8 @@ export const useImageToSvg = () => {
   }, [result, file]);
 
   const copySvg = useCallback(async () => {
-    if (!result) return;
-    
-    try {
-      await navigator.clipboard.writeText(result.svg);
-      return true;
-    } catch {
-      return false;
-    }
+    if (!result) return false;
+    return copyText(result.svg);
   }, [result]);
 
   const clear = useCallback(() => {

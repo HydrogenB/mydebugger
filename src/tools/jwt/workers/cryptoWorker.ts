@@ -32,6 +32,8 @@ export interface DecodedJwt {
   parsingWarnings?: string[];
 }
 
+import { isNoneAlgorithm } from '../utils/analyzer';
+
 export interface SecurityIssue {
   id: string;
   title: string;
@@ -500,8 +502,8 @@ export const verifyToken = async (token: string, key: string): Promise<boolean> 
 
     const alg = header.alg;
     
-    // Handle 'none' algorithm securely
-    if (alg === 'none') {
+    // Handle 'none' algorithm securely (case-insensitive: "None", "NONE", etc. must not verify)
+    if (isNoneAlgorithm(alg)) {
       return false; // Always consider 'none' algorithm as invalid for security reasons
     }
 
@@ -600,8 +602,8 @@ export const signToken = async (
     const payloadBase64 = base64UrlEncode(JSON.stringify(payload));
     const signedData = `${headerBase64}.${payloadBase64}`;
     
-    // Handle 'none' algorithm
-    if (alg === 'none') {
+    // Handle 'none' algorithm (case-insensitive: "None", "NONE", etc.)
+    if (isNoneAlgorithm(alg)) {
       return `${signedData}.`;
     }
     
@@ -773,8 +775,8 @@ export const analyzeToken = async (token: string): Promise<SecurityIssue[]> => {
         severity: 'high'
       });
     } else {
-      // Check for insecure algorithms
-      if (alg === 'none') {
+      // Check for insecure algorithms (case-insensitive: "None", "NONE", etc.)
+      if (isNoneAlgorithm(alg)) {
         issues.push({
           id: 'alg-none',
           title: 'Insecure "none" Algorithm',

@@ -20,6 +20,7 @@ export interface CompressedResult {
   blob: Blob;
   base64: string;
   info: ImageInfo;
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
 }
 
 /* eslint-disable no-param-reassign */
@@ -180,6 +181,7 @@ export const compressImageV2 = async (
       height: canvas.height,
       sizeKB: Math.round(blob.size / 1024),
     },
+    mimeType,
   };
 };
 
@@ -199,11 +201,14 @@ export const resizeImage = async (file: File, width: number, height: number): Pr
   const ctx = canvas.getContext('2d');
   canvas.width = Math.max(1, width);
   canvas.height = Math.max(1, height);
+  let url = '';
   try {
-    const img = await new Promise<HTMLImageElement>((resolve) => {
+    url = URL.createObjectURL(file);
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const i = new Image();
       i.onload = () => resolve(i);
-      i.src = URL.createObjectURL(file);
+      i.onerror = () => reject(new Error('Image failed to load'));
+      i.src = url;
     });
     if (ctx) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
   } catch {
@@ -211,6 +216,8 @@ export const resizeImage = async (file: File, width: number, height: number): Pr
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
+  } finally {
+    if (url) URL.revokeObjectURL(url);
   }
   return await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b || new Blob()), 'image/png'));
 };

@@ -17,6 +17,7 @@ interface Props {
   toggleAlignment: (i: number) => void;
   markdown: string;
   copyMarkdown: () => void;
+  copyStatus?: 'idle' | 'success' | 'error';
   downloadMarkdown: () => void;
   error: string;
 }
@@ -32,6 +33,7 @@ export function CsvtomdView({
   toggleAlignment,
   markdown,
   copyMarkdown,
+  copyStatus,
   downloadMarkdown,
   error,
 }: Props) {
@@ -94,6 +96,16 @@ export function CsvtomdView({
                 <Button size="sm" variant="secondary" onClick={downloadMarkdown}>
                   Download
                 </Button>
+                {copyStatus === 'success' && (
+                  <span role="status" className="text-xs text-green-600">
+                    Copied to clipboard.
+                  </span>
+                )}
+                {copyStatus === 'error' && (
+                  <span role="status" className="text-xs text-red-600">
+                    Could not copy to clipboard.
+                  </span>
+                )}
               </div>
             </>
           ) : (

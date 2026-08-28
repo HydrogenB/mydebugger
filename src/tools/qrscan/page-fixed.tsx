@@ -5,7 +5,7 @@ import React from 'react';
 import { ToolLayout } from '@design-system';
 import { getToolByRoute } from '../index';
 import useQrscan from './hooks/useQrscan';
-import QRScannerPanelFixed from './components/QRScannerPanelFixed';
+import ARScannerView from './components/ARScannerView';
 
 const QrscanPageFixed: React.FC = () => {
   const vm = useQrscan();
@@ -15,10 +15,10 @@ const QrscanPageFixed: React.FC = () => {
     <ToolLayout
       tool={tool!}
       title="QR Scanner"
-      description="Scan QR codes with live camera preview, import images, and manage a persistent scan history."
+      description="Fullscreen AR-style QR scanner with live engine performance telemetry. Tap to open decoded links instantly."
       showRelatedTools
     >
-      <QRScannerPanelFixed {...vm} />
+      <ARScannerView {...vm} />
     </ToolLayout>
   );
 };

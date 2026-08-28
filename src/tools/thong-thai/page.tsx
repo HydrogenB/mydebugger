@@ -144,6 +144,7 @@ const ThaiFlagStudio: React.FC = () => {
   const [gifQuality, setGifQuality] = useState(12); // gif.js quality (lower = better)
   const [isEncoding, setIsEncoding] = useState(false);
   const [encodeProgress, setEncodeProgress] = useState(0);
+  const [gifError, setGifError] = useState<string | null>(null);
   // Animation controls
   const [isPaused, setIsPaused] = useState(false);
   // Export DPI toggle
@@ -456,6 +457,7 @@ const ThaiFlagStudio: React.FC = () => {
     try {
       setIsEncoding(true);
       setEncodeProgress(0);
+      setGifError(null);
       await ensureGifLib();
 
       const frames = Math.max(1, Math.floor(gifDuration * gifFps));
@@ -502,7 +504,7 @@ const ThaiFlagStudio: React.FC = () => {
     } catch (e) {
       console.error(e);
       setIsEncoding(false);
-      alert("GIF encoding failed. Check console for details.");
+      setGifError("GIF encoding failed. Please try again.");
     }
   }, [gifDuration, gifFps, gifQuality, exportWidth, exportHeight, drawFlag, exportDpr]);
 
@@ -853,6 +855,12 @@ const ThaiFlagStudio: React.FC = () => {
                     )}
                   </div>
                 </details>
+
+                {gifError && (
+                  <div role="alert" style={{ marginTop: 10, fontSize: 13, color: "#ef4444" }}>
+                    {gifError}
+                  </div>
+                )}
 
                 <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                   <button

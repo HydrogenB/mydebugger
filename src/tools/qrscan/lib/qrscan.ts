@@ -1,10 +1,34 @@
 /**
- * ? 2025 MyDebugger Contributors � MIT License
+ * © 2025 MyDebugger Contributors – MIT License
  *
  * QR scanner utility helpers used by the QR Scan tool view-model.
+ *
+ * The camera path runs through a Web Worker via {@link startScanner} so the rAF
+ * preview loop on the main thread stays smooth. File decoding still uses ZXing
+ * because it covers non-QR formats (Code128, EAN, etc.) that the in-worker
+ * cascade does not.
  */
 import { BrowserMultiFormatReader, BrowserQRCodeReader, type IScannerControls } from '@zxing/browser';
 import type { Result } from '@zxing/library';
+
+// `torch` and `zoom` are Image Capture extensions to MediaTrackConstraintSet.
+// Chromium implements them; the DOM lib types do not declare them.
+declare global {
+  interface MediaTrackConstraintSet {
+    torch?: boolean;
+    zoom?: number;
+  }
+}
+
+import {
+  startScanner,
+  type DecodeAttemptMeta,
+  type ScannerHandle,
+} from './scannerController';
+
+export type { DecodeAttemptMeta } from './scannerController';
+export type { DecodeEngineName } from './qrCascade';
+import type { DecodeEngineName } from './qrCascade';
 
 export type VideoDevice = MediaDeviceInfo;
 
@@ -32,30 +56,46 @@ const createReader = (enableMultiFormat: boolean) =>
 export const listVideoInputDevices = async (): Promise<VideoDevice[]> =>
   BrowserQRCodeReader.listVideoInputDevices();
 
+const formatForEngine = (engine: DecodeEngineName): string => `${DEFAULT_FORMAT}:${engine}`;
+
+export interface StartQrScanOptions {
+  deviceId?: string;
+  /** Retained for API compatibility — camera path is QR-only; non-QR formats
+   * are still handled by {@link decodeFile}. */
+  enableMultiFormat?: boolean;
+  /** Fires after every worker reply (hit or miss) — use for a live HUD. */
+  onDecodeAttempt?: (meta: DecodeAttemptMeta) => void;
+  onError?: (error: Error) => void;
+  /** Crop the decode canvas to the centered square (matches the AR reticle).
+   * Speeds up decoding and focuses on what the user is aiming at. */
+  cropToCenterSquare?: boolean;
+}
+
 export const startQrScan = async (
   video: HTMLVideoElement,
-  onResult: (text: string, format?: string) => void,
-  deviceId?: string,
+  onResult: (text: string, format: string, decodeMs: number) => void,
+  deviceIdOrOptions?: string | StartQrScanOptions,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   enableMultiFormat: boolean = true,
 ): Promise<IScannerControls> => {
-  const reader = createReader(enableMultiFormat);
+  const options: StartQrScanOptions =
+    typeof deviceIdOrOptions === 'string' || deviceIdOrOptions === undefined
+      ? { deviceId: deviceIdOrOptions }
+      : deviceIdOrOptions;
 
-  if ('timeBetweenScansMillis' in reader) {
-    (reader as BrowserMultiFormatReader).timeBetweenScansMillis = 250;
-  }
-
-  const controls = await reader.decodeFromVideoDevice(
-    deviceId ?? undefined,
+  const handle: ScannerHandle = await startScanner({
     video,
-    (result) => {
-      if (result) {
-        const format = getFormatName(result, enableMultiFormat ? 'UNKNOWN' : DEFAULT_FORMAT);
-        onResult(result.getText(), format);
-      }
-    },
-  );
+    deviceId: options.deviceId,
+    onDecodeAttempt: options.onDecodeAttempt,
+    onError: options.onError,
+    cropToCenterSquare: options.cropToCenterSquare,
+    onResult: (text, engine, decodeMs) =>
+      onResult(text, formatForEngine(engine), decodeMs),
+  });
 
-  return controls;
+  return {
+    stop: () => handle.stop(),
+  } as IScannerControls;
 };
 
 export const stopQrScan = (controls: IScannerControls | undefined) => {

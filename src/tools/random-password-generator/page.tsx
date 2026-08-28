@@ -46,7 +46,8 @@ const RandomPasswordGeneratorPage: React.FC = () => {
       <ToolLayout
         tool={tool!}
         title="Random Password Generator"
-        description="Generate strong passwords, UUIDs, and cryptographic keys locally in your browser. Secure, fast, and copy with one click."
+        description="Seed randomness with your cursor. Passwords, UUIDs and keys are generated locally via Web Crypto — never transmitted."
+        showRelatedTools={false}
       >
         <GeneratorPanel />
       </ToolLayout>

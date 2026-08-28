@@ -74,6 +74,7 @@ import {
   PdfToImageIcon,
   CompassIcon,
   UnicodeAnalyzerIcon,
+  TlsCheckerIcon,
 } from "../design-system/icons/tool-icons";
 
 // Category definitions with icons for consistent UI
@@ -395,6 +396,37 @@ const toolRegistry: Tool[] = [
     uiOptions: {
       showExamples: false,
     },
+  },
+  {
+    id: "tls-checker",
+    route: "/tls-checker",
+    title: "TLS Checker",
+    description:
+      "Probe which SSL/TLS protocol versions a domain still accepts on port 443.",
+    longDescription:
+      "Connect to a host and attempt each SSL/TLS protocol version in isolation to find out which ones remain negotiable. Deprecated versions (SSL 2.0/3.0, TLS 1.0/1.1) are flagged in red so you can disable them; TLS 1.2 and 1.3 are highlighted as secure baselines.",
+    icon: TlsCheckerIcon,
+    component: lazy(() => import("./tls-checker/page")),
+    category: "Security",
+    isNew: true,
+    metadata: {
+      keywords: [
+        "tls",
+        "ssl",
+        "tls checker",
+        "tls version",
+        "tls 1.2",
+        "tls 1.3",
+        "deprecated tls",
+        "handshake",
+        "port 443",
+        "cipher",
+        "security",
+      ],
+      learnMoreUrl: "https://datatracker.ietf.org/doc/html/rfc8996",
+      relatedTools: ["header-scanner", "clickjacking-validator"],
+    },
+    uiOptions: { showExamples: false },
   },
   {
     id: "header-scanner",

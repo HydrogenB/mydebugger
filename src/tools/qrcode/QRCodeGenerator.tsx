@@ -4,7 +4,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { TOOL_PANEL_CLASS } from "@design-system";
-import { encodeUrlQueryParams } from "../url/lib/url";
 import { Helmet } from "react-helmet";
 import QRCodeStyling, {
   DotType,
@@ -12,10 +11,10 @@ import QRCodeStyling, {
   ErrorCorrectionLevel,
 } from "qr-code-styling";
 import { QR_PRESETS, getPresetByName } from "./lib/qrcodePresets";
-import { useLocation, useNavigate } from "react-router-dom";
-import { convertPngToPdf, QRDownloadFormat } from "./lib/qrcode";
+import { useLocation } from "react-router-dom";
 import { generateICalEvent } from "./lib/ical";
 import { useTranslation } from "../../context/TranslationContext";
+import { copyText } from "../../shared/utils/clipboard";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -32,14 +31,19 @@ interface SavedQRCode {
   };
 }
 
+interface SelectionContextMenu {
+  x: number;
+  y: number;
+  start: number;
+  end: number;
+}
+
 const DeepLinkQRGenerator: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
   const initialLink = searchParams.get("link") || "";
 
   const [input, setInput] = useState<string>(initialLink);
-  const [encodedLink, setEncodedLink] = useState<string>("");
   const [size, setSize] = useState<number>(256);
   const [errorCorrection, setErrorCorrection] = useState<ErrorCorrectionLevel>(
     "M",
@@ -59,12 +63,11 @@ const DeepLinkQRGenerator: React.FC = () => {
   const { t, language } = useTranslation();
   const [isRunningLink, setIsRunningLink] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string>("");
-  const [downloadFormat, setDownloadFormat] = useState<QRDownloadFormat>('png');
   const [showCosmeticOptions, setShowCosmeticOptions] =
     useState<boolean>(false);
-  const [autoEncode, setAutoEncode] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileOS, setMobileOS] = useState<string>("");
+  const [contextMenu, setContextMenu] = useState<SelectionContextMenu | null>(null);
 
   // QR type state
   const [qrType, setQrType] = useState<string>('link');
@@ -88,17 +91,11 @@ const DeepLinkQRGenerator: React.FC = () => {
 
   // Collection related state
   const [savedQRCodes, setSavedQRCodes] = useState<SavedQRCode[]>([]);
-  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
-  const [nickname, setNickname] = useState<string>("");
-
-  // Large QR code modal state
-  const [showLargeQRModal, setShowLargeQRModal] = useState<boolean>(false);
 
   const qrRef = useRef<HTMLDivElement>(null);
   const qrInstanceRef = useRef<QRCodeStyling | null>(null);
   const qrUrlRef = useRef<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
 
   const getQRData = useCallback(() => {
     switch (qrType) {
@@ -113,12 +110,11 @@ const DeepLinkQRGenerator: React.FC = () => {
       case 'calendar':
         return icalText;
       default:
-        return autoEncode ? encodeUrlQueryParams(input) : input;
+        return input;
     }
   }, [
     qrType,
     input,
-    autoEncode,
     wifiEncryption,
     wifiSsid,
     wifiPassword,
@@ -126,6 +122,56 @@ const DeepLinkQRGenerator: React.FC = () => {
     geoLng,
     icalText,
   ]);
+
+  const handleInputContextMenu = (
+    event: React.MouseEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { currentTarget } = event;
+    const start = currentTarget.selectionStart ?? 0;
+    const end = currentTarget.selectionEnd ?? 0;
+    if (start === end) return;
+
+    event.preventDefault();
+    setContextMenu({ x: event.clientX, y: event.clientY, start, end });
+  };
+
+  const handleSelectedTextTransform = (mode: 'encode' | 'decode') => {
+    if (!contextMenu) return;
+
+    try {
+      const selected = input.slice(contextMenu.start, contextMenu.end);
+      const transformed = mode === 'encode'
+        ? encodeURIComponent(selected)
+        : decodeURIComponent(selected);
+      setInput(
+        `${input.slice(0, contextMenu.start)}${transformed}${input.slice(contextMenu.end)}`,
+      );
+    } catch {
+      setToastMessage(
+        mode === 'decode'
+          ? 'Selected text is not valid encoded text.'
+          : 'Selected text could not be encoded.',
+      );
+    } finally {
+      setContextMenu(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!contextMenu) return;
+
+    const closeContextMenu = () => setContextMenu(null);
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeContextMenu();
+    };
+
+    document.addEventListener('click', closeContextMenu);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('click', closeContextMenu);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [contextMenu]);
 
   // Check if device is mobile and load saved QR codes
   useEffect(() => {
@@ -159,8 +205,6 @@ const DeepLinkQRGenerator: React.FC = () => {
         setGradientAngle(options.gradientAngle || 0);
         setLogoSize(options.logoSize || 20);
         setShowCosmeticOptions(options.showCosmeticOptions || false);
-        setAutoEncode(options.autoEncode !== false);
-        setDownloadFormat(options.downloadFormat || 'png');
       } catch (error) {
         console.error("Error loading saved options:", error);
       }
@@ -179,16 +223,13 @@ const DeepLinkQRGenerator: React.FC = () => {
     // Handle URL query parameter for link
     if (initialLink) {
       try {
-        // First try to decode the URL in case it's already URL encoded
-        const decodedLink = decodeURIComponent(initialLink);
-
         // Ensure the link has a valid protocol by trying to parse it
         try {
-          const url = new URL(decodedLink);
-          setInput(decodedLink);
+          new URL(initialLink);
+          setInput(initialLink);
         } catch {
           // If no protocol, add https:// prefix
-          setInput(`https://${decodedLink}`);
+          setInput(`https://${initialLink}`);
         }
       } catch (error) {
         console.error("Invalid URL:", error);
@@ -214,8 +255,6 @@ const DeepLinkQRGenerator: React.FC = () => {
           gradientAngle,
           logoSize,
           showCosmeticOptions,
-          autoEncode,
-          downloadFormat,
         }),
       );
     } catch (error) {
@@ -233,8 +272,6 @@ const DeepLinkQRGenerator: React.FC = () => {
     gradientAngle,
     logoSize,
     showCosmeticOptions,
-    autoEncode,
-    downloadFormat,
   ]);
 
   // Build iCal text when calendar fields change
@@ -281,11 +318,6 @@ const DeepLinkQRGenerator: React.FC = () => {
   // Generate QR code when input or properties change
   useEffect(() => {
     const data = getQRData();
-    if (qrType === 'link' && input) {
-      setEncodedLink(data);
-    } else {
-      setEncodedLink('');
-    }
 
     if (data) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -318,7 +350,6 @@ const DeepLinkQRGenerator: React.FC = () => {
     gradientAngle,
     logoDataUrl,
     logoSize,
-    autoEncode,
     icalText,
   ]);
 
@@ -394,28 +425,14 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   };
 
-  const copyToClipboard = useCallback((text: string, message: string) => {
-    try {
-      navigator.clipboard.writeText(text);
-      setToastMessage(message);
-    } catch (error) {
-      console.error("Clipboard error:", error);
-      setToastMessage(
-        "Clipboard access denied. Please update your browser permissions.",
-      );
-    }
+  const copyToClipboard = useCallback(async (text: string, message: string) => {
+    const copied = await copyText(text);
+    setToastMessage(
+      copied
+        ? message
+        : "Clipboard access denied. Please update your browser permissions.",
+    );
   }, []);
-
-  const handleCopyEncodedLink = () => {
-    if (!encodedLink) return;
-    copyToClipboard(encodedLink, "Encoded link copied!");
-  };
-
-  const handleCopyRawLink = () => {
-    const text = qrType === 'link' ? input : getQRData();
-    if (!text) return;
-    copyToClipboard(text, 'Link copied!');
-  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -427,115 +444,13 @@ const DeepLinkQRGenerator: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleCopyQRAsImage = async () => {
-    if (!qrInstanceRef.current) return;
-
-    try {
-      const blob = (await qrInstanceRef.current.getRawData("png")) as Blob;
-      if (!blob) return;
-
-      // Try to use the clipboard API for images if supported
-      if (navigator.clipboard && navigator.clipboard.write) {
-        const item: Record<string, Blob> = { [blob.type]: blob };
-        const clipboardItem = new ClipboardItem(item);
-        await navigator.clipboard.write([clipboardItem]);
-        setToastMessage("QR image copied to clipboard!");
-      } else {
-        // Fallback - create a temp link and download
-        const link = document.createElement("a");
-        const sanitizedName = getQRData().substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-');
-        link.download = `qrcode-${sanitizedName}.png`;
-        link.href = URL.createObjectURL(blob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setToastMessage(
-          "QR image downloaded (copy not supported in this browser)",
-        );
-      }
-    } catch (error) {
-      console.error("Error copying QR:", error);
-      handleDownloadQR();
-      setToastMessage("Image copy failed - downloaded instead");
-    }
-  };
-
-  const handleDownloadQR = async () => {
-    if (!qrInstanceRef.current || !getQRData()) return;
-    if (downloadFormat === 'svg') {
-      const name = `qrcode-${getQRData().substring(0, 15).replace(/[^a-zA-Z0-9]/g, '-')}`;
-      await qrInstanceRef.current.download({ name, extension: 'svg' });
-      setToastMessage('QR code downloaded!');
-      return;
-    }
-
-    const blob = (await qrInstanceRef.current.getRawData('png')) as Blob;
-    if (!blob) return;
-
-    const img = new Image();
-    const url = URL.createObjectURL(blob);
-    img.src = url;
-    img.onload = async () => {
-      const tempCanvas = document.createElement('canvas');
-      const ctx = tempCanvas.getContext('2d');
-
-      const padding = 20;
-      tempCanvas.width = size + padding * 2;
-      tempCanvas.height = size + padding * 3 + 20;
-
-      if (ctx) {
-        ctx.fillStyle = lightColor;
-        ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-        ctx.drawImage(img, padding, padding, size, size);
-
-        ctx.font = '12px Arial';
-        ctx.fillStyle = '#333333';
-        ctx.textAlign = 'center';
-        const raw = qrType === 'link' ? input : getQRData();
-        const displayText = raw.length > 50 ? `${raw.substring(0, 47)}...` : raw;
-        ctx.fillText(displayText, tempCanvas.width / 2, size + padding * 2);
-
-        ctx.font = '10px Arial';
-        ctx.fillStyle = '#666666';
-        ctx.fillText('Generated with MyDebugger QR Tool', tempCanvas.width / 2, size + padding * 2 + 15);
-      }
-
-      const sanitized = getQRData()
-        .substring(0, 15)
-        .replace(/[^a-zA-Z0-9]/g, '-');
-      const dataUrl = tempCanvas.toDataURL('image/png');
-      if (downloadFormat === 'pdf') {
-        const resp = await fetch(dataUrl);
-        const pngBlob = await resp.blob();
-        const pdfBlob = await convertPngToPdf(pngBlob);
-        const link = document.createElement('a');
-        link.download = `qrcode-${sanitized}.pdf`;
-        link.href = URL.createObjectURL(pdfBlob);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      } else {
-        const link = document.createElement('a');
-        link.download = `qrcode-${sanitized}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-      URL.revokeObjectURL(url);
-      setToastMessage('QR code downloaded!');
-    };
-  };
-
   const handleRunLink = () => {
     if (qrType !== 'link' || !input) return;
 
     setIsRunningLink(true);
     setTimeout(() => {
       try {
-        const linkToOpen = autoEncode ? encodeUrlQueryParams(input) : input;
-        window.location.href = linkToOpen;
+        window.location.href = input;
       } catch (error) {
         console.error("Error opening link:", error);
         setToastMessage("Error opening link");
@@ -554,10 +469,8 @@ const DeepLinkQRGenerator: React.FC = () => {
       // Reset any existing search parameters
       currentUrl.search = "";
 
-      // Add the properly encoded link parameter
-      const shareLink = autoEncode ? encodeUrlQueryParams(input) : input;
-      const encodedLink = encodeURIComponent(shareLink);
-      currentUrl.searchParams.set("link", encodedLink);
+      // URLSearchParams handles encoding for the share URL without changing the link itself.
+      currentUrl.searchParams.set("link", input);
 
       // Copy the full URL to clipboard
       copyToClipboard(
@@ -571,70 +484,6 @@ const DeepLinkQRGenerator: React.FC = () => {
   };
 
   // removed legacy style preset dropdown in favor of a single, modern preset selector
-
-  const handleReset = () => {
-    setInput("");
-    setIsRunningLink(false);
-    setWifiSsid('');
-    setWifiPassword('');
-    setGeoLat('');
-    setGeoLng('');
-    setQrType('link');
-
-    // Don't reset cosmetic options as they're persistent
-    // Instead update the URL to remove the link param
-    navigate("/qrcode", { replace: true });
-  };
-
-  // Save QR code to collection
-  const handleSaveToCollection = () => {
-    if (!getQRData() || !qrCodeUrl) return;
-    setShowSaveModal(true);
-    if (qrType === 'link') {
-      try {
-        const domain = new URL(input).hostname || input.split('/')[0];
-        setNickname(domain || 'My QR Code');
-      } catch {
-        setNickname('My QR Code');
-      }
-    } else {
-      setNickname('My QR Code');
-    }
-  };
-
-  // Save QR code with nickname to collection
-  const handleConfirmSave = () => {
-    if (!input || !qrCodeUrl) return;
-
-    const newCode: SavedQRCode = {
-      id: `qr-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      url: getQRData(),
-      nickname: nickname || "My QR Code",
-      createdAt: Date.now(),
-      qrCodeUrl,
-      settings: {
-        size,
-        errorCorrection,
-        darkColor,
-        lightColor,
-      },
-    };
-
-    const updatedCollection = [...savedQRCodes, newCode];
-    setSavedQRCodes(updatedCollection);
-
-    // Save to localStorage
-    try {
-      localStorage.setItem("savedQRCodes", JSON.stringify(updatedCollection));
-      setToastMessage("QR code saved to collection!");
-    } catch (error) {
-      console.error("Error saving to collection:", error);
-      setToastMessage("Error saving QR code");
-    }
-
-    setShowSaveModal(false);
-    setNickname("");
-  };
 
   // Load QR code from collection
   const handleLoadFromCollection = (saved: SavedQRCode) => {
@@ -661,29 +510,7 @@ const DeepLinkQRGenerator: React.FC = () => {
     }
   };
 
-  // Show large QR code
-  const handleShowLargeQR = () => {
-    if (!qrCodeUrl) return;
-    setShowLargeQRModal(true);
-  };
-
-  // Close modal when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        setShowSaveModal(false);
-        setShowLargeQRModal(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [modalRef]);
-
   // SEO metadata
-  const pageTitle = t("tools.qrcode-generator.title", "Deep-Link Tester & QR Generator") + " | MyDebugger";
   const pageDescription = t(
     "tools.qrcode-generator.description",
     "Generate QR codes for links & deeplinks, test them directly and share with your team."
@@ -704,7 +531,7 @@ const DeepLinkQRGenerator: React.FC = () => {
         />
         <meta
           property="og:description"
-          content={t('qrcode.meta.og', 'Create deep link QR codes, auto-encode safe URLs, and run links on devices. Built for modern teams.')}
+          content={t('qrcode.meta.og', 'Create deep link QR codes and run links on devices. Built for modern teams.')}
         />
         <meta property="og:image" content="/og-deeplink-preview.png" />
         <meta name="twitter:card" content="summary_large_image" />
@@ -740,9 +567,8 @@ const DeepLinkQRGenerator: React.FC = () => {
         </script>
       </Helmet>
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-2">{t('tools.qrcode-generator.title', 'Deep-Link Tester & QR Generator')}</h1>
-        <p className="text-gray-600 mb-8">{t('qrcode.lede', 'Generate QR codes for any URL or deeplink. Auto-encode queries, preview safe links, and test instantly on your device.')}</p>
+      <div className="container mx-auto px-4 py-5 sm:py-6">
+        <p className="text-sm text-gray-600 mb-4">{t('qrcode.lede', 'Generate QR codes for any URL or deeplink, preview safe links, and test instantly on your device.')}</p>
 
         {/* Toast Message */}
         {toastMessage && (
@@ -751,18 +577,46 @@ const DeepLinkQRGenerator: React.FC = () => {
           </div>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-6 mb-8">
-          {/* Input Section */}
-          <div className="flex-1">
-            <div
-              className={`border border-gray-200 ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
+        {contextMenu && (
+          <div
+            role="menu"
+            aria-label="Text actions"
+            tabIndex={-1}
+            className="fixed z-[60] min-w-44 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-xl"
+            style={{
+              left: `${Math.max(8, Math.min(contextMenu.x, window.innerWidth - 184))}px`,
+              top: `${Math.max(8, Math.min(contextMenu.y, window.innerHeight - 88))}px`,
+            }}
+          >
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => handleSelectedTextTransform('encode')}
             >
-              <label htmlFor="qrType" className="block font-medium text-gray-700 mb-2">
+              Encode selected
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => handleSelectedTextTransform('decode')}
+            >
+              Decode selected
+            </button>
+          </div>
+        )}
+
+        <div className={`${TOOL_PANEL_CLASS.replace("p-6", "p-4")} flex flex-col gap-4 mb-5`}>
+          {/* Input Section */}
+          <div className="order-2">
+            <div>
+              <label htmlFor="qrType" className="block font-medium text-gray-700 mb-1">
                 {t('qrcode.type', 'QR Code Type')}
               </label>
               <select
                 id="qrType"
-                className="w-full rounded-md border-gray-300 mb-4"
+                className="w-full rounded-md border-gray-300 mb-3"
                 value={qrType}
                 onChange={(e) => setQrType(e.target.value)}
               >
@@ -776,15 +630,16 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'link' && (
                 <>
-                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-1">
                     {t('qrcode.urlOrDeeplink', 'URL or Deeplink')}
                   </label>
-                  <input
-                    type="text"
+                  <textarea
                     id="input"
-                    className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2"
+                    rows={4}
+                    className="w-full min-h-32 resize-y rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mb-2 font-mono text-sm leading-6"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    onContextMenu={handleInputContextMenu}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -794,21 +649,12 @@ const DeepLinkQRGenerator: React.FC = () => {
                     placeholder="https://example.com/"
                     autoFocus
                   />
-                  <label className="inline-flex items-center mb-2">
-                    <input
-                      type="checkbox"
-                      className="form-checkbox h-5 w-5 text-blue-500"
-                      checked={autoEncode}
-                      onChange={(e) => setAutoEncode(e.target.checked)}
-                    />
-                    <span className="ml-2 text-sm text-gray-700">{t('qrcode.autoEncode', 'Auto‑encode query params')}</span>
-                  </label>
                 </>
               )}
 
               {qrType === 'text' && (
                 <>
-                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-1">
                     Text
                   </label>
                   <textarea
@@ -824,7 +670,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'phone' && (
                 <>
-                  <label htmlFor="input" className="block font-medium text-gray-700 mb-2">
+                  <label htmlFor="input" className="block font-medium text-gray-700 mb-1">
                     Phone Number
                   </label>
                   <input
@@ -840,7 +686,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'wifi' && (
                 <>
-                  <label className="block font-medium text-gray-700 mb-2">SSID</label>
+                  <label className="block font-medium text-gray-700 mb-1">SSID</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -848,14 +694,14 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setWifiSsid(e.target.value)}
                     placeholder="MyWiFi"
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Password</label>
+                  <label className="block font-medium text-gray-700 mb-1">Password</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
                     value={wifiPassword}
                     onChange={(e) => setWifiPassword(e.target.value)}
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Encryption</label>
+                  <label className="block font-medium text-gray-700 mb-1">Encryption</label>
                   <select
                     className="w-full rounded-md border-gray-300 mb-2"
                     value={wifiEncryption}
@@ -870,7 +716,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'geo' && (
                 <>
-                  <label className="block font-medium text-gray-700 mb-2">Latitude</label>
+                  <label className="block font-medium text-gray-700 mb-1">Latitude</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -878,7 +724,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setGeoLat(e.target.value)}
                     placeholder="13.7563"
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Longitude</label>
+                  <label className="block font-medium text-gray-700 mb-1">Longitude</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -891,7 +737,7 @@ const DeepLinkQRGenerator: React.FC = () => {
 
               {qrType === 'calendar' && (
                 <>
-                  <label className="block font-medium text-gray-700 mb-2">Event Title</label>
+                  <label className="block font-medium text-gray-700 mb-1">Event Title</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -899,7 +745,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setCalTitle(e.target.value)}
                     placeholder="Team Meeting"
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Location</label>
+                  <label className="block font-medium text-gray-700 mb-1">Location</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -907,7 +753,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setCalLocation(e.target.value)}
                     placeholder="Room 5B"
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Description</label>
+                  <label className="block font-medium text-gray-700 mb-1">Description</label>
                   <textarea
                     rows={2}
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -915,9 +761,9 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setCalDescription(e.target.value)}
                     placeholder="Meeting agenda and notes"
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block font-medium text-gray-700 mb-2">Start Date &amp; Time</label>
+                      <label className="block font-medium text-gray-700 mb-1">Start Date &amp; Time</label>
                       <input
                         type="datetime-local"
                         className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -926,7 +772,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block font-medium text-gray-700 mb-2">End Date &amp; Time</label>
+                      <label className="block font-medium text-gray-700 mb-1">End Date &amp; Time</label>
                       <input
                         type="datetime-local"
                         className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -935,7 +781,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                       />
                     </div>
                   </div>
-                  <label className="block font-medium text-gray-700 mb-2">Timezone</label>
+                  <label className="block font-medium text-gray-700 mb-1">Timezone</label>
                   <select
                     className="w-full rounded-md border-gray-300 mb-2"
                     value={calTimezone}
@@ -945,7 +791,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     <option value="Asia/Bangkok">Asia/Bangkok</option>
                     <option value="America/New_York">America/New_York</option>
                   </select>
-                  <label className="block font-medium text-gray-700 mb-2">UID (optional)</label>
+                  <label className="block font-medium text-gray-700 mb-1">UID (optional)</label>
                   <input
                     type="text"
                     className="w-full rounded-md border-gray-300 shadow-sm mb-2"
@@ -953,7 +799,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     onChange={(e) => setCalUid(e.target.value)}
                     placeholder="auto-generated if blank"
                   />
-                  <label className="block font-medium text-gray-700 mb-2">Alarm Reminder</label>
+                  <label className="block font-medium text-gray-700 mb-1">Alarm Reminder</label>
                   <select
                     className="w-full rounded-md border-gray-300 mb-2"
                     value={calAlarm}
@@ -964,7 +810,7 @@ const DeepLinkQRGenerator: React.FC = () => {
                     <option>15 minutes before</option>
                     <option>1 hour before</option>
                   </select>
-                  <div className="mt-4">
+                  <div className="mt-3">
                     <h3 className="font-semibold mb-1">iCal Output</h3>
                     <textarea
                       readOnly
@@ -1000,194 +846,79 @@ const DeepLinkQRGenerator: React.FC = () => {
                 </>
               )}
 
-              {/* Encoded URL Display */}
-              {qrType === 'link' && encodedLink && (
-                <div className="mt-2 mb-4">
-                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('qrcode.encoded', 'Percent‑Encoded (Safe for Sharing)')}</label>
-                  <div className="flex">
-                    <input
-                      type="text"
-                      readOnly
-                      value={encodedLink}
-                      onFocus={(e) => e.target.select()}
-                      onClick={handleCopyEncodedLink}
-                      className="flex-1 bg-gray-50 rounded-md border border-gray-300 p-2 text-sm text-gray-600 break-all cursor-copy"
-                    />
-                    <button
-                      onClick={handleCopyEncodedLink}
-                      className="ml-2 px-3 flex-shrink-0 rounded-md bg-gray-200 hover:bg-gray-300 transition"
-                      title="Copy encoded link"
-                    >
-                      <svg
-                        className="h-6 w-6 text-gray-700"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-                <button
-                  onClick={handleCopyRawLink}
-                  disabled={!getQRData()}
-                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
-                    getQRData()
-                      ? 'bg-blue-500 hover:bg-blue-600'
-                      : 'bg-gray-300 cursor-not-allowed'
-                  }`}
-                >
-                  <svg
-                    className="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"
-                    />
-                  </svg>
-                  {t('qrcode.buttons.copyRawLink', 'Copy Raw Link')}
-                </button>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                 {qrType === 'link' && (
-                <button
-                  onClick={handleSharePageWithLink}
-                  disabled={!input}
-                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
-                    input
-                      ? "bg-indigo-500 hover:bg-indigo-600"
-                      : "bg-gray-300 cursor-not-allowed"
-                  }`}
-                >
-                  <svg
-                    className="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  <button
+                    onClick={handleSharePageWithLink}
+                    disabled={!input}
+                    className={`flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-white transition ${
+                      input
+                        ? "bg-indigo-500 hover:bg-indigo-600"
+                        : "bg-gray-300 cursor-not-allowed"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                    />
-                  </svg>
-                  {t('qrcode.buttons.sharePage', 'Share Page with Link Pre‑filled')}
-                </button>
+                    <svg
+                      className="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                      />
+                    </svg>
+                    {t('qrcode.buttons.sharePage', 'Share Page with Link Pre‑filled')}
+                  </button>
                 )}
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {qrType === 'link' && (
-                <button
-                  onClick={handleRunLink}
-                  disabled={!input}
-                  className={`flex items-center justify-center px-4 py-2 rounded-md text-white transition ${
-                    input
-                      ? "bg-green-500 hover:bg-green-600"
-                      : "bg-gray-300 cursor-not-allowed"
-                  }`}
-                >
-                  <svg
-                    className="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  <button
+                    onClick={handleRunLink}
+                    disabled={!input}
+                    className={`flex items-center justify-center px-3 py-1.5 text-sm rounded-md text-white transition ${
+                      input
+                        ? "bg-green-500 hover:bg-green-600"
+                        : "bg-gray-300 cursor-not-allowed"
+                    }`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  {isRunningLink
-                    ? t('qrcode.buttons.opening', 'Opening...')
-                    : isMobile
-                      ? `${t('qrcode.buttons.openOn', 'Open on')} ${mobileOS || t('qrcode.buttons.device','Device')}`
-                      : t('qrcode.buttons.runOnThisDevice', 'Run on This Device')}
-                </button>
+                    <svg
+                      className="h-5 w-5 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {isRunningLink
+                      ? t('qrcode.buttons.opening', 'Opening...')
+                      : isMobile
+                        ? `${t('qrcode.buttons.openOn', 'Open on')} ${mobileOS || t('qrcode.buttons.device','Device')}`
+                        : t('qrcode.buttons.runOnThisDevice', 'Run on This Device')}
+                  </button>
                 )}
-                <button
-                  onClick={handleReset}
-                  className="flex items-center justify-center px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
-                >
-                  <svg
-                    className="h-5 w-5 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  {t('qrcode.buttons.reset', 'Reset')}
-                </button>
-              </div>
-
-              {/* Prominent Style Preset outside accordion */}
-              <div className="mt-6">
-                <label
-                  htmlFor="preset-main"
-                  className="block text-base font-semibold text-gray-800 dark:text-gray-100 mb-2"
-                >
-                  {t('qrcode.stylePreset', 'Style Preset')}
-                </label>
-                <select
-                  id="preset-main"
-                  className="w-full h-12 text-base rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
-                  value={selectedPreset || ""}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setSelectedPreset(val || null);
-                    const preset = getPresetByName(val);
-                    if (preset) {
-                      setDarkColor(preset.darkColor);
-                      setLightColor(preset.lightColor);
-                      setDotStyle(preset.dotStyle);
-                      setEyeStyle(preset.eyeStyle);
-                      setGradientStart(preset.gradient?.start || preset.darkColor);
-                      setGradientEnd(preset.gradient?.end || preset.darkColor);
-                      setGradientAngle(preset.gradient?.angle || 0);
-                    }
-                  }}
-                >
-                  <option value="">{t('qrcode.custom', 'Custom...')}</option>
-                  {QR_PRESETS.map((p) => (
-                    <option key={p.name} value={p.name}>{p.name}</option>
-                  ))}
-                </select>
               </div>
 
               {/* Collapsible Cosmetic Options */}
               <details
-                className="mt-6 group"
+                className="mt-4 group"
                 open={showCosmeticOptions}
               >
                 <summary
-                  className="summary-no-marker flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition text-md font-medium text-gray-700"
+                  className="summary-no-marker flex items-center justify-between p-2.5 rounded-lg bg-gray-50 dark:bg-gray-900/40 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition text-sm font-medium text-gray-700"
                   onClick={(e) => {
                     e.preventDefault();
                     setShowCosmeticOptions(!showCosmeticOptions);
@@ -1207,12 +938,44 @@ const DeepLinkQRGenerator: React.FC = () => {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                    {t('qrcode.customize', 'Customize QR Code')}
+                    {t('qrcode.advanced', 'Advanced options')}
                   </span>
                 </summary>
 
-                <div className="pt-4 rounded-xl border border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800 shadow-sm">
-                  <div className="grid grid-cols-1 gap-4">
+                <div className="pt-3 rounded-xl border border-gray-200 dark:border-gray-700 p-3 bg-white dark:bg-gray-800 shadow-sm">
+                  <div className="mb-3">
+                    <label
+                      htmlFor="preset-main"
+                      className="block text-sm font-semibold text-gray-800 dark:text-gray-100 mb-1"
+                    >
+                      {t('qrcode.stylePreset', 'Style Preset')}
+                    </label>
+                    <select
+                      id="preset-main"
+                      className="w-full h-10 text-sm rounded-lg border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200"
+                      value={selectedPreset || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectedPreset(val || null);
+                        const preset = getPresetByName(val);
+                        if (preset) {
+                          setDarkColor(preset.darkColor);
+                          setLightColor(preset.lightColor);
+                          setDotStyle(preset.dotStyle);
+                          setEyeStyle(preset.eyeStyle);
+                          setGradientStart(preset.gradient?.start || preset.darkColor);
+                          setGradientEnd(preset.gradient?.end || preset.darkColor);
+                          setGradientAngle(preset.gradient?.angle || 0);
+                        }
+                      }}
+                    >
+                      <option value="">{t('qrcode.custom', 'Custom...')}</option>
+                      {QR_PRESETS.map((p) => (
+                        <option key={p.name} value={p.name}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
                   {/* Legacy preset selector removed. The main preset selector below is now the primary control. */}
 
                   <div>
@@ -1382,33 +1145,29 @@ const DeepLinkQRGenerator: React.FC = () => {
           </div>
 
           {/* QR Code Output Section */}
-          <div className="flex-1">
-            <div
-              className={`border border-gray-200 h-full flex flex-col ${TOOL_PANEL_CLASS.replace("p-6", "p-5")}`}
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">{t('qrcode.preview', 'QR Code Preview')}</h2>
+          <div className="order-1 lg:sticky lg:top-4">
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center mb-3">
+                <h2 className="text-lg font-semibold">{t('qrcode.preview', 'QR Code Preview')}</h2>
               </div>
 
-              <div className="flex-1 flex flex-col items-center justify-center p-4 rounded bg-gray-50 border border-gray-100 mb-4">
+              <div className="flex flex-col items-center justify-center p-3 rounded bg-gray-50 border border-gray-100 mb-3">
                 {qrCodeUrl ? (
                   <>
                     <img
                       src={qrCodeUrl}
                       alt={`QR Code for: ${input}`}
-                      className="mb-4 max-w-full cursor-pointer hover:opacity-90 transition"
+                      className="mb-2 max-w-full"
                       style={{ maxHeight: `${size}px`, height: "auto" }}
-                      onClick={handleShowLargeQR}
-                      title="Click to view larger size"
                     />
-                    <div className="text-xs text-center text-gray-500 break-all mt-2 px-4">
-                      {input.length > 50 ? `${input.slice(0, 47)}...` : input}
+                    <div className="text-xs text-center text-gray-500 break-all mt-1 px-2">
+                      {input}
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-60 text-gray-400">
+                  <div className="flex flex-col items-center justify-center h-48 text-gray-400">
                     <svg
-                      className="h-16 w-16 mb-2"
+                      className="h-12 w-12 mb-2"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -1426,92 +1185,18 @@ const DeepLinkQRGenerator: React.FC = () => {
               </div>
 
               <div ref={qrRef} className="hidden" />
-
-              {/* QR Actions */}
-              {qrCodeUrl && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={handleCopyQRAsImage}
-                    className="flex items-center justify-center px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
-                  >
-                    <svg
-                      className="h-5 w-5 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
-                    {t('qrcode.buttons.copyImage', 'Copy QR Image')}
-                  </button>
-                  <div className="flex gap-2">
-                    <select
-                      value={downloadFormat}
-                      onChange={(e) => setDownloadFormat(e.target.value as QRDownloadFormat)}
-                      className="rounded-md border-gray-300"
-                    >
-                      <option value="png">PNG</option>
-                      <option value="svg">SVG</option>
-                      <option value="pdf">PDF</option>
-                    </select>
-                    <button
-                      onClick={handleDownloadQR}
-                      className="flex items-center justify-center px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 text-white transition"
-                    >
-                      <svg
-                        className="h-5 w-5 mr-2"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                        />
-                      </svg>
-                      {t('qrcode.buttons.download', 'Download')}
-                    </button>
-                  </div>
-                  <button
-                    onClick={handleSaveToCollection}
-                    className="flex items-center justify-center px-4 py-2 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white transition"
-                  >
-                    <svg
-                      className="h-5 w-5 mr-2"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {t('qrcode.buttons.save', 'Save to My Collection')}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
 
         {/* Usage Tips */}
-        <div className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">{t('qrcode.tips', 'Deep‑Link Testing Tips')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <div className="text-blue-500 mb-3">
+        <div className="mt-5 border-t border-gray-200 pt-4">
+          <h2 className="text-lg font-semibold mb-3">{t('qrcode.tips', 'Deep‑Link Testing Tips')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <div className="text-blue-500 mb-2">
                 <svg
-                  className="h-8 w-8"
+                  className="h-7 w-7"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1530,10 +1215,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                 the QR code with a phone that has the app installed.
               </p>
             </div>
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <div className="text-blue-500 mb-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <div className="text-blue-500 mb-2">
                 <svg
-                  className="h-8 w-8"
+                  className="h-7 w-7"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1552,10 +1237,10 @@ const DeepLinkQRGenerator: React.FC = () => {
                 link to teammates with the QR already configured.
               </p>
             </div>
-            <div className="bg-white p-4 rounded-md border border-gray-200">
-              <div className="text-blue-500 mb-3">
+            <div className="bg-white p-3 rounded-md border border-gray-200">
+              <div className="text-blue-500 mb-2">
                 <svg
-                  className="h-8 w-8"
+                  className="h-7 w-7"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -1578,8 +1263,8 @@ const DeepLinkQRGenerator: React.FC = () => {
         </div>
 
         {/* Related Debugging Tools */}
-        <section className="mt-8 border-t border-gray-200 pt-6">
-          <h2 className="text-xl font-semibold mb-4">
+        <section className="mt-5 border-t border-gray-200 pt-4">
+          <h2 className="text-lg font-semibold mb-3">
             Related Debugging Tools
           </h2>
           <ul className="list-disc list-inside space-y-1">
@@ -1601,75 +1286,6 @@ const DeepLinkQRGenerator: React.FC = () => {
             </li>
           </ul>
         </section>
-
-        {/* Save Modal */}
-        {showSaveModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              ref={modalRef}
-              className={`w-full max-w-md ${TOOL_PANEL_CLASS}`}
-            >
-              <h3 className="text-lg font-medium mb-4">
-                Save QR Code to My Collection
-              </h3>
-              <label
-                htmlFor="nickname"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Nickname
-              </label>
-              <input
-                type="text"
-                id="nickname"
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 mb-4"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder="Enter a nickname for this QR code"
-              />
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowSaveModal(false)}
-                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmSave}
-                  className="px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white transition"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Large QR Modal */}
-        {showLargeQRModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div
-              ref={modalRef}
-              className={`w-full max-w-3xl ${TOOL_PANEL_CLASS}`}
-            >
-              <h3 className="text-lg font-medium mb-4">Large QR Code</h3>
-              <div className="flex justify-center mb-4">
-                <img
-                  src={qrCodeUrl}
-                  alt="Large QR Code"
-                  className="max-w-full"
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowLargeQRModal(false)}
-                  className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 transition"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* My Collection */}
         {savedQRCodes.length > 0 && (
@@ -1711,18 +1327,12 @@ const DeepLinkQRGenerator: React.FC = () => {
                   <div className="text-xs text-gray-500 break-all mb-2">
                     {code.url}
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex items-center">
                     <button
                       onClick={() => handleLoadFromCollection(code)}
                       className="px-3 py-1 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-sm transition"
                     >
                       Load
-                    </button>
-                    <button
-                      onClick={() => handleShowLargeQR()}
-                      className="px-3 py-1 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm transition"
-                    >
-                      View Large
                     </button>
                   </div>
                 </div>

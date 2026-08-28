@@ -3,6 +3,7 @@
  */
 import { useMemo, useState } from 'react';
 import { fetchSnapshot, Snapshot } from '../lib/prerender';
+import { copyText } from '../../../shared/utils/clipboard';
 
 export interface Agent {
   id: string;
@@ -69,7 +70,7 @@ export const usePreRenderingTester = () => {
   };
 
   const copyJson = async () => {
-    await navigator.clipboard.writeText(JSON.stringify(results, null, 2));
+    await copyText(JSON.stringify(results, null, 2));
   };
 
   const exportJson = () => {
@@ -95,7 +96,7 @@ export const usePreRenderingTester = () => {
   }, [results]);
 
   const copySnapshot = async (snap: Snapshot) => {
-    await navigator.clipboard.writeText(JSON.stringify(snap, null, 2));
+    await copyText(JSON.stringify(snap, null, 2));
   };
 
   return {

@@ -280,6 +280,40 @@ export const CompassIcon: React.FC<IconProps> = ({ className }) => (
   </svg>
 );
 
+export const TlsCheckerIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
+    {/* Shield outline */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 3l8 3v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3z"
+    />
+    {/* Padlock body */}
+    <rect
+      x="9"
+      y="11"
+      width="6"
+      height="5"
+      rx="1"
+      strokeWidth={2}
+    />
+    {/* Padlock shackle */}
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M10.5 11V9.5a1.5 1.5 0 013 0V11"
+    />
+  </svg>
+);
+
 export const UnicodeAnalyzerIcon: React.FC<IconProps> = ({ className }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

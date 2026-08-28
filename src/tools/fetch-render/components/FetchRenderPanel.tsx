@@ -7,6 +7,7 @@ import { ResponsiveContainer } from '../../../design-system/components/layout/Re
 import { CodeBlock } from '../../../design-system/components/display/CodeBlock';
 import { TabGroup, Tab, TabPanel } from '../../../design-system/components/navigation';
 import { Button } from '../../../design-system/components/inputs/Button';
+import { copyText } from '../../../shared/utils/clipboard';
 
 /* eslint-disable react/require-default-props */
 
@@ -175,7 +176,7 @@ export function FetchRenderView({
             <div className="bg-zinc-900 text-red-500 p-4 rounded-md relative">
               <div className="font-semibold mb-2">Console Output</div>
               <CodeBlock className="!bg-transparent" maxHeight="12rem">{logs.join('\n')}</CodeBlock>
-              <Button size="xs" variant="ghost" className="absolute top-2 right-2" onClick={() => navigator.clipboard.writeText(logs.join('\n'))}>Copy</Button>
+              <Button size="xs" variant="ghost" className="absolute top-2 right-2" onClick={() => { void copyText(logs.join('\n')); }}>Copy</Button>
             </div>
           )}
         </div>

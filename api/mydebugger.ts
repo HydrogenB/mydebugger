@@ -106,7 +106,7 @@ async function pushWebPush({
       ok: true, 
       result: {
         statusCode: result.statusCode,
-        headers: Object.fromEntries(result.headers?.entries() || [])
+        headers: Object.fromEntries(Object.entries(result.headers || {}))
       }
     });
   } catch (err: any) {
@@ -195,7 +195,7 @@ async function pushFCMv1({
       format: 'fcm-v1',
       result: {
         statusCode: result.statusCode,
-        headers: Object.fromEntries(result.headers?.entries() || [])
+        headers: Object.fromEntries(Object.entries(result.headers || {}))
       }
     });
   } catch (err: any) {

@@ -5,6 +5,9 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 import { AnalysisResult } from '../types';
 import { analyzeText, getAnalysisSummary } from '../lib';
+import { copyText } from '../../../shared/utils/clipboard';
+
+export type CopyStatus = 'idle' | 'success' | 'error';
 
 export interface UseUnicodeAnalyzerReturn {
   /** Current input text */
@@ -27,8 +30,8 @@ export interface UseUnicodeAnalyzerReturn {
   loadExample: (example: string) => void;
   /** Copy results to clipboard */
   copyResults: () => Promise<void>;
-  /** Whether results were copied */
-  copied: boolean;
+  /** Result of the most recent copy attempt; resets to 'idle' after a delay */
+  copyStatus: CopyStatus;
 }
 
 const EXAMPLE_TEXTS = {
@@ -46,15 +49,17 @@ export function useUnicodeAnalyzer(): UseUnicodeAnalyzerReturn {
   const [decomposeEmojis, setDecomposeEmojis] = useState<boolean>(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
-  const [copied, setCopied] = useState<boolean>(false);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
 
-  // Reset copied state after delay
+  // Self-clearing copy feedback: each new status (re)starts a 2s timer, and
+  // the cleanup -- which fires on unmount and on the next status change alike
+  // -- clears any pending one, so a stale timeout can never fire against an
+  // unmounted/overtaken state.
   useEffect(() => {
-    if (copied) {
-      const timer = setTimeout(() => setCopied(false), 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [copied]);
+    if (copyStatus === 'idle') return undefined;
+    const timer = setTimeout(() => setCopyStatus('idle'), 2000);
+    return () => clearTimeout(timer);
+  }, [copyStatus]);
 
   // Analyze input with debounce
   useEffect(() => {
@@ -121,8 +126,8 @@ export function useUnicodeAnalyzer(): UseUnicodeAnalyzerReturn {
       }
     }
 
-    await navigator.clipboard.writeText(lines.join('\n'));
-    setCopied(true);
+    const ok = await copyText(lines.join('\n'));
+    setCopyStatus(ok ? 'success' : 'error');
   }, [result]);
 
   return {
@@ -136,7 +141,7 @@ export function useUnicodeAnalyzer(): UseUnicodeAnalyzerReturn {
     clear,
     loadExample,
     copyResults,
-    copied,
+    copyStatus,
   };
 }
 
