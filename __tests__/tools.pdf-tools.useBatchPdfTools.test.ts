@@ -1,7 +1,7 @@
 /**
  * © 2026 MyDebugger Contributors – MIT License
  */
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 
 jest.mock('../src/tools/pdf-tools/lib/qpdfClient', () => ({
   unlockPdf: jest.fn(),
@@ -114,6 +114,38 @@ describe('useBatchPdfTools', () => {
     });
 
     expect(downloadFile).toHaveBeenCalledWith(expect.any(Blob), 'secret.pdf');
+  });
+
+  test('an edit made mid-processing is not clobbered by the stale result', async () => {
+    let resolveUnlock: (value: { ok: true; bytes: Uint8Array }) => void = () => {};
+    (unlockPdf as jest.Mock).mockReturnValue(
+      new Promise((resolve) => {
+        resolveUnlock = resolve;
+      }),
+    );
+
+    const { result } = renderHook(() => useBatchPdfTools());
+    act(() => result.current.addFiles([makeFile('secret.pdf')]));
+    const rowId = result.current.rows[0].id;
+
+    let startPromise!: Promise<void>;
+    act(() => {
+      startPromise = result.current.startAll();
+    });
+
+    await waitFor(() => expect(result.current.rows[0].status).toBe('processing'));
+
+    act(() => {
+      result.current.setRowPassword(rowId, 'user-typed-password');
+    });
+
+    await act(async () => {
+      resolveUnlock({ ok: true, bytes: new Uint8Array([9]) });
+      await startPromise;
+    });
+
+    expect(result.current.rows[0].status).toBe('done');
+    expect(result.current.rows[0].password).toBe('user-typed-password');
   });
 
   test('removeRow drops the row from state', () => {

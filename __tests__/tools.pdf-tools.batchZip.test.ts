@@ -24,8 +24,8 @@ describe('buildBatchZip', () => {
     const zipBytes = new Uint8Array(await zipBlob.arrayBuffer());
     const entries = unzipSync(zipBytes);
 
-    expect(Object.keys(entries)).toEqual(['secret.pdf']);
-    expect(Array.from(entries['secret.pdf'])).toEqual([80, 68, 70]);
+    expect(Object.keys(entries)).toEqual(['01-secret.pdf']);
+    expect(Array.from(entries['01-secret.pdf'])).toEqual([80, 68, 70]);
   });
 
   test('nests to-image outputs under a folder named after the file', async () => {
@@ -46,7 +46,35 @@ describe('buildBatchZip', () => {
     const zipBlob = await buildBatchZip(rows);
     const entries = unzipSync(new Uint8Array(await zipBlob.arrayBuffer()));
 
-    expect(Object.keys(entries)).toEqual(['report/report_page_001.png']);
+    expect(Object.keys(entries)).toEqual(['01-report/report_page_001.png']);
+  });
+
+  test('two rows sharing a base filename produce distinct entries', async () => {
+    const rows: PdfToolRow[] = [
+      {
+        id: '1',
+        file: makeFile('invoice.pdf'),
+        operation: 'unlock',
+        status: 'done',
+        password: '',
+        unlockedBytes: new Uint8Array([1]),
+      },
+      {
+        id: '2',
+        file: makeFile('invoice.pdf'),
+        operation: 'unlock',
+        status: 'done',
+        password: '',
+        unlockedBytes: new Uint8Array([2]),
+      },
+    ];
+
+    const zipBlob = await buildBatchZip(rows);
+    const entries = unzipSync(new Uint8Array(await zipBlob.arrayBuffer()));
+
+    expect(Object.keys(entries)).toEqual(['01-invoice.pdf', '02-invoice.pdf']);
+    expect(Array.from(entries['01-invoice.pdf'])).toEqual([1]);
+    expect(Array.from(entries['02-invoice.pdf'])).toEqual([2]);
   });
 
   test('skips rows that are not done', async () => {

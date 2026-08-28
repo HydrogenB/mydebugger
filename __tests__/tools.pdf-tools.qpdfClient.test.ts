@@ -75,4 +75,26 @@ describe('qpdfClient', () => {
 
     expect(createQpdfWorker).toHaveBeenCalledTimes(1);
   });
+
+  test('rebuilds a fresh worker after the current one crashes', async () => {
+    const fakeWorker = makeFakeWorker();
+    (createQpdfWorker as jest.Mock).mockReturnValue(fakeWorker);
+
+    const firstPromise = unlockPdf(new Uint8Array([1]), '');
+    fakeWorker.onerror?.(new Event('error'));
+    await firstPromise;
+
+    expect(createQpdfWorker).toHaveBeenCalledTimes(1);
+
+    const secondWorker = makeFakeWorker();
+    (createQpdfWorker as jest.Mock).mockReturnValue(secondWorker);
+
+    const secondPromise = unlockPdf(new Uint8Array([2]), '');
+    expect(createQpdfWorker).toHaveBeenCalledTimes(2);
+
+    secondWorker.onmessage?.({
+      data: { id: secondWorker.postMessage.mock.calls[0][0].id, ok: true, bytes: new Uint8Array([2]) },
+    } as MessageEvent);
+    await secondPromise;
+  });
 });

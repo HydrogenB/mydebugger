@@ -36,7 +36,6 @@ export const AppRoutes: React.FC = () => {
       <Route path="/" element={<Home />} />
       <Route path="/privacy-policy" element={<MainLayout><PrivacyPolicy /></MainLayout>} />
       <Route path="/terms-of-service" element={<MainLayout><TermsOfService /></MainLayout>} />
-      <Route path="/pdf-to-img" element={<Navigate to="/pdf-tools" replace />} />
       <Route path="/pdf-to-img/*" element={<Navigate to="/pdf-tools" replace />} />
 
       {/* Dashboard routes can be added here in the future */}

@@ -36,30 +36,40 @@ export interface UseBatchPdfToolsReturn {
   clearAll: () => void;
 }
 
-const generateRowId = (): string => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+/**
+ * Only the fields a run can actually change. Deliberately NOT a full
+ * PdfToolRow — runRow starts from a snapshot taken before processing, and
+ * the row (its password, its operation) can be edited by the user while
+ * processing is in flight. Returning only the outcome lets the caller merge
+ * onto the row's *current* state instead of clobbering it with the stale one.
+ */
+type RowOutcome = Pick<PdfToolRow, 'status' | 'errorMessage' | 'unlockedBytes' | 'convertedImages'>;
 
-const runRow = async (row: PdfToolRow, password: string): Promise<PdfToolRow> => {
+const runRow = async (row: PdfToolRow, password: string): Promise<RowOutcome> => {
+  const validation = await validatePdfFile(row.file);
+  if (!validation.valid) {
+    return { status: 'error', errorMessage: validation.error, unlockedBytes: undefined, convertedImages: undefined };
+  }
+
   if (row.operation === 'unlock') {
     const bytes = new Uint8Array(await row.file.arrayBuffer());
     const result = await unlockPdf(bytes, password);
 
     if (result.ok) {
-      return { ...row, status: 'done', errorMessage: undefined, unlockedBytes: result.bytes };
+      return { status: 'done', errorMessage: undefined, unlockedBytes: result.bytes, convertedImages: undefined };
     }
     if (result.reason === 'wrong-password') {
-      return { ...row, status: 'needs-password', errorMessage: result.message };
+      return { status: 'needs-password', errorMessage: result.message, unlockedBytes: undefined, convertedImages: undefined };
     }
-    return { ...row, status: 'error', errorMessage: result.message };
+    return { status: 'error', errorMessage: result.message, unlockedBytes: undefined, convertedImages: undefined };
   }
 
   try {
-    const validation = validatePdfFile(row.file);
-    if (!validation.valid) {
-      return { ...row, status: 'error', errorMessage: validation.error };
-    }
-
     const { pdf, info } = await loadPdfDocument(row.file, password || undefined);
-    const { pages } = parsePageRange('', info.pageCount);
+    const { pages: allPages } = parsePageRange('', info.pageCount);
+    // ponytail: caps at 30 pages to avoid freezing the tab on large PDFs;
+    // upgrade path is a real page-range picker like the old single-file tool had
+    const pages = allPages.slice(0, 30);
     const images = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const pageNumber of pages) {
@@ -68,13 +78,18 @@ const runRow = async (row: PdfToolRow, password: string): Promise<PdfToolRow> =>
     }
     pdf.destroy();
 
-    return { ...row, status: 'done', errorMessage: undefined, convertedImages: images };
+    return { status: 'done', errorMessage: undefined, unlockedBytes: undefined, convertedImages: images };
   } catch (err) {
     const error = err as Error;
     if (error.name === 'PasswordException' || error.message?.includes('password')) {
-      return { ...row, status: 'needs-password', errorMessage: 'Incorrect password' };
+      return { status: 'needs-password', errorMessage: 'Incorrect password', unlockedBytes: undefined, convertedImages: undefined };
     }
-    return { ...row, status: 'error', errorMessage: error.message || 'Failed to convert PDF' };
+    return {
+      status: 'error',
+      errorMessage: error.message || 'Failed to convert PDF',
+      unlockedBytes: undefined,
+      convertedImages: undefined,
+    };
   }
 };
 
@@ -85,12 +100,16 @@ const useBatchPdfTools = (): UseBatchPdfToolsReturn => {
 
   const addFiles = useCallback(
     (files: FileList | File[]) => {
-      const incoming = Array.from(files).filter((file) => file.type === 'application/pdf');
+      // MIME type is unreliable for some OS drag sources / unregistered file
+      // associations — fall back to the file extension.
+      const incoming = Array.from(files).filter(
+        (file) => file.type === 'application/pdf' || /\.pdf$/i.test(file.name),
+      );
       setRows((prev) => [
         ...prev,
         ...incoming.map(
           (file): PdfToolRow => ({
-            id: generateRowId(),
+            id: crypto.randomUUID(),
             file,
             operation: bulkOperation,
             status: 'pending',
@@ -126,8 +145,13 @@ const useBatchPdfTools = (): UseBatchPdfToolsReturn => {
     async (row: PdfToolRow) => {
       setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, status: 'processing' } : r)));
       const password = row.password || defaultPassword;
-      const result = await runRow(row, password);
-      setRows((prev) => prev.map((r) => (r.id === row.id ? result : r)));
+      const outcome = await runRow(row, password);
+      // Merge the outcome onto the row's CURRENT state (not the stale
+      // pre-processing snapshot), and only if its operation wasn't switched
+      // out from under this run while it was in flight.
+      setRows((prev) =>
+        prev.map((r) => (r.id === row.id && r.operation === row.operation ? { ...r, ...outcome } : r)),
+      );
     },
     [defaultPassword],
   );

@@ -45,7 +45,11 @@ export default defineConfig({
       '@api': path.resolve(__dirname, './api')
     }
   },
+  worker: {
+    format: 'es',
+  },
   optimizeDeps: {
-    exclude: ['@prisma/client']
+    exclude: ['@prisma/client'],
+    include: ['@neslinesli93/qpdf-wasm'],
   }
 })

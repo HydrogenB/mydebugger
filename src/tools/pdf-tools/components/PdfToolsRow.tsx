@@ -58,6 +58,7 @@ const PdfToolsRow: React.FC<PdfToolsRowProps> = ({
           <div className="flex items-center gap-1">
             <TextInput
               type="password"
+              autoComplete="off"
               placeholder="Password for this file"
               value={row.password}
               onChange={(e) => onPasswordChange(e.target.value)}
@@ -66,8 +67,11 @@ const PdfToolsRow: React.FC<PdfToolsRowProps> = ({
             <Button size="xs" variant="outline-primary" onClick={onRetry}>Retry</Button>
           </div>
         )}
-        {row.errorMessage && row.status === 'error' && (
-          <span className="text-xs text-red-600 dark:text-red-400">{row.errorMessage}</span>
+        {row.status === 'error' && (
+          <Button size="xs" variant="outline-primary" onClick={onRetry}>Retry</Button>
+        )}
+        {row.errorMessage && (row.status === 'error' || row.status === 'needs-password') && (
+          <span className="text-xs text-red-600 dark:text-red-400 block">{row.errorMessage}</span>
         )}
       </span>
       <Button

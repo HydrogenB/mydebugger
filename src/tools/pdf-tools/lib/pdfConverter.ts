@@ -74,13 +74,19 @@ export interface PdfInfo {
 const MAX_CANVAS_PIXELS = 16777216;
 
 /**
- * Validate if file is a PDF
+ * Validate if file is a PDF.
+ *
+ * MIME type alone is unreliable (some OS drag sources and unregistered file
+ * associations leave it empty), so a `.pdf` extension is also accepted here —
+ * consistent with the batch tool's file picker. The actual proof a file is a
+ * PDF is its magic header, checked below; that also catches corrupt/renamed
+ * files a MIME-only check would let through.
  */
-export const validatePdfFile = (
+export const validatePdfFile = async (
   file: File,
-): { valid: boolean; error?: string } => {
-  // Check MIME type
-  if (file.type !== "application/pdf") {
+): Promise<{ valid: boolean; error?: string }> => {
+  const looksLikePdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+  if (!looksLikePdf) {
     return {
       valid: false,
       error: "Invalid file type. Please select a PDF file.",
@@ -91,6 +97,15 @@ export const validatePdfFile = (
   const maxSize = 100 * 1024 * 1024;
   if (file.size > maxSize) {
     return { valid: false, error: "File too large. Maximum size is 100MB." };
+  }
+
+  const headerBytes = await file.slice(0, 5).arrayBuffer();
+  const header = new TextDecoder("ascii").decode(headerBytes);
+  if (header !== "%PDF-") {
+    return {
+      valid: false,
+      error: "This file is not a valid PDF (missing PDF header).",
+    };
   }
 
   return { valid: true };

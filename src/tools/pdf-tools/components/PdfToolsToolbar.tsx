@@ -19,8 +19,11 @@ export interface PdfToolsToolbarProps {
   onFilesSelected: (files: FileList) => void;
   onStartAll: () => void;
   onDownloadAllAsZip: () => void;
+  onClearAll: () => void;
   hasCompletedRows: boolean;
   hasPendingRows: boolean;
+  hasRows: boolean;
+  isProcessing: boolean;
 }
 
 const PdfToolsToolbar: React.FC<PdfToolsToolbarProps> = ({
@@ -32,13 +35,23 @@ const PdfToolsToolbar: React.FC<PdfToolsToolbarProps> = ({
   onFilesSelected,
   onStartAll,
   onDownloadAllAsZip,
+  onClearAll,
   hasCompletedRows,
   hasPendingRows,
+  hasRows,
+  isProcessing,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-wrap items-end gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
+    <div
+      className="flex flex-wrap items-end gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-t-lg border-b border-gray-200 dark:border-gray-700"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        onFilesSelected(e.dataTransfer.files);
+      }}
+    >
       <input
         ref={fileInputRef}
         type="file"
@@ -53,6 +66,7 @@ const PdfToolsToolbar: React.FC<PdfToolsToolbarProps> = ({
 
       <TextInput
         type="password"
+        autoComplete="off"
         label="Default password"
         placeholder="Applies to all files unless overridden"
         value={defaultPassword}
@@ -70,11 +84,14 @@ const PdfToolsToolbar: React.FC<PdfToolsToolbarProps> = ({
         <Button size="sm" variant="outline-secondary" onClick={onApplyToAll}>Apply to all</Button>
       </span>
 
-      <Button size="sm" variant="success" onClick={onStartAll} disabled={!hasPendingRows}>
+      <Button size="sm" variant="success" onClick={onStartAll} disabled={!hasPendingRows || isProcessing}>
         Start
       </Button>
       <Button size="sm" variant="outline-primary" onClick={onDownloadAllAsZip} disabled={!hasCompletedRows}>
         Download All as ZIP
+      </Button>
+      <Button size="sm" variant="outline-secondary" onClick={onClearAll} disabled={!hasRows}>
+        Clear All
       </Button>
     </div>
   );

@@ -33,8 +33,11 @@ const PdfToolsPage: React.FC = () => {
           onDownloadAllAsZip={() => {
             void vm.downloadAllAsZip();
           }}
+          onClearAll={vm.clearAll}
           hasCompletedRows={vm.rows.some((row) => row.status === 'done')}
           hasPendingRows={vm.rows.some((row) => row.status === 'pending')}
+          hasRows={vm.rows.length > 0}
+          isProcessing={vm.rows.some((row) => row.status === 'processing')}
         />
 
         {vm.rows.length === 0 ? (

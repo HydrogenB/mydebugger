@@ -32,8 +32,6 @@ type WorkerResponse =
 let worker: Worker | null = null;
 const pending = new Map<string, (result: UnlockResult) => void>();
 
-const generateRequestId = (): string => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
 const getWorker = (): Worker => {
   if (worker) return worker;
 
@@ -54,13 +52,17 @@ const getWorker = (): Worker => {
   worker.onerror = () => {
     pending.forEach((resolve) => resolve({ ok: false, reason: 'error', message: 'Worker crashed' }));
     pending.clear();
+    // The dead worker instance can't process any further messages — drop it
+    // so the next call rebuilds a fresh one instead of postMessage-ing into the void.
+    worker?.terminate();
+    worker = null;
   };
 
   return worker;
 };
 
 export const unlockPdf = (bytes: Uint8Array, password: string): Promise<UnlockResult> => {
-  const id = generateRequestId();
+  const id = crypto.randomUUID();
   const activeWorker = getWorker();
 
   return new Promise((resolve) => {
