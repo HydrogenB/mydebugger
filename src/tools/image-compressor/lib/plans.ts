@@ -111,7 +111,7 @@ export const planWebp = (img: DecodedImage, a: Analysis): FormatPlan => {
   if (a.cls === 'photo') {
     families.push({
       name: 'lossy',
-      candidates: [75, 80, 85, 90, 95, 100].map((q) => cand(`WebP q${q}`, false, { quality: q, method: 4 })),
+      candidates: [75, 80, 85, 90, 95].map((q) => cand(`WebP q${q}`, false, { quality: q, method: 4 })),
     });
   }
   return { reference: img.frames, warnings: [], families };

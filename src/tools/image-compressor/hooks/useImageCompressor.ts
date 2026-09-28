@@ -14,7 +14,7 @@ import {
 
 export const MAX_FILES = 20;
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
-export const WATCHDOG_MS = 60_000;
+export const WATCHDOG_MS = 120_000;
 export const FORMAT_KEY = 'image-compressor-format';
 
 export type ItemStatus = 'queued' | 'working' | 'done' | 'error';

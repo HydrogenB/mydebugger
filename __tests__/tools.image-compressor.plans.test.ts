@@ -58,7 +58,7 @@ describe('planFor', () => {
 
   it('WebP photo: lossy ladder only', () => {
     expect(labels('webp', img(), analysis())).toEqual([
-      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95', 'WebP q100'],
+      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95'],
     ]);
   });
 
@@ -72,7 +72,7 @@ describe('planFor', () => {
   it('WebP photo with alpha: near-lossless + lossy', () => {
     expect(labels('webp', img(), analysis({ hasAlpha: true }))).toEqual([
       ['WebP near-lossless 60', 'WebP near-lossless 80'],
-      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95', 'WebP q100'],
+      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95'],
     ]);
   });
 

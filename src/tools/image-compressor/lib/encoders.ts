@@ -20,10 +20,17 @@ import { muxAnimatedWebP } from './webpMux';
 
 const view = (b: ArrayBuffer | Uint8Array) => (b instanceof Uint8Array ? b : new Uint8Array(b));
 
+export const OXIPNG_FAST_ABOVE_PIXELS = 8_000_000;
+
+// ponytail: oxipng is single-threaded, so level 4 on a huge image can blow the watchdog; drop to
+// level 2 above the threshold instead of adding a worker pool. Raise the level if multi-threading arrives.
+export const oxipngLevel = (pixels: number): number => (pixels > OXIPNG_FAST_ABOVE_PIXELS ? 2 : 4);
+
 export const oxipngLossless = async (f: Frame): Promise<EncodeOutput> => {
   const { optimise } = await loadOxipng();
+  const level = oxipngLevel(f.data.width * f.data.height);
   // optimiseAlpha: false keeps RGB under transparent pixels, so the result stays truly lossless.
-  const out = await optimise(toImageData(f.data), { level: 4, optimiseAlpha: false });
+  const out = await optimise(toImageData(f.data), { level, optimiseAlpha: false });
   return { bytes: view(out), frames: [f] };
 };
 
@@ -54,7 +61,7 @@ export const pngquant = async (f: Frame, colours: number): Promise<EncodeOutput>
   const { width, height } = f.data;
   const { indices, palette } = await quantize(f.data, colours);
   const png = encodePalettePng(indices, palette, width, height);
-  const out = await optimise(png.slice().buffer, { level: 4 });
+  const out = await optimise(png.slice().buffer, { level: oxipngLevel(width * height) });
   return { bytes: view(out), frames: [{ data: paletteToRgba(indices, palette, width, height), delayMs: 0 }] };
 };
 

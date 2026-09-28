@@ -81,9 +81,9 @@ libimagequant WASM, `gifsicle-wasm-browser`, `upng-js`, `gifuct-js`, `gifenc`, `
 
 | Output | Lossless family | Lossy ladder (most aggressive first) | Notes |
 |---|---|---|---|
-| PNG | oxipng level 4 | imagequant 64 -> 128 -> 256 colours, then oxipng | Animated -> APNG (upng): cnum 0 (lossless), then 256 |
+| PNG | oxipng level 4 (level 2 above 8 MP — single-threaded oxipng is too slow at level 4 past that) | imagequant 64 -> 128 -> 256 colours, then oxipng (same level rule) | Animated -> APNG (upng): cnum 0 (lossless), then 256 |
 | JPG | — | mozjpeg q 70 -> 75 -> 80 -> 85 -> 88 -> 90 -> 92 -> 95 | Alpha flattened on white + warning; `ui`/`flat` warns "JPEG not ideal"; animated -> first frame + warning |
-| WebP | lossless (method 4); skipped for `photo` | `ui`/`flat`/alpha: near-lossless 60 -> 80. `photo`: lossy q 75 -> 80 -> 85 -> 90 -> 95 -> 100 | Animated: one setting for all frames, muxed to RIFF `ANIM`/`ANMF` |
+| WebP | lossless (method 4); skipped for `photo` | `ui`/`flat`/alpha: near-lossless 60 -> 80. `photo`: lossy q 75 -> 80 -> 85 -> 90 -> 95 | Animated: one setting for all frames, muxed to RIFF `ANIM`/`ANMF` |
 | GIF | GIF input: gifsicle `-O3` on original bytes. Else if <= 256 colours: exact palette via gifenc -> `-O3` | gifsicle `--lossy` 80 -> 40 -> 20 | > 256 colours: imagequant 256 + dither; warn "GIF is limited to 256 colours" |
 | BMP | 24-bit (32-bit BI_BITFIELDS if alpha); <= 256 colours: 8-bit + RLE8; <= 16 colours: RLE4 | — | Animated -> first frame + warning |
 
@@ -153,7 +153,7 @@ Jest/jsdom cannot run the WASM codecs, so logic is kept in pure, injectable unit
   4097) — no downscaled copy.
 - **"Already optimal" returns the original bytes unchanged,** so its metadata is not stripped;
   the report says so.
-- **Watchdog lives in the hook** (60 s without a progress message -> terminate + recreate the
+- **Watchdog lives in the hook** (120 s without a progress message -> terminate + recreate the
   worker): WASM encodes are synchronous, so a timer inside the worker can't fire mid-encode.
 
 ## Removals
