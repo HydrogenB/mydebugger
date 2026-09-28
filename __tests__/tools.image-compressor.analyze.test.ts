@@ -30,7 +30,7 @@ const makePixels = (w: number, h: number, fn: (x: number, y: number) => Rgba): P
 const noise = (w: number, h: number): Pixels => {
   let s = 1;
   const rnd = () => {
-    s = (s * 1103515245 + 12345) % 2147483648;
+    s = (s * 48271) % 2147483647; // Park–Miller: stays below 2^53, so no float precision loss
     return s % 256;
   };
   return makePixels(w, h, () => [rnd(), rnd(), rnd(), 255]);
