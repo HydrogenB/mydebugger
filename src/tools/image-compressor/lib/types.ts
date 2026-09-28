@@ -107,4 +107,4 @@ export const MIME: Record<OutputFormat, string> = {
 
 export const COLOR_CAP = 4096;
 export const MAX_STATIC_PIXELS = 40_000_000;
-export const MAX_ANIMATED_PIXELS = 400_000_000;
+export const MAX_ANIMATED_PIXELS = 100_000_000;

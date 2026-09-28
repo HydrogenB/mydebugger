@@ -119,7 +119,7 @@ Pipeline: imagequant 128c -> oxipng    Mode: visually lossless    SSIM: 0.9971
 - Codec WASM fails to load -> that format's button disabled with tooltip.
 - Single encoder throws or exceeds 30 s -> candidate skipped, logged in row details; worker is
   terminated and recreated if it wedges.
-- Memory guard: refuse > 40 MP static, or width x height x frames > 400 MP animated.
+- Memory guard: refuse > 40 MP static, or width x height x frames > 100 MP animated (checked from file headers before decoding).
 - Every job has an id; results for stale ids (file removed / format changed) are ignored.
 
 ## Testing

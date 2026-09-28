@@ -35,7 +35,39 @@ export const assertWithinLimits = (width: number, height: number, frames: number
     throw new TooBigError(`Image is ${Math.round(px / 1e6)} MP; the limit is 40 MP.`);
   }
   if (frames > 1 && px * frames > MAX_ANIMATED_PIXELS) {
-    throw new TooBigError('Animation is too large to process in the browser (limit 400 MP across all frames).');
+    throw new TooBigError('Animation is too large to process in the browser (limit 100 MP across all frames).');
+  }
+};
+
+/** PNG IHDR size and APNG frame count (acTL before the first IDAT), read without inflating. */
+export const pngHeader = (b: Uint8Array) => {
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const header = { width: v.getUint32(16), height: v.getUint32(20), frames: 1 };
+  for (let o = 8; o + 12 <= b.length; o += 12 + v.getUint32(o)) {
+    const type = text(b, o + 4, 4);
+    if (type === 'IDAT') break;
+    if (type === 'acTL') header.frames = Math.max(1, v.getUint32(o + 8));
+  }
+  return header;
+};
+
+/** Static WebP canvas size from the first chunk (VP8 / VP8L / VP8X), or null if unrecognised.
+ * Truncated headers throw RangeError, which decode() callers report as unreadable. */
+export const webpSize = (b: Uint8Array): { width: number; height: number } | null => {
+  const v = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const d = 20; // chunk data start: RIFF(12) + fourcc(4) + size(4)
+  const u24 = (o: number) => b[o] | (b[o + 1] << 8) | (b[o + 2] << 16);
+  switch (text(b, 12, 4)) {
+    case 'VP8 ':
+      return { width: v.getUint16(d + 6, true) & 0x3fff, height: v.getUint16(d + 8, true) & 0x3fff };
+    case 'VP8L': {
+      const bits = v.getUint32(d + 1, true);
+      return { width: (bits & 0x3fff) + 1, height: ((bits >>> 14) & 0x3fff) + 1 };
+    }
+    case 'VP8X':
+      return { width: u24(d + 4) + 1, height: u24(d + 7) + 1 };
+    default:
+      return null;
   }
 };
 
@@ -51,6 +83,9 @@ export const decodeGif = async (bytes: Uint8Array): Promise<Frame[]> => {
 
 /** PNG and APNG, decoded exactly (no canvas premultiplication). */
 export const decodeApngOrPng = async (bytes: Uint8Array): Promise<Frame[]> => {
+  // Guard on the header before UPNG inflates everything (decompression bombs).
+  const h = pngHeader(bytes);
+  assertWithinLimits(h.width, h.height, h.frames);
   const UPNG = (await loadUpng()).default;
   const img = UPNG.decode(toBuffer(bytes));
   assertWithinLimits(img.width, img.height, Math.max(1, img.frames.length));
@@ -118,6 +153,8 @@ export const decode = async (bytes: Uint8Array): Promise<DecodedImage> => {
   else if (source === 'gif') frames = await decodeGif(bytes);
   else if (source === 'webp' && isAnimatedWebp(bytes)) frames = await decodeAnimatedWebp(bytes, warnings);
   else if (source === 'webp') {
+    const size = webpSize(bytes);
+    if (size) assertWithinLimits(size.width, size.height, 1);
     const { decode: decodeWebp } = await loadWebp();
     const data = fromImageData(await decodeWebp(toBuffer(bytes)));
     assertWithinLimits(data.width, data.height, 1);
