@@ -15,6 +15,7 @@ import { useLocation } from "react-router-dom";
 import { generateICalEvent } from "./lib/ical";
 import { useTranslation } from "../../context/TranslationContext";
 import { copyText } from "../../shared/utils/clipboard";
+import { renderQrCard } from "./lib/qrImage";
 
 // Interface definitions for saved QR codes
 interface SavedQRCode {
@@ -434,7 +435,25 @@ const DeepLinkQRGenerator: React.FC = () => {
     );
   }, []);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCopyImage = async () => {
+    if (!qrCodeUrl) return;
+    if (typeof ClipboardItem === "undefined" || !navigator.clipboard?.write) {
+      setToastMessage("Copying images isn't supported in this browser. Use download instead.");
+      return;
+    }
+    try {
+      // Pass the promise (not the resolved blob) so Safari keeps the user-gesture context.
+      await navigator.clipboard.write([
+        new ClipboardItem({ "image/png": renderQrCard(qrCodeUrl, input) }),
+      ]);
+      setToastMessage("QR image copied!");
+    } catch (error) {
+      console.error("Error copying QR image:", error);
+      setToastMessage("Clipboard access denied. Please update your browser permissions.");
+    }
+  };
+
+  const handleLogoUpload =(e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -1149,6 +1168,14 @@ const DeepLinkQRGenerator: React.FC = () => {
             <div className="flex flex-col">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="text-lg font-semibold">{t('qrcode.preview', 'QR Code Preview')}</h2>
+                <button
+                  type="button"
+                  onClick={handleCopyImage}
+                  disabled={!qrCodeUrl}
+                  className="px-3 py-1.5 text-sm rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  📋 {t('qrcode.buttons.copyImage', 'Copy image')}
+                </button>
               </div>
 
               <div className="flex flex-col items-center justify-center p-3 rounded bg-gray-50 border border-gray-100 mb-3">
