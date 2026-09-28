@@ -46,10 +46,11 @@ describe('planFor', () => {
     ]);
   });
 
-  it('JPG: quality ladder 85→95, flattened reference, warnings', () => {
+  it('JPG: quality ladder 70→95, flattened reference, warnings', () => {
     const plan = planFor('jpg', img(2), analysis({ hasAlpha: true, animated: true, cls: 'ui' }), new Uint8Array());
     expect(plan.families[0].candidates.map((c) => c.label)).toEqual([
-      'mozjpeg q85', 'mozjpeg q88', 'mozjpeg q90', 'mozjpeg q92', 'mozjpeg q95',
+      'mozjpeg q70', 'mozjpeg q75', 'mozjpeg q80', 'mozjpeg q85',
+      'mozjpeg q88', 'mozjpeg q90', 'mozjpeg q92', 'mozjpeg q95',
     ]);
     expect(plan.reference).toHaveLength(1);
     expect(plan.warnings).toEqual([WARN.firstFrame('JPG'), WARN.jpegAlpha, WARN.jpegNotIdeal]);
@@ -57,7 +58,7 @@ describe('planFor', () => {
 
   it('WebP photo: lossy ladder only', () => {
     expect(labels('webp', img(), analysis())).toEqual([
-      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95'],
+      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95', 'WebP q100'],
     ]);
   });
 
@@ -71,7 +72,7 @@ describe('planFor', () => {
   it('WebP photo with alpha: near-lossless + lossy', () => {
     expect(labels('webp', img(), analysis({ hasAlpha: true }))).toEqual([
       ['WebP near-lossless 60', 'WebP near-lossless 80'],
-      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95'],
+      ['WebP q75', 'WebP q80', 'WebP q85', 'WebP q90', 'WebP q95', 'WebP q100'],
     ]);
   });
 
