@@ -3,8 +3,8 @@
  */
 import { act, renderHook } from '@testing-library/react';
 
-const stopSpy = jest.fn();
-let resolveStart: (() => void) | undefined;
+const mockStopSpy = jest.fn();
+let mockResolveStart: (() => void) | undefined;
 
 jest.mock('../src/tools/qrscan/lib/qrscan', () => ({
   decodeFile: jest.fn(),
@@ -15,7 +15,7 @@ jest.mock('../src/tools/qrscan/lib/qrscan', () => ({
   toggleTorch: jest.fn(),
   startQrScan: () =>
     new Promise((resolve) => {
-      resolveStart = () => resolve({ stop: stopSpy });
+      mockResolveStart = () => resolve({ stop: mockStopSpy });
     }),
   stopQrScan: (controls?: { stop: () => void }) => controls?.stop(),
 }));
@@ -33,20 +33,20 @@ const renderWithVideo = () => {
 
 describe('useQrscan camera release', () => {
   beforeEach(() => {
-    stopSpy.mockClear();
-    resolveStart = undefined;
+    mockStopSpy.mockClear();
+    mockResolveStart = undefined;
   });
 
   it('stops the camera when the page unmounts', async () => {
     const { result, unmount } = renderWithVideo();
     await act(async () => {
       const started = result.current.start();
-      resolveStart?.();
+      mockResolveStart?.();
       await started;
     });
-    expect(stopSpy).not.toHaveBeenCalled();
+    expect(mockStopSpy).not.toHaveBeenCalled();
     unmount();
-    expect(stopSpy).toHaveBeenCalledTimes(1);
+    expect(mockStopSpy).toHaveBeenCalledTimes(1);
   });
 
   it('stops a camera that finishes starting after unmount', async () => {
@@ -56,8 +56,8 @@ describe('useQrscan camera release', () => {
       started = result.current.start();
     });
     unmount();
-    resolveStart?.();
+    mockResolveStart?.();
     await started;
-    expect(stopSpy).toHaveBeenCalledTimes(1);
+    expect(mockStopSpy).toHaveBeenCalledTimes(1);
   });
 });
