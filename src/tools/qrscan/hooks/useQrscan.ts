@@ -505,6 +505,17 @@ const useQrscan = (): UseQrscanReturn => {
     setTorchEnabled(false);
   }, []);
 
+  // Release the camera when the user leaves the page.
+  const unmountedRef = useRef(false);
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+      stopQrScan(controlsRef.current);
+      controlsRef.current = undefined;
+    };
+  }, []);
+
   const processDecodedValue = useCallback(async (text: string, barcodeFormat: string, source: ScanSource) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -625,7 +636,7 @@ const useQrscan = (): UseQrscanReturn => {
 
     resetPerformance();
     try {
-      controlsRef.current = await startQrScan(
+      const controls = await startQrScan(
         video,
         (text, format) => handleCameraResult(text, format),
         {
@@ -634,6 +645,12 @@ const useQrscan = (): UseQrscanReturn => {
           cropToCenterSquare: true,
         },
       );
+      // Page left while the camera was still starting: stop it right away.
+      if (unmountedRef.current) {
+        stopQrScan(controls);
+        return;
+      }
+      controlsRef.current = controls;
       setScanning(true);
       setCameraStatus('ready');
       updateCapabilities();
