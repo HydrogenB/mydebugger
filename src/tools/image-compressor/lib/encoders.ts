@@ -14,7 +14,7 @@ import {
   toImageData,
 } from './codecs';
 import { decodeApngOrPng, decodeGif } from './decode';
-import { flattenOnWhite, paletteToRgba } from './pixels';
+import { binaryAlpha, flattenOnWhite, paletteToRgba } from './pixels';
 import type { EncodeOutput, Frame, Pixels } from './types';
 import { muxAnimatedWebP } from './webpMux';
 
@@ -112,8 +112,8 @@ export const gifBase = async (frames: Frame[]): Promise<Uint8Array> => {
   for (const f of frames) {
     const { width, height } = f.data;
     // eslint-disable-next-line no-await-in-loop
-    const { indices, palette } = await quantize(f.data, 256);
-    // ponytail: GIF has 1-bit alpha — the most transparent palette entry becomes the transparent index.
+    // Threshold alpha first so every see-through pixel maps to the single transparent palette entry.
+    const { indices, palette } = await quantize(binaryAlpha(f.data), 256);
     let t = -1;
     palette.forEach((c, k) => { if (c[3] < 128 && (t < 0 || c[3] < palette[t][3])) t = k; });
     gif.writeFrame(indices, width, height, {

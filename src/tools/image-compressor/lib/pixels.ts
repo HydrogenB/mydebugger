@@ -21,6 +21,16 @@ export const flattenOnWhite = ({ data, width, height }: Pixels): Pixels => {
   return { data: out, width, height };
 };
 
+/** GIF's 1-bit alpha: alpha < 128 → transparent black [0,0,0,0], else alpha 255 (copy). */
+export const binaryAlpha = ({ data, width, height }: Pixels): Pixels => {
+  const out = new Uint8ClampedArray(data);
+  for (let i = 0; i < out.length; i += 4) {
+    if (out[i + 3] < 128) out.fill(0, i, i + 4);
+    else out[i + 3] = 255;
+  }
+  return { data: out, width, height };
+};
+
 /** Expand palette indices (palette entries are [r, g, b, a]) into RGBA pixels. */
 export const paletteToRgba = (
   indices: Uint8Array,
