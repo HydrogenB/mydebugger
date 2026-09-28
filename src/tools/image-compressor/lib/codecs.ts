@@ -53,7 +53,13 @@ export const loadWebp = () => import('@jsquash/webp');
 export const loadUpng = () => import('upng-js');
 export const loadGifenc = () => import('gifenc');
 export const loadGifuct = () => import('gifuct-js');
-export const loadGifsicle = () => import('gifsicle-wasm-browser');
+export const loadGifsicle = async () => {
+  // ponytail: gifsicle-wasm-browser's testType() does `x instanceof Element`, which throws in a Worker
+  // (no DOM) and silently hangs run(); a stub class makes that check return false. Drop if the lib fixes it.
+  const g = globalThis as { Element?: unknown };
+  if (typeof g.Element === 'undefined') g.Element = class {};
+  return import('gifsicle-wasm-browser');
+};
 
 type Liq = typeof import('libimagequant-wasm/wasm/libimagequant_wasm.js');
 let liq: Promise<Liq> | null = null;
