@@ -42,8 +42,10 @@ export const assertWithinLimits = (width: number, height: number, frames: number
 export const decodeGif = async (bytes: Uint8Array): Promise<Frame[]> => {
   const { parseGIF, decompressFrames } = await loadGifuct();
   const gif = parseGIF(toBuffer(bytes));
+  // Check limits against header metadata before LZW-decompressing any frame — decompressing
+  // is exactly the expensive allocation this guard exists to prevent.
+  assertWithinLimits(gif.lsd.width, gif.lsd.height, gif.frames.length);
   const patches = decompressFrames(gif, true) as unknown as GifPatch[];
-  assertWithinLimits(gif.lsd.width, gif.lsd.height, patches.length);
   return compositeGifFrames(patches, gif.lsd.width, gif.lsd.height);
 };
 

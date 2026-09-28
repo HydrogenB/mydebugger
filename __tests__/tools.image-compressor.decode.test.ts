@@ -1,7 +1,17 @@
 /**
  * © 2026 MyDebugger Contributors – MIT License
  */
-import { assertWithinLimits, isAnimatedWebp, sniff, TooBigError } from '../src/tools/image-compressor/lib/decode';
+const mockDecompressFrames = jest.fn();
+jest.mock('../src/tools/image-compressor/lib/codecs', () => ({
+  loadGifuct: () =>
+    Promise.resolve({
+      parseGIF: () => ({ lsd: { width: 1000, height: 1000 }, frames: new Array(401) }),
+      decompressFrames: mockDecompressFrames,
+    }),
+}));
+
+// eslint-disable-next-line import/first
+import { assertWithinLimits, decodeGif, isAnimatedWebp, sniff, TooBigError } from '../src/tools/image-compressor/lib/decode';
 
 const bytes = (...parts: (string | number[])[]) =>
   Uint8Array.from(parts.flatMap((p) => (typeof p === 'string' ? Array.from(p, (c) => c.charCodeAt(0)) : p)));
@@ -31,5 +41,12 @@ describe('assertWithinLimits', () => {
     expect(() => assertWithinLimits(4000, 3000, 1)).not.toThrow();
     expect(() => assertWithinLimits(8000, 6000, 1)).toThrow(TooBigError);
     expect(() => assertWithinLimits(1000, 1000, 401)).toThrow(TooBigError);
+  });
+});
+
+describe('decodeGif', () => {
+  it('checks size limits from header metadata before decompressing any frame', async () => {
+    await expect(decodeGif(new Uint8Array(4))).rejects.toThrow(TooBigError);
+    expect(mockDecompressFrames).not.toHaveBeenCalled();
   });
 });
