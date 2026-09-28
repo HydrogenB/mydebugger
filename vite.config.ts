@@ -49,7 +49,7 @@ export default defineConfig({
     format: 'es',
   },
   optimizeDeps: {
-    exclude: ['@prisma/client'],
+    exclude: ['@prisma/client', '@jsquash/oxipng', '@jsquash/jpeg', '@jsquash/webp'],
     include: ['@neslinesli93/qpdf-wasm'],
   }
 })
