@@ -6,7 +6,48 @@
  */
 import type { Pixels } from './types';
 
-export const loadOxipng = () => import('@jsquash/oxipng');
+type OxipngCodec = typeof import('@jsquash/oxipng/codec/pkg/squoosh_oxipng.js');
+type OxipngOptions = { level: number; optimiseAlpha?: boolean };
+
+let oxipng: Promise<OxipngCodec> | null = null;
+
+/**
+ * ponytail: single-threaded oxipng build only. `@jsquash/oxipng`'s default export probes for a
+ * multi-threaded (rayon) build, which self-spawns a Worker on itself — Vite 4's worker plugin
+ * can't bundle a self-referencing `new URL(import.meta.url)` and hangs the build. The threaded
+ * path also needs crossOriginIsolated/SharedArrayBuffer, which our Vercel deploy doesn't grant
+ * (no COOP/COEP headers), so it would never actually run multi-threaded anyway.
+ * Upgrade path: only worth revisiting if we add COOP/COEP headers AND move off Vite 4.
+ */
+const loadOxipngCodec = (): Promise<OxipngCodec> => {
+  if (!oxipng) {
+    oxipng = (async () => {
+      const mod = await import('@jsquash/oxipng/codec/pkg/squoosh_oxipng.js');
+      await mod.default();
+      return mod;
+    })().catch((err) => {
+      oxipng = null; // allow a retry after a network hiccup
+      throw err;
+    });
+  }
+  return oxipng;
+};
+
+export const loadOxipng = async () => {
+  const mod = await loadOxipngCodec();
+  return {
+    optimise: async (data: ArrayBuffer | ImageData, options: OxipngOptions): Promise<ArrayBuffer> => {
+      const { level, optimiseAlpha = false } = options;
+      const out =
+        data instanceof ImageData
+          ? mod.optimise_raw(data.data, data.width, data.height, level, false, optimiseAlpha)
+          : mod.optimise(new Uint8Array(data), level, false, optimiseAlpha);
+      // Copy out of wasm memory before returning — the memory backing `out` can be reused/grown
+      // by the next call.
+      return out.slice().buffer;
+    },
+  };
+};
 export const loadJpeg = () => import('@jsquash/jpeg');
 export const loadWebp = () => import('@jsquash/webp');
 export const loadUpng = () => import('upng-js');
