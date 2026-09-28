@@ -4,8 +4,10 @@ Date: 2026-09-28 · Route: `/image-compressor` · Status: approved design
 
 ## Goal
 
-The user picks only **input image(s)** and **output format** (PNG / JPG / WebP / GIF / BMP).
-The system decides everything else: it analyzes the image, builds a candidate set of encodes for
+The user picks only **input image(s)** and, optionally, an **output format**. The default is
+**Original**: each file is compressed in its own format (PNG stays PNG, JPG stays JPG…;
+browser-only inputs such as HEIC/AVIF become JPG). PNG / JPG / WebP / GIF / BMP are explicit
+conversion choices. The system decides everything else: it analyzes the image, builds a candidate set of encodes for
 the chosen format, checks each against the original (pixel-identical or SSIM), and returns the
 **smallest file that passes**, with a report of what it chose and why.
 
@@ -79,15 +81,17 @@ libimagequant WASM, `gifsicle-wasm-browser`, `upng-js`, `gifuct-js`, `gifenc`, `
 
 | Output | Lossless family | Lossy ladder (most aggressive first) | Notes |
 |---|---|---|---|
-| PNG | oxipng level 4 | imagequant 64 -> 128 -> 256 colours, then oxipng | Animated -> APNG (upng): cnum 0 (lossless), then 256 |
-| JPG | — | mozjpeg q 85 -> 88 -> 90 -> 92 -> 95 | Alpha flattened on white + warning; `ui`/`flat` warns "JPEG not ideal"; animated -> first frame + warning |
+| PNG | oxipng level 4 (level 2 above 8 MP — single-threaded oxipng is too slow at level 4 past that) | imagequant 64 -> 128 -> 256 colours, then oxipng (same level rule) | Animated -> APNG (upng): cnum 0 (lossless), then 256 |
+| JPG | — | mozjpeg q 70 -> 75 -> 80 -> 85 -> 88 -> 90 -> 92 -> 95 | Alpha flattened on white + warning; `ui`/`flat` warns "JPEG not ideal"; animated -> first frame + warning |
 | WebP | lossless (method 4); skipped for `photo` | `ui`/`flat`/alpha: near-lossless 60 -> 80. `photo`: lossy q 75 -> 80 -> 85 -> 90 -> 95 | Animated: one setting for all frames, muxed to RIFF `ANIM`/`ANMF` |
 | GIF | GIF input: gifsicle `-O3` on original bytes. Else if <= 256 colours: exact palette via gifenc -> `-O3` | gifsicle `--lossy` 80 -> 40 -> 20 | > 256 colours: imagequant 256 + dither; warn "GIF is limited to 256 colours" |
 | BMP | 24-bit (32-bit BI_BITFIELDS if alpha); <= 256 colours: 8-bit + RLE8; <= 16 colours: RLE4 | — | Animated -> first frame + warning |
 
 ## UI (TinyPNG-style)
 
-- Format picker: segmented `radiogroup` PNG / JPG / WebP / GIF / BMP, remembered in localStorage.
+- Format picker: segmented `radiogroup` **Original** (default, "Keep each file's format — just make
+  it smaller") / PNG / JPG / WebP / GIF / BMP, remembered in localStorage. Original never gets
+  disabled on a codec error, since the failing codec depends on each file.
 - Large full-width dashed drop zone (click, drag-and-drop, Ctrl+V paste); `<button>` + hidden
   `<input type="file" multiple>`.
 - Compression starts on drop — no Compress button. Files are processed sequentially.
@@ -115,7 +119,7 @@ Pipeline: imagequant 128c -> oxipng    Mode: visually lossless    SSIM: 0.9971
 - Codec WASM fails to load -> that format's button disabled with tooltip.
 - Single encoder throws or exceeds 30 s -> candidate skipped, logged in row details; worker is
   terminated and recreated if it wedges.
-- Memory guard: refuse > 40 MP static, or width x height x frames > 400 MP animated.
+- Memory guard: refuse > 40 MP static, or width x height x frames > 100 MP animated (checked from file headers before decoding).
 - Every job has an id; results for stale ids (file removed / format changed) are ignored.
 
 ## Testing
@@ -149,7 +153,7 @@ Jest/jsdom cannot run the WASM codecs, so logic is kept in pure, injectable unit
   4097) — no downscaled copy.
 - **"Already optimal" returns the original bytes unchanged,** so its metadata is not stripped;
   the report says so.
-- **Watchdog lives in the hook** (60 s without a progress message -> terminate + recreate the
+- **Watchdog lives in the hook** (120 s without a progress message -> terminate + recreate the
   worker): WASM encodes are synchronous, so a timer inside the worker can't fire mid-encode.
 
 ## Removals
