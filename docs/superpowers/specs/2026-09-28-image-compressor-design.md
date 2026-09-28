@@ -133,6 +133,25 @@ Jest/jsdom cannot run the WASM codecs, so logic is kept in pure, injectable unit
 - Manual real-codec smoke test in the browser on 5 samples (photo, screenshot, alpha icon,
   animated GIF, flat illustration); sizes + SSIM recorded in the PR.
 
+## Decisions made during planning
+
+- **Licensing:** libimagequant (pngquant engine) is GPL-3.0 and gifsicle is GPL-2.0. The owner
+  chose to ship them anyway (2026-09-28). The page shows a third-party licence line naming both.
+- **Lossless check = lossless by contract.** Decoding an output through canvas premultiplies
+  alpha and would falsely fail semi-transparent pixels, so lossless candidates (oxipng, WebP
+  lossless `exact`, APNG `cnum 0`, BMP, gifsicle `-O3` on GIF input) are trusted, not re-decoded.
+  Lossy candidates are decoded with the codec's own decoder (jsquash decode, UPNG, gifuct, or
+  the quantizer's palette indices) — never via canvas.
+- **Source decode without canvas where alpha matters:** PNG/APNG via UPNG, GIF via gifuct,
+  static WebP via `@jsquash/webp`. JPG/BMP/other go through `createImageBitmap` (applies EXIF
+  orientation and ICC -> sRGB).
+- **Analyze runs on the full-resolution first frame** (single O(n) pass, colour count exits at
+  4097) — no downscaled copy.
+- **"Already optimal" returns the original bytes unchanged,** so its metadata is not stripped;
+  the report says so.
+- **Watchdog lives in the hook** (60 s without a progress message -> terminate + recreate the
+  worker): WASM encodes are synchronous, so a timer inside the worker can't fire mid-encode.
+
 ## Removals
 
 Current scale / colour-depth / target-KB controls and the legacy `compressImage` /
