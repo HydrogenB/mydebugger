@@ -12,6 +12,7 @@ import {
   encodeWebp,
   gifBase,
   gifsicle,
+  oxipngLevel,
   oxipngLossless,
   pngquant,
 } from './encoders';
@@ -50,11 +51,12 @@ export const planPng = (img: DecodedImage, a: Analysis): FormatPlan => {
     };
   }
   const f = img.frames[0];
+  const level = oxipngLevel(f.data.width * f.data.height);
   return {
     reference: [f],
     warnings: [],
     families: [
-      { name: 'lossless', candidates: [{ label: 'oxipng -o4', lossless: true, run: () => oxipngLossless(f) }] },
+      { name: 'lossless', candidates: [{ label: `oxipng -o${level}`, lossless: true, run: () => oxipngLossless(f) }] },
       {
         name: 'pngquant',
         candidates: [64, 128, 256].map((n) => ({

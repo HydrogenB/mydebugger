@@ -15,6 +15,7 @@ jest.mock('../src/tools/image-compressor/lib/encoders', () => {
     gifsicle: fake('gs'),
     gifBase: jest.fn(async () => new Uint8Array([7])),
     bmp: jest.requireActual('../src/tools/image-compressor/lib/encoders').bmp,
+    oxipngLevel: jest.requireActual('../src/tools/image-compressor/lib/encoders').oxipngLevel,
   };
 });
 // eslint-disable-next-line import/first
