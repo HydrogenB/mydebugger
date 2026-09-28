@@ -4,12 +4,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { UseImageCompressorReturn } from '../hooks/useImageCompressor';
 import { formatBytes, outputName } from '../lib/format';
-import { OUTPUT_FORMATS, type OutputFormat } from '../lib/types';
+import { OUTPUT_FORMATS, type FormatChoice } from '../lib/types';
 import FileRow from './FileRow';
 
 export { formatBytes, outputName };
 
-const LABEL: Record<OutputFormat, string> = { png: 'PNG', jpg: 'JPG', webp: 'WebP', gif: 'GIF', bmp: 'BMP' };
+const LABEL: Record<FormatChoice, string> = {
+  original: 'Original', png: 'PNG', jpg: 'JPG', webp: 'WebP', gif: 'GIF', bmp: 'BMP',
+};
+const CHOICES: FormatChoice[] = ['original', ...OUTPUT_FORMATS];
 
 const saveBlob = (blob: Blob, name: string) => {
   const url = URL.createObjectURL(blob);
@@ -57,8 +60,11 @@ export default function ImageCompressorView({
   return (
     <div className="space-y-4">
       <div role="radiogroup" aria-label="Output format" className="inline-flex rounded-lg border border-gray-200 dark:border-gray-700 p-1 bg-white dark:bg-gray-800">
-        {OUTPUT_FORMATS.map((f) => {
-          const off = unavailable.includes(f);
+        {CHOICES.map((f) => {
+          const off = f !== 'original' && unavailable.includes(f);
+          let title: string | undefined;
+          if (off) title = 'This encoder failed to load. Check your connection and reload.';
+          else if (f === 'original') title = 'Keep each file’s format — just make it smaller';
           return (
             <button
               key={f}
@@ -66,7 +72,7 @@ export default function ImageCompressorView({
               role="radio"
               aria-checked={format === f}
               disabled={off}
-              title={off ? 'This encoder failed to load. Check your connection and reload.' : undefined}
+              title={title}
               onClick={() => setFormat(f)}
               className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                 format === f ? 'bg-primary-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'

@@ -4,8 +4,10 @@ Date: 2026-09-28 · Route: `/image-compressor` · Status: approved design
 
 ## Goal
 
-The user picks only **input image(s)** and **output format** (PNG / JPG / WebP / GIF / BMP).
-The system decides everything else: it analyzes the image, builds a candidate set of encodes for
+The user picks only **input image(s)** and, optionally, an **output format**. The default is
+**Original**: each file is compressed in its own format (PNG stays PNG, JPG stays JPG…;
+browser-only inputs such as HEIC/AVIF become JPG). PNG / JPG / WebP / GIF / BMP are explicit
+conversion choices. The system decides everything else: it analyzes the image, builds a candidate set of encodes for
 the chosen format, checks each against the original (pixel-identical or SSIM), and returns the
 **smallest file that passes**, with a report of what it chose and why.
 
@@ -87,7 +89,9 @@ libimagequant WASM, `gifsicle-wasm-browser`, `upng-js`, `gifuct-js`, `gifenc`, `
 
 ## UI (TinyPNG-style)
 
-- Format picker: segmented `radiogroup` PNG / JPG / WebP / GIF / BMP, remembered in localStorage.
+- Format picker: segmented `radiogroup` **Original** (default, "Keep each file's format — just make
+  it smaller") / PNG / JPG / WebP / GIF / BMP, remembered in localStorage. Original never gets
+  disabled on a codec error, since the failing codec depends on each file.
 - Large full-width dashed drop zone (click, drag-and-drop, Ctrl+V paste); `<button>` + hidden
   `<input type="file" multiple>`.
 - Compression starts on drop — no Compress button. Files are processed sequentially.

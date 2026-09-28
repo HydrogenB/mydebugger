@@ -14,7 +14,7 @@ const ImageCompressorPage: React.FC = () => {
     <ToolLayout
       tool={tool!}
       title="Image Compressor"
-      description="Pick an output format and drop your images — we try several encoders and keep the smallest file that still looks the same. Everything runs in your browser."
+      description="Drop images to make them smaller in the same format, or pick a format to convert to. We try several encoders and keep the smallest file that still looks the same — everything runs in your browser."
       showRelatedTools
     >
       <ImageCompressorView {...vm} />

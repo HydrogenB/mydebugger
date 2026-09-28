@@ -21,7 +21,7 @@ const done = (id: number, name: string): QueueItem => ({
 });
 
 const vm = (over: Partial<UseImageCompressorReturn> = {}): UseImageCompressorReturn => ({
-  format: 'webp', setFormat: jest.fn(), items: [], addFiles: jest.fn(), removeItem: jest.fn(), clear: jest.fn(), unavailable: [],
+  format: 'original', setFormat: jest.fn(), items: [], addFiles: jest.fn(), removeItem: jest.fn(), clear: jest.fn(), unavailable: [],
   ...over,
 });
 
@@ -38,12 +38,17 @@ describe('helpers', () => {
 });
 
 describe('ImageCompressorView', () => {
-  it('shows the five formats as a radio group', () => {
+  it('shows Original plus the five formats as a radio group, Original checked by default', () => {
     const setFormat = jest.fn();
-    render(<ImageCompressorView {...vm({ setFormat, unavailable: ['gif'] })} />);
+    const { rerender } = render(<ImageCompressorView {...vm({ setFormat, unavailable: ['gif'] })} />);
     const group = screen.getByRole('radiogroup', { name: 'Output format' });
     expect(group).toBeInTheDocument();
-    expect(screen.getAllByRole('radio')).toHaveLength(5);
+    const radios = screen.getAllByRole('radio');
+    expect(radios).toHaveLength(6);
+    expect(radios[0]).toHaveAccessibleName('Original');
+    expect(radios[0]).toHaveAttribute('aria-checked', 'true');
+    expect(radios[0]).toHaveAttribute('title', 'Keep each file’s format — just make it smaller');
+    rerender(<ImageCompressorView {...vm({ setFormat, format: 'webp', unavailable: ['gif'] })} />);
     expect(screen.getByRole('radio', { name: 'WebP' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByRole('radio', { name: 'GIF' })).toBeDisabled();
     fireEvent.click(screen.getByRole('radio', { name: 'PNG' }));

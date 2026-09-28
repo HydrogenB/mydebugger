@@ -37,8 +37,8 @@ beforeEach(() => {
 });
 
 describe('useImageCompressor', () => {
-  it('defaults to WebP and restores the saved format', () => {
-    expect(renderHook(() => useImageCompressor(factory)).result.current.format).toBe('webp');
+  it('defaults to Original and restores the saved format', () => {
+    expect(renderHook(() => useImageCompressor(factory)).result.current.format).toBe('original');
     localStorage.setItem(FORMAT_KEY, 'png');
     expect(renderHook(() => useImageCompressor(factory)).result.current.format).toBe('png');
   });
@@ -47,7 +47,7 @@ describe('useImageCompressor', () => {
     const { result: r } = renderHook(() => useImageCompressor(factory));
     act(() => r.current.addFiles([file('a.png'), file('b.png')]));
     await posted(1);
-    expect(last().posted[0]).toMatchObject({ type: 'compress', jobId: 1, format: 'webp' });
+    expect(last().posted[0]).toMatchObject({ type: 'compress', jobId: 1, format: 'original' });
     expect(r.current.items.map((i) => i.status)).toEqual(['working', 'queued']);
 
     last().emit({ type: 'progress', jobId: 1, step: 'WebP q80' });
@@ -68,12 +68,22 @@ describe('useImageCompressor', () => {
   });
 
   it('marks a format unavailable on codec errors', async () => {
+    localStorage.setItem(FORMAT_KEY, 'webp');
     const { result: r } = renderHook(() => useImageCompressor(factory));
     act(() => r.current.addFiles([file('a.png')]));
     await posted(1);
     last().emit({ type: 'error', jobId: 1, code: 'codec', message: 'Couldn’t load the WEBP encoder' });
     expect(r.current.items[0]).toMatchObject({ status: 'error', error: 'Couldn’t load the WEBP encoder' });
     expect(r.current.unavailable).toEqual(['webp']);
+  });
+
+  it('never marks Original unavailable — the failing codec depends on each file', async () => {
+    const { result: r } = renderHook(() => useImageCompressor(factory));
+    act(() => r.current.addFiles([file('a.png')]));
+    await posted(1);
+    last().emit({ type: 'error', jobId: 1, code: 'codec', message: 'Couldn’t load the PNG encoder' });
+    expect(r.current.items[0].status).toBe('error');
+    expect(r.current.unavailable).toEqual([]);
   });
 
   it('changing the format restarts every valid file with a fresh worker', async () => {

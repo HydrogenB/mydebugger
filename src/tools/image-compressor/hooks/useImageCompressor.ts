@@ -6,6 +6,7 @@ import { createCompressWorker } from '../workers/createCompressWorker';
 import {
   OUTPUT_FORMATS,
   type CompressResult,
+  type FormatChoice,
   type OutputFormat,
   type WorkerRequest,
   type WorkerResponse,
@@ -29,23 +30,23 @@ export interface QueueItem {
   invalid?: boolean;
 }
 
-const readFormat = (): OutputFormat => {
+const readFormat = (): FormatChoice => {
   try {
-    const saved = localStorage.getItem(FORMAT_KEY) as OutputFormat | null;
-    return saved && OUTPUT_FORMATS.includes(saved) ? saved : 'webp';
+    const saved = localStorage.getItem(FORMAT_KEY) as FormatChoice | null;
+    return saved && (saved === 'original' || OUTPUT_FORMATS.includes(saved)) ? saved : 'original';
   } catch {
-    return 'webp';
+    return 'original';
   }
 };
 
 interface ActiveJob {
   jobId: number;
   itemId: number;
-  format: OutputFormat;
+  format: FormatChoice;
 }
 
 export const useImageCompressor = (createWorker: () => Worker = createCompressWorker) => {
-  const [format, setFormatState] = useState<OutputFormat>(readFormat);
+  const [format, setFormatState] = useState<FormatChoice>(readFormat);
   const [items, setItems] = useState<QueueItem[]>([]);
   const [unavailable, setUnavailable] = useState<OutputFormat[]>([]);
 
@@ -89,8 +90,10 @@ export const useImageCompressor = (createWorker: () => Worker = createCompressWo
     if (m.type === 'done') {
       patch(job.itemId, { status: 'done', step: '', result: m.result });
     } else {
-      if (m.code === 'codec') {
-        setUnavailable((u) => (u.includes(job.format) ? u : [...u, job.format]));
+      // Under 'original' the failing codec depends on the file, so don't disable the choice.
+      const f = job.format;
+      if (m.code === 'codec' && f !== 'original') {
+        setUnavailable((u) => (u.includes(f) ? u : [...u, f]));
       }
       patch(job.itemId, { status: 'error', step: '', error: m.message });
     }
@@ -151,7 +154,7 @@ export const useImageCompressor = (createWorker: () => Worker = createCompressWo
     });
   }, []);
 
-  const setFormat = useCallback((next: OutputFormat) => {
+  const setFormat = useCallback((next: FormatChoice) => {
     try {
       localStorage.setItem(FORMAT_KEY, next);
     } catch {

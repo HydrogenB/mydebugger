@@ -5,9 +5,17 @@ import { compress, PipelineError } from '../src/tools/image-compressor/lib/pipel
 import { TooBigError } from '../src/tools/image-compressor/lib/decode';
 import type { DecodedImage } from '../src/tools/image-compressor/lib/types';
 
+const mockLoadJpeg = jest.fn();
 jest.mock('../src/tools/image-compressor/lib/codecs', () => ({
-  loadJpeg: () => Promise.reject(new Error('offline')),
+  loadJpeg: () => mockLoadJpeg(),
+  toImageData: (p: unknown) => p,
+  fromImageData: (d: unknown) => d,
 }));
+
+beforeEach(() => {
+  mockLoadJpeg.mockReset();
+  mockLoadJpeg.mockRejectedValue(new Error('offline'));
+});
 
 const threeColours = (): DecodedImage => {
   const w = 40;
@@ -56,5 +64,21 @@ describe('compress', () => {
     expect(err).toBeInstanceOf(PipelineError);
     expect(err.code).toBe('codec');
     expect(err.message).toMatch(/^Couldn’t load the JPG encoder/);
+  });
+
+  it('Original keeps the source format', async () => {
+    const res = await compress(new Uint8Array(5000), 'original', undefined, async () => ({ ...threeColours(), source: 'bmp' }));
+    expect(res.ext).toBe('bmp');
+    expect(res.mime).toBe('image/bmp');
+  });
+
+  it('Original turns browser-only formats (HEIC/AVIF) into JPG', async () => {
+    mockLoadJpeg.mockResolvedValue({
+      encode: async () => new Uint8Array(3).buffer,
+      decode: async () => ({ ...threeColours().frames[0].data }),
+    });
+    const res = await compress(new Uint8Array(5000), 'original', undefined, async () => ({ ...threeColours(), source: 'unknown' }));
+    expect(res.ext).toBe('jpg');
+    expect(res.mime).toBe('image/jpeg');
   });
 });

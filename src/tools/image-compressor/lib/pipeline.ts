@@ -5,7 +5,7 @@ import { analyze } from './analyze';
 import { decode, TooBigError } from './decode';
 import { planFor } from './plans';
 import { selectBest, thresholdFor } from './select';
-import { MIME, type CompressResult, type ErrorCode, type Mode, type OutputFormat } from './types';
+import { MIME, type CompressResult, type ErrorCode, type FormatChoice, type Mode } from './types';
 
 export class PipelineError extends Error {
   constructor(public code: ErrorCode, message: string) {
@@ -17,7 +17,7 @@ const ORIGINAL_KEPT = 'The original file was already the smallest, so it was ret
 
 export const compress = async (
   bytes: Uint8Array,
-  format: OutputFormat,
+  choice: FormatChoice,
   onStep: (step: string) => void = () => {},
   decodeFn: typeof decode = decode,
 ): Promise<CompressResult> => {
@@ -29,6 +29,9 @@ export const compress = async (
     if (err instanceof TooBigError) throw new PipelineError('too-big', err.message);
     throw new PipelineError('decode', 'Can’t read this image in your browser.');
   }
+
+  // Browser-only inputs (HEIC, AVIF…) have no encoder of their own, so 'original' makes them JPG.
+  const format = choice === 'original' ? (img.source === 'unknown' ? 'jpg' : img.source) : choice;
 
   onStep('Analyzing');
   const a = analyze(img);

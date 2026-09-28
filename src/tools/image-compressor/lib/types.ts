@@ -3,6 +3,8 @@
  */
 export type OutputFormat = 'png' | 'jpg' | 'webp' | 'gif' | 'bmp';
 export type SourceFormat = OutputFormat | 'unknown';
+/** 'original' = compress in each file's own format (the default). */
+export type FormatChoice = OutputFormat | 'original';
 export type ImageClass = 'photo' | 'ui' | 'flat';
 
 /** Structural stand-in for ImageData (jsdom has no ImageData). */
@@ -85,7 +87,7 @@ export type WorkerRequest = {
   type: 'compress';
   jobId: number;
   bytes: ArrayBuffer;
-  format: OutputFormat;
+  format: FormatChoice;
 };
 
 export type WorkerResponse =
