@@ -1,6 +1,7 @@
 /**
  * © 2026 MyDebugger Contributors – MIT License
  */
+import { CodecLoadError } from './codecs';
 import { hasAlpha } from './pixels';
 import { compareFrames } from './ssim';
 import type { Candidate, EncodeOutput, Family, Frame, ImageClass } from './types';
@@ -21,6 +22,8 @@ export interface Selection {
   best: Evaluated | null;
   passed: boolean;
   skipped: string[];
+  /** Something was skipped and every skip was a codec that failed to load (not a runtime failure). */
+  loadFailed: boolean;
 }
 
 export interface SelectInput {
@@ -51,6 +54,7 @@ const evaluate = (
 export const selectBest = async ({ reference, threshold, families, onStep }: SelectInput): Promise<Selection> => {
   const refAlpha = reference.some((f) => hasAlpha(f.data));
   const skipped: string[] = [];
+  let loadErrors = 0;
   const passing: Evaluated[] = [];
   let bestFailing: Evaluated | null = null;
 
@@ -63,7 +67,8 @@ export const selectBest = async ({ reference, threshold, families, onStep }: Sel
         // eslint-disable-next-line no-await-in-loop
         out = await c.run();
       } catch (err) {
-        skipped.push(`${c.label}: ${(err as Error).message}`);
+        if (err instanceof CodecLoadError) loadErrors += 1;
+        skipped.push(`${c.label}: ${err instanceof Error ? err.message : String(err)}`);
         continue;
       }
       const ev = evaluate(c, out, reference, threshold, refAlpha);
@@ -75,9 +80,10 @@ export const selectBest = async ({ reference, threshold, families, onStep }: Sel
     }
   }
 
+  const loadFailed = skipped.length > 0 && loadErrors === skipped.length;
   if (passing.length) {
     const best = passing.reduce((a, b) => (b.bytes.length < a.bytes.length ? b : a));
-    return { best, passed: true, skipped };
+    return { best, passed: true, skipped, loadFailed };
   }
-  return { best: bestFailing, passed: false, skipped };
+  return { best: bestFailing, passed: false, skipped, loadFailed };
 };

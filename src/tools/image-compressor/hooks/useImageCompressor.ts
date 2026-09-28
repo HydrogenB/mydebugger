@@ -102,10 +102,20 @@ export const useImageCompressor = (createWorker: () => Worker = createCompressWo
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
 
+  const onError = useCallback(() => {
+    const job = activeRef.current;
+    stopWorker();
+    if (job) patch(job.itemId, { status: 'error', step: '', error: 'The compressor crashed or failed to load — reload the page.' });
+  }, [patch, stopWorker]);
+  const onErrorRef = useRef(onError);
+  onErrorRef.current = onError;
+
   const getWorker = useCallback(() => {
     if (!workerRef.current) {
       const w = createWorker();
       w.onmessage = (e: MessageEvent<WorkerResponse>) => onMessageRef.current(e.data);
+      // Chunk 404 after a redeploy, or an OOM crash: fail the file now instead of waiting for the watchdog.
+      w.onerror = () => onErrorRef.current();
       workerRef.current = w;
     }
     return workerRef.current;

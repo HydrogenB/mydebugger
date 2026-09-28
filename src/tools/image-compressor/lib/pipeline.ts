@@ -44,7 +44,11 @@ export const compress = async (
   });
 
   if (!sel.best) {
-    throw new PipelineError('codec', `Couldn’t load the ${format.toUpperCase()} encoder (${sel.skipped.join('; ')}).`);
+    // 'codec' disables the format in the UI, so reserve it for loader failures.
+    if (sel.loadFailed) {
+      throw new PipelineError('codec', `Couldn’t load the ${format.toUpperCase()} encoder (${sel.skipped.join('; ')}).`);
+    }
+    throw new PipelineError('internal', `Every encoder failed for this image (${sel.skipped.join('; ')}).`);
   }
 
   const warnings = [...img.warnings, ...plan.warnings];

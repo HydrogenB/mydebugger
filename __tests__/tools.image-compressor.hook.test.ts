@@ -13,11 +13,13 @@ import type { CompressResult, WorkerRequest, WorkerResponse } from '../src/tools
 class FakeWorker {
   static all: FakeWorker[] = [];
   onmessage: ((e: MessageEvent<WorkerResponse>) => void) | null = null;
+  onerror: ((e: Event) => void) | null = null;
   posted: WorkerRequest[] = [];
   terminate = jest.fn();
   constructor() { FakeWorker.all.push(this); }
   postMessage(m: WorkerRequest) { this.posted.push(m); }
   emit(m: WorkerResponse) { act(() => { this.onmessage?.({ data: m } as MessageEvent<WorkerResponse>); }); }
+  crash() { act(() => { this.onerror?.(new Event('error')); }); }
 }
 const factory = () => new FakeWorker() as unknown as Worker;
 const last = () => FakeWorker.all[FakeWorker.all.length - 1];
@@ -125,6 +127,20 @@ describe('useImageCompressor', () => {
     } finally {
       jest.useRealTimers();
     }
+  });
+
+  it('fails the file at once when the worker crashes or fails to load, then moves on', async () => {
+    const { result: r } = renderHook(() => useImageCompressor(factory));
+    act(() => r.current.addFiles([file('a.png'), file('b.png')]));
+    await posted(1);
+    const crashed = last();
+    crashed.crash();
+    expect(crashed.terminate).toHaveBeenCalled();
+    expect(r.current.items[0]).toMatchObject({ status: 'error', error: 'The compressor crashed or failed to load — reload the page.' });
+    await waitFor(() => expect(FakeWorker.all).toHaveLength(2));
+    await posted(1);
+    expect(last().posted[0]).toMatchObject({ jobId: 2 });
+    expect(r.current.items[1].status).toBe('working');
   });
 
   it('removes items and clears the queue', async () => {

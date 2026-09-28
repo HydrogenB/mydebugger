@@ -127,6 +127,8 @@ export const gifBase = async (frames: Frame[]): Promise<Uint8Array> => {
   return gif.bytes();
 };
 
+export const GIFSICLE_TIMEOUT_MS = 30_000;
+
 export const gifsicle = async (
   getBase: () => Promise<Uint8Array>,
   args: string,
@@ -135,10 +137,26 @@ export const gifsicle = async (
 ): Promise<EncodeOutput> => {
   const { default: gs } = await loadGifsicle();
   const base = await getBase();
-  const [file] = await gs.run({
-    input: [{ file: base.slice().buffer, name: 'in.gif' }],
-    command: [`${args} in.gif -o /out/out.gif`],
+  // gifsicle-wasm-browser's run() can hang forever, resolves null on a worker error, and rejects
+  // with strings — so bound it and normalise every failure to an Error.
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('gifsicle timed out')), GIFSICLE_TIMEOUT_MS);
   });
+  let files: unknown;
+  try {
+    files = await Promise.race([
+      gs.run({
+        input: [{ file: base.slice().buffer, name: 'in.gif' }],
+        command: [`${args} in.gif -o /out/out.gif`],
+      }),
+      timeout,
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+  if (!Array.isArray(files)) throw new Error('gifsicle failed');
+  const [file] = files as File[];
   if (!file) throw new Error('gifsicle produced no output');
   const bytes = new Uint8Array(await file.arrayBuffer());
   return { bytes, frames: lossless ? frames : await decodeGif(bytes) };

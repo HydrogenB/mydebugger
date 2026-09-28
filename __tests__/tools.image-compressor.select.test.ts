@@ -1,6 +1,7 @@
 /**
  * © 2026 MyDebugger Contributors – MIT License
  */
+import { CodecLoadError } from '../src/tools/image-compressor/lib/codecs';
 import { selectBest, thresholdFor } from '../src/tools/image-compressor/lib/select';
 import type { Candidate, Frame, Pixels } from '../src/tools/image-compressor/lib/types';
 
@@ -99,10 +100,22 @@ describe('selectBest', () => {
     expect(sel.passed).toBe(false);
   });
 
-  it('returns null when every candidate throws', async () => {
+  it('returns null when every candidate throws, and says whether only loaders failed', async () => {
     const boom: Candidate = { label: 'x', lossless: false, run: async () => { throw new Error('offline'); } };
     const sel = await selectBest({ reference: ref, threshold: 0.99, families: [{ name: 'l', candidates: [boom] }] });
     expect(sel.best).toBeNull();
     expect(sel.skipped).toHaveLength(1);
+    expect(sel.loadFailed).toBe(false);
+
+    const noLoad: Candidate = { label: 'y', lossless: false, run: async () => { throw new CodecLoadError('404'); } };
+    const sel2 = await selectBest({ reference: ref, threshold: 0.99, families: [{ name: 'l', candidates: [noLoad] }] });
+    expect(sel2.loadFailed).toBe(true);
+  });
+
+  it('records a candidate that rejects with a plain string', async () => {
+    // eslint-disable-next-line prefer-promise-reject-errors
+    const str: Candidate = { label: 'gs', lossless: false, run: () => Promise.reject('worker died') };
+    const sel = await selectBest({ reference: ref, threshold: 0.99, families: [{ name: 'l', candidates: [str] }] });
+    expect(sel.skipped).toEqual(['gs: worker died']);
   });
 });

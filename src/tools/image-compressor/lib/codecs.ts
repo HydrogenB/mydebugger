@@ -6,6 +6,20 @@
  */
 import type { Pixels } from './types';
 
+/** A codec module or its WASM failed to load (offline, stale deploy) — as opposed to failing on an image. */
+export class CodecLoadError extends Error {}
+
+const asLoadError = (err: unknown): never => {
+  throw new CodecLoadError(err instanceof Error ? err.message : String(err));
+};
+
+/**
+ * ponytail: @jsquash/jpeg and @jsquash/webp fetch their WASM lazily inside the first encode()/decode(),
+ * so a WASM 404 there surfaces as a runtime failure ('internal'), not a CodecLoadError. Upgrade path:
+ * call their per-module init() here once jsquash exposes an awaitable one.
+ */
+const guard = <T>(load: () => Promise<T>) => (): Promise<T> => load().catch(asLoadError);
+
 type OxipngCodec = typeof import('@jsquash/oxipng/codec/pkg/squoosh_oxipng.js');
 type OxipngOptions = { level: number; optimiseAlpha?: boolean };
 
@@ -27,7 +41,7 @@ const loadOxipngCodec = (): Promise<OxipngCodec> => {
       return mod;
     })().catch((err) => {
       oxipng = null; // allow a retry after a network hiccup
-      throw err;
+      return asLoadError(err);
     });
   }
   return oxipng;
@@ -48,18 +62,18 @@ export const loadOxipng = async () => {
     },
   };
 };
-export const loadJpeg = () => import('@jsquash/jpeg');
-export const loadWebp = () => import('@jsquash/webp');
-export const loadUpng = () => import('upng-js');
-export const loadGifenc = () => import('gifenc');
-export const loadGifuct = () => import('gifuct-js');
-export const loadGifsicle = async () => {
+export const loadJpeg = guard(() => import('@jsquash/jpeg'));
+export const loadWebp = guard(() => import('@jsquash/webp'));
+export const loadUpng = guard(() => import('upng-js'));
+export const loadGifenc = guard(() => import('gifenc'));
+export const loadGifuct = guard(() => import('gifuct-js'));
+export const loadGifsicle = guard(async () => {
   // ponytail: gifsicle-wasm-browser's testType() does `x instanceof Element`, which throws in a Worker
   // (no DOM) and silently hangs run(); a stub class makes that check return false. Drop if the lib fixes it.
   const g = globalThis as { Element?: unknown };
   if (typeof g.Element === 'undefined') g.Element = class {};
   return import('gifsicle-wasm-browser');
-};
+});
 
 type Liq = typeof import('libimagequant-wasm/wasm/libimagequant_wasm.js');
 let liq: Promise<Liq> | null = null;
@@ -76,7 +90,7 @@ export const loadImagequant = (): Promise<Liq> => {
       return mod;
     })().catch((err) => {
       liq = null; // allow a retry after a network hiccup
-      throw err;
+      return asLoadError(err);
     });
   }
   return liq;

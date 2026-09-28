@@ -3,10 +3,12 @@
  */
 import { compress, PipelineError } from '../src/tools/image-compressor/lib/pipeline';
 import { TooBigError } from '../src/tools/image-compressor/lib/decode';
+import { CodecLoadError } from '../src/tools/image-compressor/lib/codecs';
 import type { DecodedImage } from '../src/tools/image-compressor/lib/types';
 
 const mockLoadJpeg = jest.fn();
 jest.mock('../src/tools/image-compressor/lib/codecs', () => ({
+  CodecLoadError: jest.requireActual('../src/tools/image-compressor/lib/codecs').CodecLoadError,
   loadJpeg: () => mockLoadJpeg(),
   toImageData: (p: unknown) => p,
   fromImageData: (d: unknown) => d,
@@ -14,7 +16,8 @@ jest.mock('../src/tools/image-compressor/lib/codecs', () => ({
 
 beforeEach(() => {
   mockLoadJpeg.mockReset();
-  mockLoadJpeg.mockRejectedValue(new Error('offline'));
+  // Real loaders wrap import/init failures in CodecLoadError (lib/codecs.ts).
+  mockLoadJpeg.mockRejectedValue(new CodecLoadError('offline'));
 });
 
 const threeColours = (): DecodedImage => {
@@ -64,6 +67,17 @@ describe('compress', () => {
     expect(err).toBeInstanceOf(PipelineError);
     expect(err.code).toBe('codec');
     expect(err.message).toMatch(/^Couldn’t load the JPG encoder/);
+  });
+
+  it('reports an internal error, not a codec error, when an encoder fails at runtime', async () => {
+    mockLoadJpeg.mockResolvedValue({
+      encode: async () => { throw new Error('memory access out of bounds'); },
+      decode: async () => threeColours().frames[0].data,
+    });
+    const err = await compress(new Uint8Array(1), 'jpg', undefined, async () => threeColours()).catch((e) => e);
+    expect(err).toBeInstanceOf(PipelineError);
+    expect(err.code).toBe('internal');
+    expect(err.message).toMatch(/^Every encoder failed for this image \(mozjpeg q\d+: memory access out of bounds;/);
   });
 
   it('Original keeps the source format', async () => {
