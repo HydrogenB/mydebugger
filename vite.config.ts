@@ -49,7 +49,10 @@ export default defineConfig({
     format: 'es',
   },
   optimizeDeps: {
-    exclude: ['@prisma/client', '@jsquash/oxipng', '@jsquash/jpeg', '@jsquash/webp'],
+    exclude: [
+      '@prisma/client', '@jsquash/oxipng', '@jsquash/jpeg', '@jsquash/webp',
+      'libimagequant-wasm', 'gifsicle-wasm-browser',
+    ],
     include: ['@neslinesli93/qpdf-wasm'],
   }
 })

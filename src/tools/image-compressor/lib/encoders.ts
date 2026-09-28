@@ -148,7 +148,8 @@ export const gifsicle = async (
     files = await Promise.race([
       gs.run({
         input: [{ file: base.slice().buffer, name: 'in.gif' }],
-        command: [`${args} in.gif -o /out/out.gif`],
+        // Strip comments/names (metadata). Not --no-extensions: unsure it keeps the NETSCAPE loop.
+        command: [`${args} --no-comments --no-names in.gif -o /out/out.gif`],
       }),
       timeout,
     ]);

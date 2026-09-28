@@ -94,4 +94,11 @@ describe('ImageCompressorView', () => {
     expect(screen.getByRole('button', { name: /download all/i })).toBeEnabled();
     expect(screen.getByText(/Saved 6\.0 KB/)).toBeInTheDocument();
   });
+
+  it('says when the output grew instead of claiming 0 B saved', () => {
+    const grew = done(4, 'd.png');
+    grew.result!.report.outputBytes = 15360; // input is 10 KB
+    render(<ImageCompressorView {...vm({ items: [grew] })} />);
+    expect(screen.getByText('Output is 5.0 KB larger than input (+50%)')).toBeInTheDocument();
+  });
 });

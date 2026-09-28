@@ -20,7 +20,8 @@ const saveBlob = (blob: Blob, name: string) => {
   a.href = url;
   a.download = name;
   a.click();
-  URL.revokeObjectURL(url);
+  // Revoking synchronously can abort the download in Safari/Firefox.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 export default function ImageCompressorView({
@@ -41,6 +42,13 @@ export default function ImageCompressorView({
   const done = items.filter((it) => it.status === 'done' && it.result);
   const inputTotal = done.reduce((n, it) => n + it.file.size, 0);
   const outputTotal = done.reduce((n, it) => n + (it.result?.report.outputBytes ?? 0), 0);
+  const pct = Math.round(Math.abs(1 - outputTotal / inputTotal) * 100);
+  let summary = 'Compressing…';
+  if (done.length > 0) {
+    summary = outputTotal > inputTotal
+      ? `Output is ${formatBytes(outputTotal - inputTotal)} larger than input (+${pct}%)`
+      : `Saved ${formatBytes(inputTotal - outputTotal)} total (−${pct}%)`;
+  }
 
   const downloadAll = async () => {
     const { zipSync } = await import('fflate');
@@ -129,9 +137,7 @@ export default function ImageCompressorView({
           </ul>
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
             <span className="text-gray-600 dark:text-gray-300">
-              {done.length > 0
-                ? `Saved ${formatBytes(Math.max(0, inputTotal - outputTotal))} total (−${Math.max(0, Math.round((1 - outputTotal / inputTotal) * 100))}%)`
-                : 'Compressing…'}
+              {summary}
             </span>
             <div className="flex gap-2">
               <button type="button" onClick={clear} className="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">

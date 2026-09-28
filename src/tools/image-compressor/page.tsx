@@ -19,8 +19,15 @@ const ImageCompressorPage: React.FC = () => {
     >
       <ImageCompressorView {...vm} />
       <p className="mt-6 text-xs text-gray-500">
-        Encoders: oxipng, MozJPEG, libwebp (Apache-2.0/BSD), libimagequant (GPL-3.0), gifsicle (GPL-2.0),
-        UPNG.js, gifenc, gifuct-js, fflate (MIT). Images never leave your device.
+        Encoders: oxipng (MIT), MozJPEG (IJG/BSD), libwebp (BSD),{' '}
+        <a href="https://github.com/ImageOptim/libimagequant" target="_blank" rel="noopener noreferrer" className="underline">
+          libimagequant
+        </a>{' '}
+        (GPL-3.0),{' '}
+        <a href="https://github.com/kohler/gifsicle" target="_blank" rel="noopener noreferrer" className="underline">
+          gifsicle
+        </a>{' '}
+        (GPL-2.0), UPNG.js, gifenc, gifuct-js, fflate (MIT). Images never leave your device.
       </p>
     </ToolLayout>
   );
